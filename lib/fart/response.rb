@@ -33,8 +33,12 @@ module Fart
     
     def write(socket)
       socket << head
-      body.rewind
-      socket << body.read
+      @body.rewind
+      socket << @body.read
+    end
+    
+    def close
+      @body.close
     end
     
     def start(status)

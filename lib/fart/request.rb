@@ -59,6 +59,10 @@ module Fart
       raise InvalidRequest, e.message
     end
     
+    def close
+      @body.close
+    end
+    
     def to_s
       @body.rewind
       @body.readline

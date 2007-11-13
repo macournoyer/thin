@@ -24,12 +24,12 @@ module Fart
       logger.info "Fart web server - v#{VERSION}"
       logger.info "Listening on #{host}:#{port}"
       until @stop
-        client = @socket.accept
+        client = @socket.accept rescue nil
         break if @socket.closed?
         process(client)
-        client.close
       end
-    rescue Errno::EBADF => e # Bad file descriptor
+    ensure
+      @socket.close unless @socket.closed?
     end
     
     def process(client)
@@ -57,6 +57,10 @@ module Fart
         client.write ERROR_404_RESPONSE
       end
 
+      request.close
+      response.close
+      client.close
+      
       logger.debug {"Request handled in #{Time.now-start_time} sec"}
     rescue InvalidRequest => e
       logger.error "Invalid request : #{e.message}"
