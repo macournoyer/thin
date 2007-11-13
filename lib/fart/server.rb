@@ -30,7 +30,7 @@ module Fart
         process(client)
       end
     ensure
-      @socket.close unless @socket.closed?
+      @socket.close unless @socket.closed? rescue nil
     end
     
     def process(client)
@@ -56,9 +56,9 @@ module Fart
     rescue InvalidRequest => e
       logger.error "Invalid request : #{e.message}"
     ensure
-      request.close  if request
-      response.close if response
-      client.close   unless client.closed?
+      request.close  if request            rescue nil
+      response.close if response           rescue nil
+      client.close   unless client.closed? rescue nil
     end
     
     def stop
