@@ -87,10 +87,13 @@ Content-Length: 37
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     Benchmark.bm do |x|
-      x.report('   parse') { Fart::Request.new(body) }
       x.report('baseline') { body.match /.*/ }
+      x.report('   parse') { Fart::Request.new(body) }
     end
-    #       user     system      total        real
-    # parse  0.000000   0.000000   0.000000 (  0.000379)
+    #           user       system     total       real
+    # 1) parse  0.000000   0.000000   0.000000 (  0.000379)
+    # 2) parse  0.000000   0.000000   0.000000 (  0.000157)
+    # 3) parse  0.000000   0.000000   0.000000 (  0.000111)
+    # 4) parse  0.000000   0.000000   0.000000 (  0.000103)
   end
 end
