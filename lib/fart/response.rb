@@ -2,6 +2,9 @@ require 'stringio'
 
 module Fart
   class Response
+    CONNECTION = 'Connection'.freeze
+    CLOSE = 'close'.freeze
+    
     attr_accessor :body, :headers, :status
     
     def initialize
@@ -20,11 +23,12 @@ module Fart
     
     def headers_output
       @headers[CONTENT_LENGTH] = @body.size
+      @headers[CONNECTION] = CLOSE
       @headers.inject('') { |out, (name, value)| out << "#{name}: #{value}\r\n" }
     end
     
     def head
-      "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\nConnection: close\r\n#{headers_output}\r\n"
+      "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
     end
     
     def write(socket)
