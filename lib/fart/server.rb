@@ -22,7 +22,8 @@ module Fart
       trap('INT') { stop }
       
       logger.info "Fart web server - v#{VERSION}"
-      logger.info "Listening on #{host}:#{port}"
+      logger.info "Listening on #{host}:#{port}, CTRL+C to stop"
+      
       until @stop
         client = @socket.accept rescue nil
         break if @socket.closed?
@@ -40,16 +41,11 @@ module Fart
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
 
-      start_time = Time.now
-      logger.debug {"Handling request: #{request}"}
-
       served = false
       @handlers.each do |handler|
         served = handler.process(request, response)
         break if served
       end
-      
-      logger.debug {"Sending response: #{response}"}
       
       if served
         response.write client
@@ -57,17 +53,16 @@ module Fart
         client.write ERROR_404_RESPONSE
       end
 
-      request.close
-      response.close
-      client.close
-      
-      logger.debug {"Request handled in #{Time.now-start_time} sec"}
     rescue InvalidRequest => e
       logger.error "Invalid request : #{e.message}"
+    ensure
+      request.close  if request
+      response.close if response
+      client.close   unless client.closed?
     end
     
     def stop
-      logger.info 'Stopping...'
+      logger.info "\nStopping ..."
       @stop = true
       @socket.close
     end
