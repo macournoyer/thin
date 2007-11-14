@@ -1,6 +1,6 @@
 require 'cgi'
 
-module Fart
+module Thin
   # Class largely based on Mongrel::CGIWrapper
   # http://mongrel.rubyforge.org/ by Zed Shaw
   class CGIWrapper < ::CGI

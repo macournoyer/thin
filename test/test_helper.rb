@@ -1,10 +1,12 @@
 require 'rubygems'
-require File.dirname(__FILE__) + '/../lib/fart'
+require File.dirname(__FILE__) + '/../lib/thin'
 require 'test/unit'
 require 'mocha'
 require 'benchmark'
 
-class TestRequest < Fart::Request
+Thin::LOGGER = Logger.new(nil)
+
+class TestRequest < Thin::Request
   def initialize(path, verb='GET', params={})
     @path = path
     @verb = verb.to_s.upcase

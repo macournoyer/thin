@@ -1,4 +1,4 @@
-module Fart
+module Thin
   class Handler
     def logger
       LOGGER

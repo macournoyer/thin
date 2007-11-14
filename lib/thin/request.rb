@@ -1,6 +1,6 @@
 require 'uri'
 
-module Fart
+module Thin
   class InvalidRequest < StandardError; end
   
   class Request

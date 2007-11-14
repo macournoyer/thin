@@ -1,6 +1,6 @@
 require 'stringio'
 
-module Fart
+module Thin
   class Response
     CONNECTION = 'Connection'.freeze
     CLOSE = 'close'.freeze

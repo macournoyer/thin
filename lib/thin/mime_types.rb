@@ -1,4 +1,4 @@
-module Fart
+module Thin
   MIME_TYPES = {
     '.a' => 'application/octet-stream',
     '.abc' => 'text/vnd.abc',

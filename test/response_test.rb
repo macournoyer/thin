@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_outputs_headers
-    response = Fart::Response.new
+    response = Thin::Response.new
     response.content_type = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
@@ -10,7 +10,7 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_outputs_head
-    response = Fart::Response.new
+    response = Thin::Response.new
     response.content_type = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
@@ -18,7 +18,7 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_outputs_body
-    response = Fart::Response.new
+    response = Thin::Response.new
     response.content_type = 'text/html'
     response.body << '<html></html>'
     
@@ -30,7 +30,7 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_perfs
-    response = Fart::Response.new
+    response = Thin::Response.new
     response.content_type = 'text/html'
     response.body << <<-EOS
 <html><head><title>Dir listing</title></head>

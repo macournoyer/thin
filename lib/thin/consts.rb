@@ -1,9 +1,9 @@
-module Fart
+module Thin
   LOGGER = Logger.new(STDOUT)
   
   CHUNK_SIZE     = 16 * 1024
   VERSION        = '0.1'.freeze
-  SERVER         = "Fart #{VERSION}".freeze
+  SERVER         = "Thin #{VERSION}".freeze
   
   CONTENT_LENGTH = 'Content-Length'.freeze
   CONTENT_TYPE   = 'Content-Type'.freeze

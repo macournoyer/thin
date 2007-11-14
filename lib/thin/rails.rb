@@ -1,4 +1,4 @@
-module Fart
+module Thin
   class RailsHandler < Handler
     def initialize(pwd, env='development')
       ENV['RAILS_ENV'] = env

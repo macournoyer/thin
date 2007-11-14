@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_parse_path
-    request = Fart::Request.new(<<-EOS)
+    request = Thin::Request.new(<<-EOS)
 GET /index.html HTTP/1.1
 EOS
     assert_equal 'GET', request.verb
@@ -10,7 +10,7 @@ EOS
   end
   
   def test_parse_path_with_query_string
-    request = Fart::Request.new(<<-EOS)
+    request = Thin::Request.new(<<-EOS)
 GET /index.html?234235 HTTP/1.1
 EOS
     assert_equal 'GET', request.verb
@@ -18,7 +18,7 @@ EOS
   end
   
   def test_parse_headers
-    request = Fart::Request.new(<<-EOS)
+    request = Thin::Request.new(<<-EOS)
 GET / HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -35,7 +35,7 @@ EOS
   end
   
   def test_parse_headers
-    request = Fart::Request.new(<<-EOS)
+    request = Thin::Request.new(<<-EOS)
 GET /page?cool=thing HTTP/1.1
 Host: localhost:3000
 Keep-Alive: 300
@@ -47,7 +47,7 @@ EOS
   end
   
   def test_parse_post_data
-    request = Fart::Request.new(<<-EOS.chomp)
+    request = Thin::Request.new(<<-EOS.chomp)
 POST /postit HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -88,7 +88,7 @@ hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     Benchmark.bm do |x|
       x.report('baseline') { body.match /.*/ }
-      x.report('   parse') { Fart::Request.new(body) }
+      x.report('   parse') { Thin::Request.new(body) }
     end
     #           user       system     total       real
     # 1) parse  0.000000   0.000000   0.000000 (  0.000379)

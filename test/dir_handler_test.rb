@@ -2,8 +2,8 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class DirHandlerTest < Test::Unit::TestCase
   def setup
-    @handler = Fart::DirHandler.new(File.dirname(__FILE__) + '/site')
-    @response = Fart::Response.new
+    @handler = Thin::DirHandler.new(File.dirname(__FILE__) + '/site')
+    @response = Thin::Response.new
   end
   
   def test_processing_unexisting_file_returns_false  

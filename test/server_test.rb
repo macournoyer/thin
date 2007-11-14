@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class TestHandler < Fart::Handler
+class TestHandler < Thin::Handler
   def process(request, response)
     response.body << 'test body'
     true
@@ -10,13 +10,13 @@ end
 class ServerTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
-    @server = Fart::Server.new('0.0.0.0', 3000, @handler)
+    @server = Thin::Server.new('0.0.0.0', 3000, @handler)
     @socket = mock
     @server.instance_variable_set :@socket, @socket
   end
   
   def test_successful_run
-    client = StringIO.new
+    client = StringIO.new('no-empty')
     @socket.stubs(:accept).returns(client)
     @socket.stubs(:closed?).returns(false).then.returns(true)
     

@@ -1,6 +1,6 @@
 require 'socket'
 
-module Fart
+module Thin
   class Server
     attr_reader :port, :host, :handlers
     
@@ -21,7 +21,7 @@ module Fart
       @stop = false
       trap('INT') { stop }
       
-      logger.info "Fart web server - v#{VERSION}"
+      logger.info "Thin web server - v#{VERSION}"
       logger.info "Listening on #{host}:#{port}, CTRL+C to stop"
       
       until @stop
