@@ -34,6 +34,7 @@ module Fart
     end
     
     def process(client)
+      return if client.eof?
       data     = client.readpartial(CHUNK_SIZE)
       request  = Request.new(data)
       response = Response.new
@@ -55,6 +56,8 @@ module Fart
 
     rescue InvalidRequest => e
       logger.error "Invalid request : #{e.message}"
+    rescue Object => e
+      logger.error "Unexpected error while processing request : #{e.message}"
     ensure
       request.close  if request            rescue nil
       response.close if response           rescue nil

@@ -1,11 +1,55 @@
 #!/usr/bin/env ruby
 
 require File.dirname(__FILE__) + '/../lib/fart'
+require 'optparse'
+require 'ostruct'
 
-pwd = ARGV[0] || Dir.pwd
+def start!(options)
+  server = Fart::Server.new(options.host, options.port,
+                            Fart::RailsHandler.new(options.path), # Let Rails handle his thing and ignore files
+                            Fart::DirHandler.new(File.join(options.path, 'public')) # Serve static files
+                           )
+  server.run
+end
 
-server = Fart::Server.new('0.0.0.0', 3000,
-                          Fart::RailsHandler.new(pwd), # Let Rails handle his thing and ignore files
-                          Fart::DirHandler.new(File.join(pwd, 'public')) # Serve static files
-                         )
-server.run
+options = OpenStruct.new
+options.host = '0.0.0.0'
+options.port = 3000
+options.path = Dir.pwd
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: fart [options]"
+
+  opts.separator ""
+  opts.separator "Specific options:"
+
+  opts.on("-r", "--root PATH", "Set the root path") do |path|
+    options.path = path
+  end
+
+  opts.on("-p", "--port PORT", "Port number to bind to") do |port|
+    options.port = port.to_i
+  end
+  
+  opts.on("-a", "--address ADDR", "Address to bind to") do |host|
+    options.host = host
+  end
+
+  opts.separator ""
+  opts.separator "Common options:"
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
+  # Another typical switch to print the version.
+  opts.on_tail("--version", "Show version") do
+    puts Fart::SERVER
+    exit
+  end
+end
+
+opts.parse!(ARGV)
+
+start! options

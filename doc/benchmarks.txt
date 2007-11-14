@@ -1,0 +1,176 @@
+== Benchmark Fart vs Mongrel
+Using Nginx as the load balancer with 3 app server.
+
+=== Fart
+marc:~ marc$ ab -n10 -c5 localhost/
+This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
+Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient).....done
+Server Software:        nginx/0.5.33                                       
+Server Hostname:        localhost
+Server Port:            80
+
+Document Path:          /
+Document Length:        45456 bytes
+
+Concurrency Level:      5
+Time taken for tests:   4.444 seconds
+Complete requests:      10
+Failed requests:        0
+Broken pipe errors:     0
+Total transferred:      458270 bytes
+HTML transferred:       454560 bytes
+Requests per second:    2.25 [#/sec] (mean)
+Time per request:       2222.00 [ms] (mean)
+Time per request:       444.40 [ms] (mean, across all concurrent requests)
+Transfer rate:          103.12 [Kbytes/sec] received
+
+Connnection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0     0    0.0      0     0
+Processing:  1031  1703 1064.3   1185  4119
+Waiting:     1031  1703 1064.3   1185  4119
+Total:       1031  1703 1064.3   1185  4119
+
+Percentage of the requests served within a certain time (ms)
+  50%   1185
+  66%   1207
+  75%   2178
+  80%   2978
+  90%   4119
+  95%   4119
+  98%   4119
+  99%   4119
+ 100%   4119 (last request)
+marc:~ marc$ ab -n100 -c10 localhost/
+This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
+Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient).....done
+Server Software:        nginx/0.5.33                                       
+Server Hostname:        localhost
+Server Port:            80
+
+Document Path:          /
+Document Length:        45456 bytes
+
+Concurrency Level:      10
+Time taken for tests:   36.949 seconds
+Complete requests:      100
+Failed requests:        0
+Broken pipe errors:     0
+Total transferred:      4582700 bytes
+HTML transferred:       4545600 bytes
+Requests per second:    2.71 [#/sec] (mean)
+Time per request:       3694.90 [ms] (mean)
+Time per request:       369.49 [ms] (mean, across all concurrent requests)
+Transfer rate:          124.03 [Kbytes/sec] received
+
+Connnection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0     0    0.0      0     0
+Processing:   996  3502  762.1   3539  4841
+Waiting:      996  3502  762.3   3539  4841
+Total:        996  3502  762.1   3539  4841
+
+Percentage of the requests served within a certain time (ms)
+  50%   3539
+  66%   3947
+  75%   4167
+  80%   4229
+  90%   4417
+  95%   4563
+  98%   4742
+  99%   4841
+ 100%   4841 (last request)
+
+
+=== Mongrel
+
+marc:~ marc$ ab -n10 -c5 localhost/
+This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
+Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient).....done
+Server Software:        nginx/0.5.33                                       
+Server Hostname:        localhost
+Server Port:            80
+
+Document Path:          /
+Document Length:        45455 bytes
+
+Concurrency Level:      5
+Time taken for tests:   5.995 seconds
+Complete requests:      10
+Failed requests:        0
+Broken pipe errors:     0
+Total transferred:      458600 bytes
+HTML transferred:       454550 bytes
+Requests per second:    1.67 [#/sec] (mean)
+Time per request:       2997.50 [ms] (mean)
+Time per request:       599.50 [ms] (mean, across all concurrent requests)
+Transfer rate:          76.50 [Kbytes/sec] received
+
+Connnection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0     0    0.0      0     0
+Processing:  1248  2500 1138.1   2743  4245
+Waiting:     1248  2500 1138.0   2743  4245
+Total:       1248  2500 1138.1   2743  4245
+
+Percentage of the requests served within a certain time (ms)
+  50%   2743
+  66%   3040
+  75%   3148
+  80%   4131
+  90%   4245
+  95%   4245
+  98%   4245
+  99%   4245
+ 100%   4245 (last request)
+marc:~ marc$ ab -n100 -c10 localhost/
+This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
+Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient).....done
+Server Software:        nginx/0.5.33                                       
+Server Hostname:        localhost
+Server Port:            80
+
+Document Path:          /
+Document Length:        45455 bytes
+
+Concurrency Level:      10
+Time taken for tests:   41.135 seconds
+Complete requests:      100
+Failed requests:        0
+Broken pipe errors:     0
+Total transferred:      4586000 bytes
+HTML transferred:       4545500 bytes
+Requests per second:    2.43 [#/sec] (mean)
+Time per request:       4113.50 [ms] (mean)
+Time per request:       411.35 [ms] (mean, across all concurrent requests)
+Transfer rate:          111.49 [Kbytes/sec] received
+
+Connnection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0     0    0.0      0     0
+Processing:  1600  3921  640.4   3877  5694
+Waiting:     1600  3921  640.4   3877  5694
+Total:       1600  3921  640.4   3877  5694
+
+Percentage of the requests served within a certain time (ms)
+  50%   3877
+  66%   4187
+  75%   4353
+  80%   4402
+  90%   4585
+  95%   4919
+  98%   5351
+  99%   5694
+ 100%   5694 (last request)
