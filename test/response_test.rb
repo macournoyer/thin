@@ -39,9 +39,9 @@ class RequestTest < Test::Unit::TestCase
 </ul></body></html>
 EOS
     
-    max_time = 0.000040 # sec
-    time = Benchmark.measure { response.write StringIO.new }
-    assert time.real <= max_time, "Response writing too slow : took #{time.real*1000} ms, should take less then #{max_time*1000} ms"
+    assert_faster_then 0.040 do
+      response.write StringIO.new
+    end
     
     # Perf history
     # 1) 0.000037

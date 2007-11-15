@@ -90,9 +90,10 @@ Content-Length: 37
 
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
-    max_time = 0.170 # ms
-    time = Benchmark.measure { Thin::Request.new(body) }.real * 1000
-    assert time <= max_time, "Request parsing too slow : took #{time} ms, should take less then #{max_time} ms"
+    
+    assert_faster_then 0.170 do
+      Thin::Request.new(body)
+    end
 
     # Perf history
     # 1) 0.379
