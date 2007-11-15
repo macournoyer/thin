@@ -91,7 +91,7 @@ Content-Length: 37
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     
-    assert_faster_then 0.170 do
+    assert_faster_then 0.180 do
       Thin::Request.new(body)
     end
 
