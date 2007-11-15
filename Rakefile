@@ -34,3 +34,10 @@ end
 Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec
 end
+
+task :upload_gem do
+  sh <<-CMD
+    scp -rq pkg/#{spec.full_name}.gem macournoyer@macournoyer.com:code.macournoyer.com/gems &&
+    ssh macournoyer@macournoyer.com "cd code.macournoyer.com && index_gem_repository.rb"
+  CMD
+end
