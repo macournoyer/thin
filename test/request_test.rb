@@ -86,14 +86,14 @@ Content-Length: 37
 
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
-    Benchmark.bm do |x|
-      x.report('baseline') { body.match /.*/ }
-      x.report('   parse') { Thin::Request.new(body) }
-    end
-    #           user       system     total       real
-    # 1) parse  0.000000   0.000000   0.000000 (  0.000379)
-    # 2) parse  0.000000   0.000000   0.000000 (  0.000157)
-    # 3) parse  0.000000   0.000000   0.000000 (  0.000111)
-    # 4) parse  0.000000   0.000000   0.000000 (  0.000103)
+    max_time = 0.000110 # sec
+    time = Benchmark.measure { Thin::Request.new(body) }
+    assert time.real <= max_time, "Request parsing too slow : took #{time.real*1000} ms, should take less then #{max_time*1000} ms"
+
+    # Perf history
+    # 1) 0.000379
+    # 2) 0.000157
+    # 3) 0.000111
+    # 4) 0.000103
   end
 end

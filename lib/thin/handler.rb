@@ -1,7 +1,7 @@
 module Thin
   class Handler
     def logger
-      LOGGER
+      Thin.logger
     end
     
     def process(request, response)

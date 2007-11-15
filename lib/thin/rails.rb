@@ -3,7 +3,7 @@ module Thin
     def initialize(pwd, env='development')
       ENV['RAILS_ENV'] = env
       @pwd = pwd
-      Object.const_set 'RAILS_DEFAULT_LOGGER', LOGGER
+      Object.const_set 'RAILS_DEFAULT_LOGGER', Thin.logger
       
       require "#{@pwd}/config/environment"
       require 'dispatcher'

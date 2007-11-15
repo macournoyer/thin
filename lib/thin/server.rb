@@ -14,7 +14,7 @@ module Thin
     end
     
     def logger
-      LOGGER
+      Thin.logger
     end
     
     def run

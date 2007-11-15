@@ -1,5 +1,6 @@
 == Benchmark Thin vs Mongrel
-Using Nginx as the load balancer with 3 app server.
+Using Nginx as the load balancer with 3 app instance.
+App is http://refactormycode.com with no caching.
 
 === Thin
 marc:~ marc$ ab -n10 -c5 localhost/
