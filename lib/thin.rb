@@ -1,5 +1,4 @@
 $:.unshift File.dirname(__FILE__)
-require 'rubygems'
 
 require 'thin/consts'
 require 'thin/status'

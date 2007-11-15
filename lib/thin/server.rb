@@ -2,7 +2,7 @@ require 'socket'
 
 module Thin
   class Server
-    attr_reader :port, :host, :handlers
+    attr_accessor :port, :host, :handlers, :pid_file
     
     def initialize(host, port, *handlers)
       @host     = host
@@ -19,7 +19,10 @@ module Thin
     
     def run
       @stop = false
-      trap('INT') { stop }
+      trap('INT') do
+        logger.info 'Caught INT signal, stopping ...'
+        stop
+      end
       
       logger.info "Thin web server - v#{VERSION}"
       logger.info "Listening on #{host}:#{port}, CTRL+C to stop"
@@ -32,7 +35,7 @@ module Thin
     ensure
       @socket.close unless @socket.closed? rescue nil
     end
-    
+        
     def process(client)
       return if client.eof?
       data     = client.readpartial(CHUNK_SIZE)
@@ -70,9 +73,27 @@ module Thin
     end
     
     def stop
-      logger.info "\nStopping ..."
       @stop = true
-      @socket.close
+      @socket.close rescue nil
+    end
+    
+    def daemonize
+      pid = fork do
+        write_pid_file
+        at_exit { remove_pid_file }
+        run
+      end
+      # Make sure we do not create zombies
+      Process.detach(pid)
+    end
+    
+    def remove_pid_file
+      File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
+    end
+
+    def write_pid_file
+      logger.info "Writing PID file to #{@pid_file}"
+      open(@pid_file,"w") { |f| f.write(Process.pid) }
     end
   end
 end

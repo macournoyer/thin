@@ -1,5 +1,3 @@
-require 'uri'
-
 module Thin
   class InvalidRequest < StandardError; end
   

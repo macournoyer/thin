@@ -5,11 +5,18 @@ require 'optparse'
 require 'ostruct'
 
 def start!(options)
+  Thin.logger = Logger.new(options.logfile) if options.logfile
+  
   server = Thin::Server.new(options.host, options.port,
                             Thin::RailsHandler.new(options.path, options.env), # Let Rails handle his thing and ignore files
                             Thin::DirHandler.new(File.join(options.path, 'public')) # Serve static files
                            )
-  server.run
+  if options.daemonize
+    server.pid_file = options.pid_file
+    server.daemonize
+  else
+    server.run
+  end
 end
 
 options = OpenStruct.new
@@ -17,6 +24,9 @@ options.host = '0.0.0.0'
 options.port = 3000
 options.path = Dir.pwd
 options.env = 'development'
+options.daemonize = false
+options.logfile = nil
+options.pid_file = 'thin.pid'
 
 opts = OptionParser.new do |opts|
   opts.banner = "Usage: thin [options]"
@@ -38,6 +48,18 @@ opts = OptionParser.new do |opts|
   
   opts.on("-e", "--env ENV", "Rails environment (default: development)") do |env|
     options.env = env
+  end
+
+  opts.on("-d", "--daemonize", "Run in the background") do
+    options.daemonize = true
+  end
+
+  opts.on("-l", "--log FILE", "File to write log output to") do |file|
+    options.logfile = file
+  end
+
+  opts.on("-P", "--pid FILE", "File to write the PID (use with -d)") do |file|
+    options.pid_file = file
   end
 
   opts.separator ""
