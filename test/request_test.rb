@@ -62,12 +62,16 @@ Content-Length: 37
 
 name=marc&email=macournoyer@gmail.com
 EOS
-    
+
     assert_equal 'POST', request.params['REQUEST_METHOD']
     assert_equal '/postit', request.params['REQUEST_URI']
     assert_equal 'text/html', request.params['CONTENT_TYPE']
     assert_equal '37', request.params['CONTENT_LENGTH']
+    assert_equal 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5', request.params['HTTP_ACCEPT']
+    assert_equal 'en-us,en;q=0.5', request.params['HTTP_ACCEPT_LANGUAGE']
     assert_equal 'name=marc&email=macournoyer@gmail.com', request.params['RAW_POST_DATA']
+    assert_nil request.params['HTTP_CONTENT_LENGTH']
+    assert_nil request.params['HTTP_CONTENT_TYPE']
   end
   
   def test_parse_perfs
@@ -86,14 +90,14 @@ Content-Length: 37
 
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
-    max_time = 0.000110 # sec
-    time = Benchmark.measure { Thin::Request.new(body) }
-    assert time.real <= max_time, "Request parsing too slow : took #{time.real*1000} ms, should take less then #{max_time*1000} ms"
+    max_time = 0.170 # ms
+    time = Benchmark.measure { Thin::Request.new(body) }.real * 1000
+    assert time <= max_time, "Request parsing too slow : took #{time} ms, should take less then #{max_time} ms"
 
     # Perf history
-    # 1) 0.000379
-    # 2) 0.000157
-    # 3) 0.000111
-    # 4) 0.000103
+    # 1) 0.379
+    # 2) 0.157
+    # 3) 0.111
+    # 4) 0.103
   end
 end

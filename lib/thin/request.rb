@@ -4,13 +4,15 @@ module Thin
   class InvalidRequest < StandardError; end
   
   class Request
+    HTTP_LESS_HEADERS = %w(Content-Lenght Content-Type).freeze
+    
     attr_reader :body, :params, :verb, :path
     
     def initialize(body)
       @body = StringIO.new(body)
       @params = {
         'GATEWAY_INTERFACE' => 'CGI/1.1',
-        'SERVER_SOFTWARE'   => SERVER
+        'HTTP_VERSION'      => 'HTTP/1.1'
       }
       parse!
     end
@@ -37,24 +39,28 @@ module Thin
 
       @params['REQUEST_URI']    = uri
       @params['REQUEST_PATH']   = @path
-      @params['SCRIPT_NAME']    = @path
-      @params['QUERY_STRING']   = query_string
       @params['REQUEST_METHOD'] = @verb
+      @params['SCRIPT_NAME']    = @path
+      @params['QUERY_STRING']   = query_string if query_string
       
       body = line = ''
       until [?\r, ?\n].include?(line[0]) || @body.eof?
         body << line = @body.readline
       end
       
-      params['HTTP_HOST']       = matches[1] if matches = body.match(/^Host: (.*)$/)
       params['CONTENT_TYPE']    = matches[1] if matches = body.match(/^Content-Type: (.*)$/)
       params['CONTENT_LENGTH']  = matches[1] if matches = body.match(/^Content-Length: (.*)$/)
-      params['HTTP_REFERER']    = matches[1] if matches = body.match(/^Referer: (.*)$/)
-      params['HTTP_USER_AGENT'] = matches[1] if matches = body.match(/^User-Agent: (.*)$/)
-      params['HTTP_COOKIE']     = matches[1] if matches = body.match(/^Cookie: (.*)$/)
+      body.grep(/^([A-za-z\-]+): (.*)$/) do
+        name, value = $~[1,2]
+        break if HTTP_LESS_HEADERS.include?(name)
+        params["HTTP_#{name.upcase.gsub('-', '_')}"] = value.chomp
+      end
       
       return if @body.eof?
       @params['RAW_POST_DATA'] = @body.read
+    
+    rescue InvalidRequest => e
+      raise
     rescue Object => e
       raise InvalidRequest, e.message
     end

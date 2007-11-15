@@ -41,6 +41,11 @@ module Thin
       
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
+      
+      # Add server info to the request env
+      request.params['SERVER_SOFTWARE'] = SERVER
+      request.params['SERVER_PORT'] = @port
+      request.params['SERVER_NAME'] = @host
 
       served = false
       @handlers.each do |handler|
