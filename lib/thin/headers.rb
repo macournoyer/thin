@@ -22,6 +22,10 @@ module Thin
       end
     end
     
+    def size
+      @items.size
+    end
+    
     def to_s
       @items.inject('') { |out, (name, value)| out << HEADER_FORMAT % [name, value] }
     end
