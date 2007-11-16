@@ -1,4 +1,37 @@
-Thin
-====
+== Thin
 
-Tiny & funny HTTP server
+Tiny, fast & funny HTTP server
+
+=== Why another web server ?
+Thin:
+ * is 10% faster then Mongrel behind a load balancer like Nginx.
+ * takes around 2MB less memory then Mongrel.
+ * is 100% Ruby, no C extension.
+ * is self contain, no dependencies.
+
+=== What's the catch ?
+The secret of Thin is that no threads are used. Everything is running in a single thread. For single threaded frameworks like Rails this makes sense, but might not be the case for others.
+
+=== Installation
+
+  sudo gem install thin --source http://code.macournoyer.com
+
+=== Usage
+In your Rails app directory:
+  
+  thin
+
+Run: thin -h to get more options
+
+=== Licence
+Ruby Licence : http://www.ruby-lang.org/en/LICENSE.txt
+
+=== Credit
+Lots of the code was inspired (or stolen entirely) from Mongrel http://mongrel.rubyforge.org/ by Zed Shaw.
+
+Thin was created by:
+Marc-Andre Cournoyer
+macournoyer@gmail.com
+http://macournoyer.com
+
+Please send me your comments, bug reports or love letters by email.
