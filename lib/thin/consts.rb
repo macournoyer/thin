@@ -1,13 +1,13 @@
 module Thin
   NAME           = 'thin'.freeze
   CHUNK_SIZE     = 16 * 1024
-  VERSION        = '0.1'.freeze
+  VERSION        = '0.1.1'.freeze
   SERVER         = "#{NAME} #{VERSION}".freeze
   
   CONTENT_LENGTH = 'Content-Length'.freeze
   CONTENT_TYPE   = 'Content-Type'.freeze
   
-  HEADER_FORMAT = "%s: %s\r\n".freeze
+  HEADER_FORMAT  = "%s: %s\r\n".freeze
 
   # The standard empty 404 response for bad requests.
   ERROR_404_RESPONSE = <<-EOS.freeze
