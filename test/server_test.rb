@@ -32,8 +32,8 @@ EOS
     client.rewind
     assert_equal <<EOS.chomp, client.read.delete("\r")
 HTTP/1.1 200 OK
-Connection: close
 Content-Length: 9
+Connection: close
 
 test body
 EOS

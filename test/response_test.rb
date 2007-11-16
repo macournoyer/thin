@@ -6,7 +6,7 @@ class RequestTest < Test::Unit::TestCase
     response.content_type = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
-    assert_equal "Content-Type: text/html\r\nConnection: close\r\nContent-Length: 0\r\nCookie: mium=7\r\n", response.headers_output
+    assert_equal "Content-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n", response.headers_output
   end
   
   def test_outputs_head
@@ -14,7 +14,16 @@ class RequestTest < Test::Unit::TestCase
     response.content_type = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 0\r\nCookie: mium=7\r\n\r\n", response.head
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", response.head
+  end
+  
+  def test_allow_duplicates_in_headers
+    response = Thin::Response.new
+    response.content_type = 'text/html'
+    response.headers['Set-Cookie'] = 'mium=7'
+    response.headers['Set-Cookie'] = 'hi=there'
+    
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", response.head
   end
   
   def test_outputs_body
@@ -26,7 +35,7 @@ class RequestTest < Test::Unit::TestCase
     response.write output
     output.rewind
     
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 13\r\n\r\n<html></html>", output.read
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", output.read
   end
   
   def test_perfs

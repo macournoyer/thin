@@ -9,7 +9,7 @@ module Thin
     def initialize(body)
       @body = StringIO.new(body)
       @params = {
-        'GATEWAY_INTERFACE' => 'CGI/1.1',
+        'GATEWAY_INTERFACE' => 'CGI/1.2',
         'HTTP_VERSION'      => 'HTTP/1.1'
       }
       parse!
@@ -36,9 +36,10 @@ module Thin
       end
 
       @params['REQUEST_URI']    = uri
-      @params['REQUEST_PATH']   = @path
-      @params['REQUEST_METHOD'] = @verb
+      @params['REQUEST_PATH']   =
+      @params['PATH_INFO']      =
       @params['SCRIPT_NAME']    = @path
+      @params['REQUEST_METHOD'] = @verb
       @params['QUERY_STRING']   = query_string if query_string
       
       body = line = ''

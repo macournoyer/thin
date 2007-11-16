@@ -34,7 +34,7 @@ EOS
     assert_equal 'mium=7', request.params['HTTP_COOKIE']
   end
   
-  def test_parse_headers
+  def test_parse_headers_with_query_string
     request = Thin::Request.new(<<-EOS)
 GET /page?cool=thing HTTP/1.1
 Host: localhost:3000

@@ -24,8 +24,9 @@ end
 
 class Test::Unit::TestCase
   protected
-    def assert_faster_then(max_time)
+    def assert_faster_then(max_time, verbose=false)
       time = Benchmark.measure { yield }.real * 1000
+      puts "Took took #{time} ms, should take less then #{max_time} ms" if verbose
       assert time <= max_time, "Too slow : took #{time} ms, should take less then #{max_time} ms"
     end
 end

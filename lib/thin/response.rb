@@ -8,7 +8,7 @@ module Thin
     attr_accessor :body, :headers, :status
     
     def initialize
-      @headers = {}
+      @headers = Headers.new
       @body = StringIO.new
       @status = 200
     end
@@ -24,7 +24,7 @@ module Thin
     def headers_output
       @headers[CONTENT_LENGTH] = @body.size
       @headers[CONNECTION] = CLOSE
-      @headers.inject('') { |out, (name, value)| out << "#{name}: #{value}\r\n" }
+      @headers.to_s
     end
     
     def head
