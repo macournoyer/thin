@@ -23,10 +23,10 @@ In your Rails app directory:
 
 Run: thin -h to get more options
 
-=== Licence
-Ruby Licence : http://www.ruby-lang.org/en/LICENSE.txt
+=== License
+Ruby License : http://www.ruby-lang.org/en/LICENSE.txt
 
-=== Credit
+=== Credits
 Lots of the code was inspired (or stolen entirely) from Mongrel http://mongrel.rubyforge.org/ by Zed Shaw.
 
 Thin was created by:

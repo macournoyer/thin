@@ -20,12 +20,12 @@ module Thin
     def run
       @stop = false
       trap('INT') do
-        logger.info 'Caught INT signal, stopping ...'
+        logger.info '>> Caught INT signal, stopping ...'
         stop
       end
       
-      logger.info "Thin web server - v#{VERSION}"
-      logger.info "Listening on #{host}:#{port}, CTRL+C to stop"
+      logger.info ">> Thin web server (v#{VERSION})"
+      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"
       
       until @stop
         client = @socket.accept rescue nil
@@ -47,8 +47,7 @@ module Thin
       
       # Add server info to the request env
       request.params['SERVER_SOFTWARE'] = SERVER
-      request.params['SERVER_PORT'] = @port.to_s
-      request.params['SERVER_NAME'] = @host
+      request.params['SERVER_PORT']     = @port.to_s
       request.params['SERVER_PROTOCOL'] = 'HTTP/1.1'
 
       served = false

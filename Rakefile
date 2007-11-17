@@ -35,9 +35,15 @@ Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec
 end
 
+desc 'Upload gem to my gem server'
 task :upload_gem do
   sh <<-CMD
     scp -rq pkg/#{spec.full_name}.gem macournoyer@macournoyer.com:code.macournoyer.com/gems &&
     ssh macournoyer@macournoyer.com "cd code.macournoyer.com && index_gem_repository.rb"
   CMD
+end
+
+task :stats do
+  lc = Dir['lib/**/*.rb'].collect {|f| File.open(f).readlines.size }.inject(0){|sum,n| sum += n}
+  puts "#{lc} LOC"
 end

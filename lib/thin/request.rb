@@ -6,21 +6,18 @@ module Thin
     
     attr_reader :body, :params, :verb, :path
     
-    def initialize(body)
-      @body = StringIO.new(body)
+    def initialize(content)
       @params = {
         'GATEWAY_INTERFACE' => 'CGI/1.2',
         'HTTP_VERSION'      => 'HTTP/1.1'
       }
-      parse!
+      parse! StringIO.new(content)
     end
     
     # Parse env variables according to:
     #   http://www.ietf.org/rfc/rfc3875
-    def parse!
-      @body.rewind
-      
-      if matches = @body.readline.match(/^([A-Z]+) (.*) HTTP/)
+    def parse!(content)
+      if matches = content.readline.match(/^([A-Z]+) (.*) HTTP/)
         @verb, uri = matches[1,2]
       else
         raise InvalidRequest, 'No valid header found'
@@ -37,27 +34,29 @@ module Thin
 
       @params['REQUEST_URI']    = uri
       @params['REQUEST_PATH']   =
-      @params['PATH_INFO']      =
-      @params['SCRIPT_NAME']    = @path
+      @params['PATH_INFO']      = @path
+      @params['SCRIPT_NAME']    = '/'
       @params['REQUEST_METHOD'] = @verb
       @params['QUERY_STRING']   = query_string if query_string
       
-      body = line = ''
-      until [?\r, ?\n].include?(line[0]) || @body.eof?
-        body << line = @body.readline
+      headers = line = ''
+      until [?\r, ?\n].include?(line[0]) || content.eof?
+        headers << line = content.readline
       end
       
-      params['CONTENT_TYPE']    = matches[1] if matches = body.match(/^Content-Type: (.*)$/)
-      params['CONTENT_LENGTH']  = matches[1] if matches = body.match(/^Content-Length: (.*)$/)
-      body.grep(/^([A-za-z\-]+): (.*)$/) do
+      params['CONTENT_TYPE']    = matches[1] if matches = headers.match(/^Content-Type: (.*)$/)
+      params['CONTENT_LENGTH']  = matches[1] if matches = headers.match(/^Content-Length: (.*)$/)
+      headers.grep(/^([A-za-z\-]+): (.*)$/) do
         name, value = $~[1,2]
         break if HTTP_LESS_HEADERS.include?(name)
         params["HTTP_#{name.upcase.gsub('-', '_')}"] = value.chomp
       end
       
-      return if @body.eof?
-      @params['RAW_POST_DATA'] = @body.read
-    
+      @params['SERVER_NAME']    = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
+      
+      @params['RAW_POST_DATA']  = content.read unless content.eof?
+      
+      @body = StringIO.new(@params['RAW_POST_DATA'].to_s)
     rescue InvalidRequest => e
       raise
     rescue Object => e
