@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class RequestTest < Test::Unit::TestCase
+class ResponseTest < Test::Unit::TestCase
   def test_outputs_headers
     response = Thin::Response.new
     response.content_type = 'text/html'

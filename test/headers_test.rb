@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class RequestTest < Test::Unit::TestCase
+class HeadersTest < Test::Unit::TestCase
   def setup
     @headers = Thin::Headers.new
   end

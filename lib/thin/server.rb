@@ -1,4 +1,5 @@
 require 'socket'
+require 'fileutils'
 
 module Thin
   class Server
@@ -8,7 +9,7 @@ module Thin
       @host     = host
       @port     = port
       @handlers = handlers
-      @stop     = false
+      @stop     = true
 
       @socket   = TCPServer.new(host, port)
     end
@@ -78,6 +79,15 @@ module Thin
       @socket.close rescue nil
     end
     
+    def self.kill(pid_file)
+      if File.exist?(pid_file) && pid = open(pid_file).read.chomp
+        Thin.logger.info "Sending INT signal to process #{pid}"
+        Process.kill('INT', pid.to_i)
+      else
+        Thin.logger.warn "Can't stop server, no PID found in #{pid_file}"
+      end
+    end
+    
     def daemonize
       pid = fork do
         write_pid_file
@@ -88,13 +98,15 @@ module Thin
       Process.detach(pid)
     end
     
-    def remove_pid_file
-      File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
-    end
+    private
+      def remove_pid_file
+        File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
+      end
 
-    def write_pid_file
-      logger.info "Writing PID file to #{@pid_file}"
-      open(@pid_file,"w") { |f| f.write(Process.pid) }
-    end
+      def write_pid_file
+        logger.info "Writing PID file to #{@pid_file}"
+        FileUtils.mkdir_p File.dirname(@pid_file)
+        open(@pid_file,"w") { |f| f.write(Process.pid) }
+      end
   end
 end

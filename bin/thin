@@ -4,9 +4,7 @@ require File.dirname(__FILE__) + '/../lib/thin'
 require 'optparse'
 require 'ostruct'
 
-def start!(options)
-  Thin.logger = Logger.new(options.logfile) if options.logfile
-  
+def start(options)
   server = Thin::Server.new(options.host, options.port,
                             Thin::RailsHandler.new(options.path, options.env), # Let Rails handle his thing and ignore files
                             Thin::DirHandler.new(File.join(options.path, 'public')) # Serve static files
@@ -19,6 +17,16 @@ def start!(options)
   end
 end
 
+def stop(options)
+  error "PID file required to stop server" unless options.pid_file
+  Thin::Server.kill(options.pid_file)
+end
+
+def error(message)
+  puts message
+  exit 1
+end
+
 options = OpenStruct.new
 options.host = '0.0.0.0'
 options.port = 3000
@@ -26,10 +34,10 @@ options.path = Dir.pwd
 options.env = 'development'
 options.daemonize = false
 options.logfile = nil
-options.pid_file = 'thin.pid'
+options.pid_file = 'tmp/pids/thin.pid'
 
 opts = OptionParser.new do |opts|
-  opts.banner = "Usage: thin [options]"
+  opts.banner = "Usage: thin [options] start|stop"
 
   opts.separator ""
   opts.separator "Specific options:"
@@ -78,4 +86,15 @@ end
 
 opts.parse!(ARGV)
 
-start! options
+Thin.logger = Logger.new(options.logfile) if options.logfile
+error "Command required" if ARGV.size != 1
+command = ARGV.first
+
+case command
+when 'start'
+  start options
+when 'stop'
+  stop options
+else
+  error "Invalid command : #{command}"
+end
