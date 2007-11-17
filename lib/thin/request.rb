@@ -2,7 +2,7 @@ module Thin
   class InvalidRequest < StandardError; end
   
   class Request
-    HTTP_LESS_HEADERS = %w(Content-Lenght Content-Type).freeze
+    HTTP_LESS_HEADERS = %w(Content-Length Content-Type).freeze
     
     attr_reader :body, :params, :verb, :path
     
@@ -39,17 +39,15 @@ module Thin
       @params['REQUEST_METHOD'] = @verb
       @params['QUERY_STRING']   = query_string if query_string
       
-      headers = line = ''
-      until [?\r, ?\n].include?(line[0]) || content.eof?
-        headers << line = content.readline
-      end
-      
-      params['CONTENT_TYPE']    = matches[1] if matches = headers.match(/^Content-Type: (.*)$/)
-      params['CONTENT_LENGTH']  = matches[1] if matches = headers.match(/^Content-Length: (.*)$/)
-      headers.grep(/^([A-za-z\-]+): (.*)$/) do
-        name, value = $~[1,2]
-        break if HTTP_LESS_HEADERS.include?(name)
-        params["HTTP_#{name.upcase.gsub('-', '_')}"] = value.chomp
+      until content.eof?
+        line = content.readline
+        if [?\r, ?\n].include?(line[0])
+          break # Reached the end of the headers
+        elsif matches = line.match(/^([A-za-z\-]+): (.*)$/)
+          name, value = matches[1,2]
+          prefix = HTTP_LESS_HEADERS.include?(name) ? '' : 'HTTP_'
+          params["#{prefix}#{name.upcase.gsub('-', '_')}"] = value.chomp
+        end
       end
       
       @params['SERVER_NAME']    = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
@@ -68,8 +66,7 @@ module Thin
     end
     
     def to_s
-      @body.rewind
-      @body.readline
+      "#{@params['REQUEST_METHOD']} #{@params['REQUEST_URI']}"
     end
   end
 end
