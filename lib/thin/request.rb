@@ -47,6 +47,8 @@ module Thin
           name, value = matches[1,2]
           prefix = HTTP_LESS_HEADERS.include?(name) ? '' : 'HTTP_'
           params["#{prefix}#{name.upcase.gsub('-', '_')}"] = value.chomp
+        else
+          raise InvalidRequest, "Expected header"
         end
       end
       

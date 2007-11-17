@@ -64,6 +64,7 @@ module Thin
 
     rescue InvalidRequest => e
       logger.error "Invalid request : #{e.message}"
+      client.write ERROR_404_RESPONSE rescue nil
     rescue Object => e
       logger.error "Unexpected error while processing request : #{e.message}"
     ensure
