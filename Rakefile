@@ -84,7 +84,7 @@ namespace :site do
   
   desc 'Upload website to code.macournoyer.com'
   task :upload => 'site:build' do
-    upload 'tmp/site', 'thin'
+    upload 'tmp/site/*', 'thin'
   end
 end
 

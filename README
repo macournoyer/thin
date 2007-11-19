@@ -19,7 +19,7 @@ The secret of Thin is that no threads are used. Everything is running in a singl
 === Usage
 In your Rails app directory:
   
- thin
+ thin start
 
 Run: thin -h to get more options
 

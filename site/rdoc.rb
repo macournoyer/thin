@@ -410,7 +410,7 @@ INDEX = %{
 <TITLE>%realtitle%</TITLE>
 </HEAD>
 <BODY>
-Click <a href="%initial_page%">here</a> to open the Camping docs.
+Click <a href="%initial_page%">here</a> to open the Thin docs.
 </BODY>
 </HTML>
 }
