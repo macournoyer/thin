@@ -15,15 +15,22 @@ task :default => :test
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
-  rdoc.options += ['--quiet', '--title', "Thin",
+  rdoc.options += ['--quiet', '--title', Thin::NAME,
              	     "--opname", "index.html",
             	     "--line-numbers",
             	     "--main", "README",
             	     "--inline-source"]
   rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
-  rdoc.title = "Thin"
+  rdoc.title = Thin::NAME
   rdoc.rdoc_files.add ['README', 'lib/thin/*.rb', 'bin/*']
+end
+
+namespace :rdoc do
+  desc 'Upload rdoc to code.macournoyer.com'
+  task :upload => :rdoc do
+    upload "doc/rdoc", 'thin/doc', :replace => true
+  end
 end
 
 spec = Gem::Specification.new do |s|
@@ -39,7 +46,7 @@ spec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.2'
 
-  s.files                 = %w(COPYING README Rakefile) + Dir.glob("{bin,doc,test,lib}/**/*")
+  s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,test,lib}/**/*")
   
   s.require_path          = "lib"
   s.bindir                = "bin"
@@ -49,13 +56,9 @@ Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec
 end
 
-def upload(file, to)
-  sh %{scp -rq #{file} macournoyer@macournoyer.com:code.macournoyer.com/#{to}}
-end
-
 namespace :gem do
   desc 'Upload gem to code.macournoyer.com'
-  task :upload do
+  task :upload => :gem do
     upload "pkg/#{spec.full_name}.gem", 'gems'
     sh 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && index_gem_repository.rb"'
   end
@@ -79,7 +82,16 @@ namespace :site do
     cp_r Dir['site/images/*'], 'tmp/site/images'
   end
   
+  desc 'Upload website to code.macournoyer.com'
   task :upload => 'site:build' do
     upload 'tmp/site', 'thin'
   end
+end
+
+desc 'Upload all the stuff to code.macournoyer.com'
+task :upload => %w(gem:upload site:upload rdoc:upload)
+
+def upload(file, to, options={})
+  sh %{ssh macournoyer@macournoyer.com "rm -r code.macournoyer.com/#{to}"} if options[:replace]
+  sh %{scp -rq #{file} macournoyer@macournoyer.com:code.macournoyer.com/#{to}}
 end
