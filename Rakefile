@@ -5,12 +5,24 @@ require 'rake/gempackagetask'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
-CLEAN.include %w(doc/rdoc pkg tmp)
+CLEAN.include %w(doc/rdoc pkg tmp log)
 
 Rake::TestTask.new do |t|
   t.pattern = 'test/*_test.rb'
 end
 task :default => :test
+
+Rake::RDocTask.new do |rdoc|
+  rdoc.rdoc_dir = 'doc/rdoc'
+  rdoc.options += ['--quiet', '--title', "Thin",
+             	     "--opname", "index.html",
+            	     "--line-numbers",
+            	     "--main", "README",
+            	     "--inline-source"]
+  rdoc.main = "README"
+  rdoc.title = "Thin"
+  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb']
+end
 
 spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME

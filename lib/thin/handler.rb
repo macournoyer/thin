@@ -1,7 +1,8 @@
 module Thin
   class Handler
-    def logger
-      Thin.logger
+    attr_accessor :logger
+    
+    def start
     end
     
     def process(request, response)

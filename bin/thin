@@ -1,100 +1,33 @@
 #!/usr/bin/env ruby
 
 require File.dirname(__FILE__) + '/../lib/thin'
-require 'optparse'
-require 'ostruct'
 
-def start(options)
-  server = Thin::Server.new(options.host, options.port,
-                            Thin::RailsHandler.new(options.path, options.env), # Let Rails handle his thing and ignore files
-                            Thin::DirHandler.new(File.join(options.path, 'public')) # Serve static files
-                           )
-  if options.daemonize
-    server.pid_file = options.pid_file
-    server.daemonize
-  else
-    server.run
-  end
-end
-
-def stop(options)
-  error "PID file required to stop server" unless options.pid_file
-  Thin::Server.kill(options.pid_file)
-end
-
-def error(message)
-  puts message
-  exit 1
-end
-
-options = OpenStruct.new
-options.host = '0.0.0.0'
-options.port = 3000
-options.path = Dir.pwd
-options.env = 'development'
-options.daemonize = false
-options.logfile = nil
-options.pid_file = 'tmp/pids/thin.pid'
-
-opts = OptionParser.new do |opts|
-  opts.banner = "Usage: thin [options] start|stop"
-
-  opts.separator ""
-  opts.separator "Specific options:"
-
-  opts.on("-w", "--wkdir PATH", "Working directory (default: current)") do |path|
-    options.path = path
-  end
-
-  opts.on("-p", "--port PORT", "Port number to bind to (default: 3000)") do |port|
-    options.port = port.to_i
+Thin::Commander.new(ARGV) do |command|
+  command.include_options :port, :address, :environment, :daemonize, :log_file, :pid_file
+  
+  command.before do
+    Dir.chdir command.options.cwd if command.options.cwd
   end
   
-  opts.on("-a", "--address ADDR", "Address to bind to") do |host|
-    options.host = host
-  end
-  
-  opts.on("-e", "--env ENV", "Rails environment (default: development)") do |env|
-    options.env = env
-  end
+  command.on :start do
+    server = Thin::Server.new(command.options.address, command.options.port,
+                              # Let Rails handle his thing and ignore files
+                              Thin::RailsHandler.new('.', command.options.environment),
+                              # Serve static files
+                              Thin::DirHandler.new('public')
+                             )
+    server.logger = Logger.new(command.options.log_file) if command.options.log_file
 
-  opts.on("-d", "--daemonize", "Run in the background") do
-    options.daemonize = true
-  end
-
-  opts.on("-l", "--log FILE", "File to write log output to") do |file|
-    options.logfile = file
-  end
-
-  opts.on("-P", "--pid FILE", "File to write the PID (use with -d)") do |file|
-    options.pid_file = file
+    if command.options.daemonize
+      server.pid_file = command.options.pid_file
+      server.daemonize
+    else
+      server.start
+    end
   end
 
-  opts.separator ""
-  opts.separator "Common options:"
-
-  opts.on_tail("-h", "--help", "Show this message") do
-    puts opts
-    exit
+  command.on :stop do
+    command.error "PID file required to stop server" unless command.options.pid_file
+    Thin::Server.kill(command.options.pid_file)
   end
-
-  opts.on_tail("--version", "Show version") do
-    puts Thin::SERVER
-    exit
-  end
-end
-
-opts.parse!(ARGV)
-
-Thin.logger = Logger.new(options.logfile) if options.logfile
-error "Command required" if ARGV.size != 1
-command = ARGV.first
-
-case command
-when 'start'
-  start options
-when 'stop'
-  stop options
-else
-  error "Invalid command : #{command}"
 end

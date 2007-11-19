@@ -1,5 +1,6 @@
 require 'socket'
 require 'fileutils'
+require 'logger'
 
 module Thin
   class Server
@@ -12,13 +13,20 @@ module Thin
       @stop     = true
 
       @socket   = TCPServer.new(host, port)
+      
+      self.logger = Logger.new(STDOUT)
     end
     
     def logger
-      Thin.logger
+      @logger
     end
     
-    def run
+    def logger=(logger)
+      @logger = logger
+      @handlers.each { |h| h.logger = logger }
+    end
+    
+    def start
       @stop = false
       trap('INT') do
         logger.info '>> Caught INT signal, stopping ...'
@@ -26,8 +34,11 @@ module Thin
       end
       
       logger.info ">> Thin web server (v#{VERSION})"
-      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"
+
+      logger.info ">> Starting handlers ..."
+      @handlers.each { |h| h.start }
       
+      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"      
       until @stop
         client = @socket.accept rescue nil
         break if @socket.closed?
@@ -81,10 +92,10 @@ module Thin
     
     def self.kill(pid_file)
       if File.exist?(pid_file) && pid = open(pid_file).read.chomp
-        Thin.logger.info "Sending INT signal to process #{pid}"
+        puts "Sending INT signal to process #{pid}"
         Process.kill('INT', pid.to_i)
       else
-        Thin.logger.warn "Can't stop server, no PID found in #{pid_file}"
+        STDERR.puts "Can't stop server, no PID found in #{pid_file}"
       end
     end
     
@@ -92,7 +103,7 @@ module Thin
       pid = fork do
         write_pid_file
         at_exit { remove_pid_file }
-        run
+        start
       end
       # Make sure we do not create zombies
       Process.detach(pid)

@@ -4,8 +4,6 @@ require 'test/unit'
 require 'mocha'
 require 'benchmark'
 
-Thin.logger = Logger.new(nil)
-
 class TestRequest < Thin::Request
   def initialize(path, verb='GET', params={})
     @path = path

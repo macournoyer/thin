@@ -1,8 +1,12 @@
 module Thin
   class RailsHandler < Handler
     def initialize(pwd, env='development')
-      ENV['RAILS_ENV'] = env
+      @env = env
       @pwd = pwd
+    end
+    
+    def start
+      ENV['RAILS_ENV'] = @env
       
       require "#{@pwd}/config/environment"
       require 'dispatcher'
@@ -17,7 +21,7 @@ module Thin
       Dispatcher.dispatch(cgi, ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS, response.body)
       
       # This finalizes the output using the proper HttpResponse way
-      cgi.out("text/html",true) {""}
+      cgi.out("text/html", true) {""}
     end
   end
 end

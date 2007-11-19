@@ -11,6 +11,7 @@ class ServerTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
     @server = Thin::Server.new('0.0.0.0', 3000, @handler)
+    @server.logger = Logger.new(nil)
     @socket = mock
     @server.instance_variable_set :@socket, @socket
   end
@@ -27,7 +28,7 @@ EOS
     client.stubs(:peeraddr).returns([])
     client.expects(:close)
     
-    @server.run
+    @server.start
     
     client.rewind
     assert_equal <<EOS.chomp, client.read.delete("\r")

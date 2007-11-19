@@ -4,6 +4,8 @@ class RailsTest < Test::Unit::TestCase
   def setup
     @handler = Thin::RailsHandler.new(File.dirname(__FILE__) + '/rails_app')
     @response = Thin::Response.new
+    
+    @handler.start
   end
   
   def test_do_not_handle_static_files
