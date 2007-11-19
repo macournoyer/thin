@@ -4,22 +4,22 @@ Tiny, fast & funny HTTP server
 
 === Why another web server ?
 Thin:
- * is 10% faster then Mongrel behind a load balancer like Nginx.
- * takes around 2MB less memory then Mongrel.
- * is 100% Ruby, no C extension.
- * is self contain, no dependencies.
+* is 10% faster then Mongrel behind a load balancer like Nginx.
+* takes around 2MB less memory then Mongrel.
+* is 100% Ruby, no C extension.
+* is self contain, no dependencies.
 
 === What's the catch ?
 The secret of Thin is that no threads are used. Everything is running in a single thread. For single threaded frameworks like Rails this makes sense, but might not be the case for others.
 
 === Installation
 
-  sudo gem install thin --source http://code.macournoyer.com
+ sudo gem install thin --source http://code.macournoyer.com
 
 === Usage
 In your Rails app directory:
   
-  thin
+ thin
 
 Run: thin -h to get more options
 

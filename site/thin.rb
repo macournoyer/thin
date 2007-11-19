@@ -14,21 +14,23 @@ class Thin < Atchoum::Website
           li { a 'svn', :href => 'http://code.macournoyer.com/svn/thin/trunk/' }
         end
 
-        div.header! do
-          a(:href => :index, :title => 'home') do
-            img.logo! :src => 'images/logo.gif', :alt => 'Thin'
+        div.container! do
+          div.header! do
+            a(:href => :index, :title => 'home') do
+              img.logo! :src => 'images/logo.gif', :alt => 'Thin'
+            end
+            h2.tag_line! "A fast and very simple Ruby web server"
           end
-          h2.tag_line! "A fast and very simple Ruby web server"
-        end
         
-        div.content! do
-          self << yield
-        end
-        
-        div.footer! do
-          hr
-          text "&copy; "
-          a(:href => 'http://macournoyer.com') { 'Marc-Andr&eacute; Cournoyer' }
+          div.content! do
+            self << yield
+          end
+
+          div.footer! do
+            hr
+            text "&copy; "
+            a(:href => 'http://macournoyer.com') { 'Marc-Andr&eacute; Cournoyer' }
+          end
         end
       end
     end
@@ -61,12 +63,9 @@ class Thin < Atchoum::Website
     end
     
     h2 'How'
-    pre do
-      code 'sudo gem install thin --source http://code.macournoyer.com'
-    end
+    pre 'sudo gem install thin --source http://code.macournoyer.com'
+
     p 'Go into your Rails app directory and run:'
-    pre do
-      code 'thin'
-    end
+    pre 'thin'
   end
 end

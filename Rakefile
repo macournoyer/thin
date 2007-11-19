@@ -1,6 +1,7 @@
 require 'rake'
 require 'rake/clean'
 require 'rake/testtask'
+require 'rake/rdoctask'
 require 'rake/gempackagetask'
 
 require File.dirname(__FILE__) + '/lib/thin'
@@ -19,9 +20,10 @@ Rake::RDocTask.new do |rdoc|
             	     "--line-numbers",
             	     "--main", "README",
             	     "--inline-source"]
+  rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
   rdoc.title = "Thin"
-  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb']
+  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb', 'bin/*']
 end
 
 spec = Gem::Specification.new do |s|

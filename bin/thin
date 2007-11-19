@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# Script to launch a Thin server for a Rails application.
+# Run <tt>thin -h</tt> do get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
 
