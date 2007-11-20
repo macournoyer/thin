@@ -9,6 +9,9 @@ acronym { border-bottom: dotted 1px #ccc; cursor: help; }
 pre { font: 9px Courier, "Courier New"; background: #111; color: #fff; padding: 3px; border: solid 1px #ccc; }
 hr { background: url(/thin/images/split.gif) no-repeat; height: 30px; width: 100px; border: 0; margin: 40px auto; }
 
+input, select, textarea { font: 9px Tahoma, Arial; }
+label { font-size: 11px; }
+
 h1, h2, h3, h4 { margin: 12px 0 8px 0; padding: 0; }
 h3 { font-size: 14px; }
 h4 { font-size: 13px; }
@@ -25,6 +28,7 @@ ul#menu li a:hover { text-decoration: underline; }
 #header #tag_line { margin: 4px 0; font-size: 12px; letter-spacing: -1px; color: #333; }
 
 #content { line-height: 16px; text-align: left; }
+#content h1 { margin: 40px 0 10px 0; padding: 0; text-align: center; }
 #content h2 { margin: 40px 0 10px 0; padding: 0; text-align: center; }
 #content h3 { margin: 40px 0 10px 0; padding: 0; text-align: center; }
 
@@ -42,3 +46,41 @@ ul.list li { margin: 0; padding: 1px 0; }
 .dyn-source { display: none; }
 .path { text-align: center; font: 9px Tahoma, Arial; }
 .method-type { font: 9px Tahoma, Arial; color: #fff; background: #111; border: solid 1px #ccc; padding: 1px; }
+
+/*Trac*/
+#container.wide { width: 600px; }
+#prefs { position: absolute; right: 0; width: 200px; }
+
+#content.timeline h2 { font: 9px Tahoma, Arial; border-bottom: solid 1px #ccc; color: #ccc; text-align: left; }
+#content.timeline dt { padding: 3px; }
+#content.timeline dt a { border: 0; }
+#content.timeline dt a em { border-bottom: solid 1px #ccc; }
+#content.timeline dt .time { font: 9px Tahoma, Arial; color: #fff; background: #111; border: solid 1px #ccc; padding: 1px; }
+
+table { border-collapse: collapse; }
+
+table.listing { margin: 30px 0; width: 100%; }
+table.listing th { font: 9px Tahoma, Arial; border-bottom: solid 1px #ccc; text-align: left; }
+table.listing th a { border: 0; }
+table.listing td { padding: 4px; }
+
+table .odd td { background: #eee; }
+
+#jumprev { float: right; }
+
+#help { float: right; margin: 20px 0; }
+#altlinks { clear: both; }
+
+#ctxtnav ul { padding: 4px; margin:0; list-style: none; }
+#ctxtnav ul li { margin:0; display: inline; }
+
+table.code { background: #111; color: #fff; padding: 3px; border: solid 1px #ccc; width: 100%; }
+table.code tbody td { font: 10px Courier, "Courier New"; padding: 3px; }
+table.code th.info { display: none; }
+table.code th { font: 8px Tahoma, Arial; text-align: right; padding: 1px 6px; }
+table.code th a { border: 0; }
+table.code td { padding: 2px; }
+
+.field, .buttons { margin: 14px 0; }
+
+fieldset table, textarea { width: 100%; }
