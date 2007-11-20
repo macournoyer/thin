@@ -6,7 +6,7 @@ Tiny, fast & funny HTTP server
 
  sudo gem install thin --source http://code.macournoyer.com
 
-Or get the source at:
+Or get the source:
 
  svn co http://code.macournoyer.com/svn/thin/trunk thin
 
@@ -15,7 +15,8 @@ In your Rails app directory:
   
  thin start
 
-Run: thin -h to get more options
+Get more help with the thin script at http://code.macournoyer.com/thin/doc/files/bin/thin.html 
+and with the thin_cluster script at http://code.macournoyer.com/thin/doc/files/bin/thin_cluster.html
 
 === License
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt
@@ -26,8 +27,6 @@ from Mongrel http://mongrel.rubyforge.org/ by Zed Shaw.
 Also released under the Ruby license.
 
 Thin was created by:
-Marc-Andre Cournoyer
-macournoyer@gmail.com
-http://macournoyer.com
+Marc-Andre Cournoyer - http://macournoyer.com
 
 Please report any bug using http://code.macournoyer.com/thin/trac.fcgi/newticket

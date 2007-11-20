@@ -42,7 +42,7 @@ spec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
-  s.executables           = %w(thin)
+  s.executables           = %w(thin thin_cluster)
 
   s.required_ruby_version = '>= 1.8.2'
 

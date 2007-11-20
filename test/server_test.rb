@@ -10,8 +10,11 @@ end
 class ServerTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
+    TCPServer.stubs(:new)
+    
     @server = Thin::Server.new('0.0.0.0', 3000, @handler)
     @server.logger = Logger.new(nil)
+    
     @socket = mock
     @server.instance_variable_set :@socket, @socket
   end
@@ -38,5 +41,11 @@ Connection: close
 
 test body
 EOS
+  end
+  
+  def test_daemonize_breaks_when_error_in_thread
+    @server.stubs(:write_pid_file).raises RuntimeError
+    
+    @server.daemonize
   end
 end

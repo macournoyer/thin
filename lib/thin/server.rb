@@ -3,9 +3,15 @@ require 'fileutils'
 require 'logger'
 
 module Thin
+  # The Thin server used to served request.
+  # It listen for incoming request on a given port
+  # and forward all request to all the handlers in the order
+  # they were registered.
   class Server
     attr_accessor :port, :host, :handlers, :pid_file
     
+    # Creates a new server binded to <tt>host:port</tt>
+    # that will pass request to +handlers+.
     def initialize(host, port, *handlers)
       @host     = host
       @port     = port
@@ -17,15 +23,18 @@ module Thin
       self.logger = Logger.new(STDOUT)
     end
     
+    # Returns the server logger.
     def logger
       @logger
     end
     
+    # Set the logger used for the server and all handlers.
     def logger=(logger)
       @logger = logger
       @handlers.each { |h| h.logger = logger }
     end
     
+    # Starts the server in the current process.
     def start
       @stop = false
       trap('INT') do
@@ -47,7 +56,8 @@ module Thin
     ensure
       @socket.close unless @socket.closed? rescue nil
     end
-        
+    
+    # Process one request from a client 
     def process(client)
       return if client.eof?
       data     = client.readpartial(CHUNK_SIZE)
@@ -85,11 +95,13 @@ module Thin
       client.close   unless client.closed? rescue nil
     end
     
+    # Send the command to stop the server
     def stop
       @stop = true
       @socket.close rescue nil
     end
     
+    # Kill the process which the PID is stored in the +pid_file+.
     def self.kill(pid_file)
       if File.exist?(pid_file) && pid = open(pid_file).read.chomp
         puts "Sending INT signal to process #{pid}"
@@ -99,11 +111,18 @@ module Thin
       end
     end
     
+    # Starts the server in a seperate process
+    # returning the control right away.
     def daemonize
       pid = fork do
-        write_pid_file
-        at_exit { remove_pid_file }
-        start
+        begin
+          write_pid_file
+          at_exit { remove_pid_file }
+          start
+        rescue Object => e
+          logger.error "Error : #{e.message}\n#{e.backtrace}"
+          exit 1
+        end
       end
       # Make sure we do not create zombies
       Process.detach(pid)

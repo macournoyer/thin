@@ -1,5 +1,18 @@
 #!/usr/bin/env ruby
-# Script used to launch multiple server instances
+# Script used to launch multiple server instances.
+# It takes most of the same argument as the +thin+ script
+# plus the -n option to specify the number of servers to run.
+# 
+# Also you can store your options into a config file, create it like this:
+#  thin_cluster -c /var/www/my_app/current config
+# Then a config file will be created in /var/www/my_app/current/config/thin.yml
+# with the default options.
+# You can launch your 3 servers with:
+#  thin_cluster start
+# And stop them with:
+#  thin_cluster stop
+#
+# Run <tt>thin_cluster -h</tt> do get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
 

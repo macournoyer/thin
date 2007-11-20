@@ -45,7 +45,7 @@ module Thin
     
     def parser
       OptionParser.new do |opts|
-        opts.banner = "Usage: #{$PROGRAM_NAME} [options] #{@commands.keys.join('|')}"
+        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] #{@commands.keys.join('|')}"
         
         opts.separator ""
         opts.separator "Specific options:"
