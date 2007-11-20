@@ -1,6 +1,7 @@
 require 'optparse'
 require 'ostruct'
 require 'yaml'
+require 'fileutils'
 
 module Thin
   class Commander
@@ -15,7 +16,8 @@ module Thin
         :daemonize   => false,
         :log_file    => nil,
         :pid_file    => 'tmp/pids/thin.pid',
-        :servers     => 3
+        :servers     => 3,
+        :config      => 'config/thin.yml'
       )
       
       @commands = {}
@@ -123,15 +125,16 @@ module Thin
     def to_yaml
       # Stringnify keys so we have a beautiful yaml dump (no : in front of keys)
       hash = options.marshal_dump.inject({}) do |h, (option, value)|
-        h[option.to_s] = value if include_option?(option) && !%w(config)
+        h[option.to_s] = value if include_option?(option)
         h
       end
+      hash.delete('config')
       
       YAML.dump(hash)
     end
     
     def load_from_config
-      error "Config file required" unless options.config
+      return unless File.exist?(options.config)
       
       hash = File.open(options.config) { |file| YAML.load(file) }
       hash = hash.inject({}) { |h, (k, v)| h[k.to_sym] = v; h }
@@ -141,6 +144,7 @@ module Thin
     
     def dump_config
       error "Config file required" unless options.config
+      
       File.open(options.config, "w") { |file| file << self.to_yaml }
     end
     

@@ -7,13 +7,13 @@ Thin::Commander.new(ARGV) do |command|
   command.include_options :port, :address, :environment, :servers, :log_file, :pid_file, :config
   
   command.before do
-    command.load_from_config if command.options.config
-
     Dir.chdir command.options.cwd if command.options.cwd
     command.options.log_file ||= 'log/thin.log'
   end
   
   command.on :start do
+    command.load_from_config
+    
     command.options.servers.times do |n|
       port = command.options.port + n
       
@@ -29,13 +29,15 @@ Thin::Commander.new(ARGV) do |command|
       # Include port number in log and pid file names
       FileUtils.mkdir_p File.dirname(command.options.log_file)
       server.logger   = Logger.new(command.include_port_number(command.options.log_file, port))
-      server.pid_file = include_port_number(command.options.pid_file, port)
+      server.pid_file = command.include_port_number(command.options.pid_file, port)
       
       server.daemonize
     end
   end
 
   command.on :stop do
+    command.load_from_config
+    
     command.error "PID file required to stop server" unless command.options.pid_file
     command.error "Port number required to stop server" unless command.options.port
     
