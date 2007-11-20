@@ -10,8 +10,12 @@ class Thin < Atchoum::Website
       end
       body do
         ul.menu! do
-          li { a 'doc', :href => :doc }
-          li { a 'svn', :href => 'http://code.macournoyer.com/svn/thin/trunk/' }
+          li { a 'home', :href => "/thin/" }
+          li { a 'doc', :href => "/thin/doc/" }
+          li { a 'timeline', :href => "/thin/trac.fcgi/timeline" }
+          li { a 'code', :href => "/thin/trac.fcgi/browser" }
+          li { a 'tickets', :href => "/thin/trac.fcgi/report" }
+          li { a 'new ticket', :href => "/thin/trac.fcgi/newticket" }
         end
 
         div.container! do

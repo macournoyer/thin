@@ -214,7 +214,10 @@ ENDIF:title
     <ul id="menu">
       <li><a href="/thin/">home</a></li>
       <li><a href="/thin/doc/">doc</a></li>
-      <li><a href="http://code.macournoyer.com/svn/thin/">svn</a></li>
+      <li><a href="/thin/trac.fcgi/timeline">timeline</a></li>
+      <li><a href="/thin/trac.fcgi/browser">code</a></li>
+      <li><a href="/thin/trac.fcgi/report">tickets</a></li>
+      <li><a href="/thin/trac.fcgi/newticket">new ticket</a></li>
     </ul>
     <div id="sidebar">
       <h2>Files</h2>
