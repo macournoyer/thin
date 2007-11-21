@@ -1,6 +1,7 @@
 require 'socket'
 require 'fileutils'
 require 'logger'
+require 'timeout'
 
 module Thin
   # The Thin server used to served request.
@@ -85,10 +86,10 @@ module Thin
       end
 
     rescue InvalidRequest => e
-      logger.error "Invalid request : #{e.message}"
+      logger.error "Invalid request : #{e}"
       client.write ERROR_404_RESPONSE rescue nil
     rescue Object => e
-      logger.error "Unexpected error while processing request : #{e.message}"
+      logger.error "Unexpected error while processing request : #{e}"
     ensure
       request.close  if request            rescue nil
       response.close if response           rescue nil
@@ -101,30 +102,38 @@ module Thin
       @socket.close rescue nil
     end
     
-    # Kill the process which the PID is stored in the +pid_file+.
+    # Kill the process which PID is stored in +pid_file+.
     def self.kill(pid_file)
       if File.exist?(pid_file) && pid = open(pid_file).read
-        puts "Sending INT signal to process #{pid}"
+        print "Sending INT signal to process #{pid} ... "
         Process.kill('INT', pid.to_i)
-        Process.wait
+        Timeout.timeout(5) do
+          sleep 0.5 until !File.exist?(pid_file)
+        end
+        puts "stopped!"
       else
         STDERR.puts "Can't stop server, no PID found in #{pid_file}"
       end
+    rescue Object => e
+      STDERR.puts "error : #{e}"
     end
     
     # Starts the server in a seperate process
     # returning the control right away.
     def daemonize
+      print "Starting server on #{@host}:#{@port} ... "
       pid = fork do
         begin
           write_pid_file
           at_exit { remove_pid_file }
           start
         rescue Object => e
-          logger.error "Error : #{e.message}\n#{e.backtrace}"
+          logger.error "Error : #{e}"
           exit 1
         end
       end
+      puts "started in process #{pid}"
+
       # Make sure we do not create zombies
       Process.detach(pid)
     end
