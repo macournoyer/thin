@@ -45,8 +45,8 @@ class Thin < Atchoum::Website
     p do
       <<-EOS
         Thin is a #{acronym('very simple', :title => 'under 1500 LOC')} web server written in Ruby.
-        It's single-threaded, which means it can only serve one request at the time.
-        This simplicity ends up to be faster and easier on memory for singled-threaded framework like
+        It's single-threaded, which means it can only serve one request at a time.
+        This simplicity affords increased speed and decreased memory usage for singled-threaded framework like
         #{a 'Rails', :href => 'http://rubyonrails.org', :title => 'Ruby on Rails web framework'}.
       EOS
     end
@@ -64,7 +64,7 @@ class Thin < Atchoum::Website
     h2 'How'
     pre 'sudo gem install thin --source http://code.macournoyer.com'
 
-    p 'Go into your Rails app directory and run:'
+    p 'Go to your Rails app directory and run:'
     pre 'thin start'
   end
 end
