@@ -15,7 +15,7 @@ class ServerTest < Test::Unit::TestCase
     @server = Thin::Server.new('0.0.0.0', 3000, @handler)
     @server.logger = Logger.new(nil)
     
-    @socket = mock
+    @socket = stub_everything
     @server.instance_variable_set :@socket, @socket
   end
   
@@ -47,5 +47,18 @@ EOS
     @server.stubs(:write_pid_file).raises RuntimeError
     
     @server.daemonize
+  end
+  
+  def test_kill_waits_for_process
+    @server.pid_file = 'thin.pid'
+    @server.daemonize
+    
+    sleep 1
+    
+    assert File.exist?('thin.pid')
+    
+    Thin::Server.kill 'thin.pid'
+    
+    assert !File.exist?('thin.pid')
   end
 end

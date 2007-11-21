@@ -47,4 +47,17 @@ class ClusterTest < Test::Unit::TestCase
     
     @cluster.send(:stop_on_port, 3002)
   end
+  
+  def test_restart
+    @cluster.expects(:stop_on_port).with(3000)
+    @cluster.expects(:start_on_port).with(3000)
+    
+    @cluster.expects(:stop_on_port).with(3001)
+    @cluster.expects(:start_on_port).with(3001)
+    
+    @cluster.expects(:stop_on_port).with(3002)
+    @cluster.expects(:start_on_port).with(3002)
+    
+    @cluster.restart
+  end
 end

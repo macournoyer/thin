@@ -3,6 +3,8 @@ module Thin
   class Cluster
     attr_accessor :log_file, :pid_file
     
+    # Create a new cluster of servers bound to +host+
+    # on ports +first_port+ to <tt>first_port+size-1</tt>.
     def initialize(host, first_port, size, *handlers)
       @host = host
       @first_port = first_port
@@ -13,23 +15,26 @@ module Thin
       @pid_file = 'thin.pid'
     end
     
+    # Start the servers
     def start
       with_each_instance do |port|
         start_on_port port
       end
     end
     
+    # Stop the servers
     def stop
       with_each_instance do |port|
         stop_on_port port
       end
     end
     
-    # TODO
+    # Restart the servers one at the time.
+    # Prevent downtime by making sure only one is stopped at the time.
+    # See http://blog.carlmercier.com/2007/09/07/a-better-approach-to-restarting-a-mongrel-cluster/
     def restart
       with_each_instance do |port|
         stop_on_port port
-        # TODO wait for stopping to finish
         start_on_port port
       end
     end

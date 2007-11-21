@@ -103,9 +103,10 @@ module Thin
     
     # Kill the process which the PID is stored in the +pid_file+.
     def self.kill(pid_file)
-      if File.exist?(pid_file) && pid = open(pid_file).read.chomp
+      if File.exist?(pid_file) && pid = open(pid_file).read
         puts "Sending INT signal to process #{pid}"
         Process.kill('INT', pid.to_i)
+        Process.wait
       else
         STDERR.puts "Can't stop server, no PID found in #{pid_file}"
       end
