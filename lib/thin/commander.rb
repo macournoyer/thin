@@ -147,9 +147,5 @@ module Thin
       
       File.open(options.config, "w") { |file| file << self.to_yaml }
     end
-    
-    def include_port_number(path, port)
-      path.gsub(/\.(\w+)$/) { ".#{port}.#{$1}" }
-    end
   end
 end

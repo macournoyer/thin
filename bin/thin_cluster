@@ -15,6 +15,8 @@
 # Run <tt>thin_cluster -h</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
+require 'thin/commander'
+require 'thin/cluster'
 
 Thin::Commander.new(ARGV) do |command|
   command.include_options :port, :address, :environment, :servers, :log_file, :pid_file, :config
@@ -27,37 +29,41 @@ Thin::Commander.new(ARGV) do |command|
   command.on :start do
     command.load_from_config
     
-    command.options.servers.times do |n|
-      port = command.options.port + n
-      
-      puts "Starting server on #{command.options.address}:#{port}"
-      
-      server = Thin::Server.new(command.options.address, port,
+    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers,
                                 # Let Rails handle his thing and ignore files
                                 Thin::RailsHandler.new('.', command.options.environment),
                                 # Serve static files
                                 Thin::DirHandler.new('public')
                                )
-      
-      # Include port number in log and pid file names
-      FileUtils.mkdir_p File.dirname(command.options.log_file)
-      server.logger   = Logger.new(command.include_port_number(command.options.log_file, port))
-      server.pid_file = command.include_port_number(command.options.pid_file, port)
-      
-      server.daemonize
-    end
+    cluster.log_file = command.options.log_file
+    cluster.pid_file = command.options.pid_file
+
+    cluster.start
   end
 
   command.on :stop do
     command.load_from_config
     
-    command.error "PID file required to stop server" unless command.options.pid_file
-    command.error "Port number required to stop server" unless command.options.port
+    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers)
+    cluster.log_file = command.options.log_file
+    cluster.pid_file = command.options.pid_file
+
+    cluster.stop
+  end
+  
+  command.on :restart do
+    command.load_from_config
     
-    command.options.servers.times do |n|
-      port = command.options.port + n
-      Thin::Server.kill(command.include_port_number(command.options.pid_file, port))
-    end
+    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers,
+                                # Let Rails handle his thing and ignore files
+                                Thin::RailsHandler.new('.', command.options.environment),
+                                # Serve static files
+                                Thin::DirHandler.new('public')
+                               )
+    cluster.log_file = command.options.log_file
+    cluster.pid_file = command.options.pid_file
+
+    cluster.restart
   end
   
   command.on :config do
