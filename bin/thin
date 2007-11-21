@@ -15,7 +15,7 @@
 # And later stop it
 #  thin stop
 #
-# Run <tt>thin -h</tt> do get help.
+# Run <tt>thin -h</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
 

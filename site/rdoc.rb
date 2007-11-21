@@ -131,6 +131,7 @@ ENDIF:callseq
 IFNOT:callseq
 <strong><a name="%aref%" href="#%aref%" title="Permalink to %type% %category% method: %name%">%name%%params%</a></strong>
 ENDIF:callseq
+</h4>
 
 IF:m_desc
 %m_desc%

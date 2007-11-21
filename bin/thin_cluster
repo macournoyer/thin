@@ -12,7 +12,7 @@
 # And stop them with:
 #  thin_cluster stop
 #
-# Run <tt>thin_cluster -h</tt> do get help.
+# Run <tt>thin_cluster -h</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
 
