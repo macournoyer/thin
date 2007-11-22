@@ -19,12 +19,16 @@ Get more help with the thin script at http://code.macournoyer.com/thin/doc/files
 and with the thin_cluster script at http://code.macournoyer.com/thin/doc/files/bin/thin_cluster.html
 
 === License
-Ruby License, http://www.ruby-lang.org/en/LICENSE.txt
+Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
 
 === Credits
-Lots of the code was inspired (or stolen entirely)
-from Mongrel http://mongrel.rubyforge.org/ by Zed Shaw.
-Also released under the Ruby license.
+Lots of the code was inspired (or stolen entirely) from Mongrel http://mongrel.rubyforge.org by Zed Shaw.
+Mongrel Web Server (Mongrel) is copyrighted free software by Zed A. Shaw
+<zedshaw at zedshaw dot com> You can redistribute it and/or modify it under
+either the terms of the GPL.
+
+transat/parser.rb was taken from Piston source code.
+Copyright (c) 2006 Francois Beausoleil <francois@teksol.info>
 
 Thin was created by:
 Marc-Andre Cournoyer - http://macournoyer.com

@@ -2,7 +2,7 @@ require 'cgi'
 
 module Thin
   # Class largely based on Mongrel::CGIWrapper
-  # http://mongrel.rubyforge.org/ by Zed Shaw
+  # http://mongrel.rubyforge.org by Zed A. Shaw <zedshaw at zedshaw dot com>
   class CGIWrapper < ::CGI
     public :env_table
     attr_reader :options

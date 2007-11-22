@@ -15,35 +15,25 @@
 # And later stop it
 #  thin stop
 #
-# Run <tt>thin -h</tt> to get help.
+# Run <tt>thin help</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
-require 'thin/commander'
+require 'thin/commands'
 
-Thin::Commander.new(ARGV) do |command|
-  command.include_options :port, :address, :environment, :daemonize, :log_file, :pid_file
-  
-  command.before do
-    Dir.chdir command.options.cwd if command.options.cwd
-  end
-  
-  command.on :start do
-    server = Thin::Server.new(command.options.address, command.options.port,
-                              # Let Rails handle his thing and ignore files
-                              Thin::RailsHandler.new('.', command.options.environment),
-                              # Serve static files
-                              Thin::DirHandler.new('public')
-                             )
-    server.logger = Logger.new(command.options.log_file) if command.options.log_file
+Thin.define_commands do
+  program_name 'thin'
+  version      Thin::VERSION
 
-    if command.options.daemonize
-      Thin::Daemonizer.new(command.options.pid_file).daemonize { server.start }
-    else
-      server.start
-    end
-  end
+  option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to'
+  option :port,        :short => :p, :default => 3000,                :message => 'Port number to bind to',
+                                     :param_name => 'PORT', :type => :int
+  option :environment, :short => :e, :default => 'development',       :message => 'Rails environment'
+  option :log_file,    :short => :l,                                  :message => 'File to write log output to'
+  option :daemonize,   :short => :d,                                  :message => 'Run in the background'
+  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)'
+  option :cwd,         :short => :c,                                  :message => 'Change to dir before starting',
+                                     :param_name => 'PATH'
 
-  command.on :stop do
-    Thin::Daemonizer.new(command.options.pid_file).kill
-  end
+  command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :cwd]
+  command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file, :cwd]
 end

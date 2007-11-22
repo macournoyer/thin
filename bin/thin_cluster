@@ -4,7 +4,7 @@
 # plus the -n option to specify the number of servers to run.
 # 
 # Also you can store your options into a config file, create it like this:
-#  thin_cluster -c /var/www/my_app/current config
+#  thin_cluster config -C /var/www/my_app/current config
 # Then a config file will be created in /var/www/my_app/current/config/thin.yml
 # with the default options.
 # You can launch your 3 servers with:
@@ -12,61 +12,32 @@
 # And stop them with:
 #  thin_cluster stop
 #
-# Run <tt>thin_cluster -h</tt> to get help.
+# Run <tt>thin_cluster help</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
-require 'thin/commander'
-require 'thin/cluster'
+require 'thin/commands'
 
-Thin::Commander.new(ARGV) do |command|
-  command.include_options :port, :address, :environment, :servers, :log_file, :pid_file, :config
+Thin.define_commands do
+  program_name 'thin_cluster'
+  version      Thin::VERSION
+
+  option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to'
+  option :port,        :short => :p, :default => 3000,                :message => 'Port number to bind to',
+                                     :param_name => 'PORT', :type => :int
+  option :servers,     :short => :n, :default => 3,                   :message => 'Number of servers to launch',
+                                     :param_name => 'NUM', :type => :int  
+  option :environment, :short => :e, :default => 'development',       :message => 'Rails environment'
+  option :log_file,    :short => :l, :default => 'log/thin.log',      :message => 'File to write log output to'
+  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)'
+  option :cwd,         :short => :c, :param_name => 'PATH',           :message => 'Change to dir before starting'
+  option :config,      :short => :C, :default => 'config/thin.yml',   :message => 'Config file',
+                                     :param_name => 'PATH'
+                                     
+
+  valid_options = [:address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config]
   
-  command.before do
-    Dir.chdir command.options.cwd if command.options.cwd
-    command.options.log_file ||= 'log/thin.log'
-  end
-  
-  command.on :start do
-    command.load_from_config
-    
-    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers,
-                                # Let Rails handle his thing and ignore files
-                                Thin::RailsHandler.new('.', command.options.environment),
-                                # Serve static files
-                                Thin::DirHandler.new('public')
-                               )
-    cluster.log_file = command.options.log_file
-    cluster.pid_file = command.options.pid_file
-
-    cluster.start
-  end
-
-  command.on :stop do
-    command.load_from_config
-    
-    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers)
-    cluster.log_file = command.options.log_file
-    cluster.pid_file = command.options.pid_file
-
-    cluster.stop
-  end
-  
-  command.on :restart do
-    command.load_from_config
-    
-    cluster = Thin::Cluster.new(command.options.address, command.options.port, command.options.servers,
-                                # Let Rails handle his thing and ignore files
-                                Thin::RailsHandler.new('.', command.options.environment),
-                                # Serve static files
-                                Thin::DirHandler.new('public')
-                               )
-    cluster.log_file = command.options.log_file
-    cluster.pid_file = command.options.pid_file
-
-    cluster.restart
-  end
-  
-  command.on :config do
-    command.dump_config
-  end
+  command :start,   Thin::Commands::Cluster::Start,   :valid_options => valid_options
+  command :stop,    Thin::Commands::Cluster::Stop,    :valid_options => valid_options
+  command :restart, Thin::Commands::Cluster::Restart, :valid_options => valid_options
+  command :config,  Thin::Commands::Cluster::Config,  :valid_options => valid_options
 end
