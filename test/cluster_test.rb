@@ -31,8 +31,7 @@ class ClusterTest < Test::Unit::TestCase
     logger = mock('logger')
     Logger.expects(:new).with('thin.3001.log').returns(logger)
     server.expects(:logger=).with(logger)
-    server.expects(:pid_file=).with('thin.3001.pid')
-    server.expects(:daemonize)
+    Thin::Daemonizer.any_instance.expects(:daemonize)
     
     @cluster.send(:start_on_port, 3001)
   end
@@ -43,7 +42,7 @@ class ClusterTest < Test::Unit::TestCase
   end
   
   def test_stop_on_port
-    Thin::Server.expects(:kill).with('thin.3002.pid')
+    Thin::Daemonizer.any_instance.expects(:kill)
     
     @cluster.send(:stop_on_port, 3002)
   end

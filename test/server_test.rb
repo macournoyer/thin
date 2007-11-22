@@ -41,24 +41,5 @@ Connection: close
 
 test body
 EOS
-  end
-  
-  def test_daemonize_breaks_when_error_in_thread
-    @server.stubs(:write_pid_file).raises RuntimeError
-    
-    @server.daemonize
-  end
-  
-  def test_kill_waits_for_process
-    @server.pid_file = 'thin.pid'
-    @server.daemonize
-    
-    sleep 1
-    
-    assert File.exist?('thin.pid')
-    
-    Thin::Server.kill 'thin.pid'
-    
-    assert !File.exist?('thin.pid')
-  end
+  end  
 end

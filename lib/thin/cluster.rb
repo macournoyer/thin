@@ -39,27 +39,26 @@ module Thin
       end
     end
     
+    def log_file_for(port)
+      include_port_number @log_file, port
+    end
+    
+    def pid_file_for(port)
+      include_port_number @pid_file, port
+    end
+    
     private
       def start_on_port(port)
-        # Add the port numbers in the filename
-        # so each instance get its own file
-        log_file = include_port_number(@log_file, port)
-        pid_file = include_port_number(@pid_file, port)
-      
         server = Server.new(@host, port, *@handlers)
       
-        FileUtils.mkdir_p File.dirname(log_file)
-        server.logger   = Logger.new(log_file)
+        FileUtils.mkdir_p File.dirname(log_file_for(port))
+        server.logger   = Logger.new(log_file_for(port))
         
-        server.pid_file = pid_file
-      
-        server.daemonize
+        Daemonizer.new(pid_file_for(port)).daemonize { server.start }
       end
     
       def stop_on_port(port)
-        pid_file = include_port_number(@pid_file, port)
-
-        Server.kill pid_file
+        Daemonizer.new(pid_file_for(port)).kill
       end
     
       def with_each_instance
@@ -69,6 +68,8 @@ module Thin
         end
       end
       
+      # Add the port numbers in the filename
+      # so each instance get its own file
       def include_port_number(path, port)
         raise ArgumentError, "filename '#{path}' must include an extension" unless path =~ /\./
         path.gsub(/\.(.+)$/) { ".#{port}.#{$1}" }

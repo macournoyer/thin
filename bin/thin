@@ -37,15 +37,13 @@ Thin::Commander.new(ARGV) do |command|
     server.logger = Logger.new(command.options.log_file) if command.options.log_file
 
     if command.options.daemonize
-      server.pid_file = command.options.pid_file
-      server.daemonize
+      Thin::Daemonizer.new(command.options.pid_file).daemonize { server.start }
     else
       server.start
     end
   end
 
   command.on :stop do
-    command.error "PID file required to stop server" unless command.options.pid_file
-    Thin::Server.kill(command.options.pid_file)
+    Thin::Daemonizer.new(command.options.pid_file).kill
   end
 end
