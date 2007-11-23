@@ -20,6 +20,7 @@ require 'thin/commands'
 Thin.define_commands do
   program_name 'thin_cluster'
   version      Thin::VERSION
+  help         'Thin cluster is a monitoring tool for multiple Thin web server instances'
 
   option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to'
   option :port,        :short => :p, :default => 3000,                :message => 'Port number to bind to',

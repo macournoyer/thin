@@ -2,6 +2,10 @@ module Thin::Commands::Server
   class Start < Thin::Commands::Command
     attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :cwd
     
+    def cwd
+      args.first || '.'
+    end
+    
     def run
       Dir.chdir cwd
       server = Thin::Server.new(address, port,
@@ -22,5 +26,14 @@ module Thin::Commands::Server
     def self.help
       "Starts a new Thin web server for a Rails application."
     end
+
+    def self.detailed_help
+      <<-EOF
+usage: thin start [PATH]
+
+  Starts a new Thin web server for the Rails application in PATH
+  (default to current directory).
+EOF
+    end      
   end
 end

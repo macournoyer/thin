@@ -123,6 +123,10 @@ module Transat
     def command(name, klass, options={})
       @commands[name.to_s] = options.merge(:class => klass)
     end
+    
+    def help(message)
+      @help = message
+    end
 
     def parse_and_execute(args=ARGV)
       begin
@@ -182,15 +186,18 @@ module Transat
         message << "Type '#{program_name.downcase} help <command>' for help on a specific command."
         message << "Type '#{program_name.downcase} version' to get this program's version."
         message << ""
-        message << "Available subcommands are:"
+        message << "Available commands are:"
         @commands.sort.each do |command, options|
           command_klass = options[:class]
-          command_help = command_klass.respond_to?(:help) ? command_klass.help : ''
           if command_klass.respond_to?(:aliases) then
-            message << "  #{command} (#{command_klass.aliases.join(", ")})  ".ljust(15) + command_help
+            message << "  #{command} (#{command_klass.aliases.join(", ")})"
           else
-            message << "  #{command}  ".ljust(15) + command_help
+            message << "  #{command}"
           end
+        end
+        if @help
+          message << ""
+          message << @help
         end
       end
 

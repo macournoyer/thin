@@ -1,6 +1,10 @@
 module Thin::Commands::Server
   class Stop < Thin::Commands::Command
-    attr_accessor :pid_file, :cwd
+    attr_accessor :pid_file
+    
+    def cwd
+      args.first || '.'
+    end
 
     def run
       raise Thin::Commands::CommandError, 'PID file required' unless pid_file
@@ -9,7 +13,17 @@ module Thin::Commands::Server
     end
     
     def self.help
-      "Stops a web server running in the background."
+      "Stops the web server running in the background."
+    end
+
+    def self.detailed_help
+      <<-EOF
+usage: thin stop [PATH]
+
+  Stops the web server running in the background
+  which PID is in the file PATH/<pid-file>
+  (default to <current directory>/tmp/pids/thin.pid).
+EOF
     end
   end
 end

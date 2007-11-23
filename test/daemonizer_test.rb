@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/test_helper'
+require 'timeout'
 
 class DaemonizerTest < Test::Unit::TestCase
   def setup
@@ -16,9 +17,9 @@ class DaemonizerTest < Test::Unit::TestCase
   def test_kill
     @daemonizer.daemonize { empty_loop }
     
-    sleep 1
-    
-    assert File.exist?('thin.pid')
+    Timeout.timeout(5) do
+      sleep 0.5 until File.exist?('thin.pid')
+    end
     
     @daemonizer.kill
     

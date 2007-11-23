@@ -45,8 +45,10 @@ module Thin
       
       logger.info ">> Thin web server (v#{VERSION})"
 
-      logger.info ">> Starting handlers ..."
-      @handlers.each { |h| h.start }
+      @handlers.each do |handler|
+        logger.info ">> Starting #{handler.class.name} ..."
+        handler.start
+      end
       
       logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"      
       until @stop
@@ -85,11 +87,15 @@ module Thin
         client.write ERROR_404_RESPONSE
       end
 
+    rescue EOFError, Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL, Errno::EBADF
+      client.close rescue nil
     rescue InvalidRequest => e
-      logger.error "Invalid request : #{e}"
+      logger.error "Invalid request: #{e.message}"
+      logger.error "Request data:\n#{data}"
       client.write ERROR_404_RESPONSE rescue nil
     rescue Object => e
-      logger.error "Unexpected error while processing request : #{e}"
+      logger.error "Unexpected error while processing request: #{e.inspect}"
+      logger.error e.backtrace.join("\n")
     ensure
       request.close  if request            rescue nil
       response.close if response           rescue nil
