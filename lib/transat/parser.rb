@@ -180,7 +180,7 @@ module Transat
         message << command_klass.detailed_help if command_klass.respond_to?(:detailed_help)
         message << ""
         message << "Valid options:"
-        @option_parser.summarize(message)
+        command_options_summary(@commands[command], message)
       else
         message << "usage: #{program_name.downcase} <command> [options] [args...]"
         message << "Type '#{program_name.downcase} help <command>' for help on a specific command."
@@ -202,6 +202,16 @@ module Transat
       end
 
       message.map {|line| line.chomp}.join("\n")
+    end
+    
+    def command_options_summary(command, message=[])
+      valid_options = (command[:valid_options] || []).collect { |opt| "--#{opt.to_s.tr('_', '-')}"  }
+      @option_parser.top.list.each do |opt|
+        opt.summarize({}, {}, @option_parser.summary_width, @option_parser.summary_width - 1, @option_parser.summary_indent) do |line|
+          message << line
+        end if valid_options.include?(opt.long.to_s)
+      end
+      message
     end
 
     def program_name(value=nil)
