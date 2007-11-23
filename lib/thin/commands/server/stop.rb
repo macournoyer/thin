@@ -1,5 +1,5 @@
 module Thin::Commands::Server
-  class Stop < Thin::Commands::Command
+  class Stop < Base
     attr_accessor :pid_file
     
     def cwd
@@ -7,7 +7,7 @@ module Thin::Commands::Server
     end
 
     def run
-      raise Thin::Commands::CommandError, 'PID file required' unless pid_file
+      error 'PID file required' unless pid_file
       Dir.chdir cwd
       Thin::Daemonizer.new(pid_file).kill
     end

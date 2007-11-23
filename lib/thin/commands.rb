@@ -2,7 +2,11 @@ require 'transat/parser'
 
 module Thin
   def self.define_commands(&block)
-    Transat::Parser.parse_and_execute(ARGV, &block)
+    begin
+      Transat::Parser.parse_and_execute(ARGV, &block)      
+    rescue Commands::CommandError => e
+      puts "Error: #{e}"
+    end
   end
   
   module Commands
@@ -25,11 +29,16 @@ module Thin
       
       def self.detailed_help
         <<-EOF
-usage: #{command_name}
+usage: #{File.basename($PROGRAM_NAME)} #{command_name}
   
   #{help}
 EOF
-      end      
+      end
+      
+      protected
+        def error(message)
+          raise Thin::Commands::CommandError, message
+        end
     end
   end
   

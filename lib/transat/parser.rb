@@ -139,7 +139,7 @@ module Transat
         puts "#{program_name} #{version}"
         exit 0
       rescue NoCommandGiven, UnknownOptions, UnknownCommand
-        $stderr.puts "ERROR: #{$!.message}"
+        $stderr.puts "Error: #{$!.message}"
         $stderr.puts usage($!.respond_to?(:command) ? $!.command : nil)
         exit 1
       end
@@ -153,12 +153,18 @@ module Transat
     end
 
     def execute(command, non_options)
-      found = false
       @commands.each do |command_name, options|
         command_klass = options[:class]
+        
         aliases = [command_name]
         aliases += command_klass.aliases if command_klass.respond_to?(:aliases)
-        return command_klass.new(non_options, @received_options).run if aliases.include?(command)
+        
+        valid_options = {}
+        @received_options.each_pair do |name, value|
+          valid_options[name] = value if options[:valid_options].include?(name)
+        end if options[:valid_options]
+        
+        return command_klass.new(non_options, valid_options).run if aliases.include?(command)
       end
 
       raise UnknownCommand.new(command, self)

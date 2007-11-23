@@ -1,10 +1,6 @@
 module Thin::Commands::Server
-  class Start < Thin::Commands::Command
-    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :cwd
-    
-    def cwd
-      args.first || '.'
-    end
+  class Start < Base
+    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file
     
     def run
       Dir.chdir cwd

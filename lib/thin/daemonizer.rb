@@ -24,8 +24,8 @@ module Thin
     
     # Starts the server in a seperate process
     # returning the control right away.
-    def daemonize
-      print "Starting ... "
+    def daemonize(title=nil)
+      print "Starting #{title} ... "
       pid = fork do
         write_pid_file
         at_exit { remove_pid_file }

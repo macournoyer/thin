@@ -1,11 +1,14 @@
-require 'thin/cluster'
-
 module Thin::Commands::Cluster
-  class Config < Thin::Commands::Command
-    attr_accessor :address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config
-    
+  class Config < Base
     def run
-      # TODO dump config
+      error 'Config file required' unless config
+      
+      hash = {}
+      self.class.config_attributes.each do |attr|
+        hash[attr.to_s] = send(attr)
+      end
+      
+      File.open(config, 'w') { |f| f << YAML.dump(hash) }
     end
 
     def self.help

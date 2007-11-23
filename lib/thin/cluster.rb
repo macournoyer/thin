@@ -54,7 +54,7 @@ module Thin
         FileUtils.mkdir_p File.dirname(log_file_for(port))
         server.logger   = Logger.new(log_file_for(port))
         
-        Daemonizer.new(pid_file_for(port)).daemonize { server.start }
+        Daemonizer.new(pid_file_for(port)).daemonize("server on #{@host}:#{port}") { server.start }
       end
     
       def stop_on_port(port)

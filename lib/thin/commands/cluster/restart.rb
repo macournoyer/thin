@@ -1,11 +1,7 @@
-require 'thin/cluster'
-
 module Thin::Commands::Cluster
-  class Restart < Thin::Commands::Command
-    attr_accessor :address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config
-    
+  class Restart < Base
     def run
-      # TODO load_from_config
+      load_from_config
       
       Dir.chdir cwd
       
