@@ -1,9 +1,9 @@
 module Thin
   NAME           = 'thin'.freeze
-  CHUNK_SIZE     = 16 * 1024
-  VERSION        = '0.1.3'.freeze
+  VERSION        = '0.1.4'.freeze
   SERVER         = "#{NAME} #{VERSION}".freeze
   
+  CHUNK_SIZE     = 16 * 1024
   CONTENT_LENGTH = 'Content-Length'.freeze
   CONTENT_TYPE   = 'Content-Type'.freeze
   
