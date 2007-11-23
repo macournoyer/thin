@@ -1,15 +1,16 @@
-# Set of Capistrano 2 recipes
+# == Set of Capistrano 2 recipes
 # To use, add:
 #  load 'thin'
 #  load 'thin/recipes'
 # on top of your config/deploy.rb file.
-
-# Configurable parameters
+#
+# === Configurable parameters
 # Path to the thin_cluster script
 #  set :thin_cluster, "thin_cluster"
-set :thin_cluster, "thin_cluster" unless thin_cluster
 # Location of the config file
 #  set :thin_config, "#{release_path}/config/thin.yml"
+
+set :thin_cluster, "thin_cluster" unless thin_cluster
 set :thin_config, "#{release_path}/config/thin.yml" unless thin_config
 
 namespace :deploy do  

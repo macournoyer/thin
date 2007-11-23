@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# == thin
 # Script to launch a Thin server for a Rails application.
 # 
 # To start a server for your current Rails app:

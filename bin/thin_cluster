@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# == this_cluster
 # Script used to launch multiple server instances.
 # It takes most of the same argument as the +thin+ script
 # plus the -n option to specify the number of servers to run.
