@@ -30,6 +30,7 @@ module Thin
         write_pid_file
         at_exit { remove_pid_file }
         yield
+        exit
       end
       puts "started in process #{pid}"
 
