@@ -6,6 +6,7 @@ require 'rake/gempackagetask'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
+REVISION = `svn info`.match('Revision: (\d+)')[1]
 CLEAN.include %w(doc/rdoc pkg tmp log)
 
 Rake::TestTask.new do |t|
@@ -35,7 +36,7 @@ end
 
 spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
-  s.version               = Thin::VERSION
+  s.version               = [Thin::VERSION, REVISION].join
   s.platform              = Gem::Platform::RUBY
   s.summary               = "Thin and fast web server"
   s.description           = s.summary
@@ -44,7 +45,7 @@ spec = Gem::Specification.new do |s|
   s.homepage              = 'http://code.macournoyer.com/thin/'
   s.executables           = %w(thin thin_cluster)
 
-  s.required_ruby_version = '>= 1.8.2'
+  s.required_ruby_version = '>= 1.8.6'
 
   s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,lib}/**/*")
   

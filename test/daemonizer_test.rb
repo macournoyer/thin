@@ -15,7 +15,12 @@ class DaemonizerTest < Test::Unit::TestCase
   end
   
   def test_kill
-    @daemonizer.daemonize { empty_loop }
+    @daemonizer.timeout = 10
+    kill_sent = false
+    pid = @daemonizer.daemonize do
+      trap('KILL') { kill_sent = true } # Kill signal is sent when timeout
+      empty_loop
+    end
     
     Timeout.timeout(10) do
       sleep 0.5 until File.exist?('thin.pid')
@@ -23,12 +28,15 @@ class DaemonizerTest < Test::Unit::TestCase
     
     @daemonizer.kill
     
+    assert !kill_sent, 'KILL signal sent'
     assert !File.exist?('thin.pid')
+  ensure
+    Process.kill 9, pid rescue nil
   end
   
   def test_send_kill_signal_if_timeout
     @daemonizer.timeout = 1
-    @daemonizer.daemonize do
+    pid = @daemonizer.daemonize do
       trap('INT') {} # pretend we cannot handle INT signal
       loop {}
     end
@@ -40,6 +48,8 @@ class DaemonizerTest < Test::Unit::TestCase
     @daemonizer.kill
     
     assert !File.exist?('thin.pid')
+  ensure
+    Process.kill 9, pid rescue nil
   end
   
   private

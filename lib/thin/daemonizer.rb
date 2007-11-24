@@ -29,6 +29,9 @@ module Thin
       else
         puts "Can't stop process, no PID found in #{@pid_file}"
       end
+    rescue Errno::ESRCH # No such process
+      puts "process not found!"
+      remove_pid_file
     end
     
     # Starts the server in a seperate process
@@ -45,6 +48,7 @@ module Thin
 
       # Make sure we do not create zombies
       Process.detach(pid)
+      pid
     end
     
     # Change privileges of the process to specified user and group.
