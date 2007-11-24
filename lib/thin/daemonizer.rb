@@ -3,25 +3,32 @@ require 'etc'
 module Thin
   # Creator of external processes to run the server in the background.
   class Daemonizer
-    def initialize(pid_file)
+    attr_accessor :timeout
+    
+    def initialize(pid_file, timeout=60)
       raise ArgumentError, 'PID file required' unless pid_file
       @pid_file = pid_file
+      @timeout = timeout
     end
     
     # Kill the process which PID is stored in +pid_file+.
     def kill
       if File.exist?(@pid_file) && pid = open(@pid_file).read
         print "Sending INT signal to process #{pid} ... "
-        Process.kill('INT', pid.to_i)
-        Timeout.timeout(5) do
-          sleep 0.5 until !File.exist?(@pid_file)
+        begin
+          Process.kill('INT', pid.to_i)
+          Timeout.timeout(@timeout) do
+            sleep 0.5 until !File.exist?(@pid_file)
+          end
+        rescue Timeout::Error
+          print "timeout! Sending KILL signal ... "
+          Process.kill('KILL', pid.to_i)
+          remove_pid_file
         end
         puts "stopped!"
       else
-        STDERR.puts "Can't stop process, no PID found in #{@pid_file}"
+        puts "Can't stop process, no PID found in #{@pid_file}"
       end
-    rescue Object => e
-      STDERR.puts "error : #{e}"
     end
     
     # Starts the server in a seperate process
@@ -31,7 +38,7 @@ module Thin
       pid = fork do
         write_pid_file
         at_exit { remove_pid_file }
-        yield
+        yield self
         exit
       end
       puts "started in process #{pid}"
