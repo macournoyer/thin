@@ -26,13 +26,16 @@ Thin.define_commands do
   version      Thin::VERSION
   help         'Thin is a web server take can run your Rails app in no time'
 
-  option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to'
+  option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to',
+                                     :param_name => 'ADDRESS'
   option :port,        :short => :p, :default => 3000,                :message => 'Port number to bind to',
                                      :param_name => 'PORT', :type => :int
-  option :environment, :short => :e, :default => 'development',       :message => 'Rails environment'
-  option :log_file,    :short => :l,                                  :message => 'File to write log output to'
+  option :environment, :short => :e, :default => 'development',       :message => 'Rails environment',
+                                     :param_name => 'ENVIRONMENT'
+  option :log_file,    :short => :l, :param_name => 'PATH',           :message => 'File to write log output to'
+  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)',
+                                     :param_name => 'PATH'
   option :daemonize,   :short => :d,                                  :message => 'Run in the background'
-  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)'
 
   command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file]
   command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file]

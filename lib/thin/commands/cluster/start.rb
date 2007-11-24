@@ -3,7 +3,7 @@ module Thin::Commands::Cluster
     def run
       load_from_config
       
-      Dir.chdir cwd
+      Dir.chdir cwd if cwd
       
       cluster = Thin::Cluster.new(address, port, servers,
                                   # Let Rails handle his thing and ignore files

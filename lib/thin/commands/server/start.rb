@@ -13,7 +13,7 @@ module Thin::Commands::Server
       server.logger = Logger.new(log_file) if log_file
 
       if daemonize
-        Thin::Daemonizer.new(pid_file).daemonize { server.start }
+        Thin::Daemonizer.new(pid_file, log_file).daemonize { server.start }
       else
         server.start
       end

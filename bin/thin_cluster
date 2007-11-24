@@ -23,14 +23,18 @@ Thin.define_commands do
   version      Thin::VERSION
   help         'Thin cluster monitoring tool for managing multiple Thin web server instances'
 
-  option :address,     :short => :a, :default => '127.0.0.1',         :message => 'Address to bind to'
+  option :address,     :short => :a, :default => '127.0.0.1',         :message => 'Address to bind to',
+                                     :param_name => 'ADDRESS'
   option :port,        :short => :p, :default => 5000,                :message => 'Port number to bind to',
                                      :param_name => 'PORT', :type => :int
   option :servers,     :short => :n, :default => 3,                   :message => 'Number of servers to launch',
                                      :param_name => 'NUM', :type => :int  
-  option :environment, :short => :e, :default => 'production',        :message => 'Rails environment'
-  option :log_file,    :short => :l, :default => 'log/thin.log',      :message => 'File to write log output to'
-  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)'
+  option :environment, :short => :e, :default => 'production',        :message => 'Rails environment',
+                                     :param_name => 'ENVIRONMENT'
+  option :log_file,    :short => :l, :default => 'log/thin.log',      :message => 'File to write log output to',
+                                     :param_name => 'PATH'
+  option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)',
+                                     :param_name => 'PATH'
   option :cwd,         :short => :c, :param_name => 'PATH',           :message => 'Change to dir before starting'
   option :user,        :short => :u, :param_name => 'USER',           :message => 'User to run the process as'
   option :group,       :short => :g, :param_name => 'GROUP',          :message => 'Group to run the process as'

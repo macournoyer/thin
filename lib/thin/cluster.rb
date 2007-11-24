@@ -54,7 +54,7 @@ module Thin
         FileUtils.mkdir_p File.dirname(log_file_for(port))
         server.logger   = Logger.new(log_file_for(port))
         
-        Daemonizer.new(pid_file_for(port)).daemonize("server on #{@host}:#{port}") do |daemon|
+        Daemonizer.new(pid_file_for(port), log_file_for(port)).daemonize("server on #{@host}:#{port}") do |daemon|
           if user
             server.logger.info "Changing process privileges to #{user}:#{group}"
             daemon.change_privilege(user, group || user)
@@ -64,7 +64,7 @@ module Thin
       end
     
       def stop_on_port(port)
-        Daemonizer.new(pid_file_for(port)).kill
+        Daemonizer.new(pid_file_for(port), log_file_for(port)).kill
       end
     
       def with_each_instance

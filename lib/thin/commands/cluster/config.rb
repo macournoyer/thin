@@ -3,7 +3,7 @@ module Thin::Commands::Cluster
     def run
       error 'Config file required' unless config
       
-      Dir.chdir cwd
+      Dir.chdir cwd if cwd
       
       hash = {}
       self.class.config_attributes.each do |attr|

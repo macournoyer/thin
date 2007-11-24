@@ -3,11 +3,12 @@ require 'etc'
 module Thin
   # Creator of external processes to run the server in the background.
   class Daemonizer
-    attr_accessor :pid_file, :timeout
+    attr_accessor :pid_file, :log_file, :timeout
     
-    def initialize(pid_file, timeout=60)
+    def initialize(pid_file, log_file=nil, timeout=60)
       raise ArgumentError, 'PID file required' unless pid_file
       @pid_file = File.expand_path(pid_file)
+      @log_file = File.expand_path(log_file) if log_file
       @timeout = timeout
     end
     
@@ -50,6 +51,9 @@ module Thin
         STDIN.reopen "/dev/null"       # Free file descriptors and
         STDOUT.reopen "/dev/null", "a" # point them somewhere sensible.
         STDERR.reopen STDOUT           # STDOUT/ERR should better go to a logfile.
+        
+        # Redirect output to the logfile
+        [STDOUT, STDERR].each { |f| f.reopen @log_file, 'a' } if @log_file
         
         trap('HUP', 'IGNORE') # Don't die upon logout
         
