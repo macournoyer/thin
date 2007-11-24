@@ -13,7 +13,9 @@ module Thin::Commands::Cluster
                                  )
       cluster.log_file = log_file
       cluster.pid_file = pid_file
-
+      cluster.user = user
+      cluster.group = group
+      
       cluster.start
     end
 

@@ -3,6 +3,8 @@ module Thin::Commands::Cluster
     def run
       error 'Config file required' unless config
       
+      Dir.chdir cwd
+      
       hash = {}
       self.class.config_attributes.each do |attr|
         hash[attr.to_s] = send(attr)

@@ -1,7 +1,7 @@
 module Thin
   # Wrapper around Server to manage several servers all at once.
   class Cluster
-    attr_accessor :log_file, :pid_file
+    attr_accessor :log_file, :pid_file, :user, :group
     
     # Create a new cluster of servers bound to +host+
     # on ports +first_port+ to <tt>first_port+size-1</tt>.
@@ -54,7 +54,13 @@ module Thin
         FileUtils.mkdir_p File.dirname(log_file_for(port))
         server.logger   = Logger.new(log_file_for(port))
         
-        Daemonizer.new(pid_file_for(port)).daemonize("server on #{@host}:#{port}") { server.start }
+        daemon = Daemonizer.new(pid_file_for(port))
+        daemon.daemonize("server on #{@host}:#{port}") { server.start }
+        
+        if user
+          server.logger.info "Changing process privileges to #{user}:#{group}"
+          daemon.change_privilege(user, group || user)
+        end
       end
     
       def stop_on_port(port)

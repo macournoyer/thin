@@ -1,3 +1,5 @@
+require 'etc'
+
 module Thin
   # Creator of external processes to run the server in the background.
   class Daemonizer
@@ -36,6 +38,21 @@ module Thin
 
       # Make sure we do not create zombies
       Process.detach(pid)
+    end
+    
+    # Change privileges of the process to specified user and group.
+    def change_privilege(user, group)
+      uid, gid = Process.euid, Process.egid
+      target_uid = Etc.getpwnam(user).uid if user
+      target_gid = Etc.getgrnam(group).gid if group
+
+      if uid != target_uid || gid != target_gid
+        Process.initgroups(user, target_gid)
+        Process::GID.change_privilege(target_gid)
+        Process::UID.change_privilege(target_uid)
+      end
+    rescue Errno::EPERM => e
+      STDERR.puts "Couldn't change user and group to #{user}:#{group}: #{e}."
     end
     
     private
