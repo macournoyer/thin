@@ -3,11 +3,11 @@ require 'etc'
 module Thin
   # Creator of external processes to run the server in the background.
   class Daemonizer
-    attr_accessor :timeout
+    attr_accessor :pid_file, :timeout
     
     def initialize(pid_file, timeout=60)
       raise ArgumentError, 'PID file required' unless pid_file
-      @pid_file = pid_file
+      @pid_file = File.expand_path(pid_file)
       @timeout = timeout
     end
     
@@ -39,6 +39,21 @@ module Thin
     def daemonize(title=nil)
       print "Starting #{title} ... "
       pid = fork do
+        pwd = Dir.pwd
+        # Prepares the process environment.
+        # Taken from ActiveSupport::Kernel#daemonize
+        exit if fork                   # Parent exits, child continues.
+        Process.setsid                 # Become session leader.
+        exit if fork                   # Zap session leader. See [1].
+        Dir.chdir "/"                  # Release old working directory.
+        File.umask 0000                # Ensure sensible umask. Adjust as needed.
+        STDIN.reopen "/dev/null"       # Free file descriptors and
+        STDOUT.reopen "/dev/null", "a" # point them somewhere sensible.
+        STDERR.reopen STDOUT           # STDOUT/ERR should better go to a logfile.
+        
+        trap('HUP', 'IGNORE') # Don't die upon logout
+        
+        Dir.chdir pwd
         write_pid_file
         at_exit { remove_pid_file }
         yield self

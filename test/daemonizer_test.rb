@@ -8,10 +8,10 @@ class DaemonizerTest < Test::Unit::TestCase
   
   def test_daemonize
     @daemonizer.daemonize do
-      assert File.exist?('thin.pid')
+      assert File.exist?(@daemonizer.pid_file)
     end
     
-    assert !File.exist?('thin.pid')
+    assert !File.exist?(@daemonizer.pid_file)
   end
   
   def test_kill
@@ -23,13 +23,13 @@ class DaemonizerTest < Test::Unit::TestCase
     end
     
     Timeout.timeout(10) do
-      sleep 0.5 until File.exist?('thin.pid')
+      sleep 0.5 until File.exist?(@daemonizer.pid_file)
     end
     
     @daemonizer.kill
     
     assert !kill_sent, 'KILL signal sent'
-    assert !File.exist?('thin.pid')
+    assert !File.exist?(@daemonizer.pid_file)
   ensure
     Process.kill 9, pid rescue nil
   end
@@ -42,12 +42,12 @@ class DaemonizerTest < Test::Unit::TestCase
     end
     
     Timeout.timeout(10) do
-      sleep 0.5 until File.exist?('thin.pid')
+      sleep 0.5 until File.exist?(@daemonizer.pid_file)
     end
     
     @daemonizer.kill
     
-    assert !File.exist?('thin.pid')
+    assert !File.exist?(@daemonizer.pid_file)
   ensure
     Process.kill 9, pid rescue nil
   end
