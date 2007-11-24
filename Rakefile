@@ -46,7 +46,7 @@ spec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.2'
 
-  s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,test,lib}/**/*")
+  s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,lib}/**/*")
   
   s.require_path          = "lib"
   s.bindir                = "bin"

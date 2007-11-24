@@ -3,7 +3,9 @@ module Thin
   VERSION        = '0.1.4'.freeze
   SERVER         = "#{NAME} #{VERSION}".freeze
   
+  # The basic max request size we'll try to read.
   CHUNK_SIZE     = 16 * 1024
+  
   CONTENT_LENGTH = 'Content-Length'.freeze
   CONTENT_TYPE   = 'Content-Type'.freeze
   

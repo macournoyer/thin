@@ -17,7 +17,7 @@ class DaemonizerTest < Test::Unit::TestCase
   def test_kill
     @daemonizer.daemonize { empty_loop }
     
-    Timeout.timeout(5) do
+    Timeout.timeout(10) do
       sleep 0.5 until File.exist?('thin.pid')
     end
     
@@ -29,7 +29,7 @@ class DaemonizerTest < Test::Unit::TestCase
   private
     def empty_loop
       begin
-        loop {}
+        loop { sleep 0.1 }
       rescue Exception => e
         # Ignore interupt error
       end

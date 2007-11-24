@@ -30,7 +30,6 @@ either the terms of the GPL.
 transat/parser.rb was taken from Piston source code.
 Copyright (c) 2006 Francois Beausoleil <francois@teksol.info>
 
-Thin was created by:
-Marc-Andre Cournoyer - http://macournoyer.com
+Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
 
 Please report any bug using http://code.macournoyer.com/thin/trac.fcgi/newticket

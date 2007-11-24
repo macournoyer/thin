@@ -73,7 +73,6 @@ module Thin
       # Add server info to the request env
       request.params['SERVER_SOFTWARE'] = SERVER
       request.params['SERVER_PORT']     = @port.to_s
-      request.params['SERVER_PROTOCOL'] = 'HTTP/1.1'
 
       served = false
       @handlers.each do |handler|

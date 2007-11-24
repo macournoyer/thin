@@ -1,20 +1,67 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
-  def test_parse_path
-    request = Thin::Request.new(<<-EOS)
-GET /index.html HTTP/1.1
-EOS
+  def test_parse_simple
+    request = Thin::Request.new('GET / HTTP/1.1')
     assert_equal 'GET', request.verb
-    assert_equal '/index.html', request.path
+    assert_equal '/', request.path
+    assert_equal 'HTTP/1.1', request.params['SERVER_PROTOCOL']
+    assert_equal '/', request.params['REQUEST_PATH']
+    assert_equal 'HTTP/1.1', request.params['HTTP_VERSION']
+    assert_equal '/', request.params['REQUEST_URI']
+    assert_equal 'CGI/1.2', request.params['GATEWAY_INTERFACE']
+    assert_equal 'GET', request.params['REQUEST_METHOD']    
+    assert_nil request.params['FRAGMENT']
+    assert_nil request.params['QUERY_STRING']
+  end
+  
+  def test_parse_error
+    assert_raise(Thin::InvalidRequest) do
+      Thin::Request.new("GET / SsUTF/1.1")
+    end
+    assert_raise(Thin::InvalidRequest) do
+      Thin::Request.new("GET / HTTP/1.1\r\nyousmelllikecheeze")
+    end
+  end
+  
+  def test_fragment_in_uri
+    request = Thin::Request.new("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\n\r\n")
+
+    assert_equal '/forums/1/topics/2375?page=1', request.params['REQUEST_URI']
+    assert_equal 'posts-17408', request.params['FRAGMENT']
   end
   
   def test_parse_path_with_query_string
-    request = Thin::Request.new(<<-EOS)
-GET /index.html?234235 HTTP/1.1
-EOS
+    request = Thin::Request.new('GET /index.html?234235 HTTP/1.1')
     assert_equal 'GET', request.verb
     assert_equal '/index.html', request.path
+    assert_equal '234235', request.params['QUERY_STRING']
+    assert_nil request.params['FRAGMENT']
+  end
+  
+  def test_horrible_queries
+    # test that large header names are caught
+    assert_raises Thin::InvalidRequest do
+      Thin::Request.new("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n")
+    end
+
+    # test that large mangled field values are caught
+    assert_raises Thin::InvalidRequest do
+      get = "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 80*1024+(1024), false)}\r\n\r\n"
+      Thin::Request.new(get)
+    end
+    
+    get = "GET /#{rand_data(10,120)} HTTP/1.1\r\n"
+    get << "X-Test: test\r\n" * (80 * 1024)
+    assert_raises Thin::InvalidRequest do
+      Thin::Request.new(get)
+    end
+
+    # finally just that random garbage gets blocked all the time
+    get = "GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n"
+    assert_raises Thin::InvalidRequest do
+      Thin::Request.new(get)
+    end
   end
   
   def test_parse_headers
@@ -102,4 +149,19 @@ EOS
     # 3) 0.111
     # 4) 0.103
   end
+  
+  private
+    def rand_data(min, max, readable=true)
+      count = min + ((rand(max)+1) *10).to_i
+      res = count.to_s + "/"
+
+      if readable
+        res << Digest::SHA1.hexdigest(rand(count * 100).to_s) * (count / 40)
+      else
+        res << Digest::SHA1.digest(rand(count * 100).to_s) * (count / 20)
+      end
+
+      return res
+    end
+    
 end
