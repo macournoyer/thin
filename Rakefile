@@ -29,14 +29,14 @@ end
 
 namespace :rdoc do
   desc 'Upload rdoc to code.macournoyer.com'
-  task :upload => :rdoc do
+  task :upload => :rerdoc do
     upload "doc/rdoc", 'thin/doc', :replace => true
   end
 end
 
 spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
-  s.version               = [Thin::VERSION, REVISION].join
+  s.version               = [Thin::VERSION, REVISION].join('.')
   s.platform              = Gem::Platform::RUBY
   s.summary               = "Thin and fast web server"
   s.description           = s.summary
@@ -93,6 +93,6 @@ desc 'Upload all the stuff to code.macournoyer.com'
 task :upload => %w(gem:upload site:upload rdoc:upload)
 
 def upload(file, to, options={})
-  sh %{ssh macournoyer@macournoyer.com "rm -r code.macournoyer.com/#{to}"} if options[:replace]
+  sh %{ssh macournoyer@macournoyer.com "rm -rf code.macournoyer.com/#{to}"} if options[:replace]
   sh %{scp -rq #{file} macournoyer@macournoyer.com:code.macournoyer.com/#{to}}
 end
