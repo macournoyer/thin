@@ -44,7 +44,7 @@ class Thin < Atchoum::Website
     h2 'What'
     p do
       <<-EOS
-        Thin is a #{acronym('very simple', :title => 'under 1500 LOC')} web server written in Ruby.
+        Thin is a #{acronym('very simple', :title => 'under 2 KLOC')} web server written in Ruby.
         It's single-threaded, which means it can only serve one request at a time.
         This simplicity affords increased speed and decreased memory usage for singled-threaded framework like
         #{a 'Rails', :href => 'http://rubyonrails.org', :title => 'Ruby on Rails web framework'}.
@@ -55,7 +55,7 @@ class Thin < Atchoum::Website
     h2 'Why'
     ul do
       li { "10 % faster then #{a 'Mongrel', :href => 'http://mongrel.rubyforge.org/', :title => 'Mongrel web server'}" }
-      li { "2 MB less memory then Mongrel" }
+      li { "5 MB less memory then Mongrel" }
       li { "No C extension, 100% pure and beautiful Ruby" }
       li { "No dependencies" }
       li { "Built-in cluster monitoring" }

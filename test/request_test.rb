@@ -122,6 +122,29 @@ EOS
     assert_nil request.params['HTTP_CONTENT_TYPE']
   end
   
+  def test_stupid_fucked_ie6_headers
+    body = <<-EOS
+POST /codes/58-tracking-file-downloads-automatically-in-google-analytics-with-prototype/refactors HTTP/1.0
+X-Real-IP: 62.24.71.95
+X-Forwarded-For: 62.24.71.95
+Host: refactormycode.com
+Connection: close
+TE: deflate,gzip;q=0.3
+Accept: */*
+Range: bytes=0-499999
+Referer: http://refactormycode.com/codes/58-tracking-file-downloads-automatically-in-google-analytics-with-prototype
+User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)
+Content-Length: 15771
+Content-Type: application/x-www-form-urlencoded
+Cookie: _refactormycode_session_id=a8f147adaccd6154a07b66b37f11f695; flash=%7B%7D
+Cookie2: $Version="1"
+
+authenticity_token=20ab7da6dcc950c4b81fafa2a3ee5ae39e26c7ce&refactor%5Buser_name%5D=Steven&refactor%5Buser_email%5D=Steven&refactor%5Buser_website%5D=http%3A%2F%2F4movievideoclip.freehostplace.com%2F05.html&refactor%5Bcomment%5D=Hello!+try+this+links%3A+%3Ca+href%3Dhttp%3A%2F%2F4movievideoclip.yourfreehosting.net%2F08.html%3Elinks+08%3C%2Fa%3E%2C+%5Burl%3Dhttp%3A%2F%2F4movievideoclip.you
+EOS
+    request = Thin::Request.new(body)
+    
+  end
+  
   def test_parse_perfs
     body = <<-EOS.chomp
 POST /postit HTTP/1.1
@@ -139,15 +162,13 @@ Content-Length: 37
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     
-    assert_faster_then 0.3 do
+    assert_faster_then 0.3, true do
       Thin::Request.new(body)
     end
 
     # Perf history
     # 1) 0.379
-    # 2) 0.157
-    # 3) 0.111
-    # 4) 0.103
+    # 2) 0.228
   end
   
   private

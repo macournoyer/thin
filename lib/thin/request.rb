@@ -66,14 +66,14 @@ module Thin
         line = content.readline
         if [?\r, ?\n].include?(line[0])
           break # Reached the end of the headers
-        elsif matches = line.match(/^([A-za-z\-]+): (.*)$/)
+        elsif matches = line.match(/^([\w\-]+): (.*)$/)
           name, value = matches[1,2]
           raise InvalidRequest, 'Header name too long' if name.size > MAX_FIELD_NAME_LENGTH
           raise InvalidRequest, 'Header value too long' if value.size > MAX_FIELD_VALUE_LENGTH
           prefix = HTTP_LESS_HEADERS.include?(name) ? '' : 'HTTP_'
           params["#{prefix}#{name.upcase.gsub('-', '_')}"] = value.chomp
         else
-          raise InvalidRequest, "Expected header"
+          raise InvalidRequest, "Expected header : #{line}"
         end
       end
       
