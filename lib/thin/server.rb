@@ -92,9 +92,9 @@ module Thin
     rescue EOFError, Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL, Errno::EBADF
       # Can't do anything sorry, closing the socket in the ensure block
     rescue InvalidRequest => e
-      logger.error "Invalid request: #{e.message}"
-      logger.error "Request data:\n#{data}"
-      client.write ERROR_404_RESPONSE rescue nil
+      logger.warn "Invalid request: #{e.message}"
+      logger.warn "Request data:\n#{data}"
+      client.write ERROR_400_RESPONSE rescue nil
     rescue Object => e
       logger.error "Unexpected error while processing request: #{e.inspect}"
       logger.error e.backtrace.join("\n")

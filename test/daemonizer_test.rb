@@ -45,7 +45,7 @@ class DaemonizerTest < Test::Unit::TestCase
       sleep 0.5 until File.exist?(@daemonizer.pid_file)
     end
     
-    @daemonizer.kill
+    @daemonizer.kill rescue nil
     
     assert !File.exist?(@daemonizer.pid_file)
   ensure

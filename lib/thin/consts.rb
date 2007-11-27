@@ -11,7 +11,7 @@ module Thin
   
   HEADER_FORMAT  = "%s: %s\r\n".freeze
 
-  # The standard empty 404 response for bad requests.
+  # The standard empty 404 response when the request was not processed.
   ERROR_404_RESPONSE = <<-EOS.freeze
 HTTP/1.1 404 Not Found
 Connection: close
@@ -19,5 +19,14 @@ Server: #{SERVER}
 Content-Type: text/html
 
 <html><h1>Page not found</h1></html>
+EOS
+  
+  ERROR_400_RESPONSE = <<-EOS.freeze
+HTTP/1.1 400 Bad Request
+Connection: close
+Server: #{SERVER}
+Content-Type: text/html
+
+<html><h1>Bad request</h1></html>
 EOS
 end
