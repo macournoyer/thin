@@ -116,7 +116,6 @@ EOS
     assert_equal '37', request.params['CONTENT_LENGTH']
     assert_equal 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5', request.params['HTTP_ACCEPT']
     assert_equal 'en-us,en;q=0.5', request.params['HTTP_ACCEPT_LANGUAGE']
-    assert_equal 'name=marc&email=macournoyer@gmail.com', request.params['RAW_POST_DATA']
     assert_equal 'name=marc&email=macournoyer@gmail.com', request.body.read
     assert_nil request.params['HTTP_CONTENT_LENGTH']
     assert_nil request.params['HTTP_CONTENT_TYPE']

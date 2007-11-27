@@ -70,6 +70,7 @@ module Thin
           name, value = matches[1,2]
           raise InvalidRequest, 'Header name too long' if name.size > MAX_FIELD_NAME_LENGTH
           raise InvalidRequest, 'Header value too long' if value.size > MAX_FIELD_VALUE_LENGTH
+          # Transform headers into a HTTP_NAME => value hash
           prefix = HTTP_LESS_HEADERS.include?(name) ? '' : 'HTTP_'
           params["#{prefix}#{name.upcase.gsub('-', '_')}"] = value.chomp
         else
@@ -79,11 +80,9 @@ module Thin
       
       raise InvalidRequest, 'Headers too long' if content.size > MAX_HEADER_LENGTH
       
-      @params['SERVER_NAME']    = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
+      @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
       
-      @params['RAW_POST_DATA']  = content.read unless content.eof?
-      
-      @body = StringIO.new(@params['RAW_POST_DATA'].to_s)
+      @body = StringIO.new(content.eof? ? '' : content.read)
     rescue InvalidRequest => e
       raise
     rescue Object => e
@@ -92,6 +91,10 @@ module Thin
     
     def close
       @body.close
+    end
+    
+    def content_length
+      @params['CONTENT_LENGTH'].to_i
     end
     
     def to_s

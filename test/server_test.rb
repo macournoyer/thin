@@ -1,13 +1,15 @@
 require File.dirname(__FILE__) + '/test_helper'
+require 'open-uri'
 
 class TestHandler < Thin::Handler
   def process(request, response)
-    response.body << 'test body'
+    response.body << request.body.read
+    response.body << request.params['QUERY_STRING']
     true
   end
 end
 
-class ServerTest < Test::Unit::TestCase
+class ServerUnitTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
     
@@ -22,7 +24,7 @@ class ServerTest < Test::Unit::TestCase
     request "GET / HTTP/1.1\n\rHost: localhost:3000"
     @server.start
     
-    assert_response 'test body', :status => 200
+    assert_response '', :status => 200
   end
   
   def test_bad_request
@@ -40,6 +42,14 @@ class ServerTest < Test::Unit::TestCase
     assert_response 'Page not found', :status => 404    
   end
   
+  def test_ok_with_body
+    request "GET / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: 12\n\r\n\rmore cowbell"
+    @server.start
+    
+    assert_response 'more cowbell', :status => 200
+  end
+  
+  
   def test_stop
     @server.start
     @socket.expects(:close)
@@ -52,9 +62,9 @@ class ServerTest < Test::Unit::TestCase
       @socket.stubs(:accept).returns(@client)
       @socket.stubs(:closed?).returns(false).then.returns(true)
       
-      @client.expects(:readpartial).returns(body)
+      @client.stubs(:readpartial).returns(body).then.returns(nil)
       @client.stubs(:peeraddr).returns([])
-      @client.expects(:close)
+      @client.stubs(:close)
     end
       
     def assert_response(body, options={})
@@ -64,4 +74,24 @@ class ServerTest < Test::Unit::TestCase
       assert_match "HTTP/1.1 #{status} #{Thin::HTTP_STATUS_CODES[status]}", response
       assert_match body, response
     end
+end
+
+class ServerFunctionalTest < Test::Unit::TestCase
+  def setup
+    server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
+    server.logger = Logger.new(nil)
+    
+    @daemonizer = Thin::Daemonizer.new('server_test.pid')
+    @daemonizer.daemonize('test server') do
+      server.start
+    end
+  end
+  
+  def teardown
+    @daemonizer.kill
+  end
+  
+  def test_ok
+    assert_equal 'cthis', open('http://0.0.0.0:3333/?cthis').read
+  end
 end

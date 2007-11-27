@@ -66,9 +66,19 @@ module Thin
     # Process one request from a client 
     def process(client)
       return if client.eof?
+      
       data     = client.readpartial(CHUNK_SIZE)
       request  = Request.new(data)
       response = Response.new
+      
+      # TODO make this work!
+      # Read the request to the end if not complete yet
+      # until request.content_length > 0 && request.body.size < request.content_length
+      #   chunk = client.readpartial(CHUNK_SIZE) 
+      #   break unless chunk && chunk.size > 0
+      #   request.body << chunk
+      # end
+      # request.body.rewind if chunk
       
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
