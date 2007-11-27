@@ -41,5 +41,11 @@ Connection: close
 
 test body
 EOS
-  end  
+  end
+  
+  def test_stop
+    @server.start
+    @socket.expects(:close)
+    @server.stop
+  end
 end

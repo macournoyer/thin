@@ -14,10 +14,11 @@ module Thin
     # Creates a new server binded to <tt>host:port</tt>
     # that will pass request to +handlers+.
     def initialize(host, port, *handlers)
-      @host     = host
-      @port     = port
-      @handlers = handlers
-      @stop     = true
+      @host       = host
+      @port       = port
+      @handlers   = handlers
+      @stop       = true   # true is server is stopped
+      @processing = false  # true is processing a request
 
       @socket   = TCPServer.new(host, port)
       
@@ -46,14 +47,16 @@ module Thin
       logger.info ">> Thin web server (v#{VERSION})"
 
       @handlers.each do |handler|
-        logger.info ">> Starting #{handler.class.name} ..."
+        logger.info ">> Starting #{handler} ..."
         handler.start
       end
       
       logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"      
       until @stop
+        @processing = false
         client = @socket.accept rescue nil
-        break if @socket.closed?
+        break if @socket.closed? || client.nil?
+        @processing = true
         process(client)
       end
     ensure
@@ -87,7 +90,7 @@ module Thin
       end
 
     rescue EOFError, Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL, Errno::EBADF
-      client.close rescue nil
+      # Can't do anything sorry, closing the socket in the ensure block
     rescue InvalidRequest => e
       logger.error "Invalid request: #{e.message}"
       logger.error "Request data:\n#{data}"
@@ -101,10 +104,14 @@ module Thin
       client.close   unless client.closed? rescue nil
     end
     
-    # Send the command to stop the server
+    # Stop the server from accepting new request.
+    # If a request is processing, wait for this to finish
+    # and shutdown the server.
     def stop
       @stop = true
-      @socket.close rescue nil
+      if !@processing # Not processing, so waiting for a request
+        @socket.close rescue nil # Break the accept loop by closing the socket
+      end
     end
   end
 end

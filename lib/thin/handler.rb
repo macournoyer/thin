@@ -41,6 +41,10 @@ module Thin
     def serve_file(path, response)
       response.content_type = MIME_TYPES[File.extname(path)] || "application/octet-stream".freeze
       File.open(path, "rb") { |f| response.body << f.read }
-    end    
+    end
+    
+    def to_s
+      "DirHandler on #{@pwd}"
+    end
   end
 end

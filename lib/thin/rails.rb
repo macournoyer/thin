@@ -23,5 +23,9 @@ module Thin
       # This finalizes the output using the proper HttpResponse way
       cgi.out("text/html", true) {""}
     end
+    
+    def to_s
+      "RailsHandler on #{@pwd} (env=#{@env})"
+    end
   end
 end
