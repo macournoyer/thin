@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/test_helper'
-require 'open-uri'
 
 class TestHandler < Thin::Handler
   def process(request, response)
@@ -78,11 +77,10 @@ end
 
 class ServerFunctionalTest < Test::Unit::TestCase
   def setup
-    server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
-    server.logger = Logger.new(nil)
-    
     @daemonizer = Thin::Daemonizer.new('server_test.pid')
     @daemonizer.daemonize('test server') do
+      server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
+      server.logger = Logger.new(nil)
       server.start
     end
   end
@@ -91,7 +89,26 @@ class ServerFunctionalTest < Test::Unit::TestCase
     @daemonizer.kill
   end
   
-  def test_ok
-    assert_equal 'cthis', open('http://0.0.0.0:3333/?cthis').read
+  def test_get
+    assert_equal 'cthis', get('/?cthis')
   end
+  
+  def test_post
+    assert_equal 'arg=pirate', post('/', :arg => 'pirate')
+  end
+  
+  # Raises Errno::EPIPE: Broken pipe
+  # def test_big_post
+  #   big = 'yo-fatty' * Thin::CHUNK_SIZE * 2
+  #   assert_equal big.size+4, post('/', :big => big).size
+  # end
+  
+  private
+    def get(url)
+      Net::HTTP.get(URI.parse('http://0.0.0.0:3333' + url))
+    end
+    
+    def post(url, params={})
+      Net::HTTP.post_form(URI.parse('http://0.0.0.0:3333' + url), params).body
+    end
 end
