@@ -11,7 +11,7 @@ class DaemonizerTest < Test::Unit::TestCase
       assert File.exist?(@daemonizer.pid_file)
     end
     
-    assert !File.exist?(@daemonizer.pid_file)
+    assert !File.exist?(@daemonizer.pid_file), 'Should wait for process to start'
   end
   
   def test_kill

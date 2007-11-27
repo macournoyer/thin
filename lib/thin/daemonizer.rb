@@ -15,15 +15,16 @@ module Thin
     # Kill the process which PID is stored in +pid_file+.
     def kill
       if File.exist?(@pid_file) && pid = open(@pid_file).read
+        pid = pid.to_i
         print "Sending INT signal to process #{pid} ... "
         begin
-          Process.kill('INT', pid.to_i)
+          Process.kill('INT', pid)
           Timeout.timeout(@timeout) do
-            sleep 0.5 until !File.exist?(@pid_file)
+            sleep 0.5 until !running?(pid)
           end
         rescue Timeout::Error
-          print "timeout! Sending KILL signal ... "
-          Process.kill('KILL', pid.to_i)
+          print "timeout, Sending KILL signal ... "
+          Process.kill('KILL', pid)
           remove_pid_file
         end
         puts "stopped!"
@@ -46,10 +47,10 @@ module Thin
         exit if fork                   # Parent exits, child continues.
         Process.setsid                 # Become session leader.
         exit if fork                   # Zap session leader. See [1].
-        Dir.chdir "/"                  # Release old working directory.
+        Dir.chdir '/'                  # Release old working directory.
         File.umask 0000                # Ensure sensible umask. Adjust as needed.
-        STDIN.reopen "/dev/null"       # Free file descriptors and
-        STDOUT.reopen "/dev/null", "a" # point them somewhere sensible.
+        STDIN.reopen '/dev/null'       # Free file descriptors and
+        STDOUT.reopen '/dev/null', 'a' # point them somewhere sensible.
         STDERR.reopen STDOUT           # STDOUT/ERR should better go to a logfile.
         
         # Redirect output to the logfile
@@ -63,11 +64,19 @@ module Thin
         yield self
         exit
       end
+      
+      # Wait for process to start
+      Timeout.timeout(timeout) do
+        sleep 0.5 until File.exist?(@pid_file) || !running?(pid)
+      end
       puts "started in process #{pid}"
 
       # Make sure we do not create zombies
-      Process.detach(pid)
+      Process.detach(pid) if running?(pid)
       pid
+    rescue Timeout::Error # If takes too much time, we kill the process
+      puts 'timeout!'
+      Process.kill('KILL', pid) if pid rescue nil
     end
     
     # Change privileges of the process to specified user and group.
@@ -93,6 +102,12 @@ module Thin
       def write_pid_file
         FileUtils.mkdir_p File.dirname(@pid_file)
         open(@pid_file,"w") { |f| f.write(Process.pid) }
+      end
+      
+      def running?(pid)
+        Process.getpgid(pid) != -1
+      rescue Errno::ESRCH
+        false
       end
   end
 end
