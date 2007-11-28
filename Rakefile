@@ -29,7 +29,7 @@ end
 
 namespace :rdoc do
   desc 'Upload rdoc to code.macournoyer.com'
-  task :upload => :rerdoc do
+  task :upload => :rdoc do
     upload "doc/rdoc", 'thin/doc', :replace => true
   end
 end

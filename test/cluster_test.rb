@@ -26,11 +26,6 @@ class ClusterTest < Test::Unit::TestCase
   end
   
   def test_start_on_port
-    server = mock('server')
-    Thin::Server.expects(:new).with('0.0.0.0', 3001).returns(server)
-    logger = mock('logger')
-    Logger.expects(:new).with('thin.3001.log').returns(logger)
-    server.expects(:logger=).with(logger)
     Thin::Daemonizer.any_instance.expects(:daemonize)
     
     @cluster.send(:start_on_port, 3001)

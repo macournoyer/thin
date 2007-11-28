@@ -55,7 +55,7 @@ module Thin
       raise InvalidRequest, 'Query string path too long' if query_string && query_string.size > MAX_QUERY_STRING_LENGTH
 
       @params['REQUEST_URI']    = uri
-      @params['FRAGMENT']       = fragment
+      @params['FRAGMENT']       = fragment if fragment
       @params['REQUEST_PATH']   =
       @params['PATH_INFO']      = @path
       @params['SCRIPT_NAME']    = '/'
@@ -82,7 +82,8 @@ module Thin
       
       @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
       
-      @body = StringIO.new(content.eof? ? '' : content.read)
+      @body = StringIO.new      
+      @body << content.read unless content.eof?
     rescue InvalidRequest => e
       raise
     rescue Object => e

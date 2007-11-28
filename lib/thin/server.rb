@@ -71,14 +71,16 @@ module Thin
       request  = Request.new(data)
       response = Response.new
       
-      # TODO make this work!
       # Read the request to the end if not complete yet
-      # until request.content_length > 0 && request.body.size < request.content_length
-      #   chunk = client.readpartial(CHUNK_SIZE) 
-      #   break unless chunk && chunk.size > 0
-      #   request.body << chunk
-      # end
-      # request.body.rewind if chunk
+      if request.content_length > 0
+        while request.body.size < request.content_length
+          chunk = client.readpartial(CHUNK_SIZE) 
+          break unless chunk && chunk.size > 0
+          request.body << chunk
+        end
+      end
+      
+      request.body.rewind
       
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
@@ -86,7 +88,7 @@ module Thin
       # Add server info to the request env
       request.params['SERVER_SOFTWARE'] = SERVER
       request.params['SERVER_PORT']     = @port.to_s
-
+      
       served = false
       @handlers.each do |handler|
         served = handler.process(request, response)
