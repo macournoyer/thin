@@ -118,6 +118,14 @@ module Transat
       @option_parser.on(*opt_args.compact) do |value|
         @received_options[name] = value
       end
+      
+      @option_parser.on_tail('-h', '--help') do
+        raise HelpNeeded, nil
+      end
+      
+      @option_parser.on_tail('-v', '--version') do
+        raise VersionNeeded
+      end
     end
 
     def command(name, klass, options={})

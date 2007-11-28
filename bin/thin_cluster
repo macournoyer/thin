@@ -16,7 +16,7 @@
 # Run <tt>thin_cluster help</tt> to get help.
 
 require File.dirname(__FILE__) + '/../lib/thin'
-require 'thin/commands'
+require 'thin/command'
 
 Thin.define_commands do
   program_name 'thin_cluster'

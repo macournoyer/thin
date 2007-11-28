@@ -2,7 +2,7 @@ require 'thin/cluster'
 require 'yaml'
 
 module Thin::Commands::Cluster
-  class Base < Thin::Commands::Command
+  class Base < Thin::Command
     def self.config_attributes
       [:address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :user, :group]
     end

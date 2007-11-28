@@ -1,5 +1,5 @@
 module Thin::Commands::Server
-  class Base < Thin::Commands::Command
+  class Base < Thin::Command
     def cwd
       args.first || '.'
     end
