@@ -90,6 +90,10 @@ module Thin
       raise InvalidRequest, e.message
     end
     
+    def complete?
+      body.size >= content_length
+    end
+    
     def close
       @body.close
     end

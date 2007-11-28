@@ -22,7 +22,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_big_post
-    big = 'X' * Thin::CHUNK_SIZE * 2
+    big = 'X' * (Thin::CHUNK_SIZE * 2)
     assert_equal big.size+4, post('/', :big => big).size
   end
   
@@ -33,7 +33,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_post_perf
-    assert_faster_then 5 do
+    assert_faster_then 6 do
       post('/', :file => 'X' * 1000)
     end
   end

@@ -73,7 +73,7 @@ module Thin
       
       # Read the request to the end if not complete yet
       if request.content_length > 0
-        while request.body.size < request.content_length
+        until request.complete?
           chunk = client.readpartial(CHUNK_SIZE) 
           break unless chunk && chunk.size > 0
           request.body << chunk

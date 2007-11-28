@@ -40,6 +40,13 @@ class ServerTest < Test::Unit::TestCase
     assert_response 'more cowbell', :status => 200
   end
   
+  def test_invalid_content_length
+    request "GET / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: #{Thin::CHUNK_SIZE}\n\r\n\rmore cowbell"
+    @server.start
+    
+    assert_response 'more cowbell', :status => 200
+  end
+  
   def test_stop
     @server.start
     @socket.expects(:close)
