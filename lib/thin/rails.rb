@@ -25,7 +25,7 @@ module Thin
     end
     
     def to_s
-      "RailsHandler on #{@pwd} (env=#{@env})"
+      "Rails on #{@pwd} (env=#{@env})"
     end
   end
 end

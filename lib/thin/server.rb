@@ -67,11 +67,13 @@ module Thin
     def process(client)
       return if client.eof?
       
+      logger.debug { 'Request finished'.center(80, '=') }
+      
       data     = client.readpartial(CHUNK_SIZE)
       request  = Request.new(data)
       response = Response.new
       
-      logger.debug { "Incoming request:\n" + data }
+      logger.debug { ">> Incoming request:\n" + data }
       
       # Read the request to the end if not complete yet
       if request.content_length > 0
@@ -79,7 +81,7 @@ module Thin
           chunk = client.readpartial(CHUNK_SIZE) 
           break unless chunk && chunk.size > 0
           request.body << chunk
-          logger.debug { "Red chunk:\n" + chunk }
+          logger.debug { ">> Red chunk:\n" + chunk }
         end
       end
       
@@ -99,10 +101,13 @@ module Thin
       end
       
       if served
+        logger.debug { ">> Sending response:\n" + response.to_s }
         response.write client
       else
         client.write ERROR_404_RESPONSE
       end
+      
+      logger.debug { 'Request finished'.center(80, '=') }
 
     rescue EOFError, Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL, Errno::EBADF
       # Can't do anything sorry, closing the socket in the ensure block

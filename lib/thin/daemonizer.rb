@@ -86,9 +86,14 @@ module Thin
       target_gid = Etc.getgrnam(group).gid if group
 
       if uid != target_uid || gid != target_gid
+        # Change process ownership
         Process.initgroups(user, target_gid)
         Process::GID.change_privilege(target_gid)
         Process::UID.change_privilege(target_uid)
+        
+        # Change the files ownership
+        File.chown(target_uid, target_gid, @pid_file)
+        File.chown(target_uid, target_gid, @log_file) if @log_file
       end
     rescue Errno::EPERM => e
       STDERR.puts "Couldn't change user and group to #{user}:#{group}: #{e}."
@@ -102,6 +107,7 @@ module Thin
       def write_pid_file
         FileUtils.mkdir_p File.dirname(@pid_file)
         open(@pid_file,"w") { |f| f.write(Process.pid) }
+        File.chmod(0644, @pid_file)
       end
       
       def running?(pid)

@@ -44,7 +44,7 @@ module Thin
     end
     
     def to_s
-      "DirHandler on #{@pwd}"
+      "dir #{@pwd}"
     end
   end
 end

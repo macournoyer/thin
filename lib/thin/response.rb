@@ -47,7 +47,9 @@ module Thin
     end
     
     def to_s
-      "#{@status} #{HTTP_STATUS_CODES[@status.to_i]}"
+      out = ''
+      write out
+      out
     end
   end
 end

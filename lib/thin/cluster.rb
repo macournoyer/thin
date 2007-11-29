@@ -53,12 +53,11 @@ module Thin
         Daemonizer.new(pid_file_for(port), log_file_for(port)).daemonize("server on #{@host}:#{port}") do |daemon|
           server = Server.new(@host, port, *@handlers)
 
-          FileUtils.mkdir_p File.dirname(log_file_for(port))
           server.logger = Logger.new(log_file_for(port))
           server.logger.level = @log_level
           
           if user
-            server.logger.info "Changing process privileges to #{user}:#{group}"
+            server.logger.info "Changing privileges to #{user}:#{group || user}"
             daemon.change_privilege(user, group || user)
           end
           server.start
