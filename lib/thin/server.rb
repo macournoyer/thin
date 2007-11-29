@@ -10,6 +10,7 @@ module Thin
   # they were registered.
   class Server
     attr_accessor :port, :host, :handlers
+    attr_reader   :logger
     
     # Creates a new server binded to <tt>host:port</tt>
     # that will pass request to +handlers+.
@@ -20,14 +21,9 @@ module Thin
       @stop       = true   # true is server is stopped
       @processing = false  # true is processing a request
 
-      @socket   = TCPServer.new(host, port)
+      @socket     = TCPServer.new(host, port)
       
       self.logger = Logger.new(STDOUT)
-    end
-    
-    # Returns the server logger.
-    def logger
-      @logger
     end
     
     # Set the logger used for the server and all handlers.

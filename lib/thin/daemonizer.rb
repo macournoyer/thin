@@ -1,4 +1,5 @@
 require 'etc'
+require 'fileutils'
 
 module Thin
   # Creator of external processes to run the server in the background.
@@ -85,15 +86,15 @@ module Thin
       target_uid = Etc.getpwnam(user).uid if user
       target_gid = Etc.getgrnam(group).gid if group
 
+      # Change files ownership
+      FileUtils.chown(user, group, @pid_file)
+      FileUtils.chown(user, group, @log_file) if @log_file
+
       if uid != target_uid || gid != target_gid
         # Change process ownership
         Process.initgroups(user, target_gid)
         Process::GID.change_privilege(target_gid)
         Process::UID.change_privilege(target_uid)
-        
-        # Change the files ownership
-        File.chown(target_uid, target_gid, @pid_file)
-        File.chown(target_uid, target_gid, @log_file) if @log_file
       end
     rescue Errno::EPERM => e
       STDERR.puts "Couldn't change user and group to #{user}:#{group}: #{e}."
