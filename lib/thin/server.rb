@@ -71,6 +71,8 @@ module Thin
       request  = Request.new(data)
       response = Response.new
       
+      logger.debug { "Incoming request:\n" + data }
+      
       # Read the request to the end if not complete yet
       if request.content_length > 0
         until request.complete?

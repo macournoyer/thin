@@ -40,9 +40,9 @@ Thin.define_commands do
   option :group,       :short => :g, :param_name => 'GROUP',          :message => 'Group to run the process as'
   option :config,      :short => :C, :default => 'config/thin.yml',   :message => 'Config file',
                                      :param_name => 'PATH'
-                                     
+  option :trace,       :short => :t,                                  :message => 'Turn trace on'                                   
 
-  valid_options = [:address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config, :user, :group]
+  valid_options = [:address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config, :user, :group, :trace]
   
   command :start,   Thin::Commands::Cluster::Start,   :valid_options => valid_options
   command :stop,    Thin::Commands::Cluster::Stop,    :valid_options => valid_options

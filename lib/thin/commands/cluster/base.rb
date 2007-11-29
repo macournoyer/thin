@@ -8,7 +8,7 @@ module Thin::Commands::Cluster
     end
     
     attr_accessor *self.config_attributes
-    attr_accessor :config
+    attr_accessor :config, :trace
     
     protected
       def load_from_config

@@ -12,6 +12,7 @@ module Thin::Commands::Cluster
                                   Thin::DirHandler.new('public')
                                  )
       cluster.log_file = log_file
+      cluster.log_level = trace ? Logger::DEBUG : Logger::INFO
       cluster.pid_file = pid_file
       cluster.user = user
       cluster.group = group

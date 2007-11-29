@@ -1,18 +1,19 @@
 module Thin
   # Wrapper around Server to manage several servers all at once.
   class Cluster
-    attr_accessor :log_file, :pid_file, :user, :group
+    attr_accessor :log_file, :log_level, :pid_file, :user, :group
     
     # Create a new cluster of servers bound to +host+
     # on ports +first_port+ to <tt>first_port+size-1</tt>.
     def initialize(host, first_port, size, *handlers)
-      @host = host
+      @host       = host
       @first_port = first_port
-      @size = size
-      @handlers = handlers
+      @size       = size
+      @handlers   = handlers
       
-      @log_file = 'thin.log'
-      @pid_file = 'thin.pid'
+      @log_file  = 'thin.log'
+      @log_level = Logger::INFO
+      @pid_file  = 'thin.pid'
     end
     
     # Start the servers
@@ -53,7 +54,8 @@ module Thin
           server = Server.new(@host, port, *@handlers)
 
           FileUtils.mkdir_p File.dirname(log_file_for(port))
-          server.logger   = Logger.new(log_file_for(port))
+          server.logger = Logger.new(log_file_for(port))
+          server.logger.level = @log_level
           
           if user
             server.logger.info "Changing process privileges to #{user}:#{group}"
