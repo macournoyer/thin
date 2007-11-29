@@ -79,6 +79,7 @@ module Thin
           chunk = client.readpartial(CHUNK_SIZE) 
           break unless chunk && chunk.size > 0
           request.body << chunk
+          logger.debug { "Red chunk:\n" + chunk }
         end
       end
       
