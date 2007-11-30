@@ -5,6 +5,9 @@ class ServerFunctionalTest < Test::Unit::TestCase
     @daemonizer = Thin::Daemonizer.new('server_test.pid')
     @daemonizer.daemonize('test server') do
       server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
+      log_dir = File.dirname(__FILE__) + '/../log'
+      FileUtils.mkdir_p log_dir
+      server.logger = Logger.new(log_dir + '/test.log')
       server.start
     end
   end
@@ -15,6 +18,20 @@ class ServerFunctionalTest < Test::Unit::TestCase
   
   def test_get
     assert_equal 'cthis', get('/?cthis')
+  end
+  
+  def test_raw_get
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Length: 4\r\nConnection: close\r\n\r\nthis",
+                 raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n")
+  end
+  
+  def test_incomplete_headers
+    assert_equal Thin::ERROR_400_RESPONSE, raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\nHost:")
+  end
+  
+  def test_incorrect_content_length
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Length: 5\r\nConnection: close\r\n\r\naye\r\n",
+                 raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye\r\n")
   end
   
   def test_post
@@ -41,6 +58,14 @@ class ServerFunctionalTest < Test::Unit::TestCase
   private
     def get(url)
       Net::HTTP.get(URI.parse('http://0.0.0.0:3333' + url))
+    end
+    
+    def raw(host, port, data)
+      socket = TCPSocket.new(host, port)
+      socket.write data
+      out = socket.read
+      socket.close
+      out
     end
     
     def post(url, params={})

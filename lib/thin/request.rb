@@ -6,6 +6,8 @@ module Thin
   # A request made to the server.
   class Request
     HTTP_LESS_HEADERS = %w(Content-Length Content-Type).freeze
+    BODYFUL_METHODS   = %w(POST PUT).freeze
+
     # We control max length of different part of the request
     # to prevent attack and resource overflow.
     MAX_FIELD_NAME_LENGTH   = 256
@@ -24,23 +26,25 @@ module Thin
         'HTTP_VERSION'      => 'HTTP/1.1',
         'SERVER_PROTOCOL'   => 'HTTP/1.1'
       }
-      parse! StringIO.new(content)
+      @body = StringIO.new
+
+      parse_headers! content
+      parse_body!    content if BODYFUL_METHODS.include?(verb)
     end
-    
-    # Parse the request raw content from the socket into
-    # CGI like objects.
-    # Parse env variables according to:
-    #   http://www.ietf.org/rfc/rfc3875
-    def parse!(content)
-      if matches = content.readline.match(/^([A-Z]+) (.*?)(?:#(.*))? HTTP/)
+        
+    # Parse the request headers from the socket into CGI like variables.
+    # Parse the request according to http://www.w3.org/Protocols/rfc2616/rfc2616.html
+    # Parse env variables according to http://www.ietf.org/rfc/rfc3875
+    def parse_headers!(content)
+      if matches = readline(content).match(/^([A-Z]+) (.*?)(?:#(.*))? HTTP/)
         @verb, uri, fragment = matches[1,3]
       else
         raise InvalidRequest, 'No valid header found'
       end
-      
+    
       raise InvalidRequest, 'No method specified' unless @verb
       raise InvalidRequest, 'No URI specified'    unless uri
-      
+    
       # Validation various length for security
       raise InvalidRequest, 'URI too long'        if uri.size > MAX_REQUEST_URI_LENGTH
       raise InvalidRequest, 'Fragment too long'   if fragment && fragment.size > MAX_FRAGMENT_LENGTH
@@ -50,7 +54,7 @@ module Thin
       else
         raise InvalidRequest, "No valid path found in #{uri}"
       end
-      
+    
       raise InvalidRequest, 'Request path too long' if @path.size > MAX_REQUEST_PATH_LENGTH
       raise InvalidRequest, 'Query string path too long' if query_string && query_string.size > MAX_QUERY_STRING_LENGTH
 
@@ -61,9 +65,11 @@ module Thin
       @params['SCRIPT_NAME']    = '/'
       @params['REQUEST_METHOD'] = @verb
       @params['QUERY_STRING']   = query_string if query_string
-      
+    
+      headers_size = 0
       until content.eof?
-        line = content.readline
+        line = readline(content)
+        headers_size += line.size
         if [?\r, ?\n].include?(line[0])
           break # Reached the end of the headers
         elsif matches = line.match(/^([\w\-]+): (.*)$/)
@@ -76,22 +82,28 @@ module Thin
         else
           raise InvalidRequest, "Expected header : #{line}"
         end
-      end
-      
-      raise InvalidRequest, 'Headers too long' if content.size > MAX_HEADER_LENGTH
-      
-      @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']
-      
-      @body = StringIO.new      
-      @body << content.read unless content.eof?
+      end  
+
+      raise InvalidRequest, 'Headers too long' if headers_size > MAX_HEADER_LENGTH
+    
+      @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']      
     rescue InvalidRequest => e
       raise
     rescue Object => e
       raise InvalidRequest, e.message
     end
     
-    def complete?
-      body.size >= content_length
+    def parse_body!(content)
+      # Parse by chunks
+      length = content_length
+      while @body.size < length
+        chunk = content.readpartial(CHUNK_SIZE)
+        break unless chunk && chunk.size > 0
+        @body << chunk
+        break if chunk.size < CHUNK_SIZE
+      end
+      
+      @body.rewind
     end
     
     def close
@@ -105,5 +117,14 @@ module Thin
     def to_s
       "#{@params['REQUEST_METHOD']} #{@params['REQUEST_URI']}"
     end
+    
+    private
+      def readline(io)
+        begin
+          io.gets(LF)
+        rescue Errno::ECONNRESET
+          nil
+        end      
+      end
   end
 end

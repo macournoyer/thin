@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
+# FIXME!
 class ServerTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
@@ -34,7 +35,7 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def test_ok_with_body
-    request "GET / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: 12\n\r\n\rmore cowbell"
+    request "POST / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: 12\n\r\n\rmore cowbell"
     @server.start
     
     assert_response 'more cowbell', :status => 200
@@ -55,20 +56,19 @@ class ServerTest < Test::Unit::TestCase
   
   private
     def request(body)
-      @client = StringIO.new('not-empty')
+      @client = StringIO.new(body)
+      @response = ''
       @socket.stubs(:accept).returns(@client)
       @socket.stubs(:closed?).returns(false).then.returns(true)
       
-      @client.stubs(:readpartial).returns(body).then.returns(nil)
       @client.stubs(:peeraddr).returns([])
-      @client.stubs(:close)
+      
+      @client.stubs(:<<).with { |o| @response << o }
     end
       
     def assert_response(body, options={})
       status = options.delete(:status) || 200
-      @client.rewind
-      response = @client.read
-      assert_match "HTTP/1.1 #{status} #{Thin::HTTP_STATUS_CODES[status]}", response
-      assert_match body, response
+      assert_match "HTTP/1.1 #{status} #{Thin::HTTP_STATUS_CODES[status]}", @response
+      assert_match body, @response
     end
 end

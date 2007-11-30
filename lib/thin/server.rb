@@ -4,11 +4,15 @@ require 'logger'
 require 'timeout'
 
 module Thin
-  # The Thin server used to served request.
+  # The Thin HTTP server used to served request.
   # It listen for incoming request on a given port
   # and forward all request to all the handlers in the order
   # they were registered.
+  # Based on HTTP 1.1
+  # See: http://www.w3.org/Protocols/rfc2616/rfc2616.html
   class Server
+    REQUEST_TIMEOUT = 5 # sec, max time to parse a request
+    
     attr_accessor :port, :host, :handlers
     attr_reader   :logger
     
@@ -63,25 +67,13 @@ module Thin
     def process(client)
       return if client.eof?
       
-      logger.debug { 'Request finished'.center(80, '=') }
-      
-      data     = client.readpartial(CHUNK_SIZE)
-      request  = Request.new(data)
+      logger.debug { 'Request started'.center(80, '=') }
+      $logger = logger
+      # Parse the request checking for timeout to prevent DOS attacks
+      request  = Timeout.timeout(REQUEST_TIMEOUT) { Request.new(client) }
       response = Response.new
       
-      logger.debug { ">> Incoming request:\n" + data }
-      
-      # Read the request to the end if not complete yet
-      if request.content_length > 0
-        until request.complete?
-          chunk = client.readpartial(CHUNK_SIZE) 
-          break unless chunk && chunk.size > 0
-          request.body << chunk
-          logger.debug { ">> Red chunk:\n" + chunk }
-        end
-      end
-      
-      request.body.rewind
+      logger.debug { ">> Incoming request:\n" + request.to_s }
       
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
@@ -100,7 +92,7 @@ module Thin
         logger.debug { ">> Sending response:\n" + response.to_s }
         response.write client
       else
-        client.write ERROR_404_RESPONSE
+        client << ERROR_404_RESPONSE
       end
       
       logger.debug { 'Request finished'.center(80, '=') }
@@ -109,10 +101,10 @@ module Thin
       # Can't do anything sorry, closing the socket in the ensure block
     rescue InvalidRequest => e
       logger.warn "Invalid request: #{e.message}"
-      logger.warn "Request data:\n#{data}"
+      logger.debug { e.backtrace.join("\n") }
       client.write ERROR_400_RESPONSE rescue nil
     rescue Object => e
-      logger.error "Unexpected error while processing request: #{e.inspect}"
+      logger.error "Unexpected error while processing request: #{e.message}"
       logger.error e.backtrace.join("\n")
     ensure
       request.close  if request            rescue nil

@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_parse_simple
-    request = Thin::Request.new('GET / HTTP/1.1')
+    request = R('GET / HTTP/1.1')
     assert_equal 'GET', request.verb
     assert_equal '/', request.path
     assert_equal 'HTTP/1.1', request.params['SERVER_PROTOCOL']
@@ -17,55 +17,56 @@ class RequestTest < Test::Unit::TestCase
   
   def test_parse_error
     assert_raise(Thin::InvalidRequest) do
-      Thin::Request.new("GET / SsUTF/1.1")
+      R("GET / SsUTF/1.1")
     end
     assert_raise(Thin::InvalidRequest) do
-      Thin::Request.new("GET / HTTP/1.1\r\nyousmelllikecheeze")
+      R("GET / HTTP/1.1\r\nyousmelllikecheeze")
     end
   end
   
   def test_fragment_in_uri
-    request = Thin::Request.new("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\n\r\n")
+    request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\n\r\n")
 
     assert_equal '/forums/1/topics/2375?page=1', request.params['REQUEST_URI']
     assert_equal 'posts-17408', request.params['FRAGMENT']
   end
   
   def test_parse_path_with_query_string
-    request = Thin::Request.new('GET /index.html?234235 HTTP/1.1')
+    request = R('GET /index.html?234235 HTTP/1.1')
     assert_equal 'GET', request.verb
     assert_equal '/index.html', request.path
     assert_equal '234235', request.params['QUERY_STRING']
     assert_nil request.params['FRAGMENT']
   end
   
-  def test_horrible_queries
-    # test that large header names are caught
+  def test_that_large_header_names_are_caught
     assert_raises Thin::InvalidRequest do
-      Thin::Request.new("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n")
+      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n"
     end
+  end
 
-    # test that large mangled field values are caught
+  def test_that_large_mangled_field_values_are_caught
     assert_raises Thin::InvalidRequest do
-      get = "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 80*1024+(1024), false)}\r\n\r\n"
-      Thin::Request.new(get)
+      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 80*1024+(1024), false)}\r\n\r\n"
     end
-    
+  end
+  
+  def test_big_fat_ugly_headers
     get = "GET /#{rand_data(10,120)} HTTP/1.1\r\n"
     get << "X-Test: test\r\n" * (80 * 1024)
     assert_raises Thin::InvalidRequest do
-      Thin::Request.new(get)
-    end
+      R(get)
+    end    
+  end
 
-    # finally just that random garbage gets blocked all the time
-    get = "GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n"
+  def test_that_random_garbage_gets_blocked_all_the_time
     assert_raises Thin::InvalidRequest do
-      Thin::Request.new(get)
+      R "GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n"
     end
   end
   
   def test_parse_headers
-    request = Thin::Request.new(<<-EOS)
+    request = R(<<-EOS)
 GET / HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -82,7 +83,7 @@ EOS
   end
   
   def test_parse_headers_with_query_string
-    request = Thin::Request.new(<<-EOS)
+    request = R(<<-EOS)
 GET /page?cool=thing HTTP/1.1
 Host: localhost:3000
 Keep-Alive: 300
@@ -94,7 +95,7 @@ EOS
   end
   
   def test_parse_post_data
-    request = Thin::Request.new(<<-EOS.chomp)
+    request = R(<<-EOS.chomp)
 POST /postit HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -139,7 +140,7 @@ Content-Type: application/x-www-form-urlencoded
 Cookie: _refactormycode_session_id=a1b2n3jk4k5; flash=%7B%7D
 Cookie2: $Version="1"
 EOS
-    request = Thin::Request.new(body)
+    request = R(body)
     assert_equal '$Version="1"', request.params['HTTP_COOKIE2']
   end
   
@@ -148,9 +149,22 @@ EOS
 GET /session?open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer HTTP/1.1
 Host: localhost:3000
 EOS
-    request = Thin::Request.new(body)
+    request = R(body)
     
     assert_equal 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer', request.params['QUERY_STRING']
+  end
+  
+  def test_stupid_content_length
+    body = <<-EOS.chomp
+POST / HTTP/1.1
+Host: localhost:3000
+Content-Length: 300
+
+aye
+EOS
+    request = R(body)
+    
+    assert_equal 'aye', request.body.read
   end
   
   def test_parse_perfs
@@ -171,7 +185,7 @@ hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     
     assert_faster_then 0.3 do
-      Thin::Request.new(body)
+      R(body)
     end
 
     # Perf history
@@ -193,4 +207,11 @@ EOS
       return res
     end
     
+    def R(raw)
+      socket = StringIO.new(raw)
+      socket.instance_eval do
+        alias :readpartial :read
+      end
+      Thin::Request.new socket
+    end
 end

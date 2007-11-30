@@ -10,6 +10,7 @@ module Thin
   CONTENT_TYPE   = 'Content-Type'.freeze
   
   HEADER_FORMAT  = "%s: %s\r\n".freeze
+  LF             = "\n".freeze
 
   # The standard empty 404 response when the request was not processed.
   ERROR_404_RESPONSE = <<-EOS.freeze
