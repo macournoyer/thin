@@ -11,9 +11,7 @@ module Thin
   # Based on HTTP 1.1
   # See: http://www.w3.org/Protocols/rfc2616/rfc2616.html
   class Server
-    REQUEST_TIMEOUT = 5 # sec, max time to parse a request
-    
-    attr_accessor :port, :host, :handlers
+    attr_accessor :port, :host, :handlers, :timeout
     attr_reader   :logger
     
     # Creates a new server binded to <tt>host:port</tt>
@@ -22,6 +20,7 @@ module Thin
       @host       = host
       @port       = port
       @handlers   = handlers
+      @timeout    = 5      # sec, max time to parse a request
       @stop       = true   # true is server is stopped
       @processing = false  # true is processing a request
 
@@ -44,14 +43,15 @@ module Thin
         stop
       end
       
-      logger.info ">> Thin web server (v#{VERSION})"
+      logger.info  ">> Thin web server (v#{VERSION})"
+      logger.debug ">> Tracing ON"
 
       @handlers.each do |handler|
         logger.info ">> Starting #{handler} ..."
         handler.start
       end
       
-      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"      
+      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"
       until @stop
         @processing = false
         client = @socket.accept rescue nil
@@ -68,12 +68,15 @@ module Thin
       return if client.eof?
       
       logger.debug { 'Request started'.center(80, '=') }
-      $logger = logger
-      # Parse the request checking for timeout to prevent DOS attacks
-      request  = Timeout.timeout(REQUEST_TIMEOUT) { Request.new(client) }
+
+      request  = Request.new
       response = Response.new
       
-      logger.debug { ">> Incoming request:\n" + request.to_s }
+      logger.debug { request.trace = true; ">> Tracing request parsing ... " }
+
+      # Parse the request checking for timeout to prevent DOS attacks
+      Timeout.timeout(@timeout) { request.parse!(client) }
+      logger.debug { request.raw }
       
       # Add client info to the request env
       request.params['REMOTE_ADDR'] = client.peeraddr.last
@@ -102,7 +105,7 @@ module Thin
     rescue InvalidRequest => e
       logger.warn "Invalid request: #{e.message}"
       logger.debug { e.backtrace.join("\n") }
-      client.write ERROR_400_RESPONSE rescue nil
+      client << ERROR_400_RESPONSE rescue nil
     rescue Object => e
       logger.error "Unexpected error while processing request: #{e.message}"
       logger.error e.backtrace.join("\n")

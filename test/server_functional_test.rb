@@ -8,6 +8,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
       log_dir = File.dirname(__FILE__) + '/../log'
       FileUtils.mkdir_p log_dir
       server.logger = Logger.new(log_dir + '/test.log')
+      server.timeout = 1
       server.start
     end
   end
@@ -30,8 +31,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_incorrect_content_length
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Length: 5\r\nConnection: close\r\n\r\naye\r\n",
-                 raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye\r\n")
+    assert_equal '', raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye\r\n")
   end
   
   def test_post
@@ -44,7 +44,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_get_perf
-    assert_faster_then 5 do
+    assert_faster_then 5, true do
       get('/')
     end
   end

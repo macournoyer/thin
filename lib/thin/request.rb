@@ -18,16 +18,21 @@ module Thin
     MAX_QUERY_STRING_LENGTH = 1024 * 10
     MAX_HEADER_LENGTH       = 1024 * (80 + 32)
     
-    attr_reader :body, :params, :verb, :path
+    attr_reader   :body, :params, :verb, :path
+    attr_accessor :trace, :raw # For debugging and trace
     
-    def initialize(content)
+    def initialize
       @params = {
         'GATEWAY_INTERFACE' => 'CGI/1.2',
         'HTTP_VERSION'      => 'HTTP/1.1',
         'SERVER_PROTOCOL'   => 'HTTP/1.1'
       }
       @body = StringIO.new
-
+      @raw = ''
+      @trace = false
+    end
+    
+    def parse!(content)      
       parse_headers! content
       parse_body!    content if BODYFUL_METHODS.include?(verb)
     end
@@ -39,7 +44,7 @@ module Thin
       if matches = readline(content).match(/^([A-Z]+) (.*?)(?:#(.*))? HTTP/)
         @verb, uri, fragment = matches[1,3]
       else
-        raise InvalidRequest, 'No valid header found'
+        raise InvalidRequest, 'No valid request line found'
       end
     
       raise InvalidRequest, 'No method specified' unless @verb
@@ -100,7 +105,6 @@ module Thin
         chunk = content.readpartial(CHUNK_SIZE)
         break unless chunk && chunk.size > 0
         @body << chunk
-        break if chunk.size < CHUNK_SIZE
       end
       
       @body.rewind
@@ -120,11 +124,9 @@ module Thin
     
     private
       def readline(io)
-        begin
-          io.gets(LF)
-        rescue Errno::ECONNRESET
-          nil
-        end      
+        out = io.gets(LF)
+        @raw << out if @trace # Build a gigantic string to later print trace for the request
+        out
       end
   end
 end

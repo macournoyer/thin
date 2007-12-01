@@ -1,6 +1,5 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-# FIXME!
 class ServerTest < Test::Unit::TestCase
   def setup
     @handler = TestHandler.new
@@ -13,14 +12,14 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def test_ok
-    request "GET / HTTP/1.1\n\rHost: localhost:3000"
+    request "GET / HTTP/1.1\r\nHost: localhost:3000\r\n\r\n"
     @server.start
     
     assert_response '', :status => 200
   end
   
   def test_bad_request
-    request "FUCKED / STUFF/1.1\n\rnononon"
+    request "FUCKED / STUFF/1.1\r\nnononon"
     @server.start
     
     assert_response 'Bad request', :status => 400
@@ -28,21 +27,21 @@ class ServerTest < Test::Unit::TestCase
   
   def test_not_found
     @handler.stubs(:process).returns(false)
-    request "GET / HTTP/1.1\n\rHost: localhost:3000"
+    request "GET / HTTP/1.1\r\nHost: localhost:3000\r\n\r\n"
     @server.start
     
     assert_response 'Page not found', :status => 404    
   end
   
   def test_ok_with_body
-    request "POST / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: 12\n\r\n\rmore cowbell"
+    request "POST / HTTP/1.1\r\nHost: localhost:3000\r\nContent-Length: 12\r\n\r\nmore cowbell"
     @server.start
-    
+
     assert_response 'more cowbell', :status => 200
   end
   
   def test_invalid_content_length
-    request "GET / HTTP/1.1\n\rHost: localhost:3000\n\rContent-Length: #{Thin::CHUNK_SIZE}\n\r\n\rmore cowbell"
+    request "POST / HTTP/1.1\r\nHost: localhost:3000\r\nContent-Length: 324623\r\n\r\nmore cowbell"
     @server.start
     
     assert_response 'more cowbell', :status => 200
@@ -57,18 +56,23 @@ class ServerTest < Test::Unit::TestCase
   private
     def request(body)
       @client = StringIO.new(body)
-      @response = ''
+      @client.instance_eval do
+        alias :readpartial :read
+      end
+      @response = StringIO.new
       @socket.stubs(:accept).returns(@client)
       @socket.stubs(:closed?).returns(false).then.returns(true)
       
-      @client.stubs(:peeraddr).returns([])
+      @client.stubs(:peeraddr).returns(['127.0.0.1'])
       
-      @client.stubs(:<<).with { |o| @response << o }
+      @client.stubs(:write).with { |o| @response << o }
     end
       
     def assert_response(body, options={})
+      @response.rewind
+      response = @response.read
       status = options.delete(:status) || 200
-      assert_match "HTTP/1.1 #{status} #{Thin::HTTP_STATUS_CODES[status]}", @response
-      assert_match body, @response
+      assert_match "HTTP/1.1 #{status} #{Thin::HTTP_STATUS_CODES[status]}", response
+      assert_match body, response
     end
 end

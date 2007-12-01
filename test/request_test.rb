@@ -212,6 +212,8 @@ EOS
       socket.instance_eval do
         alias :readpartial :read
       end
-      Thin::Request.new socket
+      request = Thin::Request.new
+      request.parse! socket
+      request
     end
 end
