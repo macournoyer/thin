@@ -20,7 +20,7 @@ module Thin
       @host       = host
       @port       = port
       @handlers   = handlers
-      @timeout    = 5      # sec, max time to parse a request
+      @timeout    = 60     # sec, max time to read and parse a request
       @stop       = true   # true is server is stopped
       @processing = false  # true is processing a request
 
