@@ -16,8 +16,9 @@ module Thin::Commands::Server
       server.trace    = trace
       server.timeout  = timeout.to_i
 
-      server.daemonize if daemonize
       server.start
+      server.daemonize if daemonize
+      server.listen!
     end
 
     def self.help

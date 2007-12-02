@@ -12,7 +12,10 @@ module Thin
       end
       
       def logc(msg)
-        print msg unless @silent
+        unless @silent
+          print msg
+          STDOUT.flush # Make sure the msg is shown right away
+        end
       end
   
       def trace(msg=nil)

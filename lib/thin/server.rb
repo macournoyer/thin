@@ -7,8 +7,8 @@ module Thin
   # It listen for incoming request on a given port
   # and forward all request to all the handlers in the order
   # they were registered.
-  # Based on HTTP 1.1
-  # See: http://www.w3.org/Protocols/rfc2616/rfc2616.html
+  # Based on HTTP 1.1 protocol specs
+  # http://www.w3.org/Protocols/rfc2616/rfc2616.html
   class Server
     include Logging
     include Daemonizable
@@ -37,20 +37,29 @@ module Thin
       @socket     = TCPServer.new(host, port)
     end
     
-    # Starts the server in the current process.
+    # Starts the handlers.
     def start
-      @stop = false
-      trap('INT') do
-        log '>> Caught INT signal, stopping ...'
-        stop
-      end
-      
       log   ">> Thin web server (v#{VERSION})"
       trace ">> Tracing ON"
 
       @handlers.each do |handler|
         log ">> Starting #{handler} ..."
         handler.start
+      end
+    end
+    
+    # Start the server and listen for connections
+    def start!
+      start
+      listen!
+    end
+    
+    # Start listening for connections
+    def listen!
+      @stop = false
+      trap('INT') do
+        log '>> Caught INT signal, stopping ...'
+        stop
       end
       
       log ">> Listening on #{host}:#{port}, CTRL+C to stop"

@@ -1,5 +1,5 @@
 module Thin
-  # Multiple server launcher and general manager.
+  # Control a set of servers. Generate start and stop commands and run then.
   class Cluster
     include Logging
     
@@ -29,6 +29,7 @@ module Thin
       end
     end
     
+    # Start the server on a single port
     def start_on_port(port)
       logc "Starting #{address}:#{port} ... "
       
@@ -45,7 +46,7 @@ module Thin
       if wait_until_pid(:exist, port)
         log "started in #{pid_for(port)}" if $?.success?
       else
-        log 'failed to start (timed out)'
+        log 'failed to start'
       end
     end
   
@@ -55,7 +56,8 @@ module Thin
         stop_on_port port
       end
     end
-
+    
+    # Stop the server running on +port+
     def stop_on_port(port)
       logc "Stopping #{address}:#{port} ... "
       
@@ -65,7 +67,7 @@ module Thin
       if wait_until_pid(!:exist, port)
         log 'stopped' if $?.success?
       else
-        log 'failed to stop (timed out)'
+        log 'failed to stop'
       end
     end
     
@@ -75,6 +77,7 @@ module Thin
     def restart
       with_each_instance do |port|
         stop_on_port port
+        sleep 0.1 # Let the OS do his thang
         start_on_port port
       end
     end
@@ -96,11 +99,7 @@ module Thin
       def run(cmd, options={})
         shell_cmd = shellify(cmd, options)
         trace shell_cmd
-        output = `#{shell_cmd}`
-        unless $?.success?
-          log 'error!'
-          log output
-        end
+        `#{shell_cmd}`
       end
       
       # Turn into a runnable shell command

@@ -6,7 +6,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
       server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
       server.timeout = 1
       server.silent = true # Remove this to get more details
-      server.start
+      server.start!
     end
   end
   
