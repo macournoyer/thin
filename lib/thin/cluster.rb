@@ -18,7 +18,6 @@ module Thin
       
       @cmd_timeout = 5 # sec
       
-      thin # Cache the path to the thin command before changing the current dir
       Dir.chdir dir if dir
     end
     
@@ -111,12 +110,7 @@ module Thin
           else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
           end
         end
-        "#{thin} #{cmd} #{shellified_options.compact.join(' ')}"
-      end
-      
-      # Return the path to the +thin+ script
-      def thin
-        @thin_cmd ||= File.expand_path(File.dirname(__FILE__) + '/../../bin/thin')
+        "thin #{cmd} #{shellified_options.compact.join(' ')}"
       end
       
       # Wait for the pid file to be created (exist=true) of deleted (exist=false)

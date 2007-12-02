@@ -42,7 +42,7 @@ class ClusterTest < Test::Unit::TestCase
     assert_match '--daemonize', out
     assert_match '--log-file="hi.log"', out
     assert_no_match %r'--pid-file=', out
-    assert_match '/bin/thin start --', out
+    assert_match 'thin start --', out
   end
   
   def test_start_on_port
