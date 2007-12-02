@@ -1,6 +1,4 @@
 require 'socket'
-require 'fileutils'
-require 'timeout'
 
 module Thin
   # The Thin HTTP server used to served request.

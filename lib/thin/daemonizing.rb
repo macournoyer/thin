@@ -1,5 +1,4 @@
 require 'etc'
-require 'fileutils'
 
 module Kernel
   unless respond_to? :daemonize # Already part of Ruby 1.9, yeah!

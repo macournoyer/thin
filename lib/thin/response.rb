@@ -1,5 +1,3 @@
-require 'stringio'
-
 module Thin
   class Response
     CONNECTION = 'Connection'.freeze

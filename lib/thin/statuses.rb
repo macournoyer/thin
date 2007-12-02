@@ -1,7 +1,6 @@
 module Thin
-  # Every standard HTTP code mapped to the appropriate message.  These are
-  # used so frequently that they are placed directly in Mongrel for easy
-  # access rather than Mongrel::Const itself.
+  # Every standard HTTP code mapped to the appropriate message.
+  # Stolent from Mongrel.
   HTTP_STATUS_CODES = {  
     100  => 'Continue', 
     101  => 'Switching Protocols', 
