@@ -32,12 +32,15 @@ Thin.define_commands do
                                      :param_name => 'PORT', :type => :int
   option :environment, :short => :e, :default => 'development',       :message => 'Rails environment',
                                      :param_name => 'ENVIRONMENT'
-  option :log_file,    :short => :l, :param_name => 'PATH',           :message => 'File to write log output to'
+  option :log_file,    :short => :l, :default => 'log/thin.log',      :message => 'File to write log output to (use with -d)',
+                                     :param_name => 'PATH'
   option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)',
                                      :param_name => 'PATH'
   option :daemonize,   :short => :d,                                  :message => 'Run in the background'
   option :trace,       :short => :t,                                  :message => 'Turn trace on'
+  option :timeout,     :short => :T, :param_name => 'SEC',            :message => 'Server timeout before giving up',
+                                     :default => 60
 
-  command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :trace]
-  command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file]
+  command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :trace, :timeout]
+  command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file, :timeout]
 end

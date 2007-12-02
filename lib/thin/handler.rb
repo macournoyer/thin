@@ -1,7 +1,5 @@
 module Thin
   class Handler
-    attr_accessor :logger
-    
     def start
     end
     

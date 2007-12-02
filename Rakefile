@@ -67,10 +67,12 @@ end
 
 desc 'Show some stats about the code'
 task :stats do
-  line_counter = proc { |path| Dir["#{path}/**/*.rb"].collect {|f| File.open(f).readlines.size }.inject(0){|sum,n| sum += n} }
-  %w(lib test).each do |dir|
-    puts "#{line_counter[dir].to_s.rjust(6)} LOC in #{dir}"
+  line_count = proc do |path|
+    Dir[path].collect { |f| File.open(f).readlines.reject { |l| l =~ /^\s*\#/ }.size }.inject(0){ |sum,n| sum += n }
   end
+  puts "#{line_count['lib/**/*.rb'].to_s.rjust(6)} LOC of lib"
+  puts "#{line_count['lib/thin/{server,request,response,cgi,rails,handler,headers}.rb'].to_s.rjust(6)} LOC of web serving stuff"
+  puts "#{line_count['test/**/*.rb'].to_s.rjust(6)} LOC of test"
 end
 
 namespace :site do

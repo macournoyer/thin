@@ -1,19 +1,25 @@
 module Thin
-  # Wrapper around Server to manage several servers all at once.
+  # Multiple server launcher and general manager.
   class Cluster
-    attr_accessor :log_file, :log_level, :pid_file, :user, :group
+    include Logging
+    
+    attr_accessor :log_file, :pid_file, :user, :group, :timeout
+    attr_reader   :address, :first_port, :size
     
     # Create a new cluster of servers bound to +host+
-    # on ports +first_port+ to <tt>first_port+size-1</tt>.
-    def initialize(host, first_port, size, *handlers)
-      @host       = host
+    # on ports +first_port+ to <tt>first_port + size - 1</tt>.
+    def initialize(dir, address, first_port, size)
+      @address    = address
       @first_port = first_port
       @size       = size
-      @handlers   = handlers
       
       @log_file  = 'thin.log'
-      @log_level = Logger::INFO
       @pid_file  = 'thin.pid'
+      
+      @cmd_timeout = 5 # sec
+      
+      thin # Cache the path to the thin command before changing the current dir
+      Dir.chdir dir if dir
     end
     
     # Start the servers
@@ -23,10 +29,43 @@ module Thin
       end
     end
     
+    def start_on_port(port)
+      logc "Starting #{address}:#{port} ... "
+      
+      run :start, :port      => port,
+                  :address   => @address,
+                  :daemonize => true,
+                  :pid_file  => pid_file_for(port),
+                  :log_file  => log_file_for(port),
+                  :user      => @user,
+                  :group     => @group,
+                  :timeout   => @timeout,
+                  :trace     => @trace
+      
+      if wait_until_pid(:exist, port)
+        log "started in #{pid_for(port)}" if $?.success?
+      else
+        log 'failed to start (timed out)'
+      end
+    end
+  
     # Stop the servers
     def stop
       with_each_instance do |port|
         stop_on_port port
+      end
+    end
+
+    def stop_on_port(port)
+      logc "Stopping #{address}:#{port} ... "
+      
+      run :stop, :pid_file => pid_file_for(port),
+                 :timeout  => @timeout
+      
+      if wait_until_pid(!:exist, port)
+        log 'stopped' if $?.success?
+      else
+        log 'failed to stop (timed out)'
       end
     end
     
@@ -48,24 +87,47 @@ module Thin
       include_port_number @pid_file, port
     end
     
+    def pid_for(port)
+      File.read(pid_file_for(port)).chomp.to_i
+    end
+    
     private
-      def start_on_port(port)        
-        Daemonizer.new(pid_file_for(port), log_file_for(port)).daemonize("server on #{@host}:#{port}") do |daemon|
-          server = Server.new(@host, port, *@handlers)
-
-          server.logger = Logger.new(log_file_for(port))
-          server.logger.level = @log_level
-          
-          if user
-            server.logger.info "Changing privileges to #{user}:#{group || user}"
-            daemon.change_privilege(user, group || user)
-          end
-          server.start
+      # Send the command to the +thin+ script
+      def run(cmd, options={})
+        shell_cmd = shellify(cmd, options)
+        trace shell_cmd
+        output = `#{shell_cmd}`
+        unless $?.success?
+          log 'error!'
+          log output
         end
       end
-    
-      def stop_on_port(port)
-        Daemonizer.new(pid_file_for(port), log_file_for(port)).kill
+      
+      # Turn into a runnable shell command
+      def shellify(cmd, options={})
+        shellified_options = options.inject([]) do |args, (name, value)|
+          args << case value
+          when NilClass
+          when TrueClass then "--#{name}"
+          else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
+          end
+        end
+        "#{thin} #{cmd} #{shellified_options.compact.join(' ')}"
+      end
+      
+      # Return the path to the +thin+ script
+      def thin
+        @thin_cmd ||= File.expand_path(File.dirname(__FILE__) + '/../../bin/thin')
+      end
+      
+      # Wait for the pid file to be created (exist=true) of deleted (exist=false)
+      def wait_until_pid(exist, port)
+        Timeout.timeout(1) do
+          sleep 0.1 until File.exist?(pid_file_for(port)) == !!exist
+        end
+        true
+      rescue Timeout::Error
+        false
       end
     
       def with_each_instance

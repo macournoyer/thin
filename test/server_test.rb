@@ -8,7 +8,7 @@ class ServerTest < Test::Unit::TestCase
     TCPServer.stubs(:new).returns(@socket)
     
     @server = Thin::Server.new('0.0.0.0', 3000, @handler)
-    @server.logger = Logger.new(nil)
+    @server.silent = true
   end
   
   def test_ok

@@ -3,11 +3,11 @@ module Thin::Commands::Cluster
     def run
       load_from_config
       
-      Dir.chdir cwd if cwd
-      
-      cluster = Thin::Cluster.new(address, port, servers)
+      cluster = Thin::Cluster.new(cwd, address, port, servers)
+
       cluster.log_file = log_file
       cluster.pid_file = pid_file
+      cluster.trace    = trace
 
       cluster.stop
     end

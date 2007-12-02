@@ -3,7 +3,23 @@ require 'thin/cluster'
 
 class ClusterTest < Test::Unit::TestCase
   def setup
-    @cluster = Thin::Cluster.new('0.0.0.0', 3000, 3)
+    FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
+    
+    @pwd = Dir.pwd
+    
+    @cluster = Thin::Cluster.new(File.dirname(__FILE__) + '/rails_app', '0.0.0.0', 3000, 3)
+    @cluster.silent = true
+    @cluster.pid_file = File.expand_path(File.dirname(__FILE__) + '/cluster_test.pid')
+    @cluster.log_file = File.expand_path(File.dirname(__FILE__) + '/../log/cluster_test.log')
+  end
+  
+  def teardown
+    3000.upto(3003) do |port|
+      Process.kill 9, @cluster.pid_for(port) rescue nil
+      File.delete @cluster.pid_file_for(port) rescue nil
+    end
+    
+    Dir.chdir @pwd
   end
   
   def test_include_port_number
@@ -20,38 +36,39 @@ class ClusterTest < Test::Unit::TestCase
     assert_equal [3000, 3001, 3002], calls
   end
   
-  def test_start
-    @cluster.expects(:start_on_port).times(3)
-    @cluster.start
+  def test_shellify
+    out = @cluster.send(:shellify, :start, :port => 3000, :daemonize => true, :log_file => 'hi.log', :pid_file => nil)
+    assert_match '--port=3000', out
+    assert_match '--daemonize', out
+    assert_match '--log-file="hi.log"', out
+    assert_no_match %r'--pid-file=', out
+    assert_match '/bin/thin start --', out
   end
   
   def test_start_on_port
-    Thin::Daemonizer.any_instance.expects(:daemonize)
+    @cluster.expects(:log).with { |t| t =~ /started in/ }
     
-    @cluster.send(:start_on_port, 3001)
+    @cluster.start_on_port 3000
+    
+    assert File.exist?(@cluster.pid_file_for(3000))
+    assert File.exist?(@cluster.log_file_for(3000))
   end
-  
-  def test_stop
-    @cluster.expects(:stop_on_port).times(3)
-    @cluster.stop
-  end
-  
+
   def test_stop_on_port
-    Thin::Daemonizer.any_instance.expects(:kill)
+    @cluster.expects(:log)
+    @cluster.expects(:log).with { |t| t =~ /stopped/ }
     
-    @cluster.send(:stop_on_port, 3002)
+    @cluster.start_on_port 3000
+    @cluster.stop_on_port 3000
+    
+    assert !File.exist?(@cluster.pid_file_for(3000))
   end
   
-  def test_restart
-    @cluster.expects(:stop_on_port).with(3000)
-    @cluster.expects(:start_on_port).with(3000)
+  def test_start_with_error
+    @cluster.expects(:log).with { |t| t =~ /failed to start/ }
+
+    Dir.chdir '../' # Switch to a non valid dir
     
-    @cluster.expects(:stop_on_port).with(3001)
-    @cluster.expects(:start_on_port).with(3001)
-    
-    @cluster.expects(:stop_on_port).with(3002)
-    @cluster.expects(:start_on_port).with(3002)
-    
-    @cluster.restart
+    @cluster.start_on_port 3000
   end
 end

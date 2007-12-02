@@ -2,19 +2,16 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class ServerFunctionalTest < Test::Unit::TestCase
   def setup
-    @daemonizer = Thin::Daemonizer.new('server_test.pid')
-    @daemonizer.daemonize('test server') do
+    @thread = Thread.new do
       server = Thin::Server.new('0.0.0.0', 3333, TestHandler.new)
-      log_dir = File.dirname(__FILE__) + '/../log'
-      FileUtils.mkdir_p log_dir
-      server.logger = Logger.new(log_dir + '/test.log')
       server.timeout = 1
+      server.silent = true # Remove this to get more details
       server.start
     end
   end
   
   def teardown
-    @daemonizer.kill
+    @thread.kill
   end
   
   def test_get
@@ -31,7 +28,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_incorrect_content_length
-    assert_equal '', raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye\r\n")
+    assert_equal Thin::ERROR_400_RESPONSE, raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye\r\n")
   end
   
   def test_post
@@ -44,7 +41,7 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_get_perf
-    assert_faster_then 5, true do
+    assert_faster_then 5 do
       get('/')
     end
   end

@@ -35,6 +35,10 @@ module Thin
     def parse!(content)      
       parse_headers! content
       parse_body!    content if BODYFUL_METHODS.include?(verb)
+    rescue InvalidRequest => e
+      raise
+    rescue Object => e
+      raise InvalidRequest, e.message
     end
         
     # Parse the request headers from the socket into CGI like variables.
@@ -92,10 +96,6 @@ module Thin
       raise InvalidRequest, 'Headers too long' if headers_size > MAX_HEADER_LENGTH
     
       @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']      
-    rescue InvalidRequest => e
-      raise
-    rescue Object => e
-      raise InvalidRequest, e.message
     end
     
     def parse_body!(content)

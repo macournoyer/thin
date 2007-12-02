@@ -3,19 +3,13 @@ module Thin::Commands::Cluster
     def run
       load_from_config
       
-      Dir.chdir cwd if cwd
-      
-      cluster = Thin::Cluster.new(address, port, servers,
-                                  # Let Rails handle his thing and ignore files
-                                  Thin::RailsHandler.new('.', environment),
-                                  # Serve static files
-                                  Thin::DirHandler.new('public')
-                                 )
+      cluster = Thin::Cluster.new(cwd, address, port, servers)
+
       cluster.log_file = log_file
-      cluster.log_level = trace ? Logger::DEBUG : Logger::INFO
       cluster.pid_file = pid_file
-      cluster.user = user
-      cluster.group = group
+      cluster.trace    = trace
+      cluster.user     = user
+      cluster.group    = group
       
       cluster.start
     end

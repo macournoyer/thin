@@ -1,6 +1,6 @@
 module Thin::Commands::Server
   class Start < Base
-    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :trace
+    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :trace, :timeout
     
     def run
       Dir.chdir cwd
@@ -10,14 +10,14 @@ module Thin::Commands::Server
                                 # Serve static files
                                 Thin::DirHandler.new('public')
                                )
-      server.logger = Logger.new(log_file) if log_file
-      server.logger.level = trace ? Logger::DEBUG : Logger::INFO
 
-      if daemonize
-        Thin::Daemonizer.new(pid_file, log_file).daemonize { server.start }
-      else
-        server.start
-      end
+      server.log_file = log_file
+      server.pid_file = pid_file
+      server.trace    = trace
+      server.timeout  = timeout.to_i
+
+      server.daemonize if daemonize
+      server.start
     end
 
     def self.help
