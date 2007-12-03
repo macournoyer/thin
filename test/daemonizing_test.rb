@@ -2,8 +2,6 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'timeout'
 
 class DaemonizerTest < Test::Unit::TestCase
-  include Timeout
-  
   def setup
     TCPServer.stubs(:new) # We don't need a real socket for this
     @server = Thin::Server.new('0.0.0.0', 3000)
@@ -73,7 +71,9 @@ class DaemonizerTest < Test::Unit::TestCase
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     
-    Thin::Server.kill(@server.pid_file, 1)
+    silence_stream STDOUT do
+      Thin::Server.kill(@server.pid_file, 1)
+    end
     
     assert !File.exist?(@server.pid_file)
   ensure
@@ -87,11 +87,13 @@ class DaemonizerTest < Test::Unit::TestCase
       loop {}
     end
     
-    timeout 3 do
+    Timeout.timeout 10 do
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     
-    Thin::Server.kill(@server.pid_file, 1) rescue nil
+    silence_stream STDOUT do
+      Thin::Server.kill(@server.pid_file, 1) rescue nil
+    end
     
     assert !File.exist?(@server.pid_file)
   ensure

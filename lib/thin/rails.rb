@@ -28,4 +28,14 @@ module Thin
       "Rails on #{@pwd} (env=#{@env})"
     end
   end
+  
+  class RailsServer < Server
+    def initialize(address, port, environment='development')
+      super address, port,
+            # Let Rails handle his thing and ignore files
+            Thin::RailsHandler.new('.', environment),
+            # Serve static files
+            Thin::DirHandler.new('public')
+    end
+  end
 end

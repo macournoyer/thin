@@ -70,6 +70,8 @@ class ClusterTest < Test::Unit::TestCase
 
     Dir.chdir '../' # Switch to a non valid dir
     
-    @cluster.start_on_port 3000
+    silence_stream STDERR do
+      @cluster.start_on_port 3000
+    end
   end
 end

@@ -4,12 +4,7 @@ module Thin::Commands::Server
     
     def run
       Dir.chdir cwd
-      server = Thin::Server.new(address, port,
-                                # Let Rails handle his thing and ignore files
-                                Thin::RailsHandler.new('.', environment),
-                                # Serve static files
-                                Thin::DirHandler.new('public')
-                               )
+      server = Thin::RailsServer.new(address, port)
 
       server.log_file = log_file
       server.pid_file = pid_file
