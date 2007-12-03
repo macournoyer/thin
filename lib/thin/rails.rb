@@ -32,12 +32,12 @@ module Thin
   
   # Serve the Rails application in the current directory.
   class RailsServer < Server
-    def initialize(address, port, environment='development')
+    def initialize(address, port, environment='development', cwd='.')
       super address, port,
             # Let Rails handle his thing and ignore files
-            Thin::RailsHandler.new('.', environment),
+            Thin::RailsHandler.new(cwd, environment),
             # Serve static files
-            Thin::DirHandler.new('public')
+            Thin::DirHandler.new(File.join(cwd, 'public'))
     end
   end
 end
