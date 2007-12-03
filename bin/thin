@@ -37,10 +37,12 @@ Thin.define_commands do
   option :pid_file,    :short => :P, :default => 'tmp/pids/thin.pid', :message => 'File to write the PID (use with -d)',
                                      :param_name => 'PATH'
   option :daemonize,   :short => :d,                                  :message => 'Run in the background'
+  option :user,        :short => :u, :param_name => 'USER',           :message => 'User to run the process as'
+  option :group,       :short => :g, :param_name => 'GROUP',          :message => 'Group to run the process as'
   option :trace,       :short => :t,                                  :message => 'Turn trace on'
   option :timeout,     :short => :T, :param_name => 'SEC',            :message => 'Server timeout before giving up',
                                      :default => 60
 
-  command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :trace, :timeout]
+  command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :user, :group, :trace, :timeout]
   command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file, :timeout]
 end

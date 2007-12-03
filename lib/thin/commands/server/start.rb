@@ -1,6 +1,6 @@
 module Thin::Commands::Server
   class Start < Base
-    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :trace, :timeout
+    attr_accessor :address, :port, :environment, :log_file, :daemonize, :pid_file, :user, :group, :trace, :timeout
     
     def run
       Dir.chdir cwd
@@ -18,6 +18,7 @@ module Thin::Commands::Server
 
       server.start
       server.daemonize if daemonize
+      server.change_privilege user, group || user if user
       server.listen!
     end
 

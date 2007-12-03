@@ -1,6 +1,6 @@
 module Thin
   NAME           = 'thin'.freeze
-  VERSION        = '0.1'.freeze
+  VERSION        = '0.2'.freeze
   SERVER         = "#{NAME} #{VERSION}".freeze
   
   # The basic max request size we'll try to read.

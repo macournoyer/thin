@@ -7,6 +7,7 @@ class ClusterTest < Test::Unit::TestCase
     
     @pwd = Dir.pwd
     
+    Thin::Cluster.thin = File.expand_path(File.dirname(__FILE__) + '/../bin/thin')
     @cluster = Thin::Cluster.new(File.dirname(__FILE__) + '/rails_app', '0.0.0.0', 3000, 3)
     @cluster.silent = true
     @cluster.pid_file = File.expand_path(File.dirname(__FILE__) + '/cluster_test.pid')

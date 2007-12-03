@@ -6,6 +6,12 @@ module Thin
     attr_accessor :log_file, :pid_file, :user, :group, :timeout
     attr_reader   :address, :first_port, :size
     
+    # Script to run
+    def self.thin=(value)
+      @@thin = value
+    end
+    @@thin = 'thin'
+    
     # Create a new cluster of servers bound to +host+
     # on ports +first_port+ to <tt>first_port + size - 1</tt>.
     def initialize(dir, address, first_port, size)
@@ -110,7 +116,7 @@ module Thin
           else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
           end
         end
-        "thin #{cmd} #{shellified_options.compact.join(' ')}"
+        "#{@@thin} #{cmd} #{shellified_options.compact.join(' ')}"
       end
       
       # Wait for the pid file to be created (exist=true) of deleted (exist=false)
