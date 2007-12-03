@@ -64,6 +64,13 @@ namespace :gem do
     upload "pkg/#{spec.full_name}.gem", 'gems'
     sh 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && index_gem_repository.rb"'
   end
+  
+  desc 'Upload gem to rubyforge.org'
+  task :upload_rubyforge => :gem do
+    sh 'rubyforge login'
+    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
+    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
+  end
 end
 
 desc 'Show some stats about the code'
@@ -92,8 +99,15 @@ namespace :site do
   end
 end
 
-desc 'Upload all the stuff to code.macournoyer.com'
-task :upload => %w(gem:upload site:upload rdoc:upload)
+namespace :deploy do
+  task :site => %w(site:upload rdoc:upload)
+  
+  desc 'Deploy on code.macournoyer.com'
+  task :alpha => %w(gem:upload deploy:site)
+  
+  desc 'Deploy on rubyforge'
+  task :public => %w(gem:upload deploy:site)  
+end
 
 def upload(file, to, options={})
   sh %{ssh macournoyer@macournoyer.com "rm -rf code.macournoyer.com/#{to}"} if options[:replace]
