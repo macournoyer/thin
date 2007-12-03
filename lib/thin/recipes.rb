@@ -15,7 +15,7 @@
 
 Capistrano::Configuration.instance.load do
   set :thin_cluster, "thin_cluster"
-  set :thin_config, "#{release_path}/config/thin.yml"
+  set :thin_config, "#{current_path}/config/thin.yml"
 
   namespace :deploy do  
     desc 'Start Thin processes on the app server.'
