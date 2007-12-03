@@ -37,7 +37,7 @@ module Thin
     
     # Starts the handlers.
     def start
-      log   ">> Thin web server (v#{VERSION})"
+      log   ">> Thin web server (v#{VERSION::STRING})"
       trace ">> Tracing ON"
 
       @handlers.each do |handler|
