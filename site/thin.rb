@@ -55,15 +55,16 @@ class Thin < Atchoum::Website
     
     h2 'Why'
     ul do
-      li { "10 % faster then #{a 'Mongrel', :href => 'http://mongrel.rubyforge.org/', :title => 'Mongrel web server'}" }
-      li { "5 MB less memory then Mongrel" }
+      li { "10 % faster than #{a 'Mongrel', :href => 'http://mongrel.rubyforge.org/', :title => 'Mongrel web server'}" }
+      li { "5 MB less memory than Mongrel" }
       li { "No C extension, 100% pure and beautiful Ruby" }
       li { "No dependency" }
       li { "Built-in cluster monitoring" }
+      li { "0 downtime cluster restart" }
     end
     
     h2 'How'
-    pre 'sudo gem install thin --source http://code.macournoyer.com'
+    pre 'sudo gem install thin'
 
     p 'Go to your Rails app directory and run:'
     pre 'thin start'

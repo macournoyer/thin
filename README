@@ -3,12 +3,19 @@
 Tiny, fast & funny HTTP server
 
 === Installation
+For the latest stable version:
+
+ sudo gem install thin
+
+For the risky but so much cooler alpha version:
 
  sudo gem install thin --source http://code.macournoyer.com
 
-Or get the source:
+Or from source:
 
  svn co http://code.macournoyer.com/svn/thin/trunk thin
+ cd thin
+ rake install
 
 === Usage
 In your Rails app directory:

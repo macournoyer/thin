@@ -109,6 +109,18 @@ namespace :deploy do
   task :public => %w(gem:upload deploy:site)  
 end
 
+task :install do
+  sh %{rake package}
+  sh %{sudo gem install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
+end
+
+task :uninstall => [:clean] do
+  sh %{sudo gem uninstall #{Thin::NAME}}
+end
+
+
+# == Utilities
+
 def upload(file, to, options={})
   sh %{ssh macournoyer@macournoyer.com "rm -rf code.macournoyer.com/#{to}"} if options[:replace]
   sh %{scp -rq #{file} macournoyer@macournoyer.com:code.macournoyer.com/#{to}}
