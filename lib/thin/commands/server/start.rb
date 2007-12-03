@@ -16,9 +16,9 @@ module Thin::Commands::Server
       server.trace    = trace
       server.timeout  = timeout.to_i
 
+      server.change_privilege user, group || user if user
       server.start
       server.daemonize if daemonize
-      server.change_privilege user, group || user if user
       server.listen!
     end
 

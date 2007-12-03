@@ -5,11 +5,12 @@ module Thin::Commands::Cluster
       
       cluster = Thin::Cluster.new(cwd, address, port, servers)
 
-      cluster.log_file = log_file
-      cluster.pid_file = pid_file
-      cluster.trace    = trace
-      cluster.user     = user
-      cluster.group    = group
+      cluster.environment = environment
+      cluster.log_file    = log_file
+      cluster.pid_file    = pid_file
+      cluster.trace       = trace
+      cluster.user        = user
+      cluster.group       = group
       
       cluster.start
     end

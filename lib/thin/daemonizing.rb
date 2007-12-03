@@ -56,18 +56,14 @@ module Thin
       end
     end
     
-    # Change privileges of the process and PID & log files
+    # Change privileges of the process
     # to the specified user and group.
     def change_privilege(user, group=user)
-      log ">> Changing files and process privilege to #{user}:#{group}"
+      log ">> Changing process privilege to #{user}:#{group}"
       
       uid, gid = Process.euid, Process.egid
       target_uid = Etc.getpwnam(user).uid
       target_gid = Etc.getgrnam(group).gid
-
-      # Change files ownership
-      FileUtils.chown(user, group, @pid_file)
-      FileUtils.chown(user, group, @log_file) if @log_file
 
       if uid != target_uid || gid != target_gid
         # Change process ownership

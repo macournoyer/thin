@@ -3,7 +3,7 @@ module Thin
   class Cluster
     include Logging
     
-    attr_accessor :log_file, :pid_file, :user, :group, :timeout
+    attr_accessor :environment, :log_file, :pid_file, :user, :group, :timeout
     attr_reader   :address, :first_port, :size
     
     # Script to run
@@ -38,15 +38,16 @@ module Thin
     def start_on_port(port)
       logc "Starting #{address}:#{port} ... "
       
-      run :start, :port      => port,
-                  :address   => @address,
-                  :daemonize => true,
-                  :pid_file  => pid_file_for(port),
-                  :log_file  => log_file_for(port),
-                  :user      => @user,
-                  :group     => @group,
-                  :timeout   => @timeout,
-                  :trace     => @trace
+      run :start, :port        => port,
+                  :address     => @address,
+                  :environment => @environment,
+                  :daemonize   => true,
+                  :pid_file    => pid_file_for(port),
+                  :log_file    => log_file_for(port),
+                  :user        => @user,
+                  :group       => @group,
+                  :timeout     => @timeout,
+                  :trace       => @trace
       
       if wait_until_pid(:exist, port)
         log "started in #{pid_for(port)}" if $?.success?

@@ -1,7 +1,7 @@
 module Thin
   module Logging
     # Output extra info about the request, response, errors and stuff like that.
-    attr_accessor :trace
+    attr_writer :trace
     
     # Don't output any message if +true+.
     attr_accessor :silent
