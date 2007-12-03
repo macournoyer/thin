@@ -11,7 +11,7 @@
 # You can specify which Rails environment should be loaded with the -e option:
 #  thin start -e production
 # 
-# You can also start the server in an other process:
+# You can also start the server in daemon mode:
 #  thin start -d
 # And later stop it
 #  thin stop
@@ -23,8 +23,8 @@ require 'thin/command'
 
 Thin.define_commands do
   program_name 'thin'
-  version      Thin::VERSION
-  help         'Thin is a web server take can run your Rails app in no time'
+  version      Thin::VERSION::STRING
+  help         'Thin is a web server that can run your Rails app in no time'
 
   option :address,     :short => :a, :default => '0.0.0.0',           :message => 'Address to bind to',
                                      :param_name => 'ADDRESS'
@@ -39,9 +39,9 @@ Thin.define_commands do
   option :daemonize,   :short => :d,                                  :message => 'Run in the background'
   option :user,        :short => :u, :param_name => 'USER',           :message => 'User to run the process as'
   option :group,       :short => :g, :param_name => 'GROUP',          :message => 'Group to run the process as'
-  option :trace,       :short => :t,                                  :message => 'Turn trace on'
   option :timeout,     :short => :T, :param_name => 'SEC',            :message => 'Server timeout before giving up',
                                      :default => 60
+  option :trace,       :short => :t,                                  :message => 'Turn trace on'
 
   command :start, Thin::Commands::Server::Start, :valid_options => [:address, :port, :environment, :log_file, :daemonize, :pid_file, :user, :group, :trace, :timeout]
   command :stop,  Thin::Commands::Server::Stop,  :valid_options => [:pid_file, :timeout]

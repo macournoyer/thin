@@ -1,8 +1,10 @@
 $:.unshift File.dirname(__FILE__)
+
 require 'fileutils'
 require 'timeout'
 require 'stringio'
 
+require 'thin/version'
 require 'thin/consts'
 require 'thin/statuses'
 require 'thin/mime_types'

@@ -29,6 +29,12 @@ module Process
 end
 
 module Thin
+  # Module included in classes that can be turned into a daemon.
+  # Handle stuff like:
+  # * storing the PID in a file
+  # * redirecting output to the log file
+  # * changing processs privileges
+  # * killing the process gracefully
   module Daemonizable
     attr_accessor :pid_file, :log_file
     

@@ -23,7 +23,7 @@ module Thin::Commands::Server
 
     def self.detailed_help
       <<-EOF
-usage: thin start [PATH]
+usage: thin start [PATH] [options]
 
   Starts a new Thin web server for the Rails application in PATH
   (default to current directory).

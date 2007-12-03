@@ -1,7 +1,6 @@
 module Thin
   NAME           = 'thin'.freeze
-  VERSION        = '0.2'.freeze
-  SERVER         = "#{NAME} #{VERSION}".freeze
+  SERVER         = "#{NAME} #{VERSION::STRING}".freeze
   
   # The basic max request size we'll try to read.
   CHUNK_SIZE     = 16 * 1024
@@ -22,6 +21,7 @@ Content-Type: text/html
 <html><h1>Page not found</h1></html>
 EOS
   
+  # The standard empty 400 response when the request was invalid.
   ERROR_400_RESPONSE = <<-EOS.freeze
 HTTP/1.1 400 Bad Request
 Connection: close

@@ -13,7 +13,16 @@ module Thin::Commands::Cluster
     end
 
     def self.help
-      "Stops all servers in the cluster."
+      "Stops all servers in the cluster"
+    end
+
+    def self.detailed_help
+      <<-EOF
+usage: thin_cluster stop [options]
+
+  Stop multiple servers (--servers) starting on port --port
+  which pids are stored in <pid-file>.<port>.pid
+EOF
     end
   end
 end

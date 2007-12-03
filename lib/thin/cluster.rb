@@ -1,5 +1,5 @@
 module Thin
-  # Control a set of servers. Generate start and stop commands and run then.
+  # Control a set of servers. Generate start and stop commands and run them.
   class Cluster
     include Logging
     
@@ -19,10 +19,10 @@ module Thin
       @first_port = first_port
       @size       = size
       
-      @log_file  = 'thin.log'
-      @pid_file  = 'thin.pid'
+      @log_file   = 'thin.log'
+      @pid_file   = 'thin.pid'
       
-      @cmd_timeout = 5 # sec
+      @timeout    = 60 # sec
       
       Dir.chdir dir if dir
     end
@@ -122,7 +122,7 @@ module Thin
       
       # Wait for the pid file to be created (exist=true) of deleted (exist=false)
       def wait_until_pid(exist, port)
-        Timeout.timeout(1) do
+        Timeout.timeout(@timeout) do
           sleep 0.1 until File.exist?(pid_file_for(port)) == !!exist
         end
         true

@@ -84,18 +84,19 @@ class DaemonizerTest < Test::Unit::TestCase
     pid = fork do
       trap('INT', 'IGNORE') # pretend we cannot handle INT signal
       @server.daemonize
-      loop {}
+      sleep 5
     end
     
-    Timeout.timeout 10 do
+    Timeout.timeout 1 do
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     
     silence_stream STDOUT do
-      Thin::Server.kill(@server.pid_file, 1) rescue nil
+      Thin::Server.kill(@server.pid_file, 1)
     end
     
-    assert !File.exist?(@server.pid_file)
+    assert ! File.exist?(@server.pid_file)
+    assert ! Process.running?(pid)
   ensure
     Process.kill 9, pid rescue nil
   end

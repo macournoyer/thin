@@ -1,6 +1,8 @@
 require 'transat/parser'
 
 module Thin
+  # Define a set of commands that can be parsed and executed.
+  # see bin/thin for an example.
   def self.define_commands(&block)
     begin
       Transat::Parser.parse_and_execute(ARGV, &block)      
@@ -9,8 +11,10 @@ module Thin
     end
   end
   
+  # Raised when a command specific error happen.
   class CommandError < StandardError; end
   
+  # A command that can be runned from a command line script.
   class Command
     attr_reader :args
   

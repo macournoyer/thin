@@ -1,4 +1,5 @@
 module Thin
+  # Forwards incoming request to Rails dispatcher.
   class RailsHandler < Handler
     def initialize(pwd, env='development')
       @env = env
@@ -29,6 +30,7 @@ module Thin
     end
   end
   
+  # Serve the Rails application in the current directory.
   class RailsServer < Server
     def initialize(address, port, environment='development')
       super address, port,

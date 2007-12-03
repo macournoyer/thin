@@ -3,6 +3,7 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
+require 'erb'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
@@ -36,7 +37,7 @@ end
 
 spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
-  s.version               = [Thin::VERSION, REVISION].join('.')
+  s.version               = Thin::VERSION::STRING
   s.platform              = Gem::Platform::RUBY
   s.summary               = "Thin and fast web server"
   s.description           = s.summary

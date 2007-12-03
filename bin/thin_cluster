@@ -4,7 +4,7 @@
 # It takes most of the same argument as the +thin+ script
 # plus the -n option to specify the number of servers to run.
 # 
-# Also you can store your options into a config file, create it like this:
+# Also, you can store your options into a config file, create it like this:
 #  thin_cluster config -C /var/www/my_app/current config
 # Then a config file will be created in /var/www/my_app/current/config/thin.yml
 # with the default options.
@@ -20,8 +20,8 @@ require 'thin/command'
 
 Thin.define_commands do
   program_name 'thin_cluster'
-  version      Thin::VERSION
-  help         'Thin cluster monitoring tool for managing multiple Thin web server instances'
+  version      Thin::VERSION::STRING
+  help         'Thin cluster monitoring tool for managing multiple Thin web servers'
 
   option :address,     :short => :a, :default => '127.0.0.1',         :message => 'Address to bind to',
                                      :param_name => 'ADDRESS'
@@ -40,6 +40,8 @@ Thin.define_commands do
   option :group,       :short => :g, :param_name => 'GROUP',          :message => 'Group to run the process as'
   option :config,      :short => :C, :default => 'config/thin.yml',   :message => 'Config file',
                                      :param_name => 'PATH'
+  option :timeout,     :short => :T, :param_name => 'SEC',            :message => 'Server and command timeout',
+                                     :default => 60
   option :trace,       :short => :t,                                  :message => 'Turn trace on'                                   
 
   valid_options = [:address, :port, :environment, :log_file, :pid_file, :cwd, :servers, :config, :user, :group, :trace]

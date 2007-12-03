@@ -1,4 +1,5 @@
 module Thin
+  # A response sent to the client.
   class Response
     CONNECTION = 'Connection'.freeze
     CLOSE = 'close'.freeze

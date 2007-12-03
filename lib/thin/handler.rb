@@ -1,13 +1,22 @@
 module Thin
+  # Handle a request and populate a response.
   class Handler
+    # Start the handler.
+    # Initialize resources, open files, that kinda thing.
     def start
     end
     
+    # Process the incoming +request+ into the +response+
+    # that will be sent to the client.
+    # Return +true+ to send the request to the next handler
+    # or +false+ to stop processing the request and send the
+    # response to the client right away.
     def process(request, response)
       raise NotImplemented
     end
   end
   
+  # Serve a directory from a URI.
   class DirHandler < Handler
     def initialize(pwd)
       @pwd = pwd.dup

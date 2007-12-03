@@ -18,7 +18,7 @@ module Thin::Commands::Server
 
     def self.detailed_help
       <<-EOF
-usage: thin stop [PATH]
+usage: thin stop [PATH] [options]
 
   Stops the web server running in the background
   which PID is in the file PATH/<pid-file>

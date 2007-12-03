@@ -16,5 +16,19 @@ module Thin::Commands::Cluster
     def self.help
       "Create a thin_cluster configuration file."
     end
+    
+    def self.detailed_help
+      <<-EOF
+usage: thin_cluster config [options]
+
+  Create a configuration file for thin_cluster.
+  
+  All the options passed to this command will be stored
+  in <config> in YAML format.
+  
+  You can then use this configuration file with the start,
+  stop and restart commands with the --config option.
+EOF
+    end
   end
 end
