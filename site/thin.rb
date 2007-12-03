@@ -51,13 +51,14 @@ class Thin < Atchoum::Website
       EOS
     end
     p "It's the fastest and simplest way to serve your Rails application right now!"
+    p "It's so thin, it's almost like have no web server at all!"
     
     h2 'Why'
     ul do
       li { "10 % faster then #{a 'Mongrel', :href => 'http://mongrel.rubyforge.org/', :title => 'Mongrel web server'}" }
       li { "5 MB less memory then Mongrel" }
       li { "No C extension, 100% pure and beautiful Ruby" }
-      li { "No dependencies" }
+      li { "No dependency" }
       li { "Built-in cluster monitoring" }
     end
     

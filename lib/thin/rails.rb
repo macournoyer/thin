@@ -15,6 +15,7 @@ module Thin
     
     def process(request, response)
       # Rails doesn't serve static files
+      # TODO handle Rails page caching
       return false if File.file?(File.join(@pwd, 'public', request.path))
       
       cgi = CGIWrapper.new(request, response)
