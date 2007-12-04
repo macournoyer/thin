@@ -120,6 +120,9 @@ task :uninstall => [:clean] do
   sh %{sudo gem uninstall #{Thin::NAME}}
 end
 
+task :tag do
+  sh "svn cp . http://code.macournoyer.com/svn/thin/tags/#{Thin::VERSION::STRING}"
+end
 
 # == Utilities
 

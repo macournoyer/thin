@@ -1,7 +1,7 @@
 == Thin
 Tiny, fast & funny HTTP server
 
-Thin is a web server written entirely in Ruby in the simplest.
+Thin is a web server written entirely in Ruby in the simplest way possible.
 It does as little as possible to serve your Rails application,
 which makes it one of the fastest Rails server out there.
 
