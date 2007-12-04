@@ -12,9 +12,9 @@ class Thin < Atchoum::Website
         ul.menu! do
           li { a 'home', :href => "/thin/" }
           li { a 'doc', :href => "/thin/doc/" }
-          li { a 'timeline', :href => "/thin/trac.fcgi/timeline" }
-          li { a 'code', :href => "/thin/trac.fcgi/browser" }
-          li { a 'tickets', :href => "/thin/trac.fcgi/report" }
+          li { a 'code', :href => "/svn/thin/" }
+          li { a 'group', :href => "http://groups.google.com/group/thin-ruby/" }
+          li { a 'trac', :href => "/thin/trac.fcgi" }
           li { a 'new ticket', :href => "/thin/trac.fcgi/newticket" }
         end
 
@@ -43,15 +43,12 @@ class Thin < Atchoum::Website
   def index_page
     h2 'What'
     p do
-      <<-EOS
-        Thin is a #{acronym('very simple', :title => 'under 2 KLOC')} web server written in Ruby.
-        It's single-threaded, which means it can only serve one request at a time.
-        This simplicity affords increased speed and decreased memory usage for singled-threaded framework like
-        #{a 'Rails', :href => 'http://rubyonrails.org', :title => 'Ruby on Rails web framework'}.
+      <<-EOS        
+        Thin is a web server written entirely in Ruby in the #{acronym('simplest', :title => 'under 2 KLOC')} way possible.
+        It does as little as possible to serve your #{a 'Rails', :href => 'http://rubyonrails.org', :title => 'Ruby on Rails web framework'} application,
+        which makes it one of the fastest Rails server out there.
       EOS
     end
-    p "It's the fastest and simplest way to serve your Rails application right now!"
-    p "It's so thin, it's almost like have no web server at all!"
     
     h2 'Why'
     ul do
