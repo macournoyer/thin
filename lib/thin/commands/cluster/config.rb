@@ -11,6 +11,8 @@ module Thin::Commands::Cluster
       end
       
       File.open(config, 'w') { |f| f << YAML.dump(hash) }
+      
+      puts "Config file created : #{config}"
     end
 
     def self.help

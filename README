@@ -1,6 +1,9 @@
 == Thin
-
 Tiny, fast & funny HTTP server
+
+Thin is a web server written entirely in Ruby in the simplest and hopefully most beautiful
+way possible. It also does as little as possible to serve your Rails application, which makes
+it one of the fastest Rails server out there.
 
 === Installation
 For the latest stable version:
@@ -22,8 +25,40 @@ In your Rails app directory:
   
  thin start
 
-Get more help with the thin script at http://code.macournoyer.com/thin/doc/files/bin/thin.html 
-and with the thin_cluster script at http://code.macournoyer.com/thin/doc/files/bin/thin_cluster.html
+See http://code.macournoyer.com/thin/doc/files/bin/thin.html
+
+=== Deployment
+To deploy your Rails application using a cluster of thin servers. You can start it with:
+
+ thin_cluster start
+
+To use the Capistrano recipes, add this to your Capfile:
+
+ require 'thin'
+ require 'thin/recipes'
+
+and create a config file using:
+
+ thin_cluster config
+
+See http://code.macournoyer.com/thin/doc/files/bin/thin_cluster.html
+
+=== Security
+Thin should never be used facing the internet directly, it should always be hidden behind a
+proxy server!
+
+Thin is faster because it doesn't do a lot of things that other Ruby web servers do
+(use threads, validate the body length, be very strict about the request format, etc.)
+but that a good proxy server do very well (and a lot faster then any Ruby code could possibly do).
+So it is very important that you setup you proxy server correctly in order to secure Thin
+from potential attacks.
+
+Nginx comes with everything you need and can be used securely out of the box with thin.
+
+Apache mod_proxy is not secure because it doesn't cache the request before sending it
+to the backend, which open your server to easy DoS attacks.
+You need to install mod_accel (http://sysoev.ru/en/) to make mod_proxy behave like Nginx
+on that side.
 
 === License
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
@@ -39,4 +74,4 @@ Copyright (c) 2006 Francois Beausoleil <francois@teksol.info>
 
 Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
 
-Please report any bug using http://code.macournoyer.com/thin/trac.fcgi/newticket
+Please report any bug at http://code.macournoyer.com/thin/trac.fcgi/newticket

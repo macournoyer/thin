@@ -117,6 +117,7 @@ module Thin
     #   As a result, upload progress meters will not function correctly if they work by measuring
     #   the data received by the backend servers.
     #   - http://wiki.codemongers.com/NginxHttpProxyModule
+    # On Apache w/ mod_proxy, you need to install mod_accel : http://sysoev.ru/en/
     def parse_body!(content)
       length = content_length
       while @body.size < length
