@@ -3,7 +3,6 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
-require 'erb'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
@@ -106,7 +105,7 @@ namespace :deploy do
   task :alpha => %w(gem:upload deploy:site)
   
   desc 'Deploy on rubyforge'
-  task :public => %w(gem:upload deploy:site)  
+  task :public => %w(gem:upload_rubyforge deploy:site)  
 end
 desc 'Deploy on all servers'
 task :deploy => %w(deploy:alpha deploy:public)
@@ -121,7 +120,7 @@ task :uninstall => [:clean] do
 end
 
 task :tag do
-  sh "svn cp . http://code.macournoyer.com/svn/thin/tags/#{Thin::VERSION::STRING}"
+  sh %Q{svn cp . http://code.macournoyer.com/svn/thin/tags/#{Thin::VERSION::STRING} -m "Tagging version #{Thin::VERSION::STRING}"}
 end
 
 # == Utilities
