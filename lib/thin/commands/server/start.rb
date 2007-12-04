@@ -4,7 +4,7 @@ module Thin::Commands::Server
     
     def run
       Dir.chdir cwd
-      server = Thin::RailsServer.new(address, port)
+      server = Thin::RailsServer.new(address, port, environment)
 
       server.log_file = log_file
       server.pid_file = pid_file
