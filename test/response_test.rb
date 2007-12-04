@@ -48,7 +48,7 @@ class ResponseTest < Test::Unit::TestCase
 </ul></body></html>
 EOS
     
-    assert_faster_then 0.040 do
+    assert_faster_then 'Response writing', 0.040 do
       response.write StringIO.new
     end
     

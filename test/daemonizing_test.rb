@@ -1,10 +1,12 @@
 require File.dirname(__FILE__) + '/test_helper'
 require 'timeout'
 
-class DaemonizerTest < Test::Unit::TestCase
+class DaemonizingTest < Test::Unit::TestCase
   def setup
-    TCPServer.stubs(:new) # We don't need a real socket for this
+    @socket = stub_everything
+    TCPServer.stubs(:new).returns(@socket) # We don't need a real socket for this
     @server = Thin::Server.new('0.0.0.0', 3000)
+    @server.log_file = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
     @server.pid_file = 'test.pid'
   end
   
@@ -64,10 +66,10 @@ class DaemonizerTest < Test::Unit::TestCase
   def test_kill
     pid = fork do
       @server.daemonize
-      loop {}
+      loop { sleep 1 }
     end
     
-    timeout 3 do
+    Timeout.timeout 3 do
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     
@@ -82,12 +84,12 @@ class DaemonizerTest < Test::Unit::TestCase
   
   def test_send_kill_signal_if_timeout
     pid = fork do
-      trap('INT', 'IGNORE') # pretend we cannot handle INT signal
+      @server.stubs(:stop) # pretend we cannot handle the INT signal
       @server.daemonize
-      sleep 5
+      loop { sleep 1 }
     end
     
-    Timeout.timeout 1 do
+    Timeout.timeout 3 do
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     

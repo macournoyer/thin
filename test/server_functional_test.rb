@@ -41,13 +41,13 @@ class ServerFunctionalTest < Test::Unit::TestCase
   end
   
   def test_get_perf
-    assert_faster_then 5 do
+    assert_faster_then 'get', 5 do
       get('/')
     end
   end
   
   def test_post_perf
-    assert_faster_then 6 do
+    assert_faster_then 'post', 6 do
       post('/', :file => 'X' * 1000)
     end
   end

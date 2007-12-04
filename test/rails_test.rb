@@ -23,7 +23,7 @@ EOS
   end
   
   def test_perf
-    assert_faster_then 300 do
+    assert_faster_then 'Rails process', 300 do
       @handler.process(TestRequest.new('/test'), @response)
     end
   end

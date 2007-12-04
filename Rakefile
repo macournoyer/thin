@@ -108,6 +108,8 @@ namespace :deploy do
   desc 'Deploy on rubyforge'
   task :public => %w(gem:upload deploy:site)  
 end
+desc 'Deploy on all servers'
+task :deploy => %w(deploy:alpha deploy:public)
 
 task :install do
   sh %{rake package}

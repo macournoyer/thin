@@ -3,8 +3,6 @@ require 'thin/cluster'
 
 class ClusterTest < Test::Unit::TestCase
   def setup
-    FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
-    
     @pwd = Dir.pwd
     
     Thin::Cluster.thin = File.expand_path(File.dirname(__FILE__) + '/../bin/thin')

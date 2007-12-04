@@ -66,7 +66,7 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_parse_headers
-    request = R(<<-EOS)
+    request = R(<<-EOS, true)
 GET / HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -83,7 +83,7 @@ EOS
   end
   
   def test_parse_headers_with_query_string
-    request = R(<<-EOS)
+    request = R(<<-EOS, true)
 GET /page?cool=thing HTTP/1.1
 Host: localhost:3000
 Keep-Alive: 300
@@ -95,7 +95,7 @@ EOS
   end
   
   def test_parse_post_data
-    request = R(<<-EOS.chomp)
+    request = R(<<-EOS.chomp, true)
 POST /postit HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -140,7 +140,7 @@ Content-Type: application/x-www-form-urlencoded
 Cookie: _refactormycode_session_id=a1b2n3jk4k5; flash=%7B%7D
 Cookie2: $Version="1"
 EOS
-    request = R(body)
+    request = R(body, true)
     assert_equal '$Version="1"', request.params['HTTP_COOKIE2']
   end
   
@@ -149,7 +149,7 @@ EOS
 GET /session?open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer HTTP/1.1
 Host: localhost:3000
 EOS
-    request = R(body)
+    request = R(body, true)
     
     assert_equal 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer', request.params['QUERY_STRING']
   end
@@ -162,7 +162,7 @@ Content-Length: 300
 
 aye
 EOS
-    request = R(body)
+    request = R(body, true)
     
     assert_equal 'aye', request.body.read
   end
@@ -184,8 +184,8 @@ Content-Length: 37
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     
-    assert_faster_then 0.3 do
-      R(body)
+    assert_faster_then 'Request parsing', 0.3 do
+      R(body, true)
     end
 
     # Perf history
@@ -207,7 +207,8 @@ EOS
       return res
     end
     
-    def R(raw)
+    def R(raw, convert_line_feed=false)
+      raw.gsub!("\n", "\r\n") if convert_line_feed
       socket = StringIO.new(raw)
       socket.instance_eval do
         alias :readpartial :read

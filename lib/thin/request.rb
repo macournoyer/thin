@@ -5,7 +5,9 @@ module Thin
   
   # A request made to the server.
   class Request
+    # HTTP headers that should not have a +HTTP_+ prefixed to the CGI variable name
     HTTP_LESS_HEADERS = %w(Content-Length Content-Type).freeze
+    # Methods that might contain a body.
     BODYFUL_METHODS   = %w(POST PUT).freeze
 
     # We control max length of different part of the request
@@ -19,19 +21,24 @@ module Thin
     MAX_HEADER_LENGTH       = 1024 * (80 + 32)
     
     attr_reader   :body, :params, :verb, :path
-    attr_accessor :trace, :raw # For debugging and trace
+
+    # For debugging and trace.
+    # When +trace+ is set to true, +raw+ will be populated with
+    # the raw request.
+    attr_accessor :trace, :raw
     
     def initialize
       @params = {
-        'GATEWAY_INTERFACE' => 'CGI/1.2',
-        'HTTP_VERSION'      => 'HTTP/1.1',
-        'SERVER_PROTOCOL'   => 'HTTP/1.1'
+        'GATEWAY_INTERFACE' => CGI_VERSION,
+        'HTTP_VERSION'      => HTTP_VERSION,
+        'SERVER_PROTOCOL'   => HTTP_VERSION
       }
       @body = StringIO.new
       @raw = ''
       @trace = false
     end
     
+    # Parse the headers and body from the +content+ buffer.
     def parse!(content)      
       parse_headers! content
       parse_body!    content if BODYFUL_METHODS.include?(verb)
@@ -42,8 +49,11 @@ module Thin
     end
         
     # Parse the request headers from the socket into CGI like variables.
-    # Parse the request according to http://www.w3.org/Protocols/rfc2616/rfc2616.html
-    # Parse env variables according to http://www.ietf.org/rfc/rfc3875
+    # Parse the request according to http://www.w3.org/Protocols/rfc2616/rfc2616.html.
+    # Parse env variables according to http://www.ietf.org/rfc/rfc3875.
+    # Raises an InvalidRequest error when the request is not valid, because:
+    # * no valid request line
+    # * uri, path or header is too long
     def parse_headers!(content)
       if matches = readline(content).match(/^([A-Z]+) (.*?)(?:#(.*))? HTTP/)
         @verb, uri, fragment = matches[1,3]
@@ -54,7 +64,7 @@ module Thin
       raise InvalidRequest, 'No method specified' unless @verb
       raise InvalidRequest, 'No URI specified'    unless uri
     
-      # Validation various length for security
+      # Validate various length for security
       raise InvalidRequest, 'URI too long'        if uri.size > MAX_REQUEST_URI_LENGTH
       raise InvalidRequest, 'Fragment too long'   if fragment && fragment.size > MAX_FRAGMENT_LENGTH
 
@@ -75,13 +85,14 @@ module Thin
       @params['REQUEST_METHOD'] = @verb
       @params['QUERY_STRING']   = query_string if query_string
     
+      # Parse all headers from 'Something-Weird' into @params['HTTP_SOMETHING_WEIRD']
       headers_size = 0
       until content.eof?
         line = readline(content)
         headers_size += line.size
-        if [?\r, ?\n].include?(line[0])
-          break # Reached the end of the headers
-        elsif matches = line.match(/^([\w\-]+): (.*)$/)
+        
+        break if ?\r == line[0] # Reached the end of the headers
+        if matches = line.match(/^([\w\-]+): (.*)$/)
           name, value = matches[1,2]
           raise InvalidRequest, 'Header name too long' if name.size > MAX_FIELD_NAME_LENGTH
           raise InvalidRequest, 'Header value too long' if value.size > MAX_FIELD_VALUE_LENGTH
@@ -98,8 +109,15 @@ module Thin
       @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']      
     end
     
+    # Parse the request body by chunks.
+    # We assume the Content-Length is valid and is the actual size of the body.
+    # This is garanteed when used behind a proxy server like Nginx:
+    #   Note that when using the HTTP Proxy Module (or even when using FastCGI), the entire client
+    #   request will be buffered in nginx before being passed on to the backend proxied servers.
+    #   As a result, upload progress meters will not function correctly if they work by measuring
+    #   the data received by the backend servers.
+    #   - http://wiki.codemongers.com/NginxHttpProxyModule
     def parse_body!(content)
-      # Parse by chunks
       length = content_length
       while @body.size < length
         chunk = content.readpartial(CHUNK_SIZE)

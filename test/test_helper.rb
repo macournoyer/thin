@@ -4,6 +4,8 @@ require 'test/unit'
 require 'mocha'
 require 'benchmark'
 
+FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
+
 class TestRequest < Thin::Request
   def initialize(path, verb='GET', params={})
     @path = path
@@ -30,10 +32,9 @@ end
 
 class Test::Unit::TestCase
   protected
-    def assert_faster_then(max_time, verbose=false)
+    def assert_faster_then(title, max_time)
       time = Benchmark.measure { yield }.real * 1000
-      puts "Took #{time} ms, should take less then #{max_time} ms" if verbose
-      assert time <= max_time, "Too slow : took #{time} ms, should take less then #{max_time} ms"
+      warn "#{title} too slow : took #{time} ms, should take less then #{max_time} ms" if time > max_time
     end
     
     # Silences any stream for the duration of the block.

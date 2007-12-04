@@ -2,6 +2,10 @@ module Thin
   NAME           = 'thin'.freeze
   SERVER         = "#{NAME} #{VERSION::STRING}".freeze
   
+  # Versions for the protocoles used
+  HTTP_VERSION   = 'HTTP/1.1'.freeze
+  CGI_VERSION    = 'CGI/1.2'.freeze
+  
   # The basic max request size we'll try to read.
   CHUNK_SIZE     = 16 * 1024
   
