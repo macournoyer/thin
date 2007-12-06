@@ -32,9 +32,11 @@ end
 
 class Test::Unit::TestCase
   protected
-    def assert_faster_then(title, max_time)
+    def assert_faster_then(title, max_time, verbose=false)
       time = Benchmark.measure { yield }.real * 1000
-      warn "#{title} too slow : took #{time} ms, should take less then #{max_time} ms" if time > max_time
+      msg = "took #{time} ms, should take less then #{max_time} ms"
+      puts msg if verbose
+      warn "#{title} too slow : #{msg}" if time > max_time
     end
     
     # Silences any stream for the duration of the block.

@@ -31,11 +31,7 @@ class ResponseTest < Test::Unit::TestCase
     response.content_type = 'text/html'
     response.body << '<html></html>'
     
-    output = StringIO.new
-    response.write output
-    output.rewind
-    
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", output.read
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", response.to_s
   end
   
   def test_perfs
@@ -49,7 +45,7 @@ class ResponseTest < Test::Unit::TestCase
 EOS
     
     assert_faster_then 'Response writing', 0.040 do
-      response.write StringIO.new
+      response.to_s
     end
     
     # Perf history

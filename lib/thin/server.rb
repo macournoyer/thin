@@ -1,6 +1,9 @@
 require 'socket'
 
 module Thin
+  # Raise when we require the server to stop
+  class StopServer < StandardError; end
+  
   # The Thin HTTP server used to served request.
   # It listen for incoming request on a given port
   # and forward all request to all the handlers in the order
@@ -28,11 +31,6 @@ module Thin
       @handlers   = handlers
       @timeout    = 60     # sec, max time to read and parse a request
       @trace      = false
-
-      @stop       = true   # true is server is stopped
-      @processing = false  # true is processing a request
-
-      @socket     = TCPServer.new(host, port)
     end
     
     # Starts the handlers.
@@ -54,92 +52,26 @@ module Thin
     
     # Start listening for connections
     def listen!
-      @stop = false
-      trap('INT') do
-        if @stop # Force exit if INT signal is caught while stopping
-          log '>> Caught INT signal again, forcing stop ...'
-          exit!
-        end
-        log '>> Caught INT signal, stopping ...'
-        stop
-      end
+      trap('INT')  { EventMachine.stop_event_loop }
+			trap('TERM') { raise StopServer }
       
-      log ">> Listening on #{host}:#{port}, CTRL+C to stop"
-      until @stop
-        @processing = false
-        client = @socket.accept rescue nil
-        break if @socket.closed? || client.nil?
-        @processing = true
-        process(client)
-      end
-    ensure
-      @socket.close unless @socket.closed? rescue nil
-    end
-    
-    # Process one request from a client 
-    def process(client)
-      return if client.eof?
+      # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
+      EventMachine.epoll
       
-      trace { 'Request started'.center(80, '=') }
-
-      request  = Request.new
-      response = Response.new
-      
-      request.trace = @trace
-      trace { ">> Tracing request parsing ... " }
-
-      # Parse the request checking for timeout to prevent DOS attacks
-      Timeout.timeout(@timeout) { request.parse!(client) }
-      trace { request.raw }
-      
-      # Add client info to the request env
-      request.params['REMOTE_ADDR'] = client.peeraddr.last
-      
-      # Add server info to the request env
-      request.params['SERVER_SOFTWARE'] = SERVER
-      request.params['SERVER_PORT']     = @port.to_s
-      
-      served = false
-      @handlers.each do |handler|
-        served = handler.process(request, response)
-        break if served
-      end
-      
-      if served
-        trace { ">> Sending response:\n" + response.to_s }
-        response.write client
-      else
-        client << ERROR_404_RESPONSE
-      end
-      
-      trace { 'Request finished'.center(80, '=') }
-
-    rescue EOFError, Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL, Errno::EBADF
-      # Can't do anything sorry, closing the socket in the ensure block
-    rescue InvalidRequest => e
-      log "Invalid request: #{e.message}"
-      trace { e.backtrace.join("\n") }
-      client << ERROR_400_RESPONSE rescue nil
-    rescue Object => e
-      log "Unexpected error while processing request: #{e.message}"
-      log e.backtrace.join("\n")
-    ensure
-      request.close  if request            rescue nil
-      response.close if response           rescue nil
-      client.close   unless client.closed? rescue nil
-    end
-    
-    # Stop the server from accepting new request.
-    # If a request is processing, wait for this to finish
-    # and shutdown the server.
-    def stop
-      @stop = true
-      stop! unless @processing  # Not processing a request, so we can stop now
-    end
-    
-    # Force the server to stop right now!
-    def stop!
-      @socket.close rescue nil # break the accept loop by closing the socket
+			EventMachine.run do
+				begin
+				  log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
+					EventMachine.start_server(@host, @port, Connection) do |connection|
+					  connection.handlers = @handlers
+					  connection.trace    = @trace
+					  connection.silent   = @silent
+					  connection.host     = @host
+					  connection.port     = @port
+					end
+				rescue StopServer
+					EventMachine.stop_event_loop
+				end
+			end
     end
   end
 end

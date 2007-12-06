@@ -1,20 +1,26 @@
 $:.unshift File.dirname(__FILE__)
 
+require 'rubygems'
+
 require 'fileutils'
 require 'timeout'
 require 'stringio'
+require 'eventmachine'
 require 'thread'
 
-require 'thin/version'
-require 'thin/consts'
-require 'thin/statuses'
-require 'thin/mime_types'
-require 'thin/logging'
-require 'thin/daemonizing'
-require 'thin/server'
-require 'thin/request'
-require 'thin/headers'
-require 'thin/response'
-require 'thin/handler'
-require 'thin/cgi'
-require 'thin/rails'
+%w(
+  version
+  consts
+  statuses
+  mime_types
+  logging
+  daemonizing
+  connection
+  server
+  request
+  headers
+  response
+  handler
+  cgi
+  rails
+).each { |l| require "thin/#{l}" }

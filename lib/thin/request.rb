@@ -105,27 +105,12 @@ module Thin
       end  
 
       raise InvalidRequest, 'Headers too long' if headers_size > MAX_HEADER_LENGTH
-    
-      @params['SERVER_NAME'] = @params['HTTP_HOST'].split(':')[0] if @params['HTTP_HOST']      
     end
     
-    # Parse the request body by chunks.
-    # We assume the Content-Length is valid and is the actual size of the body.
-    # This is garanteed when used behind a proxy server like Nginx:
-    #   Note that when using the HTTP Proxy Module (or even when using FastCGI), the entire client
-    #   request will be buffered in nginx before being passed on to the backend proxied servers.
-    #   As a result, upload progress meters will not function correctly if they work by measuring
-    #   the data received by the backend servers.
-    #   - http://wiki.codemongers.com/NginxHttpProxyModule
-    # On Apache w/ mod_proxy, you need to install mod_accel : http://sysoev.ru/en/
+    # Parse the request body.
     def parse_body!(content)
-      length = content_length
-      while @body.size < length
-        chunk = content.readpartial(CHUNK_SIZE)
-        break unless chunk && chunk.size > 0
-        @body << chunk
-      end
-      
+      return if content.eof?
+      @body << content.read      
       @body.rewind
     end
     

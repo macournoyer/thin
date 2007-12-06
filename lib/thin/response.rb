@@ -4,7 +4,7 @@ module Thin
     CONNECTION = 'Connection'.freeze
     CLOSE = 'close'.freeze
     
-    attr_accessor :body, :headers, :status
+    attr_accessor :body, :headers, :status, :file
     
     def initialize
       @headers = Headers.new
@@ -30,12 +30,6 @@ module Thin
       "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
     end
     
-    def write(socket)
-      socket << head
-      @body.rewind
-      socket << @body.read
-    end
-    
     def close
       @body.close
     end
@@ -45,10 +39,15 @@ module Thin
       yield @headers, @body
     end
     
+    def send_data_to(connection)
+      connection.send_data head
+      @body.rewind
+      connection.send_data @body.read 
+    end
+    
     def to_s
-      out = ''
-      write out
-      out
+      @body.rewind
+      head + @body.read
     end
   end
 end
