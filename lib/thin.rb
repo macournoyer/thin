@@ -3,6 +3,7 @@ $:.unshift File.dirname(__FILE__)
 require 'fileutils'
 require 'timeout'
 require 'stringio'
+require 'thread'
 
 require 'thin/version'
 require 'thin/consts'

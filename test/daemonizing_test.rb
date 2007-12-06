@@ -22,7 +22,7 @@ class DaemonizingTest < Test::Unit::TestCase
   def test_daemonize_creates_pid_file
     pid = fork do
       @server.daemonize
-      sleep 0.5
+      sleep 3
     end
 
     Process.wait(pid)
@@ -86,10 +86,10 @@ class DaemonizingTest < Test::Unit::TestCase
     pid = fork do
       @server.stubs(:stop) # pretend we cannot handle the INT signal
       @server.daemonize
-      loop { sleep 1 }
+      sleep 5
     end
     
-    Timeout.timeout 3 do
+    Timeout.timeout 10 do
       sleep 0.1 until File.exist?(@server.pid_file)
     end
     

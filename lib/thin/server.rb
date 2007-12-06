@@ -56,6 +56,10 @@ module Thin
     def listen!
       @stop = false
       trap('INT') do
+        if @stop # Force exit if INT signal is caught while stopping
+          log '>> Caught INT signal again, forcing stop ...'
+          exit!
+        end
         log '>> Caught INT signal, stopping ...'
         stop
       end

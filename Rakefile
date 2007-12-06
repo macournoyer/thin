@@ -45,7 +45,7 @@ spec = Gem::Specification.new do |s|
   s.homepage              = 'http://code.macournoyer.com/thin/'
   s.executables           = %w(thin thin_cluster)
 
-  s.required_ruby_version = '>= 1.8.6'
+  s.required_ruby_version = '>= 1.8.6' # To be sure the multipart eof fix is in there
 
   s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,lib}/**/*")
   
