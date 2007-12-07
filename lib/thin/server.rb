@@ -2,7 +2,7 @@ require 'socket'
 
 module Thin
   # Raise when we require the server to stop
-  class StopServer < StandardError; end
+  class StopServer < Exception; end
   
   # The Thin HTTP server used to served request.
   # It listen for incoming request on a given port
