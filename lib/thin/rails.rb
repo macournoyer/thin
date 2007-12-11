@@ -4,7 +4,6 @@ module Thin
     def initialize(pwd, env='development')
       @env = env
       @pwd = pwd
-      @guard = Mutex.new
     end
     
     def start
@@ -21,9 +20,7 @@ module Thin
       
       cgi = CGIWrapper.new(request, response)
       
-      @guard.synchronize do
-        Dispatcher.dispatch(cgi, ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS, response.body)
-      end
+      Dispatcher.dispatch(cgi, ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS, response.body)
       
       # This finalizes the output using the proper HttpResponse way
       cgi.out("text/html", true) {""}

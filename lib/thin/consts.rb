@@ -9,6 +9,8 @@ module Thin
   # The basic max request size we'll try to read.
   CHUNK_SIZE     = 16 * 1024
   
+  MAX_HEADER     = 1024 * (80 + 32)
+  
   CONTENT_LENGTH = 'Content-Length'.freeze
   CONTENT_TYPE   = 'Content-Type'.freeze
   

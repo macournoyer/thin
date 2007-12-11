@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_parse_simple
-    request = R('GET / HTTP/1.1')
+    request = R("GET / HTTP/1.1\r\n\r\n")
     assert_equal 'GET', request.verb
     assert_equal '/', request.path
     assert_equal 'HTTP/1.1', request.params['SERVER_PROTOCOL']
@@ -20,7 +20,7 @@ class RequestTest < Test::Unit::TestCase
       R("GET / SsUTF/1.1")
     end
     assert_raise(Thin::InvalidRequest) do
-      R("GET / HTTP/1.1\r\nyousmelllikecheeze")
+      R("GET / HTTP/1.1yousmelllikecheeze")
     end
   end
   
@@ -117,8 +117,6 @@ EOS
     assert_equal '37', request.params['CONTENT_LENGTH']
     assert_equal 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5', request.params['HTTP_ACCEPT']
     assert_equal 'en-us,en;q=0.5', request.params['HTTP_ACCEPT_LANGUAGE']
-    assert_nil request.params['HTTP_CONTENT_LENGTH']
-    assert_nil request.params['HTTP_CONTENT_TYPE']
     request.body.rewind
     assert_equal 'name=marc&email=macournoyer@gmail.com', request.body.read
   end
@@ -184,7 +182,7 @@ Content-Length: 37
 hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
 EOS
     
-    assert_faster_then 'Request parsing', 0.3 do
+    assert_faster_then 'Request parsing', 0.5 do
       R(body, true)
     end
 
@@ -209,12 +207,8 @@ EOS
     
     def R(raw, convert_line_feed=false)
       raw.gsub!("\n", "\r\n") if convert_line_feed
-      socket = StringIO.new(raw)
-      socket.instance_eval do
-        alias :readpartial :read
-      end
       request = Thin::Request.new
-      request.parse! socket
+      request.parse raw
       request
     end
 end

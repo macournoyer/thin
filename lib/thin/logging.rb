@@ -26,5 +26,9 @@ module Thin
       def trace(msg=nil)
         puts msg || yield if @trace && !@silent
       end
+      
+      def log_error(e)
+        trace { "#{e}\n\t" + e.backtrace.join("\n\t") }
+      end
   end
 end

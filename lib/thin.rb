@@ -6,7 +6,6 @@ require 'fileutils'
 require 'timeout'
 require 'stringio'
 require 'eventmachine'
-require 'thread'
 
 %w(
   version

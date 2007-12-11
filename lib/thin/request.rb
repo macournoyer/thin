@@ -5,132 +5,72 @@ module Thin
   
   # A request made to the server.
   class Request
-    # HTTP headers that should not have a +HTTP_+ prefixed to the CGI variable name
-    HTTP_LESS_HEADERS = %w(Content-Length Content-Type).freeze
-    # Methods that might contain a body.
-    BODYFUL_METHODS   = %w(POST PUT).freeze
+    class Params < Hash
+      attr_accessor :http_body
+    end
 
-    # We control max length of different part of the request
-    # to prevent attack and resource overflow.
-    MAX_FIELD_NAME_LENGTH   = 256
-    MAX_FIELD_VALUE_LENGTH  = 80 * 1024
-    MAX_REQUEST_URI_LENGTH  = 1024 * 12
-    MAX_FRAGMENT_LENGTH     = 1024
-    MAX_REQUEST_PATH_LENGTH = 1024
-    MAX_QUERY_STRING_LENGTH = 1024 * 10
-    MAX_HEADER_LENGTH       = 1024 * (80 + 32)
+    attr_reader :params, :data, :body
     
-    attr_reader   :body, :params, :verb, :path
-
-    # For debugging and trace.
-    # When +trace+ is set to true, +raw+ will be populated with
-    # the raw request.
-    attr_accessor :trace, :raw
+    class << self
+      attr_accessor :parser
+      begin
+        require 'http11'
+        @@parser = Mongrel::HttpParser
+      rescue
+        raise LoadError, 'No parser available, install mongrel'
+      end
+    end
     
     def initialize
-      @params = {
-        'GATEWAY_INTERFACE' => CGI_VERSION,
-        'HTTP_VERSION'      => HTTP_VERSION,
-        'SERVER_PROTOCOL'   => HTTP_VERSION
-      }
-      @body = StringIO.new
-      @raw = ''
-      @trace = false
+      @params   = Params.new
+      @parser   = @@parser.new
+      @data     = ''
+      @nparsed  = 0
     end
     
-    # Parse the headers and body from the +content+ buffer.
-    def parse!(content)      
-      parse_headers! content
-      parse_body!    content if BODYFUL_METHODS.include?(verb)
+    def parse(data)
+      @data << data
+			@nparsed = @parser.execute(@params, @data, @nparsed) unless @parser.finished?
+			
+			if @parser.finished?
+			  if @body
+          @body << data
+  			else
+  			  @body = StringIO.new
+  			end
+  			if @body.size >= content_length
+			    @body.rewind
+			    return true
+			  end
+			elsif @data.size > MAX_HEADER
+			  raise InvalidRequest, 'Header longer than allowed'
+			end
+			
+			false # Not finished
     rescue InvalidRequest => e
-      raise
-    rescue Object => e
+      raise e
+    rescue Exception => e
       raise InvalidRequest, e.message
-    end
-        
-    # Parse the request headers from the socket into CGI like variables.
-    # Parse the request according to http://www.w3.org/Protocols/rfc2616/rfc2616.html.
-    # Parse env variables according to http://www.ietf.org/rfc/rfc3875.
-    # Raises an InvalidRequest error when the request is not valid, because:
-    # * no valid request line
-    # * uri, path or header is too long
-    def parse_headers!(content)
-      if matches = readline(content).match(/^([A-Z]+) (.*?)(?:#(.*))? HTTP/)
-        @verb, uri, fragment = matches[1,3]
-      else
-        raise InvalidRequest, 'No valid request line found'
-      end
-    
-      raise InvalidRequest, 'No method specified' unless @verb
-      raise InvalidRequest, 'No URI specified'    unless uri
-    
-      # Validate various length for security
-      raise InvalidRequest, 'URI too long'        if uri.size > MAX_REQUEST_URI_LENGTH
-      raise InvalidRequest, 'Fragment too long'   if fragment && fragment.size > MAX_FRAGMENT_LENGTH
-
-      if matches = uri.match(/^(.*?)(?:\?(.*))?$/)
-        @path, query_string = matches[1,2]
-      else
-        raise InvalidRequest, "No valid path found in #{uri}"
-      end
-    
-      raise InvalidRequest, 'Request path too long' if @path.size > MAX_REQUEST_PATH_LENGTH
-      raise InvalidRequest, 'Query string path too long' if query_string && query_string.size > MAX_QUERY_STRING_LENGTH
-
-      @params['REQUEST_URI']    = uri
-      @params['FRAGMENT']       = fragment if fragment
-      @params['REQUEST_PATH']   =
-      @params['PATH_INFO']      = @path
-      @params['SCRIPT_NAME']    = '/'
-      @params['REQUEST_METHOD'] = @verb
-      @params['QUERY_STRING']   = query_string if query_string
-    
-      # Parse all headers from 'Something-Weird' into @params['HTTP_SOMETHING_WEIRD']
-      headers_size = 0
-      until content.eof?
-        line = readline(content)
-        headers_size += line.size
-        
-        break if ?\r == line[0] # Reached the end of the headers
-        if matches = line.match(/^([\w\-]+): (.*)$/)
-          name, value = matches[1,2]
-          raise InvalidRequest, 'Header name too long' if name.size > MAX_FIELD_NAME_LENGTH
-          raise InvalidRequest, 'Header value too long' if value.size > MAX_FIELD_VALUE_LENGTH
-          # Transform headers into a HTTP_NAME => value hash
-          prefix = HTTP_LESS_HEADERS.include?(name) ? '' : 'HTTP_'
-          params["#{prefix}#{name.upcase.gsub('-', '_')}"] = value.chomp
-        else
-          raise InvalidRequest, "Expected header : #{line}"
-        end
-      end  
-
-      raise InvalidRequest, 'Headers too long' if headers_size > MAX_HEADER_LENGTH
-    end
-    
-    # Parse the request body.
-    def parse_body!(content)
-      return if content.eof?
-      @body << content.read      
-      @body.rewind
     end
     
     def close
       @body.close
     end
     
+    def verb
+      @params['REQUEST_METHOD']
+    end
+    
     def content_length
       @params['CONTENT_LENGTH'].to_i
     end
     
-    def to_s
-      "#{@params['REQUEST_METHOD']} #{@params['REQUEST_URI']}"
+    def path
+      @params['REQUEST_PATH']
     end
     
-    private
-      def readline(io)
-        out = io.gets(LF)
-        @raw << out if @trace # Build a gigantic string to later print trace for the request
-        out
-      end
+    def to_s
+      "#{verb} #{path}"
+    end
   end
 end

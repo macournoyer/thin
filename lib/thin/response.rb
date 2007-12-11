@@ -39,12 +39,6 @@ module Thin
       yield @headers, @body
     end
     
-    def send_data_to(connection)
-      connection.send_data head
-      @body.rewind
-      connection.send_data @body.read 
-    end
-    
     def to_s
       @body.rewind
       head + @body.read

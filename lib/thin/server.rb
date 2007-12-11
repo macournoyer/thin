@@ -1,5 +1,3 @@
-require 'socket'
-
 module Thin
   # Raise when we require the server to stop
   class StopServer < Exception; end
@@ -52,26 +50,33 @@ module Thin
     
     # Start listening for connections
     def listen!
-      trap('INT')  { EventMachine.stop_event_loop }
-			trap('TERM') { raise StopServer }
+      trap('INT')  { stop }
+			trap('TERM') { stop! }
       
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
-      
+
 			EventMachine.run do
 				begin
 				  log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
 					EventMachine.start_server(@host, @port, Connection) do |connection|
-					  connection.handlers = @handlers
-					  connection.trace    = @trace
-					  connection.silent   = @silent
-					  connection.host     = @host
-					  connection.port     = @port
+					  connection.comm_inactivity_timeout = @timeout
+					  connection.handlers                = @handlers
+					  connection.trace                   = @trace
+					  connection.silent                  = @silent
 					end
 				rescue StopServer
 					EventMachine.stop_event_loop
 				end
 			end
+    end
+    
+    def stop
+      EventMachine.stop_event_loop
+    end
+    
+    def stop!
+      raise StopServer
     end
   end
 end

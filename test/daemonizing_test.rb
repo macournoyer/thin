@@ -11,7 +11,7 @@ class DaemonizingTest < Test::Unit::TestCase
   end
   
   def teardown
-    @server.stop!
+    @server.stop
   end
   
   def test_pid_file

@@ -75,7 +75,7 @@ end
 desc 'Show some stats about the code'
 task :stats do
   line_count = proc do |path|
-    Dir[path].collect { |f| File.open(f).readlines.reject { |l| l =~ /^\s*\#/ }.size }.inject(0){ |sum,n| sum += n }
+    Dir[path].collect { |f| File.open(f).readlines.reject { |l| l =~ /(^\s*\#)|^\s*$/ }.size }.inject(0){ |sum,n| sum += n }
   end
   puts "#{line_count['lib/**/*.rb'].to_s.rjust(6)} LOC of lib"
   puts "#{line_count['lib/thin/{server,request,response,cgi,rails,handler,headers}.rb'].to_s.rjust(6)} LOC of web serving stuff"
