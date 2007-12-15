@@ -23,6 +23,7 @@ module Thin
       # Add client info to the request env
       @env['REMOTE_ADDR'] = @env['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
 
+      # Config Rack stuff
       @env.update("rack.version"      => [0, 1],
                   "rack.errors"       => STDERR,
                   
@@ -31,8 +32,10 @@ module Thin
                   "rack.run_once"     => false
                  )
 
+      # Process the request
       @response.status, @response.headers, @response.body = @app.call(@env)
       
+      # Send the response
       send_data @response.head
       @response.body.rewind
       send_data @response.body.read
