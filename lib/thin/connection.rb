@@ -1,12 +1,12 @@
 module Thin
-  # reload this file in turbo and add subclass
   class Connection < EventMachine::Connection
     include Logging
     
-    attr_accessor :handlers
+    attr_accessor :app
     
     def post_init
-      @request  = Request.new
+      @env      = {}
+      @request  = Request.new(@env)
       @response = Response.new
     end
     
@@ -20,40 +20,31 @@ module Thin
     end
     
     def process
-      trace { 'Request started'.center(80, '=') }
-      trace { @request.data }
-      
       # Add client info to the request env
-      @request.params['REMOTE_ADDR'] = @request.params['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
+      @env['REMOTE_ADDR'] = @env['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
+
+      @env.update("rack.version"      => [0, 1],
+                  "rack.errors"       => STDERR,
+                  
+                  "rack.multithread"  => false,
+                  "rack.multiprocess" => false, # ???
+                  "rack.run_once"     => false
+                 )
+
+      @response.status, @response.headers, @response.body = @app.call(@env)
       
-      # Add server info to the request env
-      @request.params['SERVER_SOFTWARE'] = SERVER
-      
-      served = false
-      @handlers.each do |handler|
-        served = handler.process(@request, @response)
-        break if served
-      end
-      
-      if served
-        trace { ">> Sending response:\n" + @response.to_s }
-        send_data @response.head
-        @response.body.rewind
-        send_data @response.body.read
-      else
-        send_data ERROR_404_RESPONSE
-      end
+      send_data @response.head
+      @response.body.rewind
+      send_data @response.body.read
       
       close_connection_after_writing
       
-      trace { 'Request finished'.center(80, '=') }
     rescue Object => e
       log "Unexpected error while processing request: #{e.message}"
-      log_error
+      log_error e
       close_connection rescue nil
     ensure
-      @request.close  if @request   rescue nil
-      @response.close if @response  rescue nil
+      @response.close rescue nil
     end
   end
 end

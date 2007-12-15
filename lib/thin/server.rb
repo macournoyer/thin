@@ -16,17 +16,17 @@ module Thin
     attr_accessor :port, :host
     
     # List of handlers to process the request in the order they are given.
-    attr_accessor :handlers
+    attr_accessor :app
     
     # Maximum time for a request to be red and parsed.
     attr_accessor :timeout
     
     # Creates a new server binded to <tt>host:port</tt>
     # that will pass request to +handlers+.
-    def initialize(host, port, *handlers)
+    def initialize(host, port, app)
       @host       = host
       @port       = port
-      @handlers   = handlers
+      @app        = app
       @timeout    = 60     # sec, max time to read and parse a request
       @trace      = false
     end
@@ -35,11 +35,6 @@ module Thin
     def start
       log   ">> Thin web server (v#{VERSION::STRING})"
       trace ">> Tracing ON"
-
-      @handlers.each do |handler|
-        log ">> Starting #{handler} ..."
-        handler.start
-      end
     end
     
     # Start the server and listen for connections
@@ -61,7 +56,7 @@ module Thin
 				  log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
 					EventMachine.start_server(@host, @port, Connection) do |connection|
 					  connection.comm_inactivity_timeout = @timeout
-					  connection.handlers                = @handlers
+					  connection.app                     = @app
 					  connection.trace                   = @trace
 					  connection.silent                  = @silent
 					end
