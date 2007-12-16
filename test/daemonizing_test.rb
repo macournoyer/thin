@@ -8,10 +8,6 @@ class DaemonizingTest < Test::Unit::TestCase
     @server.pid_file = 'test.pid'
   end
   
-  def teardown
-    @server.stop
-  end
-  
   def test_pid_file
     @server.respond_to? :pid_file
     @server.respond_to? :pid_file=
@@ -20,7 +16,7 @@ class DaemonizingTest < Test::Unit::TestCase
   def test_daemonize_creates_pid_file
     pid = fork do
       @server.daemonize
-      sleep 1
+      sleep 3
     end
 
     Process.wait(pid)

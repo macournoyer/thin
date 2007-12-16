@@ -9,8 +9,8 @@ class RequestTest < Test::Unit::TestCase
     assert_equal '/', request.env['REQUEST_URI']
     assert_equal 'CGI/1.2', request.env['GATEWAY_INTERFACE']
     assert_equal 'GET', request.env['REQUEST_METHOD']    
-    assert_nil request.env['FRAGMENT']
-    assert_nil request.env['QUERY_STRING']
+    assert_equal '', request.env['FRAGMENT'].to_s
+    assert_equal '', request.env['QUERY_STRING'].to_s
   end
   
   def test_parse_error
