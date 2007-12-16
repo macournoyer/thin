@@ -43,14 +43,12 @@ spec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
-  s.executables           = %w(thin thin_cluster)
 
   s.required_ruby_version = '>= 1.8.6' # To be sure the multipart eof fix is in there
 
-  s.files                 = %w(README Rakefile) + Dir.glob("{bin,doc,lib}/**/*")
+  s.files                 = %w(README COPYING Rakefile) + Dir.glob("{doc,lib,test,example}/**/*")
   
   s.require_path          = "lib"
-  s.bindir                = "bin"
 end
 
 Rake::GemPackageTask.new(spec) do |p|

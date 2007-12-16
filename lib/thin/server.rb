@@ -22,13 +22,12 @@ module Thin
     attr_accessor :timeout
     
     # Creates a new server binded to <tt>host:port</tt>
-    # that will pass request to +handlers+.
+    # that will pass request to +app+.
     def initialize(host, port, app)
       @host       = host
       @port       = port
       @app        = app
-      @timeout    = 60     # sec, max time to read and parse a request
-      @trace      = false
+      @timeout    = 60 # sec
     end
     
     # Starts the handlers.
@@ -68,6 +67,8 @@ module Thin
     
     def stop
       EventMachine.stop_event_loop
+    rescue
+      warn "Error stopping : #{$!}"
     end
     
     def stop!

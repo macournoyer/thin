@@ -17,22 +17,24 @@ module Thin
     def parse(data)
       @data << data
 			
-			if @parser.finished? # Header finished, can only be some more body
+			if @parser.finished?  # Header finished, can only be some more body
         body << data
-  			if body.size >= content_length
-			    finish
-			    return true # Request completed
-			  end
 			elsif @data.size > MAX_HEADER
 			  raise InvalidRequest, 'Header longer than allowed'
-			else # Parse more header
+			else                  # Parse more header
 			  @nparsed = @parser.execute(@env, @data, @nparsed)
   			
   			http_body = @env.instance_eval{@http_body}
   			body << http_body if http_body
 			end
 			
-			false # Not finished
+			# Check if header and body are complete
+			if @parser.finished? && body.size >= content_length
+		    finish
+		    return true
+		  end
+			
+			false # Not finished, need more data
     rescue InvalidRequest => e
       raise e
     rescue Exception => e
@@ -40,6 +42,7 @@ module Thin
     end
     
     def finish
+      # Convert environment to according to Rack specs
       @env.delete "HTTP_CONTENT_TYPE"
       @env.delete "HTTP_CONTENT_LENGTH"
       

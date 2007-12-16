@@ -3,9 +3,7 @@ require 'timeout'
 
 class DaemonizingTest < Test::Unit::TestCase
   def setup
-    @socket = stub_everything
-    TCPServer.stubs(:new).returns(@socket) # We don't need a real socket for this
-    @server = Thin::Server.new('0.0.0.0', 3000)
+    @server = Thin::Server.new('0.0.0.0', 3000, nil)
     @server.log_file = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
     @server.pid_file = 'test.pid'
   end
@@ -22,13 +20,13 @@ class DaemonizingTest < Test::Unit::TestCase
   def test_daemonize_creates_pid_file
     pid = fork do
       @server.daemonize
-      sleep 3
+      sleep 1
     end
 
     Process.wait(pid)
     assert File.exist?(@server.pid_file)
 
-    timeout 1 do
+    timeout 2 do
       sleep 0.1 while File.exist?(@server.pid_file)
     end
   end
