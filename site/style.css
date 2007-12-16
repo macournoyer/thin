@@ -42,6 +42,11 @@ ul#menu li a:hover { text-decoration: underline; }
 ul.list { list-style: none; }
 ul.list li { margin: 0; padding: 1px 0; }
 
+#content div.graph h3 { margin: 6px 0; }
+#content div.graph { text-align: center; }
+
+.clear { clear: both; }
+
 /*RDoc*/
 .dyn-source { display: none; }
 .path { text-align: center; font: 9px Tahoma, Arial; }

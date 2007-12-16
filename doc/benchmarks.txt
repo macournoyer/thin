@@ -1,271 +1,86 @@
-= Benchmark Thin vs Mongrel
+== Process
+* rackup ...
+* nice -n20 httperf --port 9292 --num-conns 9000
+* nice -n20 ab -n5000 localhost:9292/
+* nice -n20 ab -n5000 -c10 localhost:9292/
+* nice -n20 ab -n5000 -c100 localhost:9292/
 
-== Single instance
-On server instance. Running Rails in development environment.
-App is http://refactormycode.com with no caching.
+== More Benchmarks
+http://www.webficient.com/2007/08/testing-various-configurations-of-rails.html
 
-=== Thin
-marc:~ marc$ ab -n10 -c3 localhost:3000/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+=== WEBrick
+rackup -s webrick
 
-Benchmarking localhost (be patient).....done
-Server Software:        thin                                               
-Server Hostname:        localhost
-Server Port:            3000
+==== httperf
+Reply rate [replies/s]: min 303.8 avg 306.8 max 310.4 stddev 2.8 (5 samples)
+Reply rate [replies/s]: min 235.8 avg 292.2 max 306.4 stddev 27.7 (6 samples)
+Reply rate [replies/s]: min 304.8 avg 306.9 max 308.8 stddev 1.5 (5 samples)
+  avg:                                302.0                  10.7
 
-Document Path:          /
-Document Length:        11195 bytes
+==== Concurrency Level 1
+297.37 [#/sec] (mean)
 
-Concurrency Level:      3
-Time taken for tests:   15.429 seconds
-Complete requests:      10
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      114510 bytes
-HTML transferred:       111950 bytes
-Requests per second:    0.65 [#/sec] (mean)
-Time per request:       4628.70 [ms] (mean)
-Time per request:       1542.90 [ms] (mean, across all concurrent requests)
-Transfer rate:          7.42 [Kbytes/sec] received
+==== Concurrency Level 10
+296.65 [#/sec] (mean) Failed requests: 4 (Connect: 2, Length: 2, Exceptions: 0)
+298.22 [#/sec] (mean) Failed requests: 4 (Connect: 2, Length: 2, Exceptions: 0)
 
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:  1935  4175  874.1   4458  4903
-Waiting:     1935  4175  874.1   4458  4903
-Total:       1935  4175  874.1   4458  4903
-
-Percentage of the requests served within a certain time (ms)
-  50%   4458
-  66%   4525
-  75%   4562
-  80%   4597
-  90%   4903
-  95%   4903
-  98%   4903
-  99%   4903
- 100%   4903 (last request)
- 
-=== Mongrel
-marc:~ marc$ ab -n10 -c3 localhost:3001/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking localhost (be patient).....done
-Server Software:        Mongrel                                            
-Server Hostname:        localhost
-Server Port:            3001
-
-Document Path:          /
-Document Length:        11195 bytes
-
-Concurrency Level:      3
-Time taken for tests:   16.522 seconds
-Complete requests:      10
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      114930 bytes
-HTML transferred:       111950 bytes
-Requests per second:    0.61 [#/sec] (mean)
-Time per request:       4956.60 [ms] (mean)
-Time per request:       1652.20 [ms] (mean, across all concurrent requests)
-Transfer rate:          6.96 [Kbytes/sec] received
-
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:  2629  4496  746.2   4662  5602
-Waiting:     2629  4496  746.2   4662  5602
-Total:       2629  4496  746.2   4662  5602
-
-Percentage of the requests served within a certain time (ms)
-  50%   4662
-  66%   4681
-  75%   4691
-  80%   4715
-  90%   5602
-  95%   5602
-  98%   5602
-  99%   5602
- 100%   5602 (last request)
-
-== Cluster
-Using Nginx as the load balancer with 3 app instance.
-App is http://refactormycode.com with no caching.
-
-=== Thin
-marc:~ marc$ ab -n10 -c5 localhost/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking localhost (be patient).....done
-Server Software:        nginx/0.5.33                                       
-Server Hostname:        localhost
-Server Port:            80
-
-Document Path:          /
-Document Length:        45456 bytes
-
-Concurrency Level:      5
-Time taken for tests:   4.444 seconds
-Complete requests:      10
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      458270 bytes
-HTML transferred:       454560 bytes
-Requests per second:    2.25 [#/sec] (mean)
-Time per request:       2222.00 [ms] (mean)
-Time per request:       444.40 [ms] (mean, across all concurrent requests)
-Transfer rate:          103.12 [Kbytes/sec] received
-
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:  1031  1703 1064.3   1185  4119
-Waiting:     1031  1703 1064.3   1185  4119
-Total:       1031  1703 1064.3   1185  4119
-
-Percentage of the requests served within a certain time (ms)
-  50%   1185
-  66%   1207
-  75%   2178
-  80%   2978
-  90%   4119
-  95%   4119
-  98%   4119
-  99%   4119
- 100%   4119 (last request)
-marc:~ marc$ ab -n100 -c10 localhost/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
-
-Benchmarking localhost (be patient).....done
-Server Software:        nginx/0.5.33                                       
-Server Hostname:        localhost
-Server Port:            80
-
-Document Path:          /
-Document Length:        45456 bytes
-
-Concurrency Level:      10
-Time taken for tests:   36.949 seconds
-Complete requests:      100
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      4582700 bytes
-HTML transferred:       4545600 bytes
-Requests per second:    2.71 [#/sec] (mean)
-Time per request:       3694.90 [ms] (mean)
-Time per request:       369.49 [ms] (mean, across all concurrent requests)
-Transfer rate:          124.03 [Kbytes/sec] received
-
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:   996  3502  762.1   3539  4841
-Waiting:      996  3502  762.3   3539  4841
-Total:        996  3502  762.1   3539  4841
-
-Percentage of the requests served within a certain time (ms)
-  50%   3539
-  66%   3947
-  75%   4167
-  80%   4229
-  90%   4417
-  95%   4563
-  98%   4742
-  99%   4841
- 100%   4841 (last request)
+==== Concurrency Level 100
+297.16 [#/sec] (mean) Failed requests: 489 (Connect: 245, Length: 244, Exceptions: 0)
 
 
 === Mongrel
+rackup -s mongrel
 
-marc:~ marc$ ab -n10 -c5 localhost/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+==== httperf
+Reply rate [replies/s]: min 556.4 avg 580.1 max 613.6 stddev 29.9 (3 samples)
+Reply rate [replies/s]: min 299.0 avg 502.6 max 613.4 stddev 176.5 (3 samples)
+Reply rate [replies/s]: min 601.0 avg 608.5 max 616.0 stddev 10.7 (2 samples)
+Reply rate [replies/s]: min 605.2 avg 608.4 max 611.6 stddev 4.5 (2 samples)
+  avg:                                574.9                  55.4
 
-Benchmarking localhost (be patient).....done
-Server Software:        nginx/0.5.33                                       
-Server Hostname:        localhost
-Server Port:            80
+==== Concurrency Level 1
+556.67 [#/sec] (mean)
 
-Document Path:          /
-Document Length:        45455 bytes
+==== Concurrency Level 10
+622.90 [#/sec] (mean)
 
-Concurrency Level:      5
-Time taken for tests:   5.995 seconds
-Complete requests:      10
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      458600 bytes
-HTML transferred:       454550 bytes
-Requests per second:    1.67 [#/sec] (mean)
-Time per request:       2997.50 [ms] (mean)
-Time per request:       599.50 [ms] (mean, across all concurrent requests)
-Transfer rate:          76.50 [Kbytes/sec] received
+==== Concurrency Level 100
+428.23 [#/sec] (mean)
 
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:  1248  2500 1138.1   2743  4245
-Waiting:     1248  2500 1138.0   2743  4245
-Total:       1248  2500 1138.1   2743  4245
+=== Evented Mongrel
+rackup -r "swiftcore/evented_mongrel" -s mongrel
 
-Percentage of the requests served within a certain time (ms)
-  50%   2743
-  66%   3040
-  75%   3148
-  80%   4131
-  90%   4245
-  95%   4245
-  98%   4245
-  99%   4245
- 100%   4245 (last request)
-marc:~ marc$ ab -n100 -c10 localhost/
-This is ApacheBench, Version 1.3d <$Revision: 1.73 $> apache-1.3
-Copyright (c) 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
-Copyright (c) 1998-2002 The Apache Software Foundation, http://www.apache.org/
+==== httperf
+Reply rate [replies/s]: min 452.4 avg 541.0 max 590.0 stddev 76.9 (3 samples)
+Reply rate [replies/s]: min 573.2 avg 586.0 max 593.0 stddev 11.1 (3 samples)
+Reply rate [replies/s]: min 546.6 avg 574.8 max 594.6 stddev 25.0 (3 samples)
+Reply rate [replies/s]: min 593.6 avg 595.2 max 596.4 stddev 1.5 (3 samples)
+  avg:                                574.25                 28.625
 
-Benchmarking localhost (be patient).....done
-Server Software:        nginx/0.5.33                                       
-Server Hostname:        localhost
-Server Port:            80
+==== Concurrency Level 1
+517.97 [#/sec] (mean)
 
-Document Path:          /
-Document Length:        45455 bytes
+==== Concurrency Level 10
+657.89 [#/sec] (mean)
 
-Concurrency Level:      10
-Time taken for tests:   41.135 seconds
-Complete requests:      100
-Failed requests:        0
-Broken pipe errors:     0
-Total transferred:      4586000 bytes
-HTML transferred:       4545500 bytes
-Requests per second:    2.43 [#/sec] (mean)
-Time per request:       4113.50 [ms] (mean)
-Time per request:       411.35 [ms] (mean, across all concurrent requests)
-Transfer rate:          111.49 [Kbytes/sec] received
+==== Concurrency Level 100
+656.17 [#/sec] (mean)
 
-Connnection Times (ms)
-              min  mean[+/-sd] median   max
-Connect:        0     0    0.0      0     0
-Processing:  1600  3921  640.4   3877  5694
-Waiting:     1600  3921  640.4   3877  5694
-Total:       1600  3921  640.4   3877  5694
+=== Thin
+rackup -s thin
 
-Percentage of the requests served within a certain time (ms)
-  50%   3877
-  66%   4187
-  75%   4353
-  80%   4402
-  90%   4585
-  95%   4919
-  98%   5351
-  99%   5694
- 100%   5694 (last request)
+==== httperf
+Reply rate [replies/s]: min 671.4 avg 681.0 max 690.7 stddev 13.6 (2 samples)
+Reply rate [replies/s]: min 690.0 avg 695.8 max 701.7 stddev 8.3 (2 samples)
+Reply rate [replies/s]: min 643.4 avg 669.4 max 695.4 stddev 36.7 (2 samples)
+Reply rate [replies/s]: min 694.1 avg 695.8 max 697.6 stddev 2.5 (2 samples)
+  avg:                                685.5                  15.275
+
+==== Concurrency Level 1
+719.53 [#/sec] (mean)
+
+==== Concurrency Level 10
+782.11 [#/sec] (mean)
+
+==== Concurrency Level 100
+776.40 [#/sec] (mean)
