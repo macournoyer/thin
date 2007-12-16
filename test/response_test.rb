@@ -1,9 +1,9 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class RequestTest < Test::Unit::TestCase
+class ResponseTest < Test::Unit::TestCase
   def test_outputs_headers
     response = Thin::Response.new
-    response.content_type = 'text/html'
+    response.headers['Content-Type'] = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
     assert_equal "Content-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n", response.headers_output
@@ -11,7 +11,7 @@ class RequestTest < Test::Unit::TestCase
   
   def test_outputs_head
     response = Thin::Response.new
-    response.content_type = 'text/html'
+    response.headers['Content-Type'] = 'text/html'
     response.headers['Cookie'] = 'mium=7'
     
     assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", response.head
@@ -19,7 +19,7 @@ class RequestTest < Test::Unit::TestCase
   
   def test_allow_duplicates_in_headers
     response = Thin::Response.new
-    response.content_type = 'text/html'
+    response.headers['Content-Type'] = 'text/html'
     response.headers['Set-Cookie'] = 'mium=7'
     response.headers['Set-Cookie'] = 'hi=there'
     
@@ -28,19 +28,15 @@ class RequestTest < Test::Unit::TestCase
   
   def test_outputs_body
     response = Thin::Response.new
-    response.content_type = 'text/html'
+    response.headers['Content-Type'] = 'text/html'
     response.body << '<html></html>'
     
-    output = StringIO.new
-    response.write output
-    output.rewind
-    
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", output.read
+    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", response.to_s
   end
   
   def test_perfs
     response = Thin::Response.new
-    response.content_type = 'text/html'
+    response.headers['Content-Type'] = 'text/html'
     response.body << <<-EOS
 <html><head><title>Dir listing</title></head>
 <body><h1>Listing stuff</h1><ul>
@@ -48,8 +44,8 @@ class RequestTest < Test::Unit::TestCase
 </ul></body></html>
 EOS
     
-    assert_faster_then 0.040 do
-      response.write StringIO.new
+    assert_faster_then 'Response writing', 0.040 do
+      response.to_s
     end
     
     # Perf history

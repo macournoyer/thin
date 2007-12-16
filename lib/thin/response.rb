@@ -1,24 +1,16 @@
-require 'stringio'
-
 module Thin
+  # A response sent to the client.
   class Response
     CONNECTION = 'Connection'.freeze
     CLOSE = 'close'.freeze
     
-    attr_accessor :body, :headers, :status
+    attr_accessor :status, :file
+    attr_reader   :body, :headers
     
     def initialize
       @headers = Headers.new
-      @body = StringIO.new
-      @status = 200
-    end
-    
-    def content_type=(type)
-      @headers[CONTENT_TYPE] = type
-    end
-    
-    def content_type
-      @headers[CONTENT_TYPE]
+      @body    = StringIO.new
+      @status  = 200
     end
     
     def headers_output
@@ -31,23 +23,27 @@ module Thin
       "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
     end
     
-    def write(socket)
-      socket << head
-      @body.rewind
-      socket << @body.read
+    def headers=(key_value_pairs)
+      key_value_pairs.each do |k, vs|
+        vs.each do |v|
+          @headers[k] = v
+        end
+      end
+    end
+    
+    def body=(stream)
+      stream.each do |part|
+        @body << part
+      end
     end
     
     def close
       @body.close
     end
     
-    def start(status)
-      @status = status
-      yield @headers, @body
-    end
-    
     def to_s
-      "#{@status} #{HTTP_STATUS_CODES[@status.to_i]}"
+      @body.rewind
+      head + @body.read
     end
   end
 end

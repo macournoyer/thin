@@ -1,99 +1,78 @@
-require 'socket'
-
 module Thin
+  # Raise when we require the server to stop
+  class StopServer < Exception; end
+  
+  # The Thin HTTP server used to served request.
+  # It listen for incoming request on a given port
+  # and forward all request to all the handlers in the order
+  # they were registered.
+  # Based on HTTP 1.1 protocol specs
+  # http://www.w3.org/Protocols/rfc2616/rfc2616.html
   class Server
-    attr_accessor :port, :host, :handlers, :pid_file
+    include Logging
+    include Daemonizable
     
-    def initialize(host, port, *handlers)
-      @host     = host
-      @port     = port
-      @handlers = handlers
-      @stop     = false
-
-      @socket   = TCPServer.new(host, port)
+    # Addresse and port on which the server is listening for connections.
+    attr_accessor :port, :host
+    
+    # List of handlers to process the request in the order they are given.
+    attr_accessor :app
+    
+    # Maximum time for a request to be red and parsed.
+    attr_accessor :timeout
+    
+    # Creates a new server binded to <tt>host:port</tt>
+    # that will pass request to +app+.
+    def initialize(host, port, app)
+      @host       = host
+      @port       = port.to_i
+      @app        = app
+      @timeout    = 60 # sec
     end
     
-    def logger
-      Thin.logger
+    # Starts the handlers.
+    def start
+      log   ">> Thin web server (v#{VERSION::STRING})"
+      trace ">> Tracing ON"
     end
     
-    def run
-      @stop = false
-      trap('INT') do
-        logger.info '>> Caught INT signal, stopping ...'
-        stop
-      end
-      
-      logger.info ">> Thin web server (v#{VERSION})"
-      logger.info ">> Listening on #{host}:#{port}, CTRL+C to stop"
-      
-      until @stop
-        client = @socket.accept rescue nil
-        break if @socket.closed?
-        process(client)
-      end
-    ensure
-      @socket.close unless @socket.closed? rescue nil
+    # Start the server and listen for connections
+    def start!
+      start
+      listen!
     end
-        
-    def process(client)
-      return if client.eof?
-      data     = client.readpartial(CHUNK_SIZE)
-      request  = Request.new(data)
-      response = Response.new
+    
+    # Start listening for connections
+    def listen!
+      trap('INT')  { stop }
+			trap('TERM') { stop! }
       
-      # Add client info to the request env
-      request.params['REMOTE_ADDR'] = client.peeraddr.last
-      
-      # Add server info to the request env
-      request.params['SERVER_SOFTWARE'] = SERVER
-      request.params['SERVER_PORT']     = @port.to_s
-      request.params['SERVER_PROTOCOL'] = 'HTTP/1.1'
+      # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
+      EventMachine.epoll
 
-      served = false
-      @handlers.each do |handler|
-        served = handler.process(request, response)
-        break if served
-      end
-      
-      if served
-        response.write client
-      else
-        client.write ERROR_404_RESPONSE
-      end
-
-    rescue InvalidRequest => e
-      logger.error "Invalid request : #{e.message}"
-    rescue Object => e
-      logger.error "Unexpected error while processing request : #{e.message}"
-    ensure
-      request.close  if request            rescue nil
-      response.close if response           rescue nil
-      client.close   unless client.closed? rescue nil
+			EventMachine.run do
+				begin
+				  log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
+					EventMachine.start_server(@host, @port, Connection) do |connection|
+					  connection.comm_inactivity_timeout = @timeout
+					  connection.app                     = @app
+					  connection.trace                   = @trace
+					  connection.silent                  = @silent
+					end
+				rescue StopServer
+					EventMachine.stop_event_loop
+				end
+			end
     end
     
     def stop
-      @stop = true
-      @socket.close rescue nil
+      EventMachine.stop_event_loop
+    rescue
+      warn "Error stopping : #{$!}"
     end
     
-    def daemonize
-      pid = fork do
-        write_pid_file
-        at_exit { remove_pid_file }
-        run
-      end
-      # Make sure we do not create zombies
-      Process.detach(pid)
-    end
-    
-    def remove_pid_file
-      File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
-    end
-
-    def write_pid_file
-      logger.info "Writing PID file to #{@pid_file}"
-      open(@pid_file,"w") { |f| f.write(Process.pid) }
+    def stop!
+      raise StopServer
     end
   end
 end

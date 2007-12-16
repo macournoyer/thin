@@ -1,37 +1,77 @@
 == Thin
-
 Tiny, fast & funny HTTP server
 
-=== Why another web server ?
-Thin:
- * is 10% faster then Mongrel behind a load balancer like Nginx.
- * takes around 2MB less memory then Mongrel.
- * is 100% Ruby, no C extension.
- * is self contain, no dependencies.
-
-=== What's the catch ?
-The secret of Thin is that no threads are used. Everything is running in a single thread. For single threaded frameworks like Rails this makes sense, but might not be the case for others.
+Thin is a web server written entirely in Ruby in the simplest way possible.
+It does as little as possible to serve your Rails application,
+which makes it one of the fastest Rails server out there.
 
 === Installation
+For the latest stable version:
 
-  sudo gem install thin --source http://code.macournoyer.com
+ sudo gem install thin
+
+For the risky but so much cooler alpha version:
+
+ sudo gem install thin --source http://code.macournoyer.com
+
+Or from source:
+
+ svn co http://code.macournoyer.com/svn/thin/trunk thin
+ cd thin
+ rake install
 
 === Usage
 In your Rails app directory:
   
-  thin
+ thin start
 
-Run: thin -h to get more options
+See http://code.macournoyer.com/thin/doc/files/bin/thin.html
+
+=== Deployment
+To deploy your Rails application using a cluster of thin servers. You can start it with:
+
+ thin_cluster start
+
+To use the Capistrano recipes, add this to your Capfile:
+
+ require 'thin'
+ require 'thin/recipes'
+
+and create a config file using:
+
+ thin_cluster config
+
+See http://code.macournoyer.com/thin/doc/files/bin/thin_cluster.html
+
+=== Security
+Thin should never be used facing the internet directly, it should always be hidden behind a
+proxy server!
+
+Thin is faster because it doesn't do a lot of things that other Ruby web servers do
+(use threads, validate the body length, be very strict about the request format, etc.)
+but that a good proxy server do very well (and a lot faster then any Ruby code could possibly do).
+So it is very important that you setup you proxy server correctly in order to secure Thin
+from potential attacks.
+
+Nginx comes with everything you need and can be used securely out of the box with thin.
+
+Apache mod_proxy is not secure because it doesn't cache the request before sending it
+to the backend, which open your server to easy DoS attacks.
+You need to install mod_accel (http://sysoev.ru/en/) to make mod_proxy behave like Nginx
+on that side.
 
 === License
-Ruby License : http://www.ruby-lang.org/en/LICENSE.txt
+Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
 
 === Credits
-Lots of the code was inspired (or stolen entirely) from Mongrel http://mongrel.rubyforge.org/ by Zed Shaw.
+Lots of the code was inspired (or stolen entirely) from Mongrel http://mongrel.rubyforge.org by Zed Shaw.
+Mongrel Web Server (Mongrel) is copyrighted free software by Zed A. Shaw
+<zedshaw at zedshaw dot com> You can redistribute it and/or modify it under
+either the terms of the GPL.
 
-Thin was created by:
-Marc-Andre Cournoyer
-macournoyer@gmail.com
-http://macournoyer.com
+transat/parser.rb was taken from Piston source code.
+Copyright (c) 2006 Francois Beausoleil <francois@teksol.info>
 
-Please send me your comments, bug reports or love letters by email.
+Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
+
+Please report any bug at http://code.macournoyer.com/thin/trac.fcgi/newticket

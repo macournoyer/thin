@@ -1,0 +1,5 @@
+== 0.4.1
+ * Fix Rails environment option not being used in thin script.
+ 
+== 0.4.0
+ * First public release.

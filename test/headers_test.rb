@@ -1,17 +1,23 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class RequestTest < Test::Unit::TestCase
+class HeadersTest < Test::Unit::TestCase
   def setup
     @headers = Thin::Headers.new
   end
   
-  def test_allow_duplicate
-    @headers['Host'] = 'this is unique'
-    @headers['Host'] = 'so this will overwrite ^'
+  def test_allow_duplicate_on_some_fields
     @headers['Set-Cookie'] = 'twice'
     @headers['Set-Cookie'] = 'is cooler the once'
     
-    assert_equal 3, @headers.size
+    assert_equal 2, @headers.size
+  end
+  
+  def test_non_duplicate_overwrites_value
+    @headers['Host'] = 'this is unique'
+    @headers['Host'] = 'so is this'
+    @headers['Host'] = 'so this will overwrite ^'
+
+    assert_equal 'so this will overwrite ^', @headers['Host']
   end
   
   def test_reader
