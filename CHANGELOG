@@ -1,3 +1,6 @@
+== 0.5.0
+ * Full rewrite to use EventMachine, Rack and Mongrel parser
+ 
 == 0.4.1
  * Fix Rails environment option not being used in thin script.
  
