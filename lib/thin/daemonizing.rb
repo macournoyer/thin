@@ -42,6 +42,10 @@ module Thin
       base.extend ClassMethods
     end
     
+    def pid
+      File.exist?(pid_file) ? open(pid_file).read : nil
+    end
+    
     # Turns the current script into a daemon process that detaches from the console.
     def daemonize
       raise ArgumentError, 'You must specify a pid_file to deamonize' unless @pid_file
@@ -84,7 +88,7 @@ module Thin
     module ClassMethods
       # Kill the process which PID is stored in +pid_file+.
       def kill(pid_file, timeout=60)
-        if File.exist?(pid_file) && pid = open(pid_file).read
+        if pid = open(pid_file).read
           pid = pid.to_i
           print "Sending INT signal to process #{pid} ... "
           begin

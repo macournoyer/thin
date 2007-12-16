@@ -21,10 +21,13 @@ class DaemonizingTest < Test::Unit::TestCase
 
     Process.wait(pid)
     assert File.exist?(@server.pid_file)
+    pid = @server.pid
 
     timeout 2 do
       sleep 0.1 while File.exist?(@server.pid_file)
     end
+  rescue
+    Process.kill(9, pid) if Process.running?(pid)
   end
   
   def test_redirect_stdio_to_log_file
