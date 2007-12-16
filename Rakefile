@@ -75,9 +75,13 @@ task :stats do
   line_count = proc do |path|
     Dir[path].collect { |f| File.open(f).readlines.reject { |l| l =~ /(^\s*\#)|^\s*$/ }.size }.inject(0){ |sum,n| sum += n }
   end
-  puts "#{line_count['lib/**/*.rb'].to_s.rjust(6)} LOC of lib"
-  puts "#{line_count['lib/thin/{server,request,response,cgi,rails,handler,headers}.rb'].to_s.rjust(6)} LOC of web serving stuff"
-  puts "#{line_count['test/**/*.rb'].to_s.rjust(6)} LOC of test"
+  lib = line_count['lib/**/*.rb']
+  test = line_count['test/**/*.rb']
+  ratio = '%1.2f' % (test.to_f / lib.to_f)
+  
+  puts "#{lib.to_s.rjust(6)} LOC of lib"
+  puts "#{test.to_s.rjust(6)} LOC of test"
+  puts "#{ratio.to_s.rjust(6)} ratio"
 end
 
 namespace :site do

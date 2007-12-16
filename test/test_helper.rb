@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../lib/thin'
 require 'test/unit'
 require 'mocha'
 require 'benchmark'
+require 'timeout'
 
 FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
 
@@ -24,6 +25,12 @@ end
 
 class Test::Unit::TestCase
   protected
+    def timeout(sec)
+      Timeout.timeout(sec) { yield }
+    rescue Timeout::Error
+      flunk "Timeout after #{sec} sec"
+    end
+  
     def assert_faster_then(title, max_time, verbose=false)
       time = Benchmark.measure { yield }.real * 1000
       msg = "took #{time} ms, should take less then #{max_time} ms"

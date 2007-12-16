@@ -3,10 +3,8 @@ require File.dirname(__FILE__) + '/test_helper'
 class ServerTest < Test::Unit::TestCase
   def setup
     app = proc do |env|
-      [200, { 'Content-Type' => 'text/html' }, [
-        env['QUERY_STRING'],
-        env['rack.input'].read
-      ]]
+      body = [env['QUERY_STRING'], env['rack.input'].read].compact
+      [200, { 'Content-Type' => 'text/html' }, body]
     end
     server = Thin::Server.new('0.0.0.0', 3333, app)
     server.timeout = 3
@@ -51,13 +49,13 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def test_get_perf
-    assert_faster_then 'get', 5 do
+    assert_faster_then 'GET', 5 do
       get('/')
     end
   end
   
   def test_post_perf
-    assert_faster_then 'post', 6 do
+    assert_faster_then 'POST', 6 do
       post('/', :file => 'X' * 1000)
     end
   end

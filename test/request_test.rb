@@ -177,10 +177,10 @@ Connection: keep-alive
 Content-Type: text/html
 Content-Length: 37
 
-hi=there#{'&name=marc&email=macournoyer@gmail.com'*1000}
+hi=there&name=marc&email=macournoyer@gmail.com
 EOS
     
-    assert_faster_then 'Request parsing', 0.6 do
+    assert_faster_then 'Request parsing', 0.2 do
       R(body, true)
     end
   end

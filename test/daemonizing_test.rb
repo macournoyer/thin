@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/test_helper'
-require 'timeout'
 
 class DaemonizingTest < Test::Unit::TestCase
   def setup
@@ -27,7 +26,7 @@ class DaemonizingTest < Test::Unit::TestCase
       sleep 0.1 while File.exist?(@server.pid_file)
     end
   rescue
-    Process.kill(9, pid) if Process.running?(pid)
+    Process.kill(9, pid) rescue nil
   end
   
   def test_redirect_stdio_to_log_file
