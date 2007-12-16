@@ -4,33 +4,32 @@ module Thin
   class InvalidRequest < StandardError; end
   
   class Request
-    attr_reader :env, :data
+    attr_reader :env, :data, :body
     
     def initialize(env)
       @env      = env
       @parser   = Mongrel::HttpParser.new
       @data     = ''
       @nparsed  = 0
-      
-      @env["rack.input"] = StringIO.new
+      @body     = StringIO.new
     end
     
     def parse(data)
       @data << data
-			@nparsed = @parser.execute(@env, @data, @nparsed) unless @parser.finished?
 			
-			if @parser.finished?
-			  if body
-          body << data
-  			else
-  			  self.body = StringIO.new
-  			end
+			if @parser.finished? # Header finished, can only be some more body
+        body << data
   			if body.size >= content_length
 			    finish
 			    return true # Request completed
 			  end
 			elsif @data.size > MAX_HEADER
 			  raise InvalidRequest, 'Header longer than allowed'
+			else # Parse more header
+			  @nparsed = @parser.execute(@env, @data, @nparsed)
+  			
+  			http_body = @env.instance_eval{@http_body}
+  			body << http_body if http_body
 			end
 			
 			false # Not finished
@@ -40,19 +39,12 @@ module Thin
       raise InvalidRequest, e.message
     end
     
-    def body
-      @env["rack.input"]
-    end
-    
-    def body=(value)
-      @env["rack.input"] = value
-    end
-    
     def finish
       @env.delete "HTTP_CONTENT_TYPE"
       @env.delete "HTTP_CONTENT_LENGTH"
       
       @env["rack.url_scheme"] = "http"
+      @env["rack.input"]      = @body
       
       @env["PATH_INFO"]      = @env["REQUEST_URI"] if env["PATH_INFO"].to_s == ""
       @env["SCRIPT_NAME"]    = "" if @env["SCRIPT_NAME"] == "/"

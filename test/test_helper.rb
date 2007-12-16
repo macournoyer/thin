@@ -22,14 +22,6 @@ class TestRequest < Thin::Request
   end
 end
 
-class TestHandler < Thin::Handler
-  def process(request, response)
-    response.body << request.body.read
-    response.body << request.params['QUERY_STRING']
-    true
-  end
-end
-
 class Test::Unit::TestCase
   protected
     def assert_faster_then(title, max_time, verbose=false)
