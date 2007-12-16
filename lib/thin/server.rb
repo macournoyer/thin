@@ -25,7 +25,7 @@ module Thin
     # that will pass request to +app+.
     def initialize(host, port, app)
       @host       = host
-      @port       = port
+      @port       = port.to_i
       @app        = app
       @timeout    = 60 # sec
     end
