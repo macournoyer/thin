@@ -12,7 +12,7 @@ require 'thin/consts'
 require 'thin/statuses'
 module Thin
   autoload :Logging,      'thin/logging'
-  autoload :Daemonizing,  'thin/daemonizing'
+  autoload :Daemonizable, 'thin/daemonizing'
   autoload :Connection,   'thin/connection'
   autoload :Server,       'thin/server'
   autoload :Request,      'thin/request'

@@ -8,7 +8,7 @@ module Thin
   class Request
     attr_reader :env, :data, :body
     
-    def initialize(env)
+    def initialize(env={})
       @env      = env
       @parser   = HttpParser.new
       @data     = ''

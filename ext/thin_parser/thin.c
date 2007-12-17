@@ -13,7 +13,6 @@ static VALUE mThin;
 static VALUE cHttpParser;
 static VALUE eHttpParserError;
 
-#define id_handler_map rb_intern("@handler_map")
 #define id_http_body rb_intern("@http_body")
 
 static VALUE global_http_prefix;
@@ -184,7 +183,6 @@ void header_done(void *data, const char *at, size_t length)
   /* grab the initial body and stuff it into an ivar */
   rb_ivar_set(req, id_http_body, rb_str_new(at, length));
   rb_hash_aset(req, global_server_protocol, global_server_protocol_value);
-  rb_hash_aset(req, global_server_software, global_mongrel_version);
 }
 
 
@@ -384,7 +382,6 @@ void Init_thin_parser()
   DEF_GLOBAL(server_protocol, "SERVER_PROTOCOL");
   DEF_GLOBAL(server_protocol_value, "HTTP/1.1");
   DEF_GLOBAL(http_host, "HTTP_HOST");
-  DEF_GLOBAL(mongrel_version, "Mongrel 1.1.1"); /* XXX Why is this defined here? */
   DEF_GLOBAL(server_software, "SERVER_SOFTWARE");
   DEF_GLOBAL(port_80, "80");
 

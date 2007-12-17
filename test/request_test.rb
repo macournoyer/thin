@@ -163,6 +163,18 @@ EOS
     assert_equal 'aye', request.body.read
   end
   
+  def test_parse_chunks
+    request = Thin::Request.new
+    assert ! request.parse("POST / HTTP/1.1\r\n")
+    assert ! request.parse("Host: localhost\r\n")
+    assert ! request.parse("Content-Length: 9\r\n")
+    assert ! request.parse("\r\nvery ")
+    assert   request.parse("cool")
+    
+    assert_equal '9', request.env['CONTENT_LENGTH']
+    assert_equal 'very cool', request.body.read
+  end
+  
   def test_parse_perfs
     body = <<-EOS.chomp
 POST /postit HTTP/1.1
