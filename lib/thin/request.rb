@@ -37,9 +37,7 @@ module Thin
 		  end
 			
 			false # Not finished, need more data
-    rescue InvalidRequest => e
-      raise e
-    rescue Exception => e
+    rescue HttpParserError => e
       raise InvalidRequest, e.message
     end
     
