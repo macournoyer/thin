@@ -33,8 +33,6 @@ static VALUE global_server_port;
 static VALUE global_server_protocol;
 static VALUE global_server_protocol_value;
 static VALUE global_http_host;
-static VALUE global_mongrel_version;
-static VALUE global_server_software;
 static VALUE global_port_80;
 
 #define TRIE_INCREASE 30
@@ -382,7 +380,6 @@ void Init_thin_parser()
   DEF_GLOBAL(server_protocol, "SERVER_PROTOCOL");
   DEF_GLOBAL(server_protocol_value, "HTTP/1.1");
   DEF_GLOBAL(http_host, "HTTP_HOST");
-  DEF_GLOBAL(server_software, "SERVER_SOFTWARE");
   DEF_GLOBAL(port_80, "80");
 
   eHttpParserError = rb_define_class_under(mThin, "HttpParserError", rb_eIOError);
