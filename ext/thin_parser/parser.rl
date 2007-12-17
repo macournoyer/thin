@@ -2,7 +2,7 @@
  * Copyright (c) 2005 Zed A. Shaw
  * You can redistribute it and/or modify it under the same terms as Ruby.
  */
-#include "http11_parser.h"
+#include "parser.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -69,7 +69,7 @@
     fbreak;
   }
 
-  include http_parser_common "http11_parser_common.rl";
+  include http_parser_common "common.rl";
 
 }%%
 

@@ -10,7 +10,7 @@ module Thin
     
     def initialize(env)
       @env      = env
-      @parser   = ::Mongrel::HttpParser.new
+      @parser   = HttpParser.new
       @data     = ''
       @nparsed  = 0
       @body     = StringIO.new

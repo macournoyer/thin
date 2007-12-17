@@ -17,7 +17,7 @@ EXT_FILES  = FileList[
   "#{EXT_DIR}/Makefile",
   "lib"
 ]
-CLEAN.include %w(doc/rdoc pkg tmp log *.gem **/*.{bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile)
+CLEAN.include %w(doc/rdoc pkg tmp log *.gem **/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile)
 
 Rake::TestTask.new do |t|
   t.pattern = 'test/*_test.rb'
@@ -85,11 +85,11 @@ namespace :gem do
 end
 
 task :ragel do
-  Dir.chdir "ext/http11" do
-    target = "http11_parser.c"
+  Dir.chdir EXT_DIR do
+    target = "parser.c"
     File.unlink target if File.exist? target
-    sh "ragel http11_parser.rl | rlgen-cd -G2 -o #{target}"
-    raise "Failed to build C source" unless File.exist? target
+    sh "ragel parser.rl | rlgen-cd -G2 -o #{target}"
+    raise "Failed to compile Ragel state machine" unless File.exist? target
   end
 end
   

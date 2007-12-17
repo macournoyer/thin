@@ -6,10 +6,10 @@
 #include "ext_help.h"
 #include <assert.h>
 #include <string.h>
-#include "http11_parser.h"
+#include "parser.h"
 #include <ctype.h>
 
-static VALUE mMongrel;
+static VALUE mThin;
 static VALUE cHttpParser;
 static VALUE eHttpParserError;
 
@@ -361,10 +361,10 @@ VALUE HttpParser_nread(VALUE self)
   return INT2FIX(http->nread);
 }
 
-void Init_http11()
+void Init_thin_parser()
 {
 
-  mMongrel = rb_define_module("Mongrel");
+  mThin = rb_define_module("Thin");
 
   DEF_GLOBAL(http_prefix, "HTTP_");
   DEF_GLOBAL(request_method, "REQUEST_METHOD");
@@ -388,9 +388,9 @@ void Init_http11()
   DEF_GLOBAL(server_software, "SERVER_SOFTWARE");
   DEF_GLOBAL(port_80, "80");
 
-  eHttpParserError = rb_define_class_under(mMongrel, "HttpParserError", rb_eIOError);
+  eHttpParserError = rb_define_class_under(mThin, "HttpParserError", rb_eIOError);
 
-  cHttpParser = rb_define_class_under(mMongrel, "HttpParser", rb_cObject);
+  cHttpParser = rb_define_class_under(mThin, "HttpParser", rb_cObject);
   rb_define_alloc_func(cHttpParser, HttpParser_alloc);
   rb_define_method(cHttpParser, "initialize", HttpParser_init,0);
   rb_define_method(cHttpParser, "reset", HttpParser_reset,0);
