@@ -7,8 +7,8 @@ require 'rake/gempackagetask'
 require File.dirname(__FILE__) + '/lib/thin'
 
 REVISION   = `svn info`.match('Revision: (\d+)')[1]
-EXT_DIR    = 'ext/http11'
-EXT_BUNDLE = "#{EXT_DIR}/http11.bundle"
+EXT_DIR    = 'ext/thin_parser'
+EXT_BUNDLE = "#{EXT_DIR}/thin_parser.bundle"
 EXT_FILES  = FileList[
   "#{EXT_DIR}/*.c",
   "#{EXT_DIR}/*.h",

@@ -1,3 +1,5 @@
+require 'thin_parser'
+
 module Thin
   # Raised when an incoming request is not valid
   # and the server can not process it.
@@ -8,7 +10,7 @@ module Thin
     
     def initialize(env)
       @env      = env
-      @parser   = Mongrel::HttpParser.new
+      @parser   = ::Mongrel::HttpParser.new
       @data     = ''
       @nparsed  = 0
       @body     = StringIO.new

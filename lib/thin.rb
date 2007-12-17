@@ -5,21 +5,24 @@ require 'timeout'
 require 'stringio'
 
 require 'rubygems'
-require 'http11'
 require 'eventmachine'
 
-%w(
-  version
-  consts
-  statuses
-  logging
-  daemonizing
-  connection
-  server
-  request
-  headers
-  response
-).each { |l| require "thin/#{l}" }
+require 'thin/version'
+require 'thin/consts'
+require 'thin/statuses'
+module Thin
+  autoload :Logging,      'thin/logging'
+  autoload :Daemonizing,  'thin/daemonizing'
+  autoload :Connection,   'thin/connection'
+  autoload :Server,       'thin/server'
+  autoload :Request,      'thin/request'
+  autoload :Headers,      'thin/headers'
+  autoload :Response,     'thin/response'
+end
 
 require 'rack'
-require 'rack/handler/thin'
+module Rack
+  module Handler
+    autoload :Thin, 'rack/handler/thin'
+  end
+end
