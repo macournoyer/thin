@@ -44,7 +44,7 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def test_big_post
-    big = 'X' * (Thin::CHUNK_SIZE * 2)
+    big = 'X' * (20 * 1024)
     assert_equal big.size+4, post('/', :big => big).size
   end
   

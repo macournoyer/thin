@@ -6,6 +6,8 @@ module Thin
   class InvalidRequest < StandardError; end
   
   class Request
+    MAX_HEADER = 1024 * (80 + 32)
+    
     attr_reader :env, :data, :body
     
     def initialize(env={})

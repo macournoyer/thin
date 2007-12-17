@@ -1,8 +1,9 @@
 module Thin
   # A response sent to the client.
   class Response
-    CONNECTION = 'Connection'.freeze
-    CLOSE = 'close'.freeze
+    CONTENT_LENGTH = 'Content-Length'.freeze
+    CONNECTION     = 'Connection'.freeze
+    CLOSE          = 'close'.freeze
     
     attr_accessor :status, :file
     attr_reader   :body, :headers

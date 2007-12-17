@@ -8,9 +8,12 @@ require 'rubygems'
 require 'eventmachine'
 
 require 'thin/version'
-require 'thin/consts'
 require 'thin/statuses'
+
 module Thin
+  NAME    = 'thin'.freeze
+  SERVER  = "#{NAME} #{VERSION::STRING}".freeze  
+  
   autoload :Logging,      'thin/logging'
   autoload :Daemonizable, 'thin/daemonizing'
   autoload :Connection,   'thin/connection'
@@ -21,6 +24,7 @@ module Thin
 end
 
 require 'rack'
+
 module Rack
   module Handler
     autoload :Thin, 'rack/handler/thin'

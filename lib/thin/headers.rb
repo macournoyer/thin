@@ -1,7 +1,8 @@
 module Thin
   # Acts like a Hash, but allows duplicated keys
   class Headers
-    @@allowed_duplicates = %w(Set-Cookie Set-Cookie2 Warning WWW-Authenticate)
+    HEADER_FORMAT      = "%s: %s\r\n".freeze
+    ALLOWED_DUPLICATES = %w(Set-Cookie Set-Cookie2 Warning WWW-Authenticate).freeze
     
     def initialize
       @sent = {}
@@ -9,7 +10,7 @@ module Thin
     end
 
     def []=(key, value)
-      if @sent.has_key?(key) && !@@allowed_duplicates.include?(key)
+      if @sent.has_key?(key) && !ALLOWED_DUPLICATES.include?(key)
         # If we don't allow duplicate for that field
         # we overwrite the one that is already there
         @items.assoc(key)[1] = value
