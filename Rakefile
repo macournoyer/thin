@@ -24,7 +24,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
   rdoc.title = Thin::NAME
-  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb', 'bin/*']
+  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb']
 end
 
 namespace :rdoc do
@@ -38,13 +38,16 @@ spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = Gem::Platform::RUBY
-  s.summary               = "Thin and fast web server"
-  s.description           = s.summary
+  s.summary               = 
+  s.description           = "A thin and fast web server"
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
 
-  s.required_ruby_version = '>= 1.8.6' # To be sure the multipart eof fix is in there
+  s.required_ruby_version = '>= 1.8.6'
+  
+  s.add_dependency        'eventmachine', '>= 0.9.0'
+  s.add_dependency        'rack',         '>= 0.2.0'
 
   s.files                 = %w(README COPYING Rakefile) + Dir.glob("{doc,lib,test,example}/**/*")
   

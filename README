@@ -21,11 +21,11 @@ Or from source:
  rake install
 
 === Usage
-In your app directory:
+Thin is usable through Rack +rackup+ command. You need to setup a config.ru file and require thin in it:
   
- thin start
-
-See http://code.macournoyer.com/thin/doc/files/bin/thin.html
+ rackup -s thin example/config.ru
+ 
+See example/config.ru for details and rackup -h
 
 === License
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
