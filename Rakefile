@@ -6,13 +6,23 @@ require 'rake/gempackagetask'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
-REVISION = `svn info`.match('Revision: (\d+)')[1]
-CLEAN.include %w(doc/rdoc pkg tmp log)
+REVISION   = `svn info`.match('Revision: (\d+)')[1]
+EXT_DIR    = 'ext/http11'
+EXT_BUNDLE = "#{EXT_DIR}/http11.bundle"
+EXT_FILES  = FileList[
+  "#{EXT_DIR}/*.c",
+  "#{EXT_DIR}/*.h",
+  "#{EXT_DIR}/*.rl",
+  "#{EXT_DIR}/extconf.rb",
+  "#{EXT_DIR}/Makefile",
+  "lib"
+]
+CLEAN.include %w(doc/rdoc pkg tmp log *.gem **/*.{bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile)
 
 Rake::TestTask.new do |t|
   t.pattern = 'test/*_test.rb'
 end
-task :default => :test
+task :default => [:compile, :test]
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
@@ -24,7 +34,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
   rdoc.title = Thin::NAME
-  rdoc.rdoc_files.add ['README', 'lib/thin/*.rb']
+  rdoc.rdoc_files.add %w(README lib/thin/*.rb')
 end
 
 namespace :rdoc do
@@ -50,6 +60,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency        'rack',         '>= 0.2.0'
 
   s.files                 = %w(README COPYING Rakefile) + Dir.glob("{doc,lib,test,example}/**/*")
+  s.extensions            = FileList["ext/**/extconf.rb"].to_a
   
   s.require_path          = "lib"
 end
@@ -71,6 +82,31 @@ namespace :gem do
     sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
     sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
   end
+end
+
+task :ragel do
+  Dir.chdir "ext/http11" do
+    target = "http11_parser.c"
+    File.unlink target if File.exist? target
+    sh "ragel http11_parser.rl | rlgen-cd -G2 -o #{target}"
+    raise "Failed to build C source" unless File.exist? target
+  end
+end
+  
+desc "Compile the extensions"
+task :compile => ["#{EXT_DIR}/Makefile", EXT_BUNDLE]
+
+task :package => :compile
+
+file "#{EXT_DIR}/Makefile" => ["#{EXT_DIR}/extconf.rb"] do
+  cd(EXT_DIR) { ruby "extconf.rb" }
+end
+
+file EXT_BUNDLE => EXT_FILES do
+  cd EXT_DIR do
+    sh(PLATFORM =~ /win32/ ? 'nmake' : 'make')
+  end
+  cp EXT_BUNDLE, 'lib/'
 end
 
 desc 'Show some stats about the code'

@@ -22,7 +22,7 @@ class RequestTest < Test::Unit::TestCase
     end
   end
   
-  def wtf_test_fragment_in_uri
+  def test_fragment_in_uri
     request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\n\r\n")
 
     assert_equal '/forums/1/topics/2375?page=1', request.env['REQUEST_URI']
