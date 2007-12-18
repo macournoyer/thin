@@ -2,15 +2,28 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class RequestTest < Test::Unit::TestCase
   def test_parse_simple
-    request = R("GET / HTTP/1.1\r\n\r\n")
+    request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
     assert_equal 'HTTP/1.1', request.env['SERVER_PROTOCOL']
     assert_equal '/', request.env['REQUEST_PATH']
     assert_equal 'HTTP/1.1', request.env['HTTP_VERSION']
     assert_equal '/', request.env['REQUEST_URI']
     assert_equal 'CGI/1.2', request.env['GATEWAY_INTERFACE']
     assert_equal 'GET', request.env['REQUEST_METHOD']    
+    assert_equal 'http', request.env["rack.url_scheme"]
     assert_equal '', request.env['FRAGMENT'].to_s
     assert_equal '', request.env['QUERY_STRING'].to_s
+    
+    assert_valid_lint request.env
+  end
+  
+  def test_dont_prepend_http_to_content_type_and_length
+    request = R("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\naa")
+    assert ! request.env.has_key?('HTTP_CONTENT_TYPE')
+    assert   request.env.has_key?('CONTENT_LENGTH')
+    assert ! request.env.has_key?('HTTP_CONTENT_LENGTH')
+    assert   request.env.has_key?('CONTENT_LENGTH')
+    
+    assert_valid_lint request.env
   end
   
   def test_parse_error
@@ -23,17 +36,21 @@ class RequestTest < Test::Unit::TestCase
   end
   
   def test_fragment_in_uri
-    request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\n\r\n")
+    request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\nHost: localhost\r\n\r\n")
 
     assert_equal '/forums/1/topics/2375?page=1', request.env['REQUEST_URI']
     assert_equal 'posts-17408', request.env['FRAGMENT']
+    
+    assert_valid_lint request.env
   end
   
   def test_parse_path_with_query_string
-    request = R('GET /index.html?234235 HTTP/1.1')
+    request = R("GET /index.html?234235 HTTP/1.1\r\nHost: localhost\r\n\r\n")
     assert_equal '/index.html', request.env['REQUEST_PATH']
     assert_equal '234235', request.env['QUERY_STRING']
     assert_nil request.env['FRAGMENT']
+    
+    assert_valid_lint request.env
   end
   
   def test_that_large_header_names_are_caught
@@ -74,9 +91,14 @@ Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
 Cookie: mium=7
 Keep-Alive: 300
 Connection: keep-alive
+
 EOS
     assert_equal 'localhost:3000', request.env['HTTP_HOST']
-    assert_equal 'mium=7', request.env['HTTP_COOKIE']
+    assert_equal 'localhost', request.env['SERVER_NAME']
+    assert_equal '3000', request.env['SERVER_PORT']
+    assert_equal 'mium=7', request.env['HTTP_COOKIE']    
+    
+    assert_valid_lint request.env
   end
   
   def test_parse_headers_with_query_string
@@ -85,10 +107,13 @@ GET /page?cool=thing HTTP/1.1
 Host: localhost:3000
 Keep-Alive: 300
 Connection: keep-alive
+
 EOS
     assert_equal 'cool=thing', request.env['QUERY_STRING']
     assert_equal '/page?cool=thing', request.env['REQUEST_URI']
     assert_equal '/page', request.env['REQUEST_PATH']
+    
+    assert_valid_lint request.env
   end
   
   def test_parse_post_data
@@ -116,6 +141,8 @@ EOS
     assert_equal 'en-us,en;q=0.5', request.env['HTTP_ACCEPT_LANGUAGE']
     request.body.rewind
     assert_equal 'name=marc&email=macournoyer@gmail.com', request.body.read
+    
+    assert_valid_lint request.env
   end
   
   def test_stupid_fucked_ie6_headers
@@ -130,23 +157,29 @@ Accept: */*
 Range: bytes=0-499999
 Referer: http://refactormycode.com/codes/58-tracking-file-downloads-automatically-in-google-analytics-with-prototype
 User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)
-Content-Length: 15771
+Content-Length: 1
 Content-Type: application/x-www-form-urlencoded
 Cookie: _refactormycode_session_id=a1b2n3jk4k5; flash=%7B%7D
 Cookie2: $Version="1"
+
+a
 EOS
     request = R(body, true)
     assert_equal '$Version="1"', request.env['HTTP_COOKIE2']
+    
+    assert_valid_lint request.env
   end
   
   def test_long_query_string
     body = <<-EOS
 GET /session?open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer HTTP/1.1
 Host: localhost:3000
+
 EOS
     request = R(body, true)
     
     assert_equal 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer', request.env['QUERY_STRING']
+    assert_valid_lint request.env
   end
   
   def test_stupid_content_length
@@ -173,6 +206,7 @@ EOS
     
     assert_equal '9', request.env['CONTENT_LENGTH']
     assert_equal 'very cool', request.body.read
+    assert_valid_lint request.env
   end
   
   def test_parse_perfs
@@ -197,6 +231,35 @@ EOS
     end
   end
   
+  if ENV['BM']
+    def test_mongrel_bm
+      require 'http11'
+    
+      body = <<-EOS.chomp.gsub("\n", "\r\n")
+POST /postit HTTP/1.1
+Host: localhost:3000
+User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Connection: keep-alive
+Content-Type: text/html
+Content-Length: 37
+
+hi=there&name=marc&email=macournoyer@gmail.com
+EOS
+    
+      tests = 10_000
+      puts
+      Benchmark.bmbm(10) do |results|
+        results.report("mongrel:") { tests.times { Mongrel::HttpParser.new.execute({}, body.dup, 0) } }
+        results.report("thin:") { tests.times { Thin::HttpParser.new.execute({'rack.input' => StringIO.new}, body.dup, 0) } }
+      end
+    end
+  end
+  
   private
     def rand_data(min, max, readable=true)
       count = min + ((rand(max)+1) *10).to_i
@@ -213,8 +276,12 @@ EOS
     
     def R(raw, convert_line_feed=false)
       raw.gsub!("\n", "\r\n") if convert_line_feed
-      request = Thin::Request.new({})
-      request.parse raw
+      request = Thin::Request.new
+      request.parse(raw)
       request
+    end
+    
+    def assert_valid_lint(env)
+      Rack::Lint.new(proc{[200, {'Content-Type' => 'text/html'}, []]}).call(env)
     end
 end

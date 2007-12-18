@@ -5,4 +5,4 @@
  * Fix Rails environment option not being used in thin script.
  
 == 0.4.0
- * First public release.
+ * First alphaish release as a gem.

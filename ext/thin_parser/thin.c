@@ -1,5 +1,7 @@
 /**
- * Copyright (c) 2005 Zed A. Shaw
+ * Mongrel Parser adpated to Thin and to play more nicely with Rack specs.
+ * 
+ * Orignal version Copyright (c) 2005 Zed A. Shaw
  * You can redistribute it and/or modify it under the same terms as Ruby.
  */
 #include "ruby.h"
@@ -12,8 +14,6 @@
 static VALUE mThin;
 static VALUE cHttpParser;
 static VALUE eHttpParserError;
-
-#define id_http_body rb_intern("@http_body")
 
 static VALUE global_http_prefix;
 static VALUE global_request_method;
@@ -34,6 +34,9 @@ static VALUE global_server_protocol;
 static VALUE global_server_protocol_value;
 static VALUE global_http_host;
 static VALUE global_port_80;
+static VALUE global_http_body;
+static VALUE global_url_scheme;
+static VALUE global_url_scheme_value;
 
 #define TRIE_INCREASE 30
 
@@ -151,16 +154,19 @@ void header_done(void *data, const char *at, size_t length)
   VALUE temp = Qnil;
   VALUE ctype = Qnil;
   VALUE clen = Qnil;
+  VALUE body = Qnil;
   char *colon = NULL;
 
   clen = rb_hash_aref(req, global_http_content_length);
   if(clen != Qnil) {
     rb_hash_aset(req, global_content_length, clen);
+    rb_hash_delete(req, global_http_content_length);
   }
 
   ctype = rb_hash_aref(req, global_http_content_type);
   if(ctype != Qnil) {
     rb_hash_aset(req, global_content_type, ctype);
+    rb_hash_delete(req, global_http_content_type);
   }
 
   rb_hash_aset(req, global_gateway_interface, global_gateway_interface_value);
@@ -178,9 +184,15 @@ void header_done(void *data, const char *at, size_t length)
     }
   }
 
-  /* grab the initial body and stuff it into an ivar */
-  rb_ivar_set(req, id_http_body, rb_str_new(at, length));
+  /* grab the initial body and stuff it into the hash */
+  if(length > 0) {
+    body = rb_hash_aref(req, global_http_body);
+    rb_io_write(body, rb_str_new(at, length));
+  }
+  
+  /* set some constants */
   rb_hash_aset(req, global_server_protocol, global_server_protocol_value);
+  rb_hash_aset(req, global_url_scheme, global_url_scheme_value);
 }
 
 
@@ -381,8 +393,11 @@ void Init_thin_parser()
   DEF_GLOBAL(server_protocol_value, "HTTP/1.1");
   DEF_GLOBAL(http_host, "HTTP_HOST");
   DEF_GLOBAL(port_80, "80");
+  DEF_GLOBAL(http_body, "rack.input");
+  DEF_GLOBAL(url_scheme, "rack.url_scheme");
+  DEF_GLOBAL(url_scheme_value, "http");
 
-  eHttpParserError = rb_define_class_under(mThin, "HttpParserError", rb_eIOError);
+  eHttpParserError = rb_define_class_under(mThin, "InvalidRequest", rb_eIOError);
 
   cHttpParser = rb_define_class_under(mThin, "HttpParser", rb_cObject);
   rb_define_alloc_func(cHttpParser, HttpParser_alloc);

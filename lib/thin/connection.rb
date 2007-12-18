@@ -5,8 +5,7 @@ module Thin
     attr_accessor :app
     
     def post_init
-      @env      = {}
-      @request  = Request.new(@env)
+      @request  = Request.new
       @response = Response.new
     end
     
@@ -20,20 +19,13 @@ module Thin
     end
     
     def process
+      env = @request.env
+      
       # Add client info to the request env
-      @env['REMOTE_ADDR'] = @env['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
-
-      # Config Rack stuff
-      @env.update("rack.version"      => [0, 1],
-                  "rack.errors"       => STDERR,
-                  
-                  "rack.multithread"  => false,
-                  "rack.multiprocess" => false, # ???
-                  "rack.run_once"     => false
-                 )
+      env['REMOTE_ADDR'] = env['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
 
       # Process the request
-      @response.status, @response.headers, @response.body = @app.call(@env)
+      @response.status, @response.headers, @response.body = @app.call(env)
       
       # Send the response
       send_data @response.head
