@@ -15,6 +15,7 @@ static VALUE mThin;
 static VALUE cHttpParser;
 static VALUE eHttpParserError;
 
+static VALUE global_empty;
 static VALUE global_http_prefix;
 static VALUE global_request_method;
 static VALUE global_request_uri;
@@ -37,6 +38,8 @@ static VALUE global_port_80;
 static VALUE global_http_body;
 static VALUE global_url_scheme;
 static VALUE global_url_scheme_value;
+static VALUE global_script_name;
+static VALUE global_path_info;
 
 #define TRIE_INCREASE 30
 
@@ -125,6 +128,7 @@ void request_path(void *data, const char *at, size_t length)
 
   val = rb_str_new(at, length);
   rb_hash_aset(req, global_request_path, val);
+  rb_hash_aset(req, global_path_info, val);
 }
 
 void query_string(void *data, const char *at, size_t length)
@@ -190,9 +194,15 @@ void header_done(void *data, const char *at, size_t length)
     rb_io_write(body, rb_str_new(at, length));
   }
   
+  /* according to Rack specs, query string must be empty string if none */
+  if (rb_hash_aref(req, global_query_string) == Qnil) {
+    rb_hash_aset(req, global_query_string, global_empty);
+  }
+  
   /* set some constants */
   rb_hash_aset(req, global_server_protocol, global_server_protocol_value);
   rb_hash_aset(req, global_url_scheme, global_url_scheme_value);
+  rb_hash_aset(req, global_script_name, global_empty);
 }
 
 
@@ -374,6 +384,7 @@ void Init_thin_parser()
 
   mThin = rb_define_module("Thin");
 
+  DEF_GLOBAL(empty, "");
   DEF_GLOBAL(http_prefix, "HTTP_");
   DEF_GLOBAL(request_method, "REQUEST_METHOD");
   DEF_GLOBAL(request_uri, "REQUEST_URI");
@@ -396,6 +407,8 @@ void Init_thin_parser()
   DEF_GLOBAL(http_body, "rack.input");
   DEF_GLOBAL(url_scheme, "rack.url_scheme");
   DEF_GLOBAL(url_scheme_value, "http");
+  DEF_GLOBAL(script_name, "SCRIPT_NAME");
+  DEF_GLOBAL(path_info, "PATH_INFO");
 
   eHttpParserError = rb_define_class_under(mThin, "InvalidRequest", rb_eIOError);
 

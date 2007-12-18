@@ -6,11 +6,19 @@ module Thin
   class InvalidRequest < IOError; end
   
   class Request
-    MAX_HEADER      = 1024 * (80 + 32)
-    MAX_HEADER_MSG  = 'Header longer than allowed'.freeze
-    RACK_INPUT      = 'rack.input'.freeze
-    SERVER_SOFTWARE = 'SERVER_SOFTWARE'.freeze
-    CONTENT_LENGTH  = 'CONTENT_LENGTH'.freeze
+    MAX_HEADER        = 1024 * (80 + 32)
+    MAX_HEADER_MSG    = 'Header longer than allowed'.freeze
+
+    SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
+
+    CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
+
+    RACK_INPUT        = 'rack.input'.freeze
+    RACK_VERSION      = 'rack.version'.freeze
+    RACK_ERRORS       = 'rack.errors'.freeze
+    RACK_MULTITHREAD  = 'rack.multithread'.freeze
+    RACK_MULTIPROCESS = 'rack.multiprocess'.freeze
+    RACK_RUN_ONCE     = 'rack.run_once'.freeze
     
     attr_reader :env, :data, :body
     
@@ -20,16 +28,17 @@ module Thin
       @nparsed  = 0
       @body     = StringIO.new
       @env      = {
-        RACK_INPUT      => @body,
-        SERVER_SOFTWARE => SERVER,
+        SERVER_SOFTWARE   => SERVER,
         
         # Rack stuff
-        "rack.version"      => [0, 1],
-        "rack.errors"       => STDERR,
+        RACK_INPUT        => @body,
         
-        "rack.multithread"  => false,
-        "rack.multiprocess" => false,
-        "rack.run_once"     => false
+        RACK_VERSION      => [0, 1],
+        RACK_ERRORS       => STDERR,
+        
+        RACK_MULTITHREAD  => false,
+        RACK_MULTIPROCESS => false,
+        RACK_RUN_ONCE     => false
       }
     end
     
@@ -46,23 +55,11 @@ module Thin
 			
 			# Check if header and body are complete
 			if @parser.finished? && body.size >= content_length
-		    finish
+		    body.rewind
 		    return true
 		  end
 			
 			false # Not finished, need more data
-    end
-    
-    def finish
-      # Convert environment to according to Rack specs
-      @env["PATH_INFO"]      = @env["REQUEST_URI"] if env["PATH_INFO"].to_s == ""
-      @env["SCRIPT_NAME"]    = "" if @env["SCRIPT_NAME"] == "/"
-      @env["QUERY_STRING"] ||= ""
-      @env.delete "PATH_INFO" if @env["PATH_INFO"] == ""
-      
-      
-      
-      body.rewind
     end
     
     def content_length

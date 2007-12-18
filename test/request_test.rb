@@ -39,6 +39,8 @@ class RequestTest < Test::Unit::TestCase
     request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\nHost: localhost\r\n\r\n")
 
     assert_equal '/forums/1/topics/2375?page=1', request.env['REQUEST_URI']
+    assert_equal '/forums/1/topics/2375', request.env['PATH_INFO']
+    assert_equal 'page=1', request.env['QUERY_STRING']
     assert_equal 'posts-17408', request.env['FRAGMENT']
     
     assert_valid_lint request.env
@@ -61,7 +63,7 @@ class RequestTest < Test::Unit::TestCase
 
   def test_that_large_mangled_field_values_are_caught
     assert_raises Thin::InvalidRequest do
-      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 80*1024+(1024), false)}\r\n\r\n"
+      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 100*1024+(1024), false)}\r\n\r\n"
     end
   end
   
