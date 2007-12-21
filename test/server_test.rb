@@ -1,4 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
+require 'net/http'
+require 'socket'
 
 class ServerTest < Test::Unit::TestCase
   def setup
@@ -8,8 +10,7 @@ class ServerTest < Test::Unit::TestCase
     end
     server = Thin::Server.new('0.0.0.0', 3333, app)
     server.timeout = 3
-    server.silent = true # Remove this to get more details
-    server.trace = true
+    server.silent = true
     
     server.start
     @thread = Thread.new do

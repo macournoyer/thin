@@ -56,7 +56,6 @@ module Thin
 					EventMachine.start_server(@host, @port, Connection) do |connection|
 					  connection.comm_inactivity_timeout = @timeout
 					  connection.app                     = @app
-					  connection.trace                   = @trace
 					  connection.silent                  = @silent
 					end
 				rescue StopServer

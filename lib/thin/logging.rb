@@ -1,10 +1,7 @@
 module Thin
   # To be included into classes to allow some basic logging
-  # that can be silented (+silent+) or made more verbose (+trace+).
+  # that can be silented (+silent+) or made more verbose ($DEBUG=true).
   module Logging
-    # Output extra info about the request, response, errors and stuff like that.
-    attr_writer :trace
-    
     # Don't output any message if +true+.
     attr_accessor :silent
     
@@ -14,17 +11,9 @@ module Thin
         puts msg unless @silent
       end
       
-      # Log a message to the console (no line feed)
-      def logc(msg)
-        unless @silent
-          print msg
-          STDOUT.flush # Make sure the msg is shown right away
-        end
-      end
-  
       # Log a message to the console if tracing is activated
       def trace(msg=nil)
-        puts msg || yield if @trace && !@silent
+        puts msg || yield if $DEBUG && !@silent
       end
       
       def log_error(e)

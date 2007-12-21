@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/test_helper'
+require 'digest/sha1'
 
 class RequestTest < Test::Unit::TestCase
   def test_parse_simple

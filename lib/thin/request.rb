@@ -10,6 +10,8 @@ module Thin
     MAX_HEADER_MSG    = 'Header longer than allowed'.freeze
 
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
+    REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
+    FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
 
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
 

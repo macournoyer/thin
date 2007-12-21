@@ -16,7 +16,7 @@
 
 /** Machine **/
 
-#line 74 "parser.rl"
+#line 65 "parser.rl"
 
 
 /** Data **/
@@ -28,7 +28,7 @@ static const int http_parser_error = 0;
 
 static const int http_parser_en_main = 1;
 
-#line 78 "parser.rl"
+#line 69 "parser.rl"
 
 int http_parser_init(http_parser *parser)  {
   int cs = 0;
@@ -37,7 +37,7 @@ int http_parser_init(http_parser *parser)  {
 	{
 	cs = http_parser_start;
 	}
-#line 82 "parser.rl"
+#line 73 "parser.rl"
   parser->cs = cs;
   parser->body_start = 0;
   parser->content_len = 0;
@@ -111,17 +111,16 @@ case 2:
 		goto st38;
 	goto st0;
 tr2:
-#line 36 "parser.rl"
+#line 34 "parser.rl"
 	{ 
-    if(parser->request_method != NULL) 
-      parser->request_method(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_method(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st3;
 st3:
 	if ( ++p == pe )
 		goto _out3;
 case 3:
-#line 125 "parser.c"
+#line 124 "parser.c"
 	switch( (*p) ) {
 		case 42: goto tr4;
 		case 43: goto tr5;
@@ -145,69 +144,61 @@ st4:
 	if ( ++p == pe )
 		goto _out4;
 case 4:
-#line 149 "parser.c"
+#line 148 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr8;
 		case 35: goto tr9;
 	}
 	goto st0;
 tr8:
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st5;
 tr30:
-#line 44 "parser.rl"
+#line 40 "parser.rl"
 	{ 
-    if(parser->fragment != NULL)
-      parser->fragment(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->fragment(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st5;
 tr40:
-#line 60 "parser.rl"
+#line 53 "parser.rl"
 	{
-    if(parser->request_path != NULL)
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
+    parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st5;
 tr51:
-#line 49 "parser.rl"
+#line 44 "parser.rl"
 	{MARK(query_start, p); }
-#line 50 "parser.rl"
+#line 45 "parser.rl"
 	{ 
-    if(parser->query_string != NULL)
-      parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
+    parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st5;
 tr55:
-#line 50 "parser.rl"
+#line 45 "parser.rl"
 	{ 
-    if(parser->query_string != NULL)
-      parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
+    parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st5;
 st5:
 	if ( ++p == pe )
 		goto _out5;
 case 5:
-#line 211 "parser.c"
+#line 202 "parser.c"
 	if ( (*p) == 72 )
 		goto tr10;
 	goto st0;
@@ -219,7 +210,7 @@ st6:
 	if ( ++p == pe )
 		goto _out6;
 case 6:
-#line 223 "parser.c"
+#line 214 "parser.c"
 	if ( (*p) == 84 )
 		goto st7;
 	goto st0;
@@ -277,25 +268,22 @@ case 13:
 		goto st13;
 	goto st0;
 tr18:
-#line 55 "parser.rl"
+#line 49 "parser.rl"
 	{	
-    if(parser->http_version != NULL)
-      parser->http_version(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->http_version(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st14;
 tr26:
 #line 31 "parser.rl"
 	{ 
-    if(parser->http_field != NULL) {
-      parser->http_field(parser->data, PTR_TO(field_start), parser->field_len, PTR_TO(mark), LEN(mark, p));
-    }
+    parser->http_field(parser->data, PTR_TO(field_start), parser->field_len, PTR_TO(mark), LEN(mark, p));
   }
 	goto st14;
 st14:
 	if ( ++p == pe )
 		goto _out14;
 case 14:
-#line 299 "parser.c"
+#line 287 "parser.c"
 	if ( (*p) == 10 )
 		goto st15;
 	goto st0;
@@ -335,11 +323,10 @@ case 16:
 		goto tr22;
 	goto st0;
 tr22:
-#line 65 "parser.rl"
+#line 57 "parser.rl"
 	{ 
     parser->body_start = p - buffer + 1; 
-    if(parser->header_done != NULL)
-      parser->header_done(parser->data, p + 1, pe - p - 1);
+    parser->header_done(parser->data, p + 1, pe - p - 1);
     goto _out57;
   }
 	goto st57;
@@ -347,7 +334,7 @@ st57:
 	if ( ++p == pe )
 		goto _out57;
 case 57:
-#line 351 "parser.c"
+#line 338 "parser.c"
 	goto st0;
 tr21:
 #line 25 "parser.rl"
@@ -357,7 +344,7 @@ st17:
 	if ( ++p == pe )
 		goto _out17;
 case 17:
-#line 361 "parser.c"
+#line 348 "parser.c"
 	switch( (*p) ) {
 		case 33: goto st17;
 		case 58: goto tr24;
@@ -396,7 +383,7 @@ st18:
 	if ( ++p == pe )
 		goto _out18;
 case 18:
-#line 400 "parser.c"
+#line 387 "parser.c"
 	switch( (*p) ) {
 		case 13: goto tr26;
 		case 32: goto tr27;
@@ -410,60 +397,53 @@ st19:
 	if ( ++p == pe )
 		goto _out19;
 case 19:
-#line 414 "parser.c"
+#line 401 "parser.c"
 	if ( (*p) == 13 )
 		goto tr26;
 	goto st19;
 tr9:
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st20;
 tr41:
-#line 60 "parser.rl"
+#line 53 "parser.rl"
 	{
-    if(parser->request_path != NULL)
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
+    parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st20;
 tr52:
-#line 49 "parser.rl"
+#line 44 "parser.rl"
 	{MARK(query_start, p); }
-#line 50 "parser.rl"
+#line 45 "parser.rl"
 	{ 
-    if(parser->query_string != NULL)
-      parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
+    parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st20;
 tr56:
-#line 50 "parser.rl"
+#line 45 "parser.rl"
 	{ 
-    if(parser->query_string != NULL)
-      parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
+    parser->query_string(parser->data, PTR_TO(query_start), LEN(query_start, p));
   }
-#line 40 "parser.rl"
+#line 37 "parser.rl"
 	{ 
-    if(parser->request_uri != NULL)
-      parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
+    parser->request_uri(parser->data, PTR_TO(mark), LEN(mark, p));
   }
 	goto st20;
 st20:
 	if ( ++p == pe )
 		goto _out20;
 case 20:
-#line 467 "parser.c"
+#line 447 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr30;
 		case 37: goto tr31;
@@ -485,7 +465,7 @@ st21:
 	if ( ++p == pe )
 		goto _out21;
 case 21:
-#line 489 "parser.c"
+#line 469 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr30;
 		case 37: goto st22;
@@ -507,7 +487,7 @@ st22:
 	if ( ++p == pe )
 		goto _out22;
 case 22:
-#line 511 "parser.c"
+#line 491 "parser.c"
 	if ( (*p) < 65 ) {
 		if ( 48 <= (*p) && (*p) <= 57 )
 			goto st23;
@@ -538,7 +518,7 @@ st24:
 	if ( ++p == pe )
 		goto _out24;
 case 24:
-#line 542 "parser.c"
+#line 522 "parser.c"
 	switch( (*p) ) {
 		case 43: goto st24;
 		case 58: goto st25;
@@ -563,7 +543,7 @@ st25:
 	if ( ++p == pe )
 		goto _out25;
 case 25:
-#line 567 "parser.c"
+#line 547 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr8;
 		case 34: goto st0;
@@ -610,7 +590,7 @@ st28:
 	if ( ++p == pe )
 		goto _out28;
 case 28:
-#line 614 "parser.c"
+#line 594 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr40;
 		case 34: goto st0;
@@ -652,17 +632,16 @@ case 30:
 		goto st28;
 	goto st0;
 tr43:
-#line 60 "parser.rl"
+#line 53 "parser.rl"
 	{
-    if(parser->request_path != NULL)
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
+    parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
   }
 	goto st31;
 st31:
 	if ( ++p == pe )
 		goto _out31;
 case 31:
-#line 666 "parser.c"
+#line 645 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr8;
 		case 34: goto st0;
@@ -703,17 +682,16 @@ case 33:
 		goto st31;
 	goto st0;
 tr44:
-#line 60 "parser.rl"
+#line 53 "parser.rl"
 	{
-    if(parser->request_path != NULL)
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
+    parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
   }
 	goto st34;
 st34:
 	if ( ++p == pe )
 		goto _out34;
 case 34:
-#line 717 "parser.c"
+#line 695 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr51;
 		case 34: goto st0;
@@ -727,14 +705,14 @@ case 34:
 		goto st0;
 	goto tr50;
 tr50:
-#line 49 "parser.rl"
+#line 44 "parser.rl"
 	{MARK(query_start, p); }
 	goto st35;
 st35:
 	if ( ++p == pe )
 		goto _out35;
 case 35:
-#line 738 "parser.c"
+#line 716 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr55;
 		case 34: goto st0;
@@ -748,14 +726,14 @@ case 35:
 		goto st0;
 	goto st35;
 tr53:
-#line 49 "parser.rl"
+#line 44 "parser.rl"
 	{MARK(query_start, p); }
 	goto st36;
 st36:
 	if ( ++p == pe )
 		goto _out36;
 case 36:
-#line 759 "parser.c"
+#line 737 "parser.c"
 	if ( (*p) < 65 ) {
 		if ( 48 <= (*p) && (*p) <= 57 )
 			goto st37;
@@ -1170,7 +1148,7 @@ case 56:
 
 	_out: {}
 	}
-#line 109 "parser.rl"
+#line 100 "parser.rl"
 
   parser->cs = cs;
   parser->nread += p - (buffer + off);
@@ -1185,8 +1163,8 @@ case 56:
   if(parser->body_start) {
     /* final \r\n combo encountered so stop right here */
     
-#line 1189 "parser.c"
-#line 123 "parser.rl"
+#line 1167 "parser.c"
+#line 114 "parser.rl"
     parser->nread++;
   }
 
@@ -1198,8 +1176,8 @@ int http_parser_finish(http_parser *parser)
   int cs = parser->cs;
 
   
-#line 1202 "parser.c"
-#line 134 "parser.rl"
+#line 1180 "parser.c"
+#line 125 "parser.rl"
 
   parser->cs = cs;
 

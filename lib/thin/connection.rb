@@ -1,3 +1,5 @@
+require 'socket'
+
 module Thin
   class Connection < EventMachine::Connection
     include Logging
@@ -22,7 +24,7 @@ module Thin
       env = @request.env
       
       # Add client info to the request env
-      env['REMOTE_ADDR'] = env['HTTP_X_FORWARDED_FOR'] || Socket.unpack_sockaddr_in(get_peername)[1]
+      env[Request::REMOTE_ADDR] = env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
 
       # Process the request
       @response.status, @response.headers, @response.body = @app.call(env)
