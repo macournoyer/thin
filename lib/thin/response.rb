@@ -5,8 +5,8 @@ module Thin
     CONNECTION     = 'Connection'.freeze
     CLOSE          = 'close'.freeze
     
-    attr_accessor :status, :file
-    attr_reader   :body, :headers
+    attr_accessor :status
+    attr_reader   :headers, :body
     
     def initialize
       @headers = Headers.new

@@ -15,7 +15,7 @@ module Thin
     # Addresse and port on which the server is listening for connections.
     attr_accessor :port, :host
     
-    # List of handlers to process the request in the order they are given.
+    # App called with the request that produce the response.
     attr_accessor :app
     
     # Maximum time for a request to be red and parsed.
