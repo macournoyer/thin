@@ -16,14 +16,27 @@ or using my mirror:
 
 Or from source:
 
- svn co http://code.macournoyer.com/svn/thin/trunk thin
+ git clone http://code.macournoyer.com/git/thin.git
  cd thin
  rake install
+ 
+Or from the Subversion mirror:
+
+ svn co http://code.macournoyer.com/svn/thin/trunk thin
 
 === Usage
 Thin is usable through Rack +rackup+ command. You need to setup a config.ru file and require thin in it:
   
- rackup -s thin example/config.ru
+ cat <<EOS
+ require 'thin'
+ 
+ app = proc do |env|
+  [200, {'Content-Type'=>'text/html'}, ['hi']]
+ end
+ 
+ run app
+ EOS
+ rackup -s thin
  
 See example/config.ru for details and rackup -h
 

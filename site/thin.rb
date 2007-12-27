@@ -12,10 +12,7 @@ class Thin < Atchoum::Website
         ul.menu! do
           li { a 'home', :href => "/thin/" }
           li { a 'doc', :href => "/thin/doc/" }
-          li { a 'code', :href => "/svn/thin/" }
           li { a 'group', :href => "http://groups.google.com/group/thin-ruby/" }
-          li { a 'trac', :href => "/thin/trac.fcgi" }
-          li { a 'new ticket', :href => "/thin/trac.fcgi/newticket" }
         end
 
         div.container! do
