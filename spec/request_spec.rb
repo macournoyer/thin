@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper'
+require File.dirname(__FILE__) + '/spec_helper'
 require 'digest/sha1'
 
 describe Request do

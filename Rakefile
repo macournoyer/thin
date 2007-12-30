@@ -21,7 +21,7 @@ CLEAN.include %w(doc/rdoc pkg coverage tmp log *.gem **/*.{o,bundle,jar,so,obj,p
 
 desc "Run all examples"
 Spec::Rake::SpecTask.new('spec') do |t|
-  t.spec_files = FileList['test/**/*.rb']
+  t.spec_files = FileList['spec/**/*.rb']
 end
 task :default => [:compile, :spec]
 
