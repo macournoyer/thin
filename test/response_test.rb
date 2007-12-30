@@ -1,54 +1,40 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class ResponseTest < Test::Unit::TestCase
-  def test_outputs_headers
-    response = Thin::Response.new
-    response.headers['Content-Type'] = 'text/html'
-    response.headers['Cookie'] = 'mium=7'
-    
-    assert_equal "Content-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n", response.headers_output
+describe Response do
+  before do
+    @response = Response.new
+    @response.headers['Content-Type'] = 'text/html'
   end
   
-  def test_outputs_head
-    response = Thin::Response.new
-    response.headers['Content-Type'] = 'text/html'
-    response.headers['Cookie'] = 'mium=7'
-    
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nCookie: mium=7\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", response.head
+  it 'should output headers' do
+    @response.headers_output.should == "Content-Type: text/html\r\nContent-Length: 0\r\nConnection: close\r\n"
   end
   
-  def test_allow_duplicates_in_headers
-    response = Thin::Response.new
-    response.headers['Content-Type'] = 'text/html'
-    response.headers['Set-Cookie'] = 'mium=7'
-    response.headers['Set-Cookie'] = 'hi=there'
-    
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n", response.head
+  it 'should output head' do
+    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
   end
   
-  def test_outputs_body
-    response = Thin::Response.new
-    response.headers['Content-Type'] = 'text/html'
-    response.body << '<html></html>'
+  it 'should allow duplicates in headers' do
+    @response.headers['Set-Cookie'] = 'mium=7'
+    @response.headers['Set-Cookie'] = 'hi=there'
     
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>", response.to_s
+    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
   end
   
-  def test_perfs
-    response = Thin::Response.new
-    response.headers['Content-Type'] = 'text/html'
-    response.body << <<-EOS
+  it 'should output body' do
+    @response.body << '<html></html>'
+    
+    @response.to_s.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>"
+  end
+  
+  it "should be faster then #{max_parsing_time = 0.04} ms" do
+    @response.body << <<-EOS
 <html><head><title>Dir listing</title></head>
 <body><h1>Listing stuff</h1><ul>
 #{'<li>Hi!</li>' * 100}
 </ul></body></html>
 EOS
     
-    assert_faster_then 'Response writing', 0.040 do
-      response.to_s
-    end
-    
-    # Perf history
-    # 1) 0.000037
+    proc { @response.to_s }.should be_faster_then(max_parsing_time)
   end
 end

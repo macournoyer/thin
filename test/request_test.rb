@@ -1,88 +1,77 @@
 require File.dirname(__FILE__) + '/test_helper'
 require 'digest/sha1'
 
-class RequestTest < Test::Unit::TestCase
-  def test_parse_simple
+describe Request do
+  it 'should include basic headers' do
     request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
-    assert_equal 'HTTP/1.1', request.env['SERVER_PROTOCOL']
-    assert_equal '/', request.env['REQUEST_PATH']
-    assert_equal 'HTTP/1.1', request.env['HTTP_VERSION']
-    assert_equal '/', request.env['REQUEST_URI']
-    assert_equal 'CGI/1.2', request.env['GATEWAY_INTERFACE']
-    assert_equal 'GET', request.env['REQUEST_METHOD']    
-    assert_equal 'http', request.env["rack.url_scheme"]
-    assert_equal '', request.env['FRAGMENT'].to_s
-    assert_equal '', request.env['QUERY_STRING'].to_s
+    request.env['SERVER_PROTOCOL'].should == 'HTTP/1.1'
+    request.env['REQUEST_PATH'].should == '/'
+    request.env['HTTP_VERSION'].should == 'HTTP/1.1'
+    request.env['REQUEST_URI'].should == '/'
+    request.env['GATEWAY_INTERFACE'].should == 'CGI/1.2'
+    request.env['REQUEST_METHOD'].should == 'GET'
+    request.env["rack.url_scheme"].should == 'http'
+    request.env['FRAGMENT'].to_s.should be_empty
+    request.env['QUERY_STRING'].to_s.should be_empty
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_dont_prepend_http_to_content_type_and_length
+  it 'should not prepend HTTP_ to Content-Type and Content-Length' do
     request = R("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\naa")
-    assert ! request.env.has_key?('HTTP_CONTENT_TYPE')
-    assert   request.env.has_key?('CONTENT_LENGTH')
-    assert ! request.env.has_key?('HTTP_CONTENT_LENGTH')
-    assert   request.env.has_key?('CONTENT_LENGTH')
+    request.env.keys.should_not include('HTTP_CONTENT_TYPE', 'HTTP_CONTENT_LENGTH')
+    request.env.keys.should include('CONTENT_TYPE', 'CONTENT_LENGTH')
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_parse_error
-    assert_raise(Thin::InvalidRequest) do
-      R("GET / SsUTF/1.1")
-    end
-    assert_raise(Thin::InvalidRequest) do
-      R("GET / HTTP/1.1yousmelllikecheeze")
-    end
+  it 'should raise error on invalid request line' do
+    proc { R("GET / SsUTF/1.1") }.should raise_error(InvalidRequest)
+    proc { R("GET / HTTP/1.1yousmelllikecheeze") }.should raise_error(InvalidRequest)
   end
   
-  def test_fragment_in_uri
+  it 'should support fragment in uri' do
     request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\nHost: localhost\r\n\r\n")
 
-    assert_equal '/forums/1/topics/2375?page=1', request.env['REQUEST_URI']
-    assert_equal '/forums/1/topics/2375', request.env['PATH_INFO']
-    assert_equal 'page=1', request.env['QUERY_STRING']
-    assert_equal 'posts-17408', request.env['FRAGMENT']
+    request.env['REQUEST_URI'].should == '/forums/1/topics/2375?page=1'
+    request.env['PATH_INFO'].should == '/forums/1/topics/2375'
+    request.env['QUERY_STRING'].should == 'page=1'
+    request.env['FRAGMENT'].should == 'posts-17408'
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_parse_path_with_query_string
+  it 'should parse path with query string' do
     request = R("GET /index.html?234235 HTTP/1.1\r\nHost: localhost\r\n\r\n")
-    assert_equal '/index.html', request.env['REQUEST_PATH']
-    assert_equal '234235', request.env['QUERY_STRING']
-    assert_nil request.env['FRAGMENT']
+    request.env['REQUEST_PATH'].should == '/index.html'
+    request.env['QUERY_STRING'].should == '234235'
+    request.env['FRAGMENT'].should be_nil
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_that_large_header_names_are_caught
-    assert_raises Thin::InvalidRequest do
-      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n"
-    end
+  it 'should raise error on large header names' do
+    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n") }.
+      should raise_error(InvalidRequest)
   end
 
-  def test_that_large_mangled_field_values_are_caught
-    assert_raises Thin::InvalidRequest do
-      R "GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 100*1024+(1024), false)}\r\n\r\n"
-    end
+  it 'should raise error on large mangled field values' do
+    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 100*1024+(1024), false)}\r\n\r\n") }.
+      should raise_error(InvalidRequest)
   end
   
-  def test_big_fat_ugly_headers
+  it 'should raise error on big fat ugly headers' do
     get = "GET /#{rand_data(10,120)} HTTP/1.1\r\n"
     get << "X-Test: test\r\n" * (80 * 1024)
-    assert_raises Thin::InvalidRequest do
-      R(get)
-    end    
+    proc { R(get) }.should raise_error(InvalidRequest)
   end
 
-  def test_that_random_garbage_gets_blocked_all_the_time
-    assert_raises Thin::InvalidRequest do
-      R "GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n"
-    end
+  it 'should raise error on random garbage' do
+    proc { R("GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n") }.
+      should raise_error(InvalidRequest)
   end
   
-  def test_parse_headers
+  it 'should parse headers from GET request' do
     request = R(<<-EOS, true)
 GET / HTTP/1.1
 Host: localhost:3000
@@ -96,30 +85,15 @@ Keep-Alive: 300
 Connection: keep-alive
 
 EOS
-    assert_equal 'localhost:3000', request.env['HTTP_HOST']
-    assert_equal 'localhost', request.env['SERVER_NAME']
-    assert_equal '3000', request.env['SERVER_PORT']
-    assert_equal 'mium=7', request.env['HTTP_COOKIE']    
+    request.env['HTTP_HOST'].should == 'localhost:3000'
+    request.env['SERVER_NAME'].should == 'localhost'
+    request.env['SERVER_PORT'].should == '3000'
+    request.env['HTTP_COOKIE'].should == 'mium=7'
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_parse_headers_with_query_string
-    request = R(<<-EOS, true)
-GET /page?cool=thing HTTP/1.1
-Host: localhost:3000
-Keep-Alive: 300
-Connection: keep-alive
-
-EOS
-    assert_equal 'cool=thing', request.env['QUERY_STRING']
-    assert_equal '/page?cool=thing', request.env['REQUEST_URI']
-    assert_equal '/page', request.env['REQUEST_PATH']
-    
-    assert_valid_lint request.env
-  end
-  
-  def test_parse_post_data
+  it 'should parse POST request with data' do
     request = R(<<-EOS.chomp, true)
 POST /postit HTTP/1.1
 Host: localhost:3000
@@ -136,19 +110,20 @@ Content-Length: 37
 name=marc&email=macournoyer@gmail.com
 EOS
 
-    assert_equal 'POST', request.env['REQUEST_METHOD']
-    assert_equal '/postit', request.env['REQUEST_URI']
-    assert_equal 'text/html', request.env['CONTENT_TYPE']
-    assert_equal '37', request.env['CONTENT_LENGTH']
-    assert_equal 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5', request.env['HTTP_ACCEPT']
-    assert_equal 'en-us,en;q=0.5', request.env['HTTP_ACCEPT_LANGUAGE']
+    request.env['REQUEST_METHOD'].should == 'POST'
+    request.env['REQUEST_URI'].should == '/postit'
+    request.env['CONTENT_TYPE'].should == 'text/html'
+    request.env['CONTENT_LENGTH'].should == '37'
+    request.env['HTTP_ACCEPT'].should == 'text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5'
+    request.env['HTTP_ACCEPT_LANGUAGE'].should == 'en-us,en;q=0.5'
+
     request.body.rewind
-    assert_equal 'name=marc&email=macournoyer@gmail.com', request.body.read
+    request.body.read.should == 'name=marc&email=macournoyer@gmail.com'
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_stupid_fucked_ie6_headers
+  it 'should not fuck up on stupid fucked IE6 headers' do
     body = <<-EOS
 POST /codes/58-tracking-file-downloads-automatically-in-google-analytics-with-prototype/refactors HTTP/1.0
 X-Real-IP: 62.24.71.95
@@ -168,12 +143,12 @@ Cookie2: $Version="1"
 a
 EOS
     request = R(body, true)
-    assert_equal '$Version="1"', request.env['HTTP_COOKIE2']
+    request.env['HTTP_COOKIE2'].should == '$Version="1"'
     
-    assert_valid_lint request.env
+    request.should validate_with_lint
   end
   
-  def test_long_query_string
+  it 'shoud accept long query string' do
     body = <<-EOS
 GET /session?open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer HTTP/1.1
 Host: localhost:3000
@@ -181,11 +156,12 @@ Host: localhost:3000
 EOS
     request = R(body, true)
     
-    assert_equal 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer', request.env['QUERY_STRING']
-    assert_valid_lint request.env
+    request.env['QUERY_STRING'].should == 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer'
+    
+    request.should validate_with_lint
   end
   
-  def test_stupid_content_length
+  it 'should parse even with stupid Content-Length' do
     body = <<-EOS.chomp
 POST / HTTP/1.1
 Host: localhost:3000
@@ -196,23 +172,23 @@ EOS
     request = R(body, true)
     
     request.body.rewind
-    assert_equal 'aye', request.body.read
+    request.body.read.should == 'aye'
   end
   
-  def test_parse_chunks
-    request = Thin::Request.new
-    assert ! request.parse("POST / HTTP/1.1\r\n")
-    assert ! request.parse("Host: localhost\r\n")
-    assert ! request.parse("Content-Length: 9\r\n")
-    assert ! request.parse("\r\nvery ")
-    assert   request.parse("cool")
+  it 'should parse in chunks' do
+    request = Request.new
+    request.parse("POST / HTTP/1.1\r\n").should be_false
+    request.parse("Host: localhost\r\n").should be_false
+    request.parse("Content-Length: 9\r\n").should be_false
+    request.parse("\r\nvery ").should be_false
+    request.parse("cool").should be_true
     
-    assert_equal '9', request.env['CONTENT_LENGTH']
-    assert_equal 'very cool', request.body.read
-    assert_valid_lint request.env
+    request.env['CONTENT_LENGTH'].should == '9'
+    request.body.read.should == 'very cool'
+    request.should validate_with_lint
   end
   
-  def test_parse_perfs
+  it "should be faster then #{max_parsing_time = 0.2} ms" do
     body = <<-EOS.chomp
 POST /postit HTTP/1.1
 Host: localhost:3000
@@ -229,16 +205,13 @@ Content-Length: 37
 hi=there&name=marc&email=macournoyer@gmail.com
 EOS
     
-    assert_faster_then 'Request parsing', 0.2 do
-      R(body, true)
-    end
+    proc { R(body, true) }.should be_faster_then(max_parsing_time)
   end
   
-  if ENV['BM']
-    def test_mongrel_bm
-      require 'http11'
-    
-      body = <<-EOS.chomp.gsub("\n", "\r\n")
+  it 'should be comparable to Mongrel parser' do
+    require 'http11'
+  
+    body = <<-EOS.chomp.gsub("\n", "\r\n")
 POST /postit HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -253,15 +226,14 @@ Content-Length: 37
 
 hi=there&name=marc&email=macournoyer@gmail.com
 EOS
-    
-      tests = 10_000
-      puts
-      Benchmark.bmbm(10) do |results|
-        results.report("mongrel:") { tests.times { Mongrel::HttpParser.new.execute({}, body.dup, 0) } }
-        results.report("thin:") { tests.times { Thin::HttpParser.new.execute({'rack.input' => StringIO.new}, body.dup, 0) } }
-      end
+  
+    tests = 10_000
+    puts
+    Benchmark.bmbm(10) do |results|
+      results.report("mongrel:") { tests.times { Mongrel::HttpParser.new.execute({}, body.dup, 0) } }
+      results.report("thin:") { tests.times { Thin::HttpParser.new.execute({'rack.input' => StringIO.new}, body.dup, 0) } }
     end
-  end
+  end if ENV['BM']
   
   private
     def rand_data(min, max, readable=true)
@@ -282,9 +254,5 @@ EOS
       request = Thin::Request.new
       request.parse(raw)
       request
-    end
-    
-    def assert_valid_lint(env)
-      Rack::Lint.new(proc{[200, {'Content-Type' => 'text/html'}, []]}).call(env)
     end
 end

@@ -1,35 +1,35 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-class HeadersTest < Test::Unit::TestCase
-  def setup
-    @headers = Thin::Headers.new
+describe Headers do
+  before do
+    @headers = Headers.new
   end
   
-  def test_allow_duplicate_on_some_fields
+  it 'should allow duplicate on some fields' do
     @headers['Set-Cookie'] = 'twice'
     @headers['Set-Cookie'] = 'is cooler the once'
     
-    assert_equal 2, @headers.size
+    @headers.size.should == 2
   end
   
-  def test_non_duplicate_overwrites_value
+  it 'should overwrite value on non duplicate fields' do
     @headers['Host'] = 'this is unique'
     @headers['Host'] = 'so is this'
     @headers['Host'] = 'so this will overwrite ^'
 
-    assert_equal 'so this will overwrite ^', @headers['Host']
+    @headers['Host'].should == 'so this will overwrite ^'
   end
   
-  def test_reader
+  it 'should return first header value' do
     @headers['Set-Cookie'] = 'hi'
-    assert_equal 'hi', @headers['Set-Cookie']
+    @headers['Set-Cookie'].should == 'hi'
   end
   
-  def test_to_s
+  it 'should output to string' do
     @headers['Host'] = 'localhost:3000'
     @headers['Set-Cookie'] = 'twice'
     @headers['Set-Cookie'] = 'is cooler the once'
     
-    assert_equal "Host: localhost:3000\r\nSet-Cookie: twice\r\nSet-Cookie: is cooler the once\r\n", @headers.to_s
+    @headers.to_s.should == "Host: localhost:3000\r\nSet-Cookie: twice\r\nSet-Cookie: is cooler the once\r\n"
   end
 end

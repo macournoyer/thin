@@ -2,8 +2,8 @@ require File.dirname(__FILE__) + '/test_helper'
 require 'net/http'
 require 'socket'
 
-class ServerTest < Test::Unit::TestCase
-  def setup
+describe Server do
+  before do
     app = proc do |env|
       body = [env['QUERY_STRING'], env['rack.input'].read].compact
       [200, { 'Content-Type' => 'text/html' }, body]
@@ -18,47 +18,42 @@ class ServerTest < Test::Unit::TestCase
     end
     sleep 0.1 until @thread.status == 'sleep'
   end
-  
-  def teardown
-    @thread.kill
+    
+  it 'should GET from Net::HTTP' do
+    get('/?cthis').should == 'cthis'
   end
   
-  def test_get
-    assert_equal 'cthis', get('/?cthis')
+  it 'should GET from TCPSocket' do
+    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n").should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 4\r\nConnection: close\r\n\r\nthis"
   end
   
-  def test_raw_get
-    assert_equal "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 4\r\nConnection: close\r\n\r\nthis",
-                 raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n")
+  it 'should return empty string on incomplete headers' do
+    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\nHost:").should be_empty
   end
   
-  def test_incomplete_headers
-    assert_equal '', raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\nHost:")
+  it 'should return empty string on incorrect Content-Length' do
+    raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye").should be_empty
   end
   
-  def test_incorrect_content_length
-    assert_equal '', raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye")
+  it 'should POST from Net::HTTP' do
+    post('/', :arg => 'pirate').should == 'arg=pirate'
   end
   
-  def test_post
-    assert_equal 'arg=pirate', post('/', :arg => 'pirate')
-  end
-  
-  def test_big_post
+  it 'should handle big POST' do
     big = 'X' * (20 * 1024)
-    assert_equal big.size+4, post('/', :big => big).size
+    post('/', :big => big).size.should == big.size + 4
   end
   
-  def test_get_perf
-    assert_faster_then 'GET', 5 do
-      get('/')
-    end
+  it "should handle GET in less then #{get_request_time = 5} ms" do
+    proc { get('/') }.should be_faster_then(get_request_time)
   end
   
-  def test_post_perf
-    assert_faster_then 'POST', 6 do
-      post('/', :file => 'X' * 1000)
-    end
+  it "should handle POST in less then #{post_request_time = 6} ms" do
+    proc { post('/', :file => 'X' * 1000) }.should be_faster_then(get_request_time)
+  end
+  
+  after do
+    @thread.kill
   end
   
   private
