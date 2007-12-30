@@ -3,6 +3,7 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
+require 'spec/rake/spectask'
 
 require File.dirname(__FILE__) + '/lib/thin'
 
@@ -16,12 +17,13 @@ EXT_FILES  = FileList[
   "#{EXT_DIR}/Makefile",
   "lib"
 ]
-CLEAN.include %w(doc/rdoc pkg tmp log *.gem **/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile)
+CLEAN.include %w(doc/rdoc pkg coverage tmp log *.gem **/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM)
 
-Rake::TestTask.new do |t|
-  t.pattern = 'test/*_test.rb'
+desc "Run all examples"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.spec_files = FileList['spec/**/*.rb']
 end
-task :default => [:compile, :test]
+task :default => [:compile, :spec]
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
