@@ -54,16 +54,20 @@ spec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
+  s.executables           = %w(thin)
 
   s.required_ruby_version = '>= 1.8.6'
   
   s.add_dependency        'eventmachine', '>= 0.9.0'
   s.add_dependency        'rack',         '>= 0.2.0'
 
-  s.files                 = %w(README COPYING Rakefile) + Dir.glob("{doc,lib,test,example}/**/*")
+  s.files                 = %w(COPYING README Rakefile) +
+                            Dir.glob("{bin,doc,spec,lib,example}/**/*") + 
+                            Dir.glob("ext/**/*.{h,c,rb,rl}") +
   s.extensions            = FileList["ext/**/extconf.rb"].to_a
   
   s.require_path          = "lib"
+  s.bindir                = "bin"
 end
 
 Rake::GemPackageTask.new(spec) do |p|
@@ -154,17 +158,13 @@ end
 desc 'Deploy on all servers'
 task :deploy => %w(deploy:alpha deploy:public)
 
-task :install do
+task :install => :compile do
   sh %{rake package}
   sh %{sudo gem install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
 end
 
-task :uninstall => [:clean] do
+task :uninstall => :clean do
   sh %{sudo gem uninstall #{Thin::NAME}}
-end
-
-task :tag do
-  sh %Q{svn cp . http://code.macournoyer.com/svn/thin/tags/#{Thin::VERSION::STRING} -m "Tagging version #{Thin::VERSION::STRING}"}
 end
 
 # == Utilities
