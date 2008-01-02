@@ -1,16 +1,19 @@
 == Thin
 Tiny, fast & funny HTTP server
 
-Thin is a web server written entirely in Ruby in the simplest way possible.
-It does as little as possible to serve your Rails application,
-which makes it one of the fastest Rails server out there.
+Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:
+ * the Mongrel parser: the root of Mongrel speed and security
+ * Event Machine: a network I/O library with extremely high scalability, performance and stability
+ * Rack: a minimal interface between webservers and Ruby frameworks
+Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server
+bundled in an easy to use gem for your own pleasure.
 
 === Installation
 For the latest stable version:
 
  sudo gem install thin
 
-or using my mirror:
+or using my mirror (might be more recent):
 
  sudo gem install thin --source http://code.macournoyer.com
 
@@ -20,12 +23,18 @@ Or from source:
  cd thin
  rake install
  
-Or from the Subversion mirror:
+Or from the Subversion mirror (might be out of date):
 
  svn co http://code.macournoyer.com/svn/thin/trunk thin
 
 === Usage
-Thin is usable through Rack +rackup+ command. You need to setup a config.ru file and require thin in it:
+A +thin+ script is offered to easily start your Rails application:
+
+ cd to/your/rails/app
+ thin start
+
+But Thin is also usable through Rack +rackup+ command.
+You need to setup a config.ru file and require thin in it:
   
  cat <<EOS
  require 'thin'
