@@ -29,7 +29,6 @@ describe 'Daemonizing' do
   it 'should redirect stdio to a log file' do
     @pid = fork do
       @server.log_file = 'daemon_test.log'
-
       @server.daemonize
 
       puts "simple puts"
