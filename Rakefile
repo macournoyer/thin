@@ -34,7 +34,9 @@ Rake::RDocTask.new do |rdoc|
   rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
   rdoc.title = Thin::NAME
-  rdoc.rdoc_files.add %w(README lib/thin/*.rb')
+  rdoc.rdoc_files.add %w(README) +
+                      FileList['lib/**/*.rb'] +
+                      FileList['bin/*']
 end
 
 namespace :rdoc do
@@ -120,13 +122,13 @@ task :stats do
   end
   lib = line_count['lib/**/*.rb']
   ext = line_count['ext/**/*.{c,h}'] 
-  test = line_count['test/**/*.rb']
-  ratio = '%1.2f' % (test.to_f / lib.to_f)
+  spec = line_count['spec/**/*.rb']
+  ratio = '%1.2f' % (spec.to_f / lib.to_f)
   
   puts "#{lib.to_s.rjust(6)} LOC of lib"
   puts "#{ext.to_s.rjust(6)} LOC of ext"
-  puts "#{test.to_s.rjust(6)} LOC of test"
-  puts "#{ratio.to_s.rjust(6)} ratio lib/test"
+  puts "#{spec.to_s.rjust(6)} LOC of spec"
+  puts "#{ratio.to_s.rjust(6)} ratio lib/spec"
 end
 
 namespace :site do

@@ -5,3 +5,4 @@ ext/thin_parser/*.o
 ext/thin_parser/*.bundle
 lib/*.bundle
 log/*.log
+doc/rdoc/*
