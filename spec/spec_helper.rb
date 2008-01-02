@@ -36,20 +36,12 @@ module Matchers
       @time <= @max_time
     end
     
-    def message(less_more=:less)
+    def failure_message(less_more=:less)
       "took #{@time} ms, should take #{less_more} then #{@max_time} ms"
     end
 
-    def failure_message
-      message :less
-    end
-
     def negative_failure_message
-      message :more
-    end
-
-    def to_string(value)
-      value.to_s
+      failure_message :more
     end
   end
   
@@ -70,9 +62,26 @@ module Matchers
     def negative_failure_message
       failure_message ' not'
     end
+  end
 
-    def to_string(value)
-      value.to_s
+  class TakeLessThen
+    def initialize(time)
+      @time = time
+    end
+    
+    def matches?(proc)
+      Timeout.timeout(@time) { proc.call }
+      true
+    rescue Timeout::Error
+      false 
+    end
+    
+    def failure_message(negation=nil)
+      "should#{negation} take less then #{@time} sec to run"
+    end
+
+    def negative_failure_message
+      failure_message ' not'
     end
   end
 
@@ -85,15 +94,13 @@ module Matchers
   def validate_with_lint
     ValidateWithLint.new
   end
+
+  def take_less_then(time)
+    TakeLessThen.new(time)
+  end  
 end
 
 module Helpers
-  def timeout(sec)
-    Timeout.timeout(sec) { yield }
-  rescue Timeout::Error
-    violated "Timeout after #{sec} sec"
-  end
-  
   # Silences any stream for the duration of the block.
   #
   #   silence_stream(STDOUT) do
