@@ -36,10 +36,15 @@ describe 'Daemonizing' do
       STDOUT.puts "STDOUT.puts"
     end
     Process.wait(@pid)
-    sleep 0.1 # Wait for the file to close and magical stuff to happen
-  
+    
+    # Wait for the file to close and magical stuff to happen
+    proc { sleep 0.1 until File.exist?('daemon_test.log') }.should take_less_then(3)
+    sleep 0.5
+    
     log = File.read('daemon_test.log')
     log.should include('simple puts', 'STDERR.puts', 'STDOUT.puts')
+    
+    File.delete 'daemon_test.log'
   end
   
   it 'should change privilege' do
@@ -84,7 +89,6 @@ describe 'Daemonizing' do
   end
   
   after do
-    File.delete 'daemon_test.log' if File.exist?('daemon_test.log')
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
   end
 end

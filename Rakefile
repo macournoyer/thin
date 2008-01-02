@@ -1,6 +1,5 @@
 require 'rake'
 require 'rake/clean'
-require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'spec/rake/spectask'
