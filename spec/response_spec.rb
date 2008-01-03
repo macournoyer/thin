@@ -27,7 +27,7 @@ describe Response do
     @response.to_s.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>"
   end
   
-  it "should be faster then #{max_parsing_time = 0.04} ms" do
+  it "should be faster then #{max_parsing_time = 0.06} ms" do
     @response.body << <<-EOS
 <html><head><title>Dir listing</title></head>
 <body><h1>Listing stuff</h1><ul>

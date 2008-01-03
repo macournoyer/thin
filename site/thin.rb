@@ -39,7 +39,7 @@ class Thin < Atchoum::Website
   
   def index_page
     h2 'What'
-    p 'Thin is a Ruby web server that glues togeter 3 of the best Ruby libraries in web history:'
+    p 'Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:'
     ul do
       li do
         text "the #{a 'Mongrel parser', :href => 'http://www.zedshaw.com/tips/ragel_state_charts.html'}"
@@ -56,7 +56,7 @@ class Thin < Atchoum::Website
     end
     p <<-EOS
       Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server
-      bundled in an easy to use gem for your own plesure.
+      bundled in an easy to use gem for your own pleasure.
     EOS
     
     h2 'Why'

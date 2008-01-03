@@ -14,13 +14,13 @@ module Thin
   NAME    = 'thin'.freeze
   SERVER  = "#{NAME} #{VERSION::STRING}".freeze  
   
-  autoload :Logging,      'thin/logging'
-  autoload :Daemonizable, 'thin/daemonizing'
   autoload :Connection,   'thin/connection'
-  autoload :Server,       'thin/server'
-  autoload :Request,      'thin/request'
+  autoload :Daemonizable, 'thin/daemonizing'
+  autoload :Logging,      'thin/logging'
   autoload :Headers,      'thin/headers'
+  autoload :Request,      'thin/request'
   autoload :Response,     'thin/response'
+  autoload :Server,       'thin/server'
 end
 
 require 'rack'
@@ -28,5 +28,8 @@ require 'rack'
 module Rack
   module Handler
     autoload :Thin, 'rack/handler/thin'
+  end
+  module Adapter
+    autoload :Rails, 'rack/adapter/rails'
   end
 end

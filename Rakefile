@@ -1,6 +1,5 @@
 require 'rake'
 require 'rake/clean'
-require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'spec/rake/spectask'
@@ -35,7 +34,9 @@ Rake::RDocTask.new do |rdoc|
   rdoc.template = "site/rdoc.rb"
   rdoc.main = "README"
   rdoc.title = Thin::NAME
-  rdoc.rdoc_files.add %w(README lib/thin/*.rb')
+  rdoc.rdoc_files.add %w(README) +
+                      FileList['lib/**/*.rb'] +
+                      FileList['bin/*']
 end
 
 namespace :rdoc do
@@ -54,16 +55,20 @@ spec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
+  s.executables           = %w(thin)
 
   s.required_ruby_version = '>= 1.8.6'
   
   s.add_dependency        'eventmachine', '>= 0.9.0'
   s.add_dependency        'rack',         '>= 0.2.0'
 
-  s.files                 = %w(README COPYING Rakefile) + Dir.glob("{doc,lib,test,example}/**/*")
+  s.files                 = %w(COPYING README Rakefile) +
+                            Dir.glob("{bin,doc,spec,lib,example}/**/*") + 
+                            Dir.glob("ext/**/*.{h,c,rb,rl}") +
   s.extensions            = FileList["ext/**/extconf.rb"].to_a
   
   s.require_path          = "lib"
+  s.bindir                = "bin"
 end
 
 Rake::GemPackageTask.new(spec) do |p|
@@ -117,13 +122,13 @@ task :stats do
   end
   lib = line_count['lib/**/*.rb']
   ext = line_count['ext/**/*.{c,h}'] 
-  test = line_count['test/**/*.rb']
-  ratio = '%1.2f' % (test.to_f / lib.to_f)
+  spec = line_count['spec/**/*.rb']
+  ratio = '%1.2f' % (spec.to_f / lib.to_f)
   
   puts "#{lib.to_s.rjust(6)} LOC of lib"
   puts "#{ext.to_s.rjust(6)} LOC of ext"
-  puts "#{test.to_s.rjust(6)} LOC of test"
-  puts "#{ratio.to_s.rjust(6)} ratio lib/test"
+  puts "#{spec.to_s.rjust(6)} LOC of spec"
+  puts "#{ratio.to_s.rjust(6)} ratio lib/spec"
 end
 
 namespace :site do
@@ -154,17 +159,13 @@ end
 desc 'Deploy on all servers'
 task :deploy => %w(deploy:alpha deploy:public)
 
-task :install do
+task :install => :compile do
   sh %{rake package}
   sh %{sudo gem install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
 end
 
-task :uninstall => [:clean] do
+task :uninstall => :clean do
   sh %{sudo gem uninstall #{Thin::NAME}}
-end
-
-task :tag do
-  sh %Q{svn cp . http://code.macournoyer.com/svn/thin/tags/#{Thin::VERSION::STRING} -m "Tagging version #{Thin::VERSION::STRING}"}
 end
 
 # == Utilities
