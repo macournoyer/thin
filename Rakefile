@@ -59,8 +59,9 @@ spec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.6'
   
-  s.add_dependency        'eventmachine', '>= 0.9.0'
+  s.add_dependency        'eventmachine', '>= 0.10.0'
   s.add_dependency        'rack',         '>= 0.2.0'
+  s.add_dependency        'daemons',      '>= 1.0.9'
 
   s.files                 = %w(COPYING README Rakefile) +
                             Dir.glob("{bin,doc,spec,lib,example}/**/*") + 
