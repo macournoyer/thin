@@ -1,3 +1,4 @@
 == BUGS
  * Cookies can't be shared across subdomains
- * usage and download pages disapeared from thin.rb
+ * Usage and download pages disapeared from thin.rb
+ * Investigate Thin beeing a lot slower on Ruby 1.9, but some ppl say EM should be 50% faster, wtf?!

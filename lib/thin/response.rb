@@ -26,8 +26,10 @@ module Thin
     
     def headers=(key_value_pairs)
       key_value_pairs.each do |k, vs|
-        vs.each do |v|
-          @headers[k] = v
+        if vs.is_a?(Array)
+          vs.each { |v| @headers[k] = v }
+        else
+          @headers[k] = vs
         end
       end
     end

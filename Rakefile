@@ -1,10 +1,13 @@
+RUBY_1_9 = RUBY_VERSION =~ /^1\.9/
+
 require 'rake'
 require 'rake/clean'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
-require 'spec/rake/spectask'
+require 'spec/rake/spectask'  unless RUBY_1_9 # RSpec not yet working w/ Ruby 1.9
 
 require File.dirname(__FILE__) + '/lib/thin'
+
 
 EXT_DIR    = 'ext/thin_parser'
 EXT_BUNDLE = "#{EXT_DIR}/thin_parser.#{Config::CONFIG['DLEXT']}"
@@ -18,11 +21,15 @@ EXT_FILES  = FileList[
 ]
 CLEAN.include %w(doc/rdoc pkg coverage tmp log *.gem **/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM)
 
-desc "Run all examples"
-Spec::Rake::SpecTask.new('spec') do |t|
-  t.spec_files = FileList['spec/**/*.rb']
+if RUBY_1_9
+  task :default => [:compile]
+else
+  desc "Run all examples"
+  Spec::Rake::SpecTask.new('spec') do |t|
+    t.spec_files = FileList['spec/**/*.rb']
+  end
+  task :default => [:compile, :spec]
 end
-task :default => [:compile, :spec]
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
@@ -111,7 +118,7 @@ end
 
 file EXT_BUNDLE => EXT_FILES do
   cd EXT_DIR do
-    sh(PLATFORM =~ /win32/ ? 'nmake' : 'make')
+    sh(RUBY_PLATFORM =~ /win32/ ? 'nmake' : 'make')
   end
   cp EXT_BUNDLE, 'lib/'
 end
@@ -162,11 +169,11 @@ task :deploy => %w(deploy:alpha deploy:public)
 
 task :install => :compile do
   sh %{rake package}
-  sh %{sudo gem install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
+  sh %{sudo #{gem} install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
 end
 
 task :uninstall => :clean do
-  sh %{sudo gem uninstall #{Thin::NAME}}
+  sh %{sudo #{gem} uninstall #{Thin::NAME}}
 end
 
 # == Utilities
@@ -174,4 +181,8 @@ end
 def upload(file, to, options={})
   sh %{ssh macournoyer@macournoyer.com "rm -rf code.macournoyer.com/#{to}"} if options[:replace]
   sh %{scp -rq #{file} macournoyer@macournoyer.com:code.macournoyer.com/#{to}}
+end
+
+def gem
+  RUBY_1_9 ? 'gem19' : 'gem'
 end
