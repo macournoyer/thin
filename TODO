@@ -1,2 +1,3 @@
 == BUGS
  * Cookies can't be shared across subdomains
+ * usage and download pages disapeared from thin.rb

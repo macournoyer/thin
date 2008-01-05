@@ -45,7 +45,7 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on_tail('-v', '--version', "Show version") do
-    puts Thin::NAME
+    puts Thin::SERVER
     exit
   end
 

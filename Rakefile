@@ -80,7 +80,7 @@ namespace :gem do
   desc 'Upload gem to code.macournoyer.com'
   task :upload => :gem do
     upload "pkg/#{spec.full_name}.gem", 'gems'
-    sh 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && index_gem_repository.rb"'
+    system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
   end
   
   desc 'Upload gem to rubyforge.org'
