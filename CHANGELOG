@@ -1,6 +1,7 @@
 == 0.5.1
+ * Fix parser to be Ruby 1.9 compatible [Aman Gupta]
  * Set gemspec to use EventMachine version 0.8.1 as it's the latest one having precompiled windows binaries.
-   Recommended by Francis Cianfrocca.
+   [Francis Cianfrocca].
  * Add -D option to thin script to set debugging on.
  * Output incoming data and response when debugging is on.
 
