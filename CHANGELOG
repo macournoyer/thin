@@ -1,6 +1,8 @@
 == 0.5.1
  * Set gemspec to use EventMachine version 0.8.1 as it's the latest one having precompiled windows binaries.
    Recommended by Francis Cianfrocca.
+ * Add -D option to thin script to set debugging on.
+ * Output incoming data and response when debugging is on.
 
 == 0.5.0
  * Full rewrite to use EventMachine, Rack and Mongrel parser

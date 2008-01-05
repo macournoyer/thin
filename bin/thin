@@ -24,7 +24,7 @@ opts = OptionParser.new do |opts|
   opts.on("-p", "--port PORT", "use PORT (default: 3000)")               { |port| options[:port] = port }
   opts.on("-e", "--env ENV", "Rails environment (default: development)") { |env| options[:env] = env }
   opts.on("-c", "--chdir PATH", "listen on HOST (default: current dir)") { |dir| options[:root] = dir }
-  opts.on("-d", "--daemonize", "Daemonize")                              { options[:daemonize] = true }
+  opts.on("-d", "--daemonize", "Run daemonized in the background")       { options[:daemonize] = true }
   opts.on("-l", "--log-file FILE", "File to redirect output",
                                    "(default: #{options[:log_file]})")   { |file| options[:log_file] = file }
   opts.on("-P", "--pid-file FILE", "File to store PID",
@@ -36,6 +36,8 @@ opts = OptionParser.new do |opts|
   
   opts.separator ""
   opts.separator "Common options:"
+
+  opts.on_tail("-D", "--debug", "Set debbuging on") { $DEBUG = true }
 
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts

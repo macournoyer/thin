@@ -12,11 +12,11 @@ module Thin
     end
     
     def receive_data(data)
+      trace { data }
 			process if @request.parse(data)
     rescue InvalidRequest => e
       log "Invalid request"
       log_error e
-      trace { data }
       close_connection
     end
     
@@ -30,9 +30,8 @@ module Thin
       @response.status, @response.headers, @response.body = @app.call(env)
       
       # Send the response
-      send_data @response.head
-      @response.body.rewind
-      send_data @response.body.read
+      trace { @response.to_s }
+      send_data @response.to_s
       
       close_connection_after_writing
       
