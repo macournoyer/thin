@@ -213,12 +213,11 @@ ENDIF:title
 </head>
   <body>
     <ul id="menu">
-      <li><a href="/thin/">home</a></li>
+      <li><a href="/thin/">about</a></li>
+      <li><a href="/thin/download/">download</a></li>
+      <li><a href="/thin/usage/">usage</a></li>
       <li><a href="/thin/doc/">doc</a></li>
-      <li><a href="/thin/trac.fcgi/timeline">timeline</a></li>
-      <li><a href="/thin/trac.fcgi/browser">code</a></li>
-      <li><a href="/thin/trac.fcgi/report">tickets</a></li>
-      <li><a href="/thin/trac.fcgi/newticket">new ticket</a></li>
+      <li><a href="http://groups.google.com/group/thin-ruby/">community</a></li>
     </ul>
     <div id="sidebar">
       <h2>Files</h2>

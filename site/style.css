@@ -45,6 +45,8 @@ ul.list li { margin: 0; padding: 1px 0; }
 #content div.graph h3 { margin: 6px 0; }
 #content div.graph { text-align: center; }
 
+#content em.filename { display: block; text-align: right; margin-bottom: -8px; }
+
 .clear { clear: both; }
 
 /*RDoc*/

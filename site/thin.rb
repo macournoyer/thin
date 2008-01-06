@@ -2,23 +2,27 @@ require 'rubygems'
 require 'atchoum'
 
 class Thin < Atchoum::Website
+  ROOT = ENV['SITE_ROOT'] || '/'
+  
   def layout
     xhtml_html do
       head do
         title 'Thin - yet another web server'
-        link :rel => 'stylesheet', :href => 'style.css', :type => 'text/css'
+        link :rel => 'stylesheet', :href => "#{ROOT}/style.css", :type => 'text/css'
       end
       body do
         ul.menu! do
-          li { a 'home', :href => "/thin/" }
-          li { a 'doc', :href => "/thin/doc/" }
-          li { a 'group', :href => "http://groups.google.com/group/thin-ruby/" }
+          li { a 'about', :href => "#{ROOT}/" }
+          li { a 'download', :href => "#{ROOT}/download/" }
+          li { a 'usage', :href => "#{ROOT}/usage/" }
+          li { a 'doc', :href => "#{ROOT}/doc/" }
+          li { a 'community', :href => "http://groups.google.com/group/thin-ruby/" }
         end
 
         div.container! do
           div.header! do
             a(:href => :index, :title => 'home') do
-              img.logo! :src => 'images/logo.gif', :alt => 'Thin'
+              img.logo! :src => "#{ROOT}/images/logo.gif", :alt => 'Thin'
             end
             h2.tag_line! "A fast and very simple Ruby web server"
           end
@@ -80,19 +84,66 @@ class Thin < Atchoum::Website
     pre 'thin start'
   end
   
-  def chart_url(data, options={})
-    size   = options[:size]  || '250x150'
-    width  = options[:width] || 50
-    min    = options[:min]   || 0
-    scale  = options[:scale] || 1.0
-    colors = options[:colors] || '000000'
-    legends = options[:legends]
+  def download_page
+    h2 'Install the Gem'
+
+    p 'To install the latest stable gem'
+    pre 'sudo gem install thin'
     
-    data_matrix  = data.collect { |d| Array(d[1]) }
-    chart_matrix = data_matrix[0].zip(*data_matrix[1..-1]) # transpose the matrix
-    chart_data   = chart_matrix.collect { |c| c.collect { |d| (d - min) / scale }.join(',') }.join('|')
-    labels       = data.collect{|d|d[0]}.join('|')
+    h2 'Install from source'
+
+    p 'Clone the Git repository'
+    pre 'git clone http://code.macournoyer.com/git/thin.git'
     
-    "http://chart.apis.google.com/chart?cht=bvg&chd=t:#{chart_data}&chbh=#{width}&chs=#{size}&chl=#{labels}&chco=#{colors.join(',')}&chdl=#{legends.join('|')}"
+    p 'Or checkout the Subversion mirror (might be out of date)'
+    pre 'svn co http://code.macournoyer.com/svn/thin/trunk thin'
+    
+    p 'Hack the code, patch it, whatever, build the Gem and install'
+    pre 'cd thin && rake install'
   end
+  
+  def usage_page
+    h2 'Usage'
+
+    p { "After installing the Gem, a #{code 'thin'} script should be in your " +
+        "path to easily start your Rails application." }
+
+    pre "cd to/your/rails/app\nthin start"
+    
+    p { "But Thin is also usable through Rack #{code 'rackup'} command. You need " +
+        "to setup a #{code 'config.ru'} file and require thin in it." }
+
+    em.filename 'config.ru'
+    pre <<-EOS.gsub(/^\s{6}/, '')
+      require 'thin'
+      
+      app = proc do |env|
+        [ 200, { 'Content-Type' => 'text/html' }, ['hi'] ]
+      end
+      
+      run app
+    EOS
+    
+    pre 'rackup -s thin'
+    
+    p { "See #{a 'Rack doc', :href => 'http://rack.rubyforge.org/doc/'} for more." }
+  end
+  
+  private
+  
+    def chart_url(data, options={})
+      size   = options[:size]  || '250x150'
+      width  = options[:width] || 50
+      min    = options[:min]   || 0
+      scale  = options[:scale] || 1.0
+      colors = options[:colors] || '000000'
+      legends = options[:legends]
+    
+      data_matrix  = data.collect { |d| Array(d[1]) }
+      chart_matrix = data_matrix[0].zip(*data_matrix[1..-1]) # transpose the matrix
+      chart_data   = chart_matrix.collect { |c| c.collect { |d| (d - min) / scale }.join(',') }.join('|')
+      labels       = data.collect{|d|d[0]}.join('|')
+    
+      "http://chart.apis.google.com/chart?cht=bvg&chd=t:#{chart_data}&chbh=#{width}&chs=#{size}&chl=#{labels}&chco=#{colors.join(',')}&chdl=#{legends.join('|')}"
+    end
 end

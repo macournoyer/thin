@@ -7,3 +7,4 @@ lib/*.bundle
 log/*.log
 doc/rdoc/*
 tmp/*
+pkg/*
