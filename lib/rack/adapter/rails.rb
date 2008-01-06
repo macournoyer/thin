@@ -75,27 +75,26 @@ module Rack
               @response['Expires']          = options.delete('expires') if options['expires']
 
               @response.status              = options.delete('Status') if options['Status']
-        
-              options.each { |k,v| @response[k] = v }
-            
+              
               # Convert 'cookie' header to 'Set-Cookie' headers.
-              # According to http://www.faqs.org/rfcs/rfc2109.html:
-              #   the Set-Cookie response header comprises the token
-              #   Set-Cookie:, followed by a comma-separated list of
-              #   one or more cookies.
-              if cookie = @response.header.delete('Cookie')
-                cookies = case cookie
-                  when Array then cookie.collect { |c| c.to_s }.join(', ')
-                  when Hash  then cookie.collect { |_, c| c.to_s }.join(', ')
-                  else            cookie.to_s
+              # Because Set-Cookie header can appear more the once in the response
+              # body, we store it in an Array that will be translated to multiple
+              # Set-Cookie header by the handler.
+              if cookie = options.delete('cookie')
+                @response['Set-Cookie'] ||= []
+                
+                case cookie
+                  when Array then cookie.each { |c| @response['Set-Cookie'] << c.to_s }
+                  when Hash  then cookie.each { |_, c| @response['Set-Cookie'] << c.to_s }
+                  else            @response['Set-Cookie'] << cookie.to_s
                 end
         
-                cookies << ', ' + @output_cookies.each { |c| c.to_s }.join(', ') if @output_cookies
-                
-                @response['Set-Cookie'] = cookies
+                @output_cookies.each { |c| @response['Set-Cookie'] << c.to_s } if @output_cookies
               end
+              
+              options.each { |k,v| @response[k] = v }
             end
-        
+            
             ""
           end
                         

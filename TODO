@@ -1,3 +1,5 @@
 == BUGS
- * Cookies can't be shared across subdomains
  * Investigate Thin being a lot slower on Ruby 1.9, but some ppl say EM should be 50% faster, wtf?!
+ 
+== FEATURES
+ * Add builtin cluster monitoring support
