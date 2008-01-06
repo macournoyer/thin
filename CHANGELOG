@@ -1,4 +1,5 @@
 == 0.5.1
+ * Fix Set-Cookie headers in Rails adapter to handle multiple values correcly.
  * Fix Ruby 1.9 incompatibility in Response#headers= and Rakefile.
  * Fix parser to be Ruby 1.9 compatible [Aman Gupta]
  * Set gemspec to use EventMachine version 0.8.1 as it's the latest one having precompiled windows binaries.
