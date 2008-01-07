@@ -1,5 +1,10 @@
 == BUGS
  * Investigate Thin being a lot slower on Ruby 1.9, but some ppl say EM should be 50% faster, wtf?!
+ * Set-Cookie should not contain an array but string w/ each cookie seperated by \n,
+   also use each_line rather then each on string since each is no longer there on Ruby 1.9
  
 == FEATURES
+ * Add URL rewriting to Rails adapter to that / fetches index.html if it's present.
  * Add builtin cluster monitoring support
+ * Add test for Rails adapter
+ * Add & automated benchmarks
