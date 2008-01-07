@@ -1,4 +1,6 @@
 class SimpleController < ApplicationController
+  caches_page :cached
+  
   def index
   end
   
@@ -9,5 +11,9 @@ class SimpleController < ApplicationController
   def set_cookie
     cookies[params[:name]] = params[:value] if params[:name]
     render :text => cookies.to_yaml
+  end
+  
+  def cached
+    render :text => params[:value]
   end
 end

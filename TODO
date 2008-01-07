@@ -1,4 +1,3 @@
 == FEATURES
- * Add URL rewriting to Rails adapter so that / fetches index.html if it's present.
- * Add builtin cluster monitoring support
- * Add & automated benchmarks
+ * Add builtin cluster monitoring support (with god ?)
+ * Add automated benchmarks & run along w/ specs

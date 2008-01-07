@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../lib/thin'
 require 'spec'
 require 'benchmark'
 require 'timeout'
+require 'fileutils'
 
 include Thin
 
@@ -21,17 +22,6 @@ class TestRequest < Thin::Request
     }.merge(params)
     
     @body = "#{@verb} #{path} HTTP/1.1"
-  end
-end
-
-# Replace Rack response headers with one that allow duplication
-class Rack::Utils::HeaderHash
-  def []=(key, value)
-    if has_key?(key)
-      store key, [self[key], value].flatten
-    else
-      store key, value
-    end
   end
 end
 

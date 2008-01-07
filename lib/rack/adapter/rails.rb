@@ -30,15 +30,16 @@ module Rack
       end
       
       # TODO refactor this in File#can_serve?(path) ??
-      def file?(path)
+      def file_exist?(path)
         full_path = ::File.join(@file_server.root, Utils.unescape(path))
         ::File.file?(full_path) && ::File.readable?(full_path)
       end
       
-      def call(env)
-        # Serve the file if it's there
-        return @file_server.call(env) if file?(env['PATH_INFO'])
-        
+      def serve_file(env)
+        @file_server.call(env)
+      end
+      
+      def serve_rails(env)
         request         = Request.new(env)
         response        = Response.new
         
@@ -48,6 +49,20 @@ module Rack
         Dispatcher.dispatch(cgi, session_options, response)
 
         response.finish
+      end
+      
+      def call(env)
+        path        = env['PATH_INFO'].chomp('/')
+        cached_path = (path.empty? ? 'index' : path) + ActionController::Base.page_cache_extension
+        
+        if file_exist?(path)              # Serve the file if it's there
+          serve_file(env)
+        elsif file_exist?(cached_path)    # Serve the page cache if it's there
+          env['PATH_INFO'] = cached_path
+          serve_file(env)
+        else                              # No static file, let Rails handle it
+          serve_rails(env)
+        end
       end
     
       protected

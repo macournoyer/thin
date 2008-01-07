@@ -6,8 +6,8 @@ begin
 
   context Rack::Adapter::Rails do
     before do
-      rails_app_path = File.dirname(__FILE__) + '/rails_app'
-      @request = Rack::MockRequest.new(Rack::Adapter::Rails.new(:root => rails_app_path))
+      @rails_app_path = File.dirname(__FILE__) + '/rails_app'
+      @request = Rack::MockRequest.new(Rack::Adapter::Rails.new(:root => @rails_app_path))
     end
   
     it "should handle simple GET request" do
@@ -37,13 +37,34 @@ begin
       res["Content-Type"].should include("text/html")
     end
     
+    it "should serve root with index.html if present" do
+      res = @request.get("/")
+
+      res.should be_ok
+      res["Content-Length"].to_i.should == File.size(@rails_app_path + '/public/index.html')
+    end
+    
+    it "should serve page cache if present" do
+      res = @request.get("/simple/cached?value=cached")
+
+      res.should be_ok
+      res.body.should == 'cached'
+      
+      res = @request.get("/simple/cached?value=notcached")
+      
+      res.should be_ok
+      res.body.should == 'cached'
+    end
+    
     it "handles multiple cookies" do
       res = @request.get('/simple/set_cookie?name=a&value=1')
     
-      res.should be_ok
+      res.should be_ok    
+      res.original_headers['Set-Cookie'].should include('a=1; path=/', '_rails_app_session')
+    end
     
-      res.headers['Set-Cookie'].should include("a=1; path=/\n")
-      res.headers['Set-Cookie'].last.should match(/^_rails_app_session=.*; path=\/$/)
+    after do
+      FileUtils.rm_rf @rails_app_path + '/public/simple'
     end
   end
 

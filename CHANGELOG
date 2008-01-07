@@ -1,4 +1,5 @@
 == 0.5.1
+ * Add URL rewriting to Rails adapter so that page caching works and / fetches index.html if present.
  * Fix bug in multiline response header parsing.
  * Add specs for the Rails adapter.
  * Fix Set-Cookie headers in Rails adapter to handle multiple values correctly.
