@@ -21,6 +21,22 @@ describe Response do
     @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
   end
   
+  it 'should parse simple header values' do
+    @response.headers = {
+      'Host' => 'localhost'
+    }
+    
+    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+  end
+  
+  it 'should parse multiline header values in several headers' do
+    @response.headers = {
+      'Set-Cookie' => "mium=7\nhi=there"
+    }
+    
+    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+  end
+  
   it 'should output body' do
     @response.body << '<html></html>'
     

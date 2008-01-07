@@ -22,14 +22,17 @@ EXT_FILES  = FileList[
 CLEAN.include %w(doc/rdoc pkg coverage tmp log *.gem **/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM)
 
 if RUBY_1_9
-  task :default => [:compile]
+  task :spec do
+    warn 'RSpec not yet supporting Ruby 1.9, so cannot run the specs :('
+  end
 else
   desc "Run all examples"
   Spec::Rake::SpecTask.new('spec') do |t|
-    t.spec_files = FileList['spec/**/*.rb']
+    t.spec_files = FileList['spec/**/*_spec.rb']
   end
-  task :default => [:compile, :spec]
 end
+
+task :default => [:compile, :spec]
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
