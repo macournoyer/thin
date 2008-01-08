@@ -12,7 +12,7 @@ require 'thin/statuses'
 
 module Thin
   NAME    = 'thin'.freeze
-  SERVER  = "#{NAME} #{VERSION::STRING}".freeze  
+  SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze  
   
   autoload :Connection,   'thin/connection'
   autoload :Daemonizable, 'thin/daemonizing'
