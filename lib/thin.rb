@@ -11,7 +11,7 @@ require 'thin/version'
 require 'thin/statuses'
 
 module Thin
-  NAME    = 'thin'.freeze
+  NAME    = 'Thin'.freeze
   SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze  
   
   autoload :Connection,   'thin/connection'

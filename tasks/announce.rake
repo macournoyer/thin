@@ -6,6 +6,7 @@ FROM         = 'macournoyer@gmail.com'
 SEND_ANN_TO  = %w(thin-ruby@googlegroups.com eventmachine-talk@rubyforge.org Rubymtl@lists.artengine.ca ruby-talk@ruby-lang.org)
 
 namespace :ann do
+  desc 'Send the new version annoucement by email'
   task :email do
     abort 'Specify PW for GMail account' unless ENV['PW']
     

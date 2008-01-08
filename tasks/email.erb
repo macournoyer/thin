@@ -1,6 +1,6 @@
 Hey all,
 
-Version <%= Thin::VERSION::STRING %>, codename <%= Thin::VERSION::CODENAME %> of the fastest Ruby server is out!
+Version <%= Thin::VERSION::STRING %> (codename <%= Thin::VERSION::CODENAME %>) of the fastest Ruby server is out!
 
 Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:
  * the Mongrel parser: the root of Mongrel speed and security
@@ -17,11 +17,43 @@ Even though Thin has been announced only 4 days ago, lots of things are happenin
  * Thin support included in Ramaze and Vintage frameworks
  * Some bug fixes in header parsing
  
+And some amazing numbers:
 
+[~/projects/thin] ruby benchmark/simple.rb
+server     request   concurrency   req/s     failures
+=====================================================
+WEBrick    1000      1             389.31    0
+Mongrel    1000      1             1495.70   0
+EMongrel   1000      1             2070.35   0
+Thin       1000      1             2219.45   0
+WEBrick    1000      10            366.16    0
+Mongrel    1000      10            1501.02   0
+EMongrel   1000      10            2562.43   0
+Thin       1000      10            3129.64   0
+WEBrick    1000      100           ERROR
+Mongrel    1000      100           1500.82   0
+EMongrel   1000      100           3031.29   0
+Thin       1000      100           3372.49   0
+
+[~/projects/thin] ruby19 benchmark/simple.rb
+server     request   concurrency   req/s     failures
+=====================================================
+WEBrick    1000      1             506.33    0
+Mongrel    1000      1             1768.31   0
+Thin       1000      1             2528.11   0
+WEBrick    1000      10            461.66    0
+Mongrel    1000      10            1541.35   0
+Thin       1000      10            4003.19   0
+WEBrick    1000      100           ERROR
+Mongrel    1000      100           1313.19   0
+Thin       1000      100           4154.67   0
 
 == Get it!
 
  sudo gem install thin
+ 
+(Might take some time for the gem mirrors to be updated, try adding
+--source http://code.macournoyer.com to the command if it doesn't work)
  
 == Contribute
 
@@ -30,6 +62,7 @@ or share some ideas in Thin Google Group: http://groups.google.com/group/thin-ru
 
 Also on IRC: #thin on freenode
 
-Thanks to all the people who contributed to Thin,
+Thanks to all the people who contributed to Thin, EventMachine, Rack and Mongrel.
+
 Marc-Andre Cournoyer
 http://code.macournoyer.com/thin/
