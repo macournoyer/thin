@@ -1,3 +1,7 @@
+== BUGS
+ * Thin is bugless, don't you know?
+   (Well, report to http://groups.google.com/group/thin-ruby/ if you find any)
+
 == FEATURES
  * Add builtin cluster monitoring support (with god ?)
  * Add --prefix option to thin script
