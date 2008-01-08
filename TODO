@@ -1,4 +1,6 @@
 == FEATURES
  * Add builtin cluster monitoring support (with god ?)
- * Add automated benchmarks & run along w/ specs
  * Add --prefix option to thin script
+ 
+== TASKS
+ * Investigate http://rev.rubyforge.org/
