@@ -1,10 +1,15 @@
 == BUGS
  * Thin is bugless, don't you know?
    (Well, report to http://groups.google.com/group/thin-ruby/ if you find any)
+ * Carl Mercier is experiencing weird stuff, response headers seems to be happened
+   to the top of every HTML page in the browser ?wtf?
 
 == FEATURES
  * Add builtin cluster monitoring support (with god ?)
  * Add --prefix option to thin script
+ * IPv6 support (bind to ::1)
  
 == TASKS
+ * Provide precompiled win32 binaries in Gem
+ * Port response writing to a C extension
  * Investigate http://rev.rubyforge.org/

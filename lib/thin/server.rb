@@ -32,7 +32,7 @@ module Thin
     
     # Starts the handlers.
     def start
-      log   ">> Thin web server (v#{VERSION::STRING})"
+      log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       trace ">> Tracing ON"
     end
     
