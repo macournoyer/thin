@@ -1,4 +1,5 @@
 == 0.5.2 Cheezburger release
+ * Fix typo in thin script usage message and expand chdir path.
  * Rename thin script options to be the same as mongrel_rails script:
    -o --host  => -a --address
    --log-file => --log

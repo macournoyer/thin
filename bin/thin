@@ -23,7 +23,7 @@ opts = OptionParser.new do |opts|
   opts.on("-a", "--address HOST", "bind to HOST address (default: 0.0.0.0)")      { |host| options[:host] = host }
   opts.on("-p", "--port PORT", "use PORT (default: 3000)")                        { |port| options[:port] = port }
   opts.on("-e", "--environment ENV", "Rails environment (default: development)")  { |env| options[:env] = env }
-  opts.on("-c", "--chdir PATH", "listen on HOST (default: current dir)")          { |dir| options[:root] = dir }
+  opts.on("-c", "--chdir PATH", "Change to dir before starting")                  { |dir| options[:root] = File.expand_path(dir) }
   opts.on("-d", "--daemonize", "Run daemonized in the background")                { options[:daemonize] = true }
   opts.on("-l", "--log FILE", "File to redirect output",
                               "(default: #{options[:log_file]})")                 { |file| options[:log_file] = file }
