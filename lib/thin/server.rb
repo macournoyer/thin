@@ -23,7 +23,7 @@ module Thin
     
     # Creates a new server binded to <tt>host:port</tt>
     # that will pass request to +app+.
-    def initialize(host, port, app)
+    def initialize(host, port, app=nil)
       @host       = host
       @port       = port.to_i
       @app        = app
@@ -32,6 +32,8 @@ module Thin
     
     # Starts the handlers.
     def start
+      raise ArgumentError, "app required" unless @app
+      
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       trace ">> Tracing ON"
     end

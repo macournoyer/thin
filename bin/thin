@@ -4,6 +4,8 @@
 require File.dirname(__FILE__) + '/../lib/thin'
 require 'optparse'
 
+COMMANDS = %w(start stop restart)
+
 options = {
   :root     => Dir.pwd,
   :env      => 'development',
@@ -15,7 +17,7 @@ options = {
 }
 
 opts = OptionParser.new do |opts|
-  opts.banner = "Usage: thin [options] start|stop"
+  opts.banner = "Usage: thin [options] #{COMMANDS.join('|')}"
 
   opts.separator ""
   opts.separator "Server options:"
@@ -52,11 +54,11 @@ opts = OptionParser.new do |opts|
   opts.parse! ARGV
 end
 
-case ARGV[0]
-  
-when 'start'
-  app = Rack::Adapter::Rails.new(options)
-  server = Thin::Server.new(options[:host], options[:port], app)
+
+# Commands definitions
+
+def start(options)
+  server = Thin::Server.new(options[:host], options[:port])
   
   server.pid_file = options[:pid_file]
   server.log_file = options[:log_file]
@@ -66,18 +68,36 @@ when 'start'
     server.change_privilege options[:user], options[:group] if options[:user] && options[:group]
     server.daemonize
   end
+  
+  server.app = Rack::Adapter::Rails.new(options)
 
   server.start!
+end
 
-when 'stop'
+def stop(options)
   Thin::Server.kill options[:pid_file], options[:timeout]
+end
 
-when nil
+def restart(options)
+  # Restart only make sense when running as a daemon
+  options.update :daemonize => true
+  
+  stop(options)
+  start(options)
+end
+
+
+# Runs the command
+
+Dir.chdir(options[:root])
+command = ARGV[0]
+
+if COMMANDS.include?(command)
+  send(command, options)
+elsif command.nil?
   puts "Command required"
   puts opts
-  exit 1
-  
+  exit 1  
 else
-  abort "Invalid command : #{ARGV[0]}"
-  
+  abort "Invalid command : #{command}"
 end
