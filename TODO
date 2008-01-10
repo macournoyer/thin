@@ -1,8 +1,8 @@
 == BUGS
- * Thin is bugless, don't you know?
-   (Well, report to http://groups.google.com/group/thin-ruby/ if you find any)
  * Carl Mercier is experiencing weird stuff, response headers seems to be happened
    to the top of every HTML page in the browser ?wtf?
+ * IOError w/ Edge Rails buffer_logger,
+   http://groups.google.com/group/thin-ruby/browse_thread/thread/856886cfcd46a130
 
 == FEATURES
  * Add builtin cluster monitoring support (with god ?)
@@ -10,6 +10,11 @@
  * IPv6 support (bind to ::1)
  
 == TASKS
+ * Change benchmarking test to use
+   http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
+ * Start a 'users' page on web site
  * Provide precompiled win32 binaries in Gem
  * Port response writing to a C extension
+ * Benchmark CGI and FastCGI too [Carlos Junior]
  * Investigate http://rev.rubyforge.org/
+ * Make font a little bit bigger on website
