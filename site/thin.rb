@@ -135,7 +135,8 @@ class Thin < Atchoum::Website
     ul do
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Joao Pedrosa's Blog", :href => 'http://www.deze9.com/jp/blog/post?p=enabling-thin-support-for-this-site-replacing' }
-      li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/' }
+      li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/2008/01/11/thin-web-server-for-ruby-rocks' }
+      li { a "Dinooz", :href => 'http://www.nicomoayudarte.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
