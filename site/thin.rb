@@ -2,7 +2,7 @@ require 'rubygems'
 require 'atchoum'
 
 class Thin < Atchoum::Website
-  ROOT = ENV['SITE_ROOT'] || '/'
+  ROOT = ENV['SITE_ROOT'] || ''
   
   def layout
     xhtml_html do
@@ -16,6 +16,7 @@ class Thin < Atchoum::Website
           li { a 'download', :href => "#{ROOT}/download/" }
           li { a 'usage', :href => "#{ROOT}/usage/" }
           li { a 'doc', :href => "#{ROOT}/doc/" }
+          li { a 'users', :href => "#{ROOT}/users/" }
           li { a 'community', :href => "http://groups.google.com/group/thin-ruby/" }
         end
 
@@ -93,13 +94,10 @@ class Thin < Atchoum::Website
     h2 'Install from source'
 
     p 'Clone the Git repository'
-    pre 'git clone http://code.macournoyer.com/git/thin.git'
-    
-    p 'Or checkout the Subversion mirror (might be out of date)'
-    pre 'svn co http://code.macournoyer.com/svn/thin/trunk thin'
+    pre 'git clone git://repo.or.cz/thin.git && cd thin'
     
     p 'Hack the code, patch it, whatever, build the Gem and install'
-    pre 'cd thin && rake install'
+    pre 'sudo rake install'
   end
   
   def usage_page
@@ -118,7 +116,7 @@ class Thin < Atchoum::Website
       require 'thin'
       
       app = proc do |env|
-        [ 200, { 'Content-Type' => 'text/html' }, ['hi'] ]
+        [200, {'Content-Type' => 'text/html'}, ['hi']]
       end
       
       run app
@@ -127,6 +125,19 @@ class Thin < Atchoum::Website
     pre 'rackup -s thin'
     
     p { "See #{a 'Rack doc', :href => 'http://rack.rubyforge.org/doc/'} for more." }
+  end
+  
+  def users_page
+    h2 'Users'
+    
+    p "Who's using Thin ?"
+    
+    ul do
+      li { a 'refactormycode.com', :href => 'http://refactormycode.com/' }
+      li { a "Joao Pedrosa's Blog", :href => 'http://www.deze9.com/jp/blog/post?p=enabling-thin-support-for-this-site-replacing' }
+    end
+    
+    p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
   end
   
   private

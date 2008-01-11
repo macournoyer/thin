@@ -19,13 +19,9 @@ or using my mirror (might be more recent):
 
 Or from source:
 
- git clone http://code.macournoyer.com/git/thin.git
+ git clone git://repo.or.cz/thin.git
  cd thin
  rake install
- 
-Or from the Subversion mirror (might be out of date):
-
- svn co http://code.macournoyer.com/svn/thin/trunk thin
 
 === Usage
 A +thin+ script is offered to easily start your Rails application:
@@ -60,5 +56,5 @@ either the terms of the GPL.
 
 Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
 
-Please report any bug at http://code.macournoyer.com/thin/trac.fcgi/newticket
-and security issues directly to me at macournoyer@gmail.com.
+Please report any bug at http://groups.google.com/group/thin-ruby/
+and major security issues directly to me at macournoyer@gmail.com.
