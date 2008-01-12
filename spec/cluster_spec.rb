@@ -39,24 +39,20 @@ describe Cluster do
   end
   
   it 'should start on specified port' do
-    @cluster.start_on_port 3000
-    
-    File.exist?(@cluster.pid_file_for(3000)).should be_true
-    File.exist?(@cluster.log_file_for(3000)).should be_true
+    @cluster.should_receive(:`) do |with|
+      with.should include('thin start', '--daemonize', 'thin.3001.log', 'thin.3001.pid', '--port=3001')
+      ''
+    end
+
+    @cluster.start_on_port 3001    
   end
 
   it 'should stop on specified port' do
-    @cluster.start_on_port 3000
-    @cluster.stop_on_port 3000
-    
-    File.exist?(@cluster.pid_file_for(3000)).should be_false
-  end
-  
-  after do
-    3000.upto(3003) do |port|
-      Process.kill 9, @cluster.pid_for(port) rescue nil
-      File.delete @cluster.pid_file_for(port) rescue nil
-      File.delete @cluster.log_file_for(port) rescue nil
+    @cluster.should_receive(:`) do |with|
+      with.should include('thin stop', '--daemonize', 'thin.3001.log', 'thin.3001.pid', '--port=3001')
+      ''
     end
+
+    @cluster.stop_on_port 3001
   end
 end

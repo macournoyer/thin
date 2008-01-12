@@ -72,9 +72,10 @@ module Thin
     private
       # Send the command to the +thin+ script
       def run(cmd, options, port)
-        shell_cmd = shellify(cmd, options.merge(:pid => pid_file_for(port), :log => log_file_for(port)))
+        shell_cmd = shellify(cmd, options.merge(:port => port, :pid => pid_file_for(port), :log => log_file_for(port)))
         trace shell_cmd
-        log `#{shell_cmd}`
+        ouput = `#{shell_cmd}`.chomp
+        log ouput unless ouput.empty?
       end
       
       # Turn into a runnable shell command
