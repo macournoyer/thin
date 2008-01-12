@@ -8,7 +8,7 @@ task :ann do
   msg = ERB.new(File.read(MSG_TEMPLATE)).result(binding)
     
   body = <<END_OF_MESSAGE
-To: #{SEND_TO}
+To: #{SEND_TO.join(', ')}
 Subject: [ANN] Thin #{Thin::VERSION::STRING} #{Thin::VERSION::CODENAME} released
 
 #{msg}
