@@ -6,7 +6,7 @@
  * Fix IOError when writing to logger when starting server as a daemon.
  * Really change directory when the -c option is specified.
  * Add restart command to thin script.
- * Fix typo in thin script usage message and expand chdir path.
+ * Fix typos in thin script usage message and expand chdir path.
  * Rename thin script options to be the same as mongrel_rails script [thronedrk]:
      -o --host  => -a --address
      --log-file => --log

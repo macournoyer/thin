@@ -3,15 +3,15 @@
    to the top of every HTML page in the browser ?wtf?
 
 == FEATURES
- * Add builtin cluster monitoring support (with god ?)
  * Add --prefix option to thin script
  * IPv6 support (bind to ::1)
  
 == TASKS
+ * Add a better god sample file in example, maybe generate one !?
  * Change benchmarking test to use
    http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
  * Provide precompiled win32 binaries in Gem
  * Port response writing to a C extension
  * Benchmark CGI and FastCGI too [Carlos Junior]
- * Investigate http://rev.rubyforge.org/
- * Check for memory leaks using dike and/or Mac OS Instruments
+ * Investigate http://rev.rubyforge.org/ (only Ruby 1.9)
+ * Check for memory usage/leaks using dike or other.

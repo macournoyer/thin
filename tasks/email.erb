@@ -11,42 +11,21 @@ bundled in an easy to use gem for your own pleasure.
 
 == What's new?
 
-Even though Thin has been made public only 4 days ago, lots of things have happened since:
- * Ruby 1.9 compatibility
- * Better Rails adapter
- * Thin support included in Ramaze and Vintage frameworks (Thin can also run Rails, Camping, Merb and more)
- * Some bug fixes in header parsing
- 
-And some amazing numbers:
+* Add cluster support through the -s option in the thin script, start 3 thins like this:
+   thin start -s3 -p3000
+  3 thin servers will be started on port 3000, 3001, 3002, also the port number will be
+  injected in the pid and log filenames.
+* Fix IOError when writing to logger when starting server as a daemon.
+* Really change directory when the -c option is specified.
+* Add restart command to thin script.
+* Fix typos in thin script usage message and expand chdir path.
+* Rename thin script options to be the same as mongrel_rails script [thronedrk]:
+    -o --host  => -a --address
+    --log-file => --log
+    --pid-file => --pid
+    --env      => --environment
 
-[~/projects/thin] ruby benchmark/simple.rb
-server     request   concurrency   req/s     failures
-=====================================================
-WEBrick    1000      1             389.31    0
-Mongrel    1000      1             1495.70   0
-EMongrel   1000      1             2070.35   0
-Thin       1000      1             2219.45   0
-WEBrick    1000      10            366.16    0
-Mongrel    1000      10            1501.02   0
-EMongrel   1000      10            2562.43   0
-Thin       1000      10            3129.64   0
-WEBrick    1000      100           ERROR
-Mongrel    1000      100           1500.82   0
-EMongrel   1000      100           3031.29   0
-Thin       1000      100           3372.49   0
-
-[~/projects/thin] ruby19 benchmark/simple.rb
-server     request   concurrency   req/s     failures
-=====================================================
-WEBrick    1000      1             506.33    0
-Mongrel    1000      1             1768.31   0
-Thin       1000      1             2528.11   0
-WEBrick    1000      10            461.66    0
-Mongrel    1000      10            1541.35   0
-Thin       1000      10            4003.19   0
-WEBrick    1000      100           ERROR
-Mongrel    1000      100           1313.19   0
-Thin       1000      100           4154.67   0
+win32 support is coming soon!
 
 == Get it!
 
@@ -54,8 +33,13 @@ Thin       1000      100           4154.67   0
  
 (Might take some time for the gem mirrors to be updated, try adding
 --source http://code.macournoyer.com to the command if it doesn't work)
+
+NOTE: if you installed a previous alpha version (if you have 0.5.2 already installed)
+uninstall it before: sudo gem uninstall thin
  
 == Contribute
+
+If you're using Thin, let me know and I'll put your site on http://code.macournoyer.com/thin/users/
 
 Thin is driven by an active community of passionate coders and benchmarkers. Please join us, contribute
 or share some ideas in Thin Google Group: http://groups.google.com/group/thin-ruby/topics
