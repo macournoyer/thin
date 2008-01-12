@@ -1,13 +1,14 @@
 module Thin
-  # Control a set of servers. Generate start and stop commands and run them.
+  # Control a set of servers.
+  # * Generate start and stop commands and run them.
+  # * Inject the port number in the pid and log filenames.
+  # Servers are started throught the +thin+ commandline script.
   class Cluster
     include Logging
     
-    class << self
-      # Script to run
-      attr_accessor :thin_script
-    end
-    self.thin_script = 'thin'
+    # Path to the +thin+ script used to control the servers.
+    # Leave this to default to use the one in the path.
+    attr_accessor :script
     
     # Number of servers in the cluster.
     attr_accessor :size
@@ -19,6 +20,7 @@ module Thin
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
+      @script  = 'thin'
     end
     
     def first_port; @options[:port]     end
@@ -87,7 +89,7 @@ module Thin
           else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
           end
         end
-        "#{self.class.thin_script} #{cmd} #{shellified_options.compact.join(' ')}"
+        "#{@script} #{cmd} #{shellified_options.compact.join(' ')}"
       end
       
       def with_each_server

@@ -2,7 +2,6 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe Cluster do
   before do
-    Thin::Cluster.thin_script = File.dirname(__FILE__) + '/../bin/thin'
     @cluster = Thin::Cluster.new(:chdir => File.dirname(__FILE__) + '/rails_app',
                                  :address => '0.0.0.0',
                                  :port => 3000, 
@@ -11,6 +10,7 @@ describe Cluster do
                                  :log => 'thin.log',
                                  :pid => 'thin.pid'
                                 )
+    @cluster.script = File.dirname(__FILE__) + '/../bin/thin'
     @cluster.silent = true
   end
     

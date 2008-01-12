@@ -6,6 +6,7 @@ require 'optparse'
 
 COMMANDS = %w(start stop restart)
 
+# Default options values
 options = {
   :chdir       => Dir.pwd,
   :environment => 'development',
@@ -14,9 +15,13 @@ options = {
   :timeout     => 60,
   :log         => 'log/thin.log',
   :pid         => 'tmp/pids/thin.pid',
-  :servers     => 1
+  :servers     => 1 # no cluster
 }
 
+# NOTE: If you add an option here make sure the key in the +options+ hash is the
+# same as the name of the command line option.
+# +option+ keys are use to build the command line to launch a cluster,
+# see <tt>lib/thin/cluster.rb</tt>.
 opts = OptionParser.new do |opts|
   opts.banner = "Usage: thin [options] #{COMMANDS.join('|')}"
 
@@ -27,7 +32,8 @@ opts = OptionParser.new do |opts|
   opts.on("-p", "--port PORT", "use PORT (default: 3000)")                        { |port| options[:port] = port.to_i }
   opts.on("-e", "--environment ENV", "Rails environment (default: development)")  { |env| options[:environment] = env }
   opts.on("-c", "--chdir PATH", "Change to dir before starting")                  { |dir| options[:chdir] = File.expand_path(dir) }
-  opts.on("-s", "--servers NUM", "Number of servers to start")                    { |num| options[:servers] = num.to_i }
+  opts.on("-s", "--servers NUM", "Number of servers to start",
+                                 "set a value >1 to start a cluster")             { |num| options[:servers] = num.to_i }
   opts.on("-d", "--daemonize", "Run daemonized in the background")                { options[:daemonize] = true }
   opts.on("-l", "--log FILE", "File to redirect output",
                               "(default: #{options[:log]})")                      { |file| options[:log] = file }
@@ -49,7 +55,7 @@ opts = OptionParser.new do |opts|
 end
 
 
-# Commands definitions
+# == Commands definitions
 
 def cluster?(options)
   options[:servers] && options[:servers] > 1
@@ -57,8 +63,7 @@ end
 
 def start(options)
   if cluster?(options)
-    server = Thin::Cluster.new(options)
-    server.start
+    Thin::Cluster.new(options).start
   else
     server = Thin::Server.new(options[:address], options[:port])
   
@@ -78,8 +83,7 @@ end
 
 def stop(options)
   if cluster?(options)
-    server = Thin::Cluster.new(options)
-    server.stop
+    Thin::Cluster.new(options).stop
   else
     Thin::Server.kill options[:pid], options[:timeout]
   end
@@ -87,8 +91,7 @@ end
 
 def restart(options)
   if cluster?(options)
-    server = Thin::Cluster.new(options)
-    server.restart
+    Thin::Cluster.new(options).restart
   else
     # Restart only make sense when running as a daemon
     options.update :daemonize => true
@@ -99,7 +102,7 @@ def restart(options)
 end
 
 
-# Runs the command
+# == Runs the command
 
 Dir.chdir(options[:chdir])
 command = ARGV[0]
