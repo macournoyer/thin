@@ -1,0 +1,35 @@
+== 0.5.2 Cheezburger release
+ * Add cluster support through the -s option in the thin script, start 3 thins like this:
+    thin start -s3 -p3000
+   3 thin servers will be started on port 3000, 3001, 3002, also the port number will be
+   injected in the pid and log filenames.
+ * Fix IOError when writing to logger when starting server as a daemon.
+ * Really change directory when the -c option is specified.
+ * Add restart command to thin script.
+ * Fix typos in thin script usage message and expand chdir path.
+ * Rename thin script options to be the same as mongrel_rails script [thronedrk]:
+     -o --host  => -a --address
+     --log-file => --log
+     --pid-file => --pid
+     --env      => --environment
+ 
+== 0.5.1 LOLCAT release
+ * Add URL rewriting to Rails adapter so that page caching works and / fetches index.html if present.
+ * Fix bug in multiline response header parsing.
+ * Add specs for the Rails adapter.
+ * Fix Set-Cookie headers in Rails adapter to handle multiple values correctly.
+ * Fix Ruby 1.9 incompatibility in Response#headers= and Rakefile.
+ * Fix parser to be Ruby 1.9 compatible [Aman Gupta]
+ * Set gemspec to use EventMachine version 0.8.1 as it's the latest one having precompiled windows binaries.
+   [Francis Cianfrocca].
+ * Add -D option to thin script to set debugging on.
+ * Output incoming data and response when debugging is on.
+
+== 0.5.0
+ * Full rewrite to use EventMachine, Rack and Mongrel parser
+ 
+== 0.4.1
+ * Fix Rails environment option not being used in thin script.
+ 
+== 0.4.0
+ * First alphaish release as a gem.
