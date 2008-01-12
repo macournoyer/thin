@@ -50,7 +50,7 @@ module Thin
 			
 			if @parser.finished?                    # Header finished, can only be some more body
         body << data
-			elsif @data.size > MAX_HEADER           # Oho! very big header, must be a bad person
+			elsif @data.size > MAX_HEADER           # Oho! very big header, must be a mean person
 			  raise InvalidRequest, MAX_HEADER_MSG
 			else                                    # Parse more header
 			  @nparsed = @parser.execute(@env, @data, @nparsed)

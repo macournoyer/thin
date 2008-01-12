@@ -14,8 +14,8 @@ module Rack
   module Adapter 
     class Rails
       def initialize(options={})
-        @root = options[:root] || Dir.pwd
-        @env  = options[:env]  || 'development'
+        @root = options[:root]         || Dir.pwd
+        @env  = options[:environment]  || 'development'
         
         load_application
         

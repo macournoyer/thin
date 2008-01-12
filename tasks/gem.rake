@@ -1,6 +1,6 @@
 require 'rake/gempackagetask'
 
-CLEAN.include %w(pkg *.gem)
+task :clean => :clobber_package
 
 spec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
@@ -32,6 +32,14 @@ Rake::GemPackageTask.new(spec) do |p|
   p.gem_spec = spec
 end
 
+task :tag_warn do
+  puts "*" * 40
+  puts "Don't forget to tag the release:"
+  puts "  git tag -a v#{Thin::VERSION::STRING}"
+  puts "*" * 40
+end
+task :gem => :tag_warn
+
 namespace :gem do
   desc 'Upload gem to code.macournoyer.com'
   task :upload => :gem do
@@ -43,7 +51,7 @@ namespace :gem do
   task :upload_rubyforge => :gem do
     sh 'rubyforge login'
     sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
-    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
+    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"    
   end
 end
 
