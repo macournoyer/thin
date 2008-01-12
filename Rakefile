@@ -12,7 +12,7 @@ task :default => [:compile, :spec]
 
 desc "install the gem"
 task :thin_install => [:clean,:package] do
-  sh %{#{SUDO} #{gem} install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}.gem --no-update-sources}
+  sh %{#{SUDO} #{gem} install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}*.gem --no-update-sources}
 end
 
 desc "uninstall the gem"

@@ -1,3 +1,7 @@
+== 0.5.3 insert_witty_name_here release
+ * win32 pre-compiled gem now available
+ * change rake task configuration to allow win32 gem build
+ 
 == 0.5.2 Cheezburger release
  * Add cluster support through the -s option in the thin script, start 3 thins like this:
     thin start -s3 -p3000
