@@ -4,9 +4,9 @@ module Thin
   
   # The Thin HTTP server used to served request.
   # It listen for incoming request on a given port
-  # and forward all request to all the handlers in the order
-  # they were registered.
-  # Based on HTTP 1.1 protocol specs
+  # and forward all request to +app+.
+  #
+  # Based on HTTP 1.1 protocol specs:
   # http://www.w3.org/Protocols/rfc2616/rfc2616.html
   class Server
     include Logging
@@ -18,7 +18,7 @@ module Thin
     # App called with the request that produce the response.
     attr_accessor :app
     
-    # Maximum time for a request to be red and parsed.
+    # Maximum time for incoming data to arrive
     attr_accessor :timeout
     
     # Creates a new server binded to <tt>host:port</tt>
@@ -65,6 +65,7 @@ module Thin
 				end
 			end
     end
+    
     
     def stop
       EventMachine.stop_event_loop

@@ -5,6 +5,7 @@ module Thin
   # and the server can not process it.
   class InvalidRequest < IOError; end
   
+  # A request sent by the client to the server.
   class Request
     MAX_HEADER        = 1024 * (80 + 32)
     MAX_HEADER_MSG    = 'Header longer than allowed'.freeze
@@ -47,18 +48,18 @@ module Thin
     def parse(data)
       @data << data
 			
-			if @parser.finished?  # Header finished, can only be some more body
+			if @parser.finished?                    # Header finished, can only be some more body
         body << data
-			elsif @data.size > MAX_HEADER
+			elsif @data.size > MAX_HEADER           # Oho! very big header, must be a bad person
 			  raise InvalidRequest, MAX_HEADER_MSG
-			else                  # Parse more header
+			else                                    # Parse more header
 			  @nparsed = @parser.execute(@env, @data, @nparsed)
 			end
 			
 			# Check if header and body are complete
 			if @parser.finished? && body.size >= content_length
 		    body.rewind
-		    return true
+		    return true # Request is fully parsed
 		  end
 			
 			false # Not finished, need more data
