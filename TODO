@@ -14,4 +14,4 @@
  * Port response writing to a C extension
  * Benchmark CGI and FastCGI too [Carlos Junior]
  * Investigate http://rev.rubyforge.org/
- * Check for memory leaks using dike and Instruments
+ * Check for memory leaks using dike and/or Mac OS Instruments

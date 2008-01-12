@@ -13,7 +13,7 @@ spec = Gem::Specification.new do |s|
   s.homepage              = 'http://code.macournoyer.com/thin/'
   s.executables           = %w(thin)
 
-  s.required_ruby_version = '>= 1.8.6'
+  s.required_ruby_version = '>= 1.8.6' # Makes sure the CGI eof fix is there
   
   s.add_dependency        'eventmachine', '>= 0.8.1'
   s.add_dependency        'rack',         '>= 0.2.0'

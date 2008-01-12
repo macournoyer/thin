@@ -11,6 +11,7 @@ EXT_FILES  = FileList[
   "lib"
 ]
 
+desc "Compile the Ragel state machines"
 task :ragel do
   Dir.chdir EXT_DIR do
     target = "parser.c"
