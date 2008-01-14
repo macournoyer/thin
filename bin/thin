@@ -43,6 +43,7 @@ opts = OptionParser.new do |opts|
                                  "(default: #{options[:timeout]})")               { |sec| options[:timeout] = sec.to_i }
   opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")             { |user| options[:user] = user }
   opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")           { |group| options[:group] = group }
+  opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| options[:prefix] = path }
   
   opts.separator ""
   opts.separator "Common options:"
@@ -77,6 +78,10 @@ def start(options)
     end
   
     server.app = Rack::Adapter::Rails.new(options.merge(:root => options[:chdir]))
+    
+    # If a prefix is required, wrap in Rack URL mapper
+    server.app = Rack::URLMap.new(options[:prefix] => server.app) if options[:prefix]
+    
     server.start!
   end  
 end

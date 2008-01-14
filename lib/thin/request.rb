@@ -52,7 +52,7 @@ module Thin
         body << data
 			elsif @data.size > MAX_HEADER           # Oho! very big header, must be a mean person
 			  raise InvalidRequest, MAX_HEADER_MSG
-			else                                    # Parse more header
+			else                                    # Parse more header using the super parser
 			  @nparsed = @parser.execute(@env, @data, @nparsed)
 			end
 			

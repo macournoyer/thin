@@ -4,7 +4,7 @@ require 'rack/mock'
 begin
   gem 'rails', '= 2.0.2' # We could freeze Rails in the rails_app dir to remove this
 
-  context Rack::Adapter::Rails do
+  describe Rack::Adapter::Rails do
     before do
       @rails_app_path = File.dirname(__FILE__) + '/rails_app'
       @request = Rack::MockRequest.new(Rack::Adapter::Rails.new(:root => @rails_app_path))
@@ -65,6 +65,25 @@ begin
     
     after do
       FileUtils.rm_rf @rails_app_path + '/public/simple'
+    end
+  end
+  
+  describe Rack::Adapter::Rails, 'with prefix' do
+    before do
+      @rails_app_path = File.dirname(__FILE__) + '/rails_app'
+      @prefix = '/nowhere'
+      @request = Rack::MockRequest.new(
+        Rack::URLMap.new(
+          @prefix => Rack::Adapter::Rails.new(:root => @rails_app_path, :prefix => @prefix)))
+    end
+  
+    it "should handle simple GET request" do
+      res = @request.get("#{@prefix}/simple", :lint => true)
+
+      res.should be_ok
+      res["Content-Type"].should include("text/html")
+
+      res.body.should include('Simple#index')
     end
   end
 

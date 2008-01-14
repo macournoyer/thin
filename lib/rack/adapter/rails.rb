@@ -14,8 +14,9 @@ module Rack
   module Adapter 
     class Rails
       def initialize(options={})
-        @root = options[:root]         || Dir.pwd
-        @env  = options[:environment]  || 'development'
+        @root   = options[:root]         || Dir.pwd
+        @env    = options[:environment]  || 'development'
+        @prefix = options[:prefix]
         
         load_application
         
@@ -27,6 +28,8 @@ module Rack
 
         require "#{@root}/config/environment"
         require 'dispatcher'
+        
+        ActionController::AbstractRequest.relative_url_root = @prefix if @prefix 
       end
       
       # TODO refactor this in File#can_serve?(path) ??

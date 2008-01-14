@@ -1,3 +1,6 @@
+== 0.5.3 Purple Yogurt release
+ * Add prefix option to thin script to mount app under a given path.
+
 == 0.5.2 Cheezburger release
  * Add cluster support through the -s option in the thin script, start 3 thins like this:
     thin start -s3 -p3000
