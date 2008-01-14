@@ -1,18 +1,22 @@
 RUBY_1_9 = RUBY_VERSION =~ /^1\.9/
 WIN      = (PLATFORM =~ /mswin|cygwin/)
 
-require 'rake'
-require 'rake/clean'
+windows = (PLATFORM =~ /mswin|cygwin/)
+
+SUDO = windows ? "" : "sudo"
+
 require 'lib/thin'
+
 Dir['tasks/**/*.rake'].each { |rake| load rake }
 
 task :default => [:compile, :spec]
 
-task :install => :compile do
-  sh %{rake package}
-  sh %{sudo #{gem} install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}}
+desc "install the gem"
+task :thin_install => [:clean,:package] do
+  sh %{#{SUDO} #{gem} install pkg/#{Thin::NAME}-#{Thin::VERSION::STRING}*.gem --no-update-sources}
 end
 
-task :uninstall => :clean do
-  sh %{sudo #{gem} uninstall #{Thin::NAME}}
+desc "uninstall the gem"
+task :thin_uninstall => :clean do
+  sh %{#{SUDO} #{gem} uninstall #{Thin::NAME}}
 end
