@@ -48,10 +48,8 @@ Echoe.new(Thin::NAME) do |p|
     case RUBY_PLATFORM
     when /mswin/
       self.files += ['lib/thin_parser.so']
-#      self.platform = Gem::Platform::CURRENT
       add_dependency('eventmachine', '>= 0.8.1')
     else
-#      self.platform = Gem::Platform::RUBY
       add_dependency('daemons', '>= 1.0.9')
       add_dependency('eventmachine')
     end
@@ -67,7 +65,7 @@ task :tag_warn do
   puts "*" * 40
 end
 
-task :gem => :tag_warn
+task :gem => [:compile,:tag_warn]
 
 desc "Compile the Ragel state machines"
 task :ragel do
@@ -90,10 +88,9 @@ when /mswin/
   end
   desc "compile mswin32 extension"
   task :compile => [FILENAME]
+else
+  # task :compile defined by echoe due to defined extension_pattern
 end
-
-# :compile defined by echoe
-task :package => :compile
 
 namespace :deploy do
   task :site => %w(site:upload rdoc:upload)
