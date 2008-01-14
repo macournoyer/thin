@@ -32,7 +32,7 @@ end
 
 file EXT_BUNDLE => EXT_FILES do
   cd EXT_DIR do
-    sh(RUBY_PLATFORM =~ /win32/ ? 'nmake' : 'make')
+    sh(WIN ? 'nmake' : 'make')
   end
   cp EXT_BUNDLE, 'lib/'
 end

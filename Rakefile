@@ -1,4 +1,5 @@
 RUBY_1_9 = RUBY_VERSION =~ /^1\.9/
+WIN      = (PLATFORM =~ /mswin|cygwin/)
 
 require 'rake'
 require 'rake/clean'
