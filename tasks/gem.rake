@@ -1,43 +1,45 @@
-require 'rubygems'
-gem 'echoe', '>=2.7.5'
-require 'echoe'
-
-e = Echoe.new("thin") do |p|
-  p.author = "Marc-Andre Cournoyer"
-  p.email = "macournoyer@gmail.com"
-  p.description = "Thin takes the http parser from Mongrel, the 
-    connection engine from EventMachine and the web server interface
-    from Rack, creating a highly flexible, small, fast, and sexy
-    web app server for Ruby."
-  p.summary = "A thin and fast web server"
-  p.url = "http://code.macournoyer.com/thin/"
-  p.docs_host = "macournoyer.com:~/code.macournoyer.com/thin/doc/"
-  p.clean_pattern = ['ext/thin_parser/*.{bundle,so,o,obj,pdb,lib,def,exp}', 'lib/*.{bundle,so,o,obj,pdb,lib,def,exp}', 'ext/thin_parser/Makefile', 'pkg', 'lib/*.bundle', '*.gem', '*.gemspec', '.config', 'coverage']
-  p.ignore_pattern = /^(.git|benchmark|site|tasks)|.gitignore/
-  p.rdoc_pattern = ['README', 'LICENSE', 'CHANGELOG', 'changes.txt', 'lib/**/*.rb', 'doc/**/*.rdoc']
-  p.ruby_version = '>= 1.8.6'
-  p.dependencies = ['rack >= 0.2.0']
-  p.extension_pattern = nil
-  p.need_tar_gz = false
-  
-  if RUBY_PLATFORM !~ /mswin/
-    p.extension_pattern = ["ext/**/extconf.rb"]
-  end
-  
-  p.eval = proc do
-    case RUBY_PLATFORM
-    when /mswin/
-      self.files += ['lib/thin_parser.so']
-      self.platform = Gem::Platform::CURRENT
-      add_dependency('eventmachine', '>= 0.8.1')
-    else
-      add_dependency('daemons', '>= 1.0.9')
-      add_dependency('eventmachine')
-    end
-  end
-end
+require 'rake/gempackagetask'
 
 task :clean => :clobber_package
+
+spec = Gem::Specification.new do |s|
+  s.name                  = Thin::NAME
+  s.version               = Thin::VERSION::STRING
+  s.platform              = WIN ? Gem::Platform::CURRENT : Gem::Platform::RUBY
+  s.summary               = 
+  s.description           = "A thin and fast web server"
+  s.author                = "Marc-Andre Cournoyer"
+  s.email                 = 'macournoyer@gmail.com'
+  s.homepage              = 'http://code.macournoyer.com/thin/'
+  s.executables           = %w(thin)
+
+  s.required_ruby_version = '>= 1.8.6' # Makes sure the CGI eof fix is there
+  
+  if WIN
+    s.add_dependency      'eventmachine', '>= 0.8.1' # Latest precompiled version released
+  else
+    s.add_dependency      'eventmachine'
+    s.add_dependency      'daemons',      '>= 1.0.9' # Daemonizing doesn't work on win
+  end
+  s.add_dependency        'rack',         '>= 0.2.0'
+
+  s.files                 = %w(COPYING CHANGELOG README Rakefile) +
+                            Dir.glob("{benchmark,bin,doc,example,lib,spec}/**/*") + 
+                            Dir.glob("ext/**/*.{h,c,rb,rl}")
+  
+  if WIN
+    s.files              += ["lib/thin_parser.#{Config::CONFIG['DLEXT']}"]
+  else
+    s.extensions          = FileList["ext/**/extconf.rb"].to_a
+  end
+  
+  s.require_path          = "lib"
+  s.bindir                = "bin"
+end
+
+Rake::GemPackageTask.new(spec) do |p|
+  p.gem_spec = spec
+end
 
 task :tag_warn do
   puts "*" * 40

@@ -1,3 +1,5 @@
+CLEAN.include %w(coverage tmp log)
+
 if RUBY_1_9
   task :spec do
     warn 'RSpec not yet supporting Ruby 1.9, so cannot run the specs :('
