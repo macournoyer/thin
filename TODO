@@ -8,6 +8,7 @@
  
 == TASKS
  * Provide precompiled win32 binaries in Gem
+ * Load options from a config file
  * Check for memory usage/leaks using dike or other.
  * Change benchmarking tests to use
    http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
