@@ -1,16 +1,19 @@
 == BUGS
  * Carl Mercier is experiencing weird stuff, response headers seems to be happened
    to the top of every HTML page in the browser ?wtf?
+ * Thin uses more memory then Mongrel on some apps, investigate why
 
 == FEATURES
- * IPv6 support (bind to ::1)
+ * IPv6 support (should be able to bind to ::1)
  
 == TASKS
  * Provide precompiled win32 binaries in Gem
- * Add a better god sample file in example, maybe generate one !?
- * Change benchmarking test to use
-   http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
- * Port response writing to a C extension
- * Benchmark CGI and FastCGI too [Carlos Junior]
- * Investigate http://rev.rubyforge.org/ (only Ruby 1.9)
  * Check for memory usage/leaks using dike or other.
+ * Change benchmarking tests to use
+   http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
+ * Add a better god sample file in example/,
+   maybe generate one w/ thin config and use this in replacement
+   of mongrel_cluster to launch cluster at startup and all.
+ * Port response writing to a C extension
+ * Investigate http://rev.rubyforge.org/ (only Ruby 1.9)
+ * Benchmark CGI and FastCGI too [Carlos Junior]
