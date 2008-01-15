@@ -140,6 +140,7 @@ class Thin < Atchoum::Website
       li { a "Mobile Dyne Systems", :href => 'http://www.mobiledyne.com/' }
       li { a "feelfree.homelinux.com", :href => 'http://feelfree.homelinux.com' }
       li { a "to2posts.com", :href => 'http://to2blogs.com/' }
+      li { a "James on Software", :href => 'http://jamesgolick.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
