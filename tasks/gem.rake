@@ -15,13 +15,11 @@ spec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.6' # Makes sure the CGI eof fix is there
   
-  if WIN
-    s.add_dependency      'eventmachine', '>= 0.8.1' # Latest precompiled version released
-  else
-    s.add_dependency      'eventmachine'
-    s.add_dependency      'daemons',      '>= 1.0.9' # Daemonizing doesn't work on win
-  end
   s.add_dependency        'rack',         '>= 0.2.0'
+  s.add_dependency        'eventmachine', '>= 0.8.1'
+  unless WIN
+    s.add_dependency        'daemons',      '>= 1.0.9'
+  end
 
   s.files                 = %w(COPYING CHANGELOG README Rakefile) +
                             Dir.glob("{benchmark,bin,doc,example,lib,spec}/**/*") + 
@@ -59,10 +57,19 @@ namespace :gem do
   desc 'Upload gem to rubyforge.org'
   task :upload_rubyforge => :gem do
     sh 'rubyforge login'
-    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"
-    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/thin-#{Thin::VERSION::STRING}.gem"    
+    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
+    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"    
   end
 end
+
+task :install => [:clobber, :compile, :package] do
+  sh "#{SUDO} #{gem} install pkg/#{spec.full_name}.gem"
+end
+
+task :uninstall => :clean do
+  sh "#{SUDO} #{gem} uninstall -v #{Thin::VERSION::STRING} -x #{Thin::NAME}"
+end
+
 
 def gem
   RUBY_1_9 ? 'gem19' : 'gem'

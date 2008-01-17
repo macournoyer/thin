@@ -138,7 +138,9 @@ class Thin < Atchoum::Website
       li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/2008/01/11/thin-web-server-for-ruby-rocks' }
       li { a "Dinooz", :href => 'http://www.nicomoayudarte.com/' }
       li { a "Mobile Dyne Systems", :href => 'http://www.mobiledyne.com/' }
-      li { a "Mobile Dyne Systems", :href => 'http://feelfree.homelinux.com' }
+      li { a "feelfree.homelinux.com", :href => 'http://feelfree.homelinux.com' }
+      li { a "to2posts.com", :href => 'http://to2blogs.com/' }
+      li { a "James on Software", :href => 'http://jamesgolick.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
