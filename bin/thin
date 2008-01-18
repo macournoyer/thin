@@ -73,10 +73,6 @@ def start(options)
     server.timeout  = options[:timeout]
   
     if options[:daemonize]
-      if RUBY_PLATFORM =~ /mswin/
-        puts "Error: daemonizing not supported on Windows."
-        exit 1
-      end
       server.change_privilege options[:user], options[:group] if options[:user] && options[:group]
       server.daemonize
     end

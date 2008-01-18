@@ -31,6 +31,7 @@ module Thin
     
     # Turns the current script into a daemon process that detaches from the console.
     def daemonize
+      check_plateform_support
       raise ArgumentError, 'You must specify a pid_file to deamonize' unless @pid_file
       
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
@@ -49,6 +50,7 @@ module Thin
     # Change privileges of the process
     # to the specified user and group.
     def change_privilege(user, group=user)
+      check_plateform_support
       log ">> Changing process privilege to #{user}:#{group}"
       
       uid, gid = Process.euid, Process.egid
@@ -92,10 +94,14 @@ module Thin
     end
     
     private
+      def check_plateform_support
+        raise RuntimeError, 'Daemonizing not supported on Windows' if RUBY_PLATFORM =~ /mswin/
+      end
+      
       def remove_pid_file
         File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
       end
-
+      
       def write_pid_file
         log ">> Writing PID to #{@pid_file}"
         FileUtils.mkdir_p File.dirname(@pid_file)
