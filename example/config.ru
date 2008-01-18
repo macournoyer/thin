@@ -4,6 +4,13 @@
 #  http://rack.rubyforge.org/doc/classes/Rack/Builder.html
 
 require File.dirname(__FILE__) + '/../lib/thin'
-require 'rack/lobster'
 
-run Rack::Lobster.new
+app = proc do |env|
+  [
+    200,
+    {'Content-Type' => 'text/html'},
+    ['hi!']
+  ]
+end
+
+run app

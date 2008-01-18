@@ -1,16 +1,18 @@
 == BUGS
  * Carl Mercier is experiencing weird stuff, response headers seems to be happened
    to the top of every HTML page in the browser ?wtf?
- * Thin uses more memory then Mongrel on some apps, investigate why
+ * Thin uses more memory then Mongrel on some apps (refactormycode), investigate why
+ * -u and -g options don't seem to work:
+   http://groups.google.com/group/thin-ruby/browse_thread/thread/a2483855a3d3380e/c29f8412dea1303b
 
 == FEATURES
+ * Add a --trace option to log response/request [thronedrk]
+ * Load options from a config file
  * IPv6 support (should be able to bind to ::1)
+ * Create a Stats adapter to show server stats in the browser
  
 == TASKS
  * Apply patch: http://groups.google.com/group/thin-ruby/browse_thread/thread/c2e157f0792f6054/9cd8b6af27854d38#9cd8b6af27854d38
- * Load options from a config file
- * Add a --trace option to log response/request [thronedrk]
- * Create a Stats adapter to show server stats in the browser
  * Check for memory usage/leaks using dike or other:
    http://blog.evanweaver.com/articles/2007/05/06/leak-proof-direct-heap-instrumentation-for-bleak_house/
  * Change benchmarking tests to use
