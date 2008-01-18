@@ -1,4 +1,6 @@
 == 0.5.3 Purple Yogurt release
+ * win32 pre-compiled gem now available
+ * change rake task configuration to allow win32 gem build
  * Add prefix option to thin script to mount app under a given path.
 
 == 0.5.2 Cheezburger release

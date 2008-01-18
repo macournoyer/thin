@@ -7,10 +7,12 @@
  * IPv6 support (should be able to bind to ::1)
  
 == TASKS
+ * Apply patch: http://groups.google.com/group/thin-ruby/browse_thread/thread/c2e157f0792f6054/9cd8b6af27854d38#9cd8b6af27854d38
  * Provide precompiled win32 binaries in Gem
  * Load options from a config file
  * Create a Stats adapter to show server stats in the browser
- * Check for memory usage/leaks using dike or other.
+ * Check for memory usage/leaks using dike or other:
+   http://blog.evanweaver.com/articles/2007/05/06/leak-proof-direct-heap-instrumentation-for-bleak_house/
  * Change benchmarking tests to use
    http://blog.evanweaver.com/files/doc/fauna/benchmark_unit/
  * Add a better god sample file in example/,
