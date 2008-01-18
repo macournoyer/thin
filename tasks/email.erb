@@ -11,21 +11,20 @@ bundled in an easy to use gem for your own pleasure.
 
 == What's new?
 
-* Add cluster support through the -s option in the thin script, start 3 thins like this:
-   thin start -s3 -p3000
-  3 thin servers will be started on port 3000, 3001, 3002, also the port number will be
-  injected in the pid and log filenames.
-* Fix IOError when writing to logger when starting server as a daemon.
-* Really change directory when the -c option is specified.
-* Add restart command to thin script.
-* Fix typos in thin script usage message and expand chdir path.
-* Rename thin script options to be the same as mongrel_rails script [thronedrk]:
-    -o --host  => -a --address
-    --log-file => --log
-    --pid-file => --pid
-    --env      => --environment
+Welcome 2 new members to the Thin team (previously composed of me and me):
+* Kevin Williams http://www.almostserio.us/
+* James Golick http://jamesgolick.com/
 
-win32 support is coming soon!
+Small release for *nix users, but big one of windows ones!
+
+* win32 pre-compiled gem now available (send all your love to Kevin for this one)
+* Add prefix option to thin script to mount app under a given path.
+
+If you're still not sure about trying Thin, here are a couple of articles:
+* http://glauche.de/2008/01/14/how-many-thin-server-instances-are-best/
+* http://www.deze9.com/jp/blog/post?p=current-uptime-of-the-thin-server-process-behind
+* http://blog.rayngwf.com/2008/01/thin-ruby-web-server-that-is-really.html
+* http://glauche.de/2008/01/12/thin-nginx-with-rails/
 
 == Get it!
 
@@ -34,7 +33,7 @@ win32 support is coming soon!
 Might take some time for the gem mirrors to be updated, try adding
 --source http://code.macournoyer.com to the command if it doesn't work
 
-If you installed a previous alpha version (if you have 0.5.2 already installed)
+If you installed a previous alpha version (if you have <%= Thin::VERSION::STRING %> already installed)
 uninstall it before: sudo gem uninstall thin
 
 WARNING:
