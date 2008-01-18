@@ -8,8 +8,8 @@
  
 == TASKS
  * Apply patch: http://groups.google.com/group/thin-ruby/browse_thread/thread/c2e157f0792f6054/9cd8b6af27854d38#9cd8b6af27854d38
- * Provide precompiled win32 binaries in Gem
  * Load options from a config file
+ * Add a --trace option to log response/request [thronedrk]
  * Create a Stats adapter to show server stats in the browser
  * Check for memory usage/leaks using dike or other:
    http://blog.evanweaver.com/articles/2007/05/06/leak-proof-direct-heap-instrumentation-for-bleak_house/
