@@ -62,4 +62,8 @@ EOS
     
     proc { @response.each { |l| l } }.should be_faster_then(max_parsing_time)
   end
+  
+  it "should be closeable" do
+    @response.close
+  end
 end

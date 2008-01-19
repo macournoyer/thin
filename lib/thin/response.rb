@@ -42,7 +42,7 @@ module Thin
     
     # Close any resource used by the response
     def close
-      @body.close if @body.respond_to :close
+      @body.close if @body.respond_to?(:close)
     end
     
     # Yields each chunk of the response
