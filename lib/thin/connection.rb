@@ -30,8 +30,10 @@ module Thin
       @response.status, @response.headers, @response.body = @app.call(env)
       
       # Send the response
-      trace { @response.to_s }
-      send_data @response.to_s
+      @response.each do |chunk|
+        trace { chunk }
+        send_data chunk
+      end
       
       close_connection_after_writing
       

@@ -4,21 +4,28 @@ describe Response do
   before do
     @response = Response.new
     @response.headers['Content-Type'] = 'text/html'
+    @response.headers['Content-Length'] = '0'
+    @response.body = ''
   end
   
   it 'should output headers' do
-    @response.headers_output.should == "Content-Type: text/html\r\nContent-Length: 0\r\nConnection: close\r\n"
+    @response.headers_output.should include("Content-Type: text/html", "Content-Length: 0", "Connection: close")
+  end
+  
+  it 'should include server name header' do
+    @response.headers_output.should include("Server: thin")
   end
   
   it 'should output head' do
-    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+    @response.head.should include("HTTP/1.1 200 OK", "Content-Type: text/html", "Content-Length: 0",
+                                  "Connection: close", "\r\n\r\n")
   end
   
   it 'should allow duplicates in headers' do
     @response.headers['Set-Cookie'] = 'mium=7'
     @response.headers['Set-Cookie'] = 'hi=there'
     
-    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+    @response.head.should include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
   end
   
   it 'should parse simple header values' do
@@ -26,7 +33,7 @@ describe Response do
       'Host' => 'localhost'
     }
     
-    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nHost: localhost\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+    @response.head.should include("Host: localhost")
   end
   
   it 'should parse multiline header values in several headers' do
@@ -34,16 +41,18 @@ describe Response do
       'Set-Cookie' => "mium=7\nhi=there"
     }
     
-    @response.head.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: mium=7\r\nSet-Cookie: hi=there\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+    @response.head.should include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
   end
   
   it 'should output body' do
-    @response.body << '<html></html>'
+    @response.body = '<html></html>'
     
-    @response.to_s.should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 13\r\nConnection: close\r\n\r\n<html></html>"
+    out = ''
+    @response.each { |l| out << l }
+    out.should include("\r\n\r\n<html></html>")
   end
   
-  it "should be faster then #{max_parsing_time = 0.06} ms" do
+  it "should be faster then #{max_parsing_time = 0.07} ms" do
     @response.body << <<-EOS
 <html><head><title>Dir listing</title></head>
 <body><h1>Listing stuff</h1><ul>
@@ -51,6 +60,6 @@ describe Response do
 </ul></body></html>
 EOS
     
-    proc { @response.to_s }.should be_faster_then(max_parsing_time)
+    proc { @response.each { |l| l } }.should be_faster_then(max_parsing_time)
   end
 end

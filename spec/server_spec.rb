@@ -5,8 +5,10 @@ require 'socket'
 describe Server do
   before do
     app = proc do |env|
-      body = [env['QUERY_STRING'], env['rack.input'].read].compact
-      [200, { 'Content-Type' => 'text/html' }, body]
+      body = ''
+      body << env['QUERY_STRING'].to_s
+      body << env['rack.input'].read.to_s
+      [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
     end
     server = Thin::Server.new('0.0.0.0', 3333, app)
     server.timeout = 3
@@ -24,7 +26,10 @@ describe Server do
   end
   
   it 'should GET from TCPSocket' do
-    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n").should == "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 4\r\nConnection: close\r\n\r\nthis"
+    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n").
+      should include("HTTP/1.1 200 OK",
+                     "Content-Type: text/html", "Content-Length: 4",
+                     "Connection: close", "\r\n\r\nthis")
   end
   
   it 'should return empty string on incomplete headers' do
