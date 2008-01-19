@@ -1,25 +1,35 @@
 module Thin
   # A response sent to the client.
   class Response
-    CONTENT_LENGTH = 'Content-Length'.freeze
     CONNECTION     = 'Connection'.freeze
+    SERVER         = 'Server'.freeze
     CLOSE          = 'close'.freeze
     
+    # Status code
     attr_accessor :status
-    attr_reader   :headers, :body
+    
+    # Response body, must respond to +each+.
+    attr_accessor :body
+    
+    # Headers key-value hash
+    attr_reader   :headers
     
     def initialize
       @headers = Headers.new
-      @body    = StringIO.new
       @status  = 200
     end
     
+    # String representation of the headers
+    # to be sent in the response.
     def headers_output
-      @headers[CONTENT_LENGTH] = @body.size
       @headers[CONNECTION] = CLOSE
+      @headers[SERVER] = Thin::SERVER
+      
       @headers.to_s
     end
     
+    # Top header of the response,
+    # containing the status code and response headers.
     def head
       "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
     end
@@ -30,19 +40,17 @@ module Thin
       end
     end
     
-    def body=(stream)
-      stream.each do |part|
-        @body << part
-      end
-    end
-    
+    # Close any resource used by the response
     def close
-      @body.close
+      @body.close if @body.respond_to?(:close)
     end
     
-    def to_s
-      @body.rewind
-      head + @body.read
+    # Yields each chunk of the response
+    def each
+      yield head
+      @body.each do |chunk|
+        yield chunk
+      end
     end
   end
 end
