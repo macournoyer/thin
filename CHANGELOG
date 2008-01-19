@@ -1,3 +1,6 @@
+== 0.5.4 Flying Mustard release
+ * Fix --user and --group option not changing daemon process privileges
+ 
 == 0.5.3 Purple Yogurt release
  * win32 pre-compiled gem now available
  * change rake task configuration to allow win32 gem build

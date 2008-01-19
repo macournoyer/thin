@@ -73,8 +73,8 @@ def start(options)
     server.timeout  = options[:timeout]
   
     if options[:daemonize]
-      server.change_privilege options[:user], options[:group] if options[:user] && options[:group]
       server.daemonize
+      server.change_privilege options[:user], options[:group] if options[:user] && options[:group]
     end
   
     server.app = Rack::Adapter::Rails.new(options.merge(:root => options[:chdir]))

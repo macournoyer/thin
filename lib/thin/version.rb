@@ -2,10 +2,10 @@ module Thin
   module VERSION #:nodoc:
     MAJOR    = 0
     MINOR    = 5
-    TINY     = 3
+    TINY     = 4
 
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Purple Yogurt'
+    CODENAME = 'Flying Mustard'
   end
 end
