@@ -94,10 +94,10 @@ class Thin < Atchoum::Website
     h2 'Install from source'
 
     p 'Clone the Git repository'
-    pre 'git clone git://github.com/macournoyer/thin.git && cd thin'
+    pre "git clone git://github.com/macournoyer/thin.git"
     
     p 'Hack the code, patch it, whatever, build the Gem and install'
-    pre 'sudo rake install'
+    pre "cd thin\nsudo rake install"
   end
   
   def usage_page
