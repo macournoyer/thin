@@ -1,9 +1,11 @@
 == 0.5.4 Flying Mustard release
  * Don't read the full body, use direct streaming when sending response.
    See: Response#each
-   As a result, the Content-Length can not be calculated any more.
-   You have to do set it in your adapter. All frameworks do it anyway.
- * Add Server response header
+   As a result, the Content-Length can not be calculated anymore.
+   You have to do set this in your adapter. All frameworks do it anyway.
+   It improve memory usage and boost speed for low concurrency.
+   Thanks to Kent Sibilev and Ezra for their help on that one.
+ * Add 'Server' response header
  * Fix --user and --group option not changing daemon process privileges
  
 == 0.5.3 Purple Yogurt release

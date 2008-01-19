@@ -2,29 +2,20 @@ Hey all,
 
 Version <%= Thin::VERSION::STRING %> (codename <%= Thin::VERSION::CODENAME %>) of the fastest Ruby server is out!
 
-Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:
- * the Mongrel parser: the root of Mongrel speed and security
- * Event Machine: a network I/O library with extremely high scalability, performance and stability
- * Rack: a minimal interface between webservers and Ruby frameworks
-Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server
-bundled in an easy to use gem for your own pleasure.
+http://code.macournoyer.com/thin/
 
 == What's new?
 
-Welcome 2 new members to the Thin team (previously composed of me and me):
-* Kevin Williams http://www.almostserio.us/
-* James Golick http://jamesgolick.com/
+Bug fix in daemon mode and speed boost for all!
 
-Small release for *nix users, but big one of windows ones!
-
-* win32 pre-compiled gem now available (send all your love to Kevin for this one)
-* Add prefix option to thin script to mount app under a given path.
-
-If you're still not sure about trying Thin, here are a couple of articles:
-* http://glauche.de/2008/01/14/how-many-thin-server-instances-are-best/
-* http://www.deze9.com/jp/blog/post?p=current-uptime-of-the-thin-server-process-behind
-* http://blog.rayngwf.com/2008/01/thin-ruby-web-server-that-is-really.html
-* http://glauche.de/2008/01/12/thin-nginx-with-rails/
+* Don't read the full body, use direct streaming when sending response.
+  See: Response#each
+  As a result, the Content-Length can not be calculated anymore.
+  You have to do set this in your adapter. All frameworks do it anyway.
+  It improve memory usage and boost speed for low concurrency.
+  Thanks to Kent Sibilev and Ezra for their help on that one.
+* Add 'Server' response header
+* Fix --user and --group option not changing daemon process privileges
 
 == Get it!
 
@@ -52,4 +43,4 @@ Also on IRC: #thin on freenode
 Thanks to all the people who contributed to Thin, EventMachine, Rack and Mongrel.
 
 Marc-Andre Cournoyer
-http://code.macournoyer.com/thin/
+http://macournoyer.com/

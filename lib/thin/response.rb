@@ -45,7 +45,9 @@ module Thin
       @body.close if @body.respond_to?(:close)
     end
     
-    # Yields each chunk of the response
+    # Yields each chunk of the response.
+    # To controler the size of the chunks sent to the client
+    # define your own +each+ method on +body+.
     def each
       yield head
       @body.each do |chunk|
