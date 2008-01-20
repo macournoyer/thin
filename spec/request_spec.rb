@@ -119,6 +119,7 @@ EOS
 
     request.body.rewind
     request.body.read.should == 'name=marc&email=macournoyer@gmail.com'
+    request.body.class.should == StringIO
     
     request.should validate_with_lint
   end
@@ -186,6 +187,26 @@ EOS
     request.env['CONTENT_LENGTH'].should == '9'
     request.body.read.should == 'very cool'
     request.should validate_with_lint
+  end
+  
+  it "should move body to tempfile when too big" do
+    body = 'X' * (Request::MAX_BODY + 1)
+    
+    request = R(<<-EOS.chomp, true)
+POST /postit HTTP/1.1
+Host: localhost:3000
+Content-Type: text/html
+Content-Length: #{body.size}
+
+#{body}
+EOS
+    
+    request.body.class.should == Tempfile
+  end
+  
+  it "should raise error when header is too big" do
+    big_headers = "X-Test: X\r\n" * (1024 * (80 + 32))
+    proc { R("GET / HTTP/1.1\r\n#{big_headers}\r\n") }.should raise_error(InvalidRequest)
   end
   
   it "should be faster then #{max_parsing_time = 0.2} ms" do

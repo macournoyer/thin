@@ -42,6 +42,7 @@ module Thin
       log_error e
       close_connection rescue nil
     ensure
+      @request.close rescue nil
       @response.close rescue nil
     end
   end

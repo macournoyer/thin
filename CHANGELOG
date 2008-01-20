@@ -1,3 +1,7 @@
+== 0.5.5 Pony release
+ * Move request body to a Tempfile if too big (> 112 MB)
+ * Remove useless check for max header size in Request (already done in the parser)
+
 == 0.5.4 Flying Mustard release
  * Don't read the full body, use direct streaming when sending response.
    See: Response#each
