@@ -52,7 +52,7 @@ describe Response do
     out.should include("\r\n\r\n<html></html>")
   end
   
-  it "should be faster then #{max_parsing_time = 0.07} ms" do
+  it "should be faster then #{max_parsing_time = 0.00011} ms" do
     @response.body << <<-EOS
 <html><head><title>Dir listing</title></head>
 <body><h1>Listing stuff</h1><ul>

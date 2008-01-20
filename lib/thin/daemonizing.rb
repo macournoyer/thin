@@ -26,7 +26,7 @@ module Thin
     end
     
     def pid
-      File.exist?(pid_file) ? open(pid_file).read : nil
+      File.exist?(pid_file) ? open(pid_file).read.to_i : nil
     end
     
     # Turns the current script into a daemon process that detaches from the console.
