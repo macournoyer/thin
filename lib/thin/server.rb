@@ -47,23 +47,23 @@ module Thin
     # Start listening for connections
     def listen!
       trap('INT')  { stop }
-			trap('TERM') { stop! }
+      trap('TERM') { stop! }
       
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
-
-			EventMachine.run do
-				begin
-				  log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
-					EventMachine.start_server(@host, @port, Connection) do |connection|
-					  connection.comm_inactivity_timeout = @timeout
-					  connection.app                     = @app
-					  connection.silent                  = @silent
-					end
-				rescue StopServer
-					EventMachine.stop_event_loop
-				end
-			end
+      
+      EventMachine.run do
+        begin
+          log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
+          EventMachine.start_server(@host, @port, Connection) do |connection|
+            connection.comm_inactivity_timeout = @timeout
+            connection.app                     = @app
+            connection.silent                  = @silent
+          end
+        rescue StopServer
+          EventMachine.stop_event_loop
+        end
+      end
     end
     
     

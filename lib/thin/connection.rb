@@ -13,7 +13,7 @@ module Thin
     
     def receive_data(data)
       trace { data }
-			process if @request.parse(data)
+      process if @request.parse(data)
     rescue InvalidRequest => e
       log "Invalid request"
       log_error e
@@ -25,7 +25,7 @@ module Thin
       
       # Add client info to the request env
       env[Request::REMOTE_ADDR] = env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
-
+      
       # Process the request
       @response.status, @response.headers, @response.body = @app.call(env)
       

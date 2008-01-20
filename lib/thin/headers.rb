@@ -8,7 +8,7 @@ module Thin
       @sent = {}
       @items = []
     end
-
+    
     def []=(key, value)
       if @sent.has_key?(key) && !ALLOWED_DUPLICATES.include?(key)
         # If we don't allow duplicate for that field
