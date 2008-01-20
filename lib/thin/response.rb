@@ -46,7 +46,7 @@ module Thin
     end
     
     # Yields each chunk of the response.
-    # To controler the size of the chunks sent to the client
+    # To control the size of each chunk
     # define your own +each+ method on +body+.
     def each
       yield head
