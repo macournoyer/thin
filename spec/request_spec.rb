@@ -209,8 +209,8 @@ EOS
     proc { R("GET / HTTP/1.1\r\n#{big_headers}\r\n") }.should raise_error(InvalidRequest)
   end
   
-  it "should be faster then #{max_parsing_time = 0.2} ms" do
-    body = <<-EOS.chomp
+  it "should be faster then #{max_parsing_time = 0.0002} RubySeconds" do
+    body = <<-EOS.chomp.gsub("\n", "\r\n")
 POST /postit HTTP/1.1
 Host: localhost:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
@@ -226,7 +226,7 @@ Content-Length: 37
 hi=there&name=marc&email=macournoyer@gmail.com
 EOS
     
-    proc { R(body, true) }.should be_faster_then(max_parsing_time)
+    proc { R(body) }.should be_faster_then(max_parsing_time)
   end
   
   it 'should be comparable to Mongrel parser' do

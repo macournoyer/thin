@@ -4,6 +4,7 @@ require 'spec'
 require 'benchmark'
 require 'timeout'
 require 'fileutils'
+require 'benchmark_unit'
 
 include Thin
 
@@ -31,14 +32,33 @@ module Matchers
       @max_time = max_time
     end
 
-    def matches?(target)
-      @target = target
-      @time = Benchmark.measure { @target.call }.real * 1000
-      @time <= @max_time
+    # Base on benchmark_unit/assertions#compare_benchmarks
+    def matches?(proc)
+      @time, multiplier = 0, 1
+      
+      while (@time < 0.01) do
+        @time = Benchmark::Unit.measure do 
+          multiplier.times &proc
+        end
+        multiplier *= 10
+      end
+      
+      multiplier /= 10
+      
+      iterations = (Benchmark::Unit::CLOCK_TARGET / @time).to_i * multiplier
+      iterations = 1 if iterations < 1
+      
+      total = Benchmark::Unit.measure do 
+        iterations.times &proc
+      end
+      
+      @time = total / iterations
+      
+      @time < @max_time
     end
     
     def failure_message(less_more=:less)
-      "took #{@time} ms, should take #{less_more} then #{@max_time} ms"
+      "took <#{@time.inspect} RubySeconds>, should take #{less_more} than #{@max_time} RubySeconds."
     end
 
     def negative_failure_message

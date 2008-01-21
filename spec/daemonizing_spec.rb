@@ -23,7 +23,7 @@ describe 'Daemonizing' do
     File.exist?(@server.pid_file).should be_true
     @pid = @server.pid
 
-    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(2)
+    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(5)
   end
   
   it 'should redirect stdio to a log file' do
@@ -89,5 +89,6 @@ describe 'Daemonizing' do
   
   after do
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
+    Process.kill(9, @server.pid) if @server.pid && Process.running?(@server.pid)
   end
 end

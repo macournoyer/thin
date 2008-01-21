@@ -12,4 +12,15 @@ else
   Spec::Rake::SpecTask.new('spec') do |t|
     t.spec_files = FileList['spec/**/*_spec.rb']
   end
+  
+  task :check_spec_gems do
+    begin
+      require 'spec'
+      require 'benchmark_unit'
+    rescue LoadError
+      abort "To run specs, install rspec and benchmark_unit gems"
+    end
+  end
+  
+  task :spec => [:check_spec_gems, :compile]
 end

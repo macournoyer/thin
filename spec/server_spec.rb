@@ -49,12 +49,12 @@ describe Server do
     post('/', :big => big).size.should == big.size + 4
   end
   
-  it "should handle GET in less then #{get_request_time = 5} ms" do
+  it "should handle GET in less then #{get_request_time = 0.004} RubySecond" do
     proc { get('/') }.should be_faster_then(get_request_time)
   end
   
-  it "should handle POST in less then #{post_request_time = 6} ms" do
-    proc { post('/', :file => 'X' * 1000) }.should be_faster_then(get_request_time)
+  it "should handle POST in less then #{post_request_time = 0.007} RubySecond" do
+    proc { post('/', :file => 'X' * 1000) }.should be_faster_then(post_request_time)
   end
   
   after do
