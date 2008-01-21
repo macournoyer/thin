@@ -8,3 +8,4 @@ log/*.log
 doc/rdoc/*
 tmp/*
 pkg/*
+nbproject/*
