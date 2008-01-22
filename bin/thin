@@ -50,9 +50,10 @@ opts = OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Common options:"
 
-  opts.on_tail("-D", "--debug", "Set debbuging on") { $DEBUG = true }
-  opts.on_tail("-h", "--help", "Show this message") { puts opts; exit }
-  opts.on_tail('-v', '--version', "Show version")   { puts Thin::SERVER; exit }
+  opts.on_tail("-D", "--debug", "Set debbuging on")       { $DEBUG = true }
+  opts.on_tail("-V", "--trace", "Set tracing on")         { $TRACE = true }
+  opts.on_tail("-h", "--help", "Show this message")       { puts opts; exit }
+  opts.on_tail('-v', '--version', "Show version")         { puts Thin::SERVER; exit }
 end
 
 
@@ -63,9 +64,8 @@ def cluster?(options)
 end
 
 def load_options_from_config_file!(options)
-  file = options.delete(:config)
-  YAML.load_file(file).each do |key, value|
-    options[key.to_sym] = value
+  if file = options.delete(:config)
+    YAML.load_file(file).each { |key, value| options[key.to_sym] = value }
   end
 end
 

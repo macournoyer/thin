@@ -13,7 +13,7 @@ module Thin
       
       # Log a message to the console if tracing is activated
       def trace(msg=nil)
-        puts msg || yield if $DEBUG && !@silent
+        puts msg || yield if ($DEBUG || $TRACE) && !@silent
       end
       
       def log_error(e)
