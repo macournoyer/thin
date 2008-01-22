@@ -1,4 +1,5 @@
 == 0.5.5 Pony release
+ * Add a very basic stats page through Stats adapter, load w/ --stats and browse to /stats.
  * Add --trace (-V) option to trace request/response and get backtrace w/out all Ruby debug stuff.
  * Add --config (-C) option to load options from a config file in thin script [Matt Todd].
  * Alter response headers to output directly to a string.

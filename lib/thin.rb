@@ -22,6 +22,7 @@ module Thin
   autoload :Request,      'thin/request'
   autoload :Response,     'thin/response'
   autoload :Server,       'thin/server'
+  autoload :Stats,        'thin/stats'
 end
 
 require 'rack'

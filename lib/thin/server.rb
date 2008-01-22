@@ -66,7 +66,6 @@ module Thin
       end
     end
     
-    
     def stop
       EventMachine.stop_event_loop
     rescue
