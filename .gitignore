@@ -9,3 +9,5 @@ doc/rdoc/*
 tmp/*
 pkg/*
 nbproject/*
+.DS_Store
+

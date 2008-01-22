@@ -1,5 +1,5 @@
 RUBY_1_9 = RUBY_VERSION =~ /^1\.9/
-WIN      = (RUBY_VERSION =~ /mswin|cygwin/)
+WIN      = (RUBY_PLATFORM =~ /mswin|cygwin/)
 SUDO     = (WIN ? "" : "sudo")
 
 require 'rake'
