@@ -36,7 +36,7 @@ module Thin
     
     def headers=(key_value_pairs)
       key_value_pairs.each do |k, vs|
-        vs.each { |v| @headers[k] = v.chomp }
+        vs.each_line { |v| @headers[k] = v.chomp }
       end
     end
     

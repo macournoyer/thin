@@ -1,4 +1,15 @@
 == 0.5.5 Pony release
+ * Server can now yield a Rack::Builder to allow building an app in one call:
+ 
+     Server.start '0.0.0.0', 3000 do
+       use Rack::CommonLogger
+       use Rack::ShowExceptions
+       map "/lobster" do
+         use Rack::Lint
+         run Rack::Lobster.new
+       end
+     end
+     
  * Add a very basic stats page through Stats adapter, load w/ --stats and browse to /stats.
  * Add --trace (-V) option to trace request/response and get backtrace w/out all Ruby debug stuff.
  * Add --config (-C) option to load options from a config file in thin script [Matt Todd].

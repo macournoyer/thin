@@ -23,11 +23,29 @@ module Thin
     
     # Creates a new server binded to <tt>host:port</tt>
     # that will pass request to +app+.
-    def initialize(host, port, app=nil)
+    # If a block is passed, a <tt>Rack::Builder</tt> instance
+    # will be passed to build the +app+.
+    # 
+    #   Server.new '0.0.0.0', 3000 do
+    #     use Rack::CommonLogger
+    #     use Rack::ShowExceptions
+    #     map "/lobster" do
+    #       use Rack::Lint
+    #       run Rack::Lobster.new
+    #     end
+    #   end.start!
+    #
+    def initialize(host, port, app=nil, &block)
       @host       = host
       @port       = port.to_i
       @app        = app
       @timeout    = 60 # sec
+      
+      @app = Rack::Builder.new(&block).to_app if block
+    end
+    
+    def self.start(host, port, &block)
+      new(host, port, &block).start!
     end
     
     # Starts the handlers.
