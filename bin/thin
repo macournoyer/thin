@@ -3,8 +3,9 @@
 # Run <tt>thin -h</tt> to get more usage.
 require File.dirname(__FILE__) + '/../lib/thin'
 require 'optparse'
+require 'yaml'
 
-COMMANDS = %w(start stop restart)
+COMMANDS = %w(start stop restart config)
 
 # Default options values
 options = {
@@ -44,6 +45,7 @@ opts = OptionParser.new do |opts|
   opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")             { |user| options[:user] = user }
   opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")           { |group| options[:group] = group }
   opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| options[:prefix] = path }
+  opts.on("-C", "--config PATH", "Load option from a config file")                { |file| options[:config] = file }
   
   opts.separator ""
   opts.separator "Common options:"
@@ -51,18 +53,28 @@ opts = OptionParser.new do |opts|
   opts.on_tail("-D", "--debug", "Set debbuging on") { $DEBUG = true }
   opts.on_tail("-h", "--help", "Show this message") { puts opts; exit }
   opts.on_tail('-v', '--version', "Show version")   { puts Thin::SERVER; exit }
-
-  opts.parse! ARGV
 end
 
 
-# == Commands definitions
+# == Utilities
 
 def cluster?(options)
   options[:servers] && options[:servers] > 1
 end
 
+def load_options_from_config_file!(options)
+  file = options.delete(:config)
+  YAML.load_file(file).each do |key, value|
+    options[key.to_sym] = value
+  end
+end
+
+
+# == Commands definitions
+
 def start(options)
+  load_options_from_config_file! options
+  
   if cluster?(options)
     Thin::Cluster.new(options).start
   else
@@ -87,6 +99,8 @@ def start(options)
 end
 
 def stop(options)
+  load_options_from_config_file! options
+  
   if cluster?(options)
     Thin::Cluster.new(options).stop
   else
@@ -95,6 +109,8 @@ def stop(options)
 end
 
 def restart(options)
+  load_options_from_config_file! options
+  
   if cluster?(options)
     Thin::Cluster.new(options).restart
   else
@@ -106,11 +122,23 @@ def restart(options)
   end
 end
 
+def config(options)
+  config_file = options.delete(:config)
+
+  # Stringify keys
+  options.keys.each { |o| options[o.to_s] = options.delete(o) }
+
+  File.open(config_file, 'w') { |f| f << options.to_yaml }
+  puts "Wrote configuration to #{config_file}"
+end
+
 
 # == Runs the command
 
-Dir.chdir(options[:chdir])
+opts.parse! ARGV
 command = ARGV[0]
+
+Dir.chdir(options[:chdir])
 
 if COMMANDS.include?(command)
   send(command, options)

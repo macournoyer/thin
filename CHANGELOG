@@ -1,4 +1,5 @@
 == 0.5.5 Pony release
+ * Add --config option to load options from a config file in thin script [Matt Todd].
  * Alter response headers to output directly to a string.
  * Improve specs stability.
  * Move request body to a Tempfile if too big (> 112 MB)
