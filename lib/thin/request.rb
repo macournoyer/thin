@@ -18,6 +18,8 @@ module Thin
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
+    CONNECTION        = 'HTTP_CONNECTION'.freeze
+    KEEP_ALIVE_REGEXP = /keep-alive/i
     
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
@@ -84,10 +86,16 @@ module Thin
       @env[CONTENT_LENGTH].to_i
     end
     
+    # Returns +true+ if the client expect the connection to stay open (alive).
+    # See http://www.mozilla.org/projects/netlib/http/pipelining-faq.html
+    # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html
+    def keep_alive?
+      @env[CONNECTION] =~ KEEP_ALIVE_REGEXP
+    end
+    
     def close
       @body.close if @body === Tempfile
     end
-    
     
     private
       def move_body_to_tempfile

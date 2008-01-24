@@ -4,6 +4,7 @@ module Thin
     CONNECTION     = 'Connection'.freeze
     SERVER         = 'Server'.freeze
     CLOSE          = 'close'.freeze
+    KEEP_ALIVE     = 'keep-alive'.freeze
     
     # Status code
     attr_accessor :status
@@ -15,17 +16,26 @@ module Thin
     attr_reader   :headers
     
     def initialize
-      @headers = Headers.new
-      @status  = 200
+      @headers    = Headers.new
+      @status     = 200
+      @keep_alive = false
     end
     
     # String representation of the headers
     # to be sent in the response.
     def headers_output
-      @headers[CONNECTION] = CLOSE
+      if @keep_alive
+        @headers[CONNECTION] = KEEP_ALIVE        
+      else
+        @headers[CONNECTION] = CLOSE
+      end
       @headers[SERVER] = Thin::SERVER
       
       @headers.to_s
+    end
+    
+    def keep_alive!
+      @keep_alive = true
     end
     
     # Top header of the response,

@@ -3,10 +3,14 @@ require 'thin'
 
 class SimpleAdapter
   def call(env)
+    body = ["hello!"]
     [
       200,
-      { 'Content-Type' => 'text/plain' },
-      ["hello!\n"]
+      {
+        'Content-Type' => 'text/plain',
+        'Content-Length' => body.join.size,
+      },
+      body
     ]
   end
 end
