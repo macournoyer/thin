@@ -6,30 +6,27 @@ describe Server do
   before do
     app = proc do |env|
       body = ''
-      body << env['QUERY_STRING'].to_s
-      body << env['rack.input'].read.to_s
+      body << env.inspect
+      body << env['rack.input'].read
       [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
     end
     server = Thin::Server.new('0.0.0.0', 3333, app)
     server.timeout = 3
     server.silent = true
     
-    server.start
-    @thread = Thread.new do
-      server.listen!
-    end
+    @thread = Thread.new { server.start }
     sleep 0.1 until @thread.status == 'sleep'
   end
     
   it 'should GET from Net::HTTP' do
-    get('/?cthis').should == 'cthis'
+    get('/?cthis').should include('cthis')
   end
   
   it 'should GET from TCPSocket' do
     raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n").
       should include("HTTP/1.1 200 OK",
-                     "Content-Type: text/html", "Content-Length: 4",
-                     "Connection: close", "\r\n\r\nthis")
+                     "Content-Type: text/html", "Content-Length: ",
+                     "Connection: close", "this")
   end
   
   it 'should return empty string on incomplete headers' do
@@ -41,12 +38,12 @@ describe Server do
   end
   
   it 'should POST from Net::HTTP' do
-    post('/', :arg => 'pirate').should == 'arg=pirate'
+    post('/', :arg => 'pirate').should include('arg=pirate')
   end
   
   it 'should handle big POST' do
     big = 'X' * (20 * 1024)
-    post('/', :big => big).size.should == big.size + 4
+    post('/', :big => big).should include(big)
   end
   
   it "should handle GET in less then #{get_request_time = 0.004} RubySecond" do
@@ -55,6 +52,10 @@ describe Server do
   
   it "should handle POST in less then #{post_request_time = 0.007} RubySecond" do
     proc { post('/', :file => 'X' * 1000) }.should be_faster_then(post_request_time)
+  end
+  
+  it "should retreive remote address" do
+    get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
   end
   
   after do
@@ -114,4 +115,47 @@ describe Server, 'app configuration' do
     server.app.call({})[0].should == 404
     server.app.call({'PATH_INFO' => '/test'}).should == :works
   end
+end
+
+describe Server, "on UNIX domain socket" do
+  before do
+    app = proc do |env|
+      [200, { 'Content-Type' => 'text/html' }, [env.inspect]]
+    end
+    server = Thin::Server.new('/tmp/thin_test.sock', nil, app)
+    server.timeout = 3
+    server.silent = true
+    
+    @thread = Thread.new { server.start }
+    sleep 0.1 until @thread.status == 'sleep'
+  end
+  
+  it "should accept GET request" do
+    get("/?this").should include('this')
+  end
+  
+  it "should retreive remote address" do    
+    get('/').should include('"REMOTE_ADDR"=>""') # Is that right?
+  end
+  
+  it "should handle GET in less then #{get_request_time = 0.002} RubySecond" do
+    proc { get('/') }.should be_faster_then(get_request_time)
+  end  
+  
+  after do
+    @thread.kill
+  end
+  
+  private
+    def get(url)
+      send_data("GET #{url} HTTP/1.1\r\n\r\n")
+    end
+  
+    def send_data(data)
+      socket = UNIXSocket.new('/tmp/thin_test.sock')
+      socket.write data
+      out = socket.read
+      socket.close
+      out
+    end
 end

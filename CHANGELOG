@@ -1,4 +1,19 @@
 == 0.5.5 Pony release
+ * Add support for connection through UNIX domain socket.
+   Use the --socket (-S) option w/ the thin script to configure the socket filename.
+   Nginx support binding to a UNIX socket like this:
+   
+     upstream  backend {
+       server   unix:/tmp/thin.0.sock;
+       server   unix:/tmp/thin.1.sock;
+       server   unix:/tmp/thin.2.sock;
+     }
+  
+   Start your servers like this:
+   
+     thin start -s3 -S/tmp/thin.sock
+   
+ * Remove Server#listen! method. Use Server#start instead.
  * Server can now yield a Rack::Builder to allow building an app in one call:
  
      Server.start '0.0.0.0', 3000 do

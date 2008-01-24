@@ -31,6 +31,7 @@ opts = OptionParser.new do |opts|
 
   opts.on("-a", "--address HOST", "bind to HOST address (default: 0.0.0.0)")      { |host| options[:address] = host }
   opts.on("-p", "--port PORT", "use PORT (default: 3000)")                        { |port| options[:port] = port.to_i }
+  opts.on("-S", "--socket PATH", "bind to unix domain socket")                    { |file| options[:socket] = file }
   opts.on("-e", "--environment ENV", "Rails environment (default: development)")  { |env| options[:environment] = env }
   opts.on("-c", "--chdir PATH", "Change to dir before starting")                  { |dir| options[:chdir] = File.expand_path(dir) }
   opts.on("-s", "--servers NUM", "Number of servers to start",
@@ -79,7 +80,11 @@ def start(options)
   if cluster?(options)
     Thin::Cluster.new(options).start
   else
-    server = Thin::Server.new(options[:address], options[:port])
+    if options[:socket]
+      server = Thin::Server.new(options[:socket])
+    else
+      server = Thin::Server.new(options[:address], options[:port])
+    end
   
     server.pid_file = options[:pid]
     server.log_file = options[:log]
@@ -127,7 +132,7 @@ def restart(options)
 end
 
 def config(options)
-  config_file = options.delete(:config)
+  config_file = options.delete(:config) || abort('config option required')
 
   # Stringify keys
   options.keys.each { |o| options[o.to_s] = options.delete(o) }

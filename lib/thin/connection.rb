@@ -4,7 +4,11 @@ module Thin
   class Connection < EventMachine::Connection
     include Logging
     
+    # Rack application served by this connection.
     attr_accessor :app
+    
+    # +true+ if the connection is on a UNIX domain socket.
+    attr_accessor :unix_socket
     
     def post_init
       @request  = Request.new
@@ -24,7 +28,7 @@ module Thin
       env = @request.env
       
       # Add client info to the request env
-      env[Request::REMOTE_ADDR] = env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
+      env[Request::REMOTE_ADDR] = remote_address(env)
       
       # Process the request
       @response.status, @response.headers, @response.body = @app.call(env)
@@ -45,5 +49,17 @@ module Thin
       @request.close rescue nil
       @response.close rescue nil
     end
+    
+    protected
+      def remote_address(env)
+        if remote_addr = env[Request::FORWARDED_FOR]
+          remote_addr
+        elsif @unix_socket
+          # FIXME not sure about this, does it even make sense on a UNIX socket?
+          Socket.unpack_sockaddr_un(get_peername)
+        else
+          Socket.unpack_sockaddr_in(get_peername)[1]
+        end
+      end
   end
 end

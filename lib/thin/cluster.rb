@@ -20,36 +20,42 @@ module Thin
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
-      @script  = 'thin'
+      @script  = File.join(File.dirname(__FILE__), '..', '..', 'bin', 'thin')
+      
+      if socket
+        @options.delete(:address)
+        @options.delete(:port)
+      end
     end
     
     def first_port; @options[:port]     end
-    def address;    @options[:address]  end    
+    def address;    @options[:address]  end
+    def socket;     @options[:socket]   end
     def pid_file;   File.expand_path File.join(@options[:chdir], @options[:pid]) end
     def log_file;   File.expand_path File.join(@options[:chdir], @options[:log]) end
     
     # Start the servers
     def start
-      with_each_server { |port| start_on_port port }
+      with_each_server { |port| start_server port }
     end
     
-    # Start the server on a single port
-    def start_on_port(port)
-      log "Starting #{address}:#{port} ... "
+    # Start a single server
+    def start_server(number)
+      log "Starting server on #{server_id(number)} ... "
       
-      run :start, @options, port
+      run :start, @options, number
     end
   
     # Stop the servers
     def stop
-      with_each_server { |port| stop_on_port port }
+      with_each_server { |n| stop_server n }
     end
     
-    # Stop the server running on +port+
-    def stop_on_port(port)
-      log "Stopping #{address}:#{port} ... "
+    # Stop a single server
+    def stop_server(number)
+      log "Stopping server on #{server_id(number)} ... "
       
-      run :stop, @options, port
+      run :stop, @options, number
     end
     
     # Stop and start the servers.
@@ -59,25 +65,44 @@ module Thin
       start
     end
     
-    def log_file_for(port)
-      include_port_number log_file, port
+    def server_id(number)
+      if socket
+        socket_for(number)
+      else
+        [address, number].join(':')
+      end
     end
     
-    def pid_file_for(port)
-      include_port_number pid_file, port
+    def log_file_for(number)
+      include_server_number log_file, number
     end
     
-    def pid_for(port)
-      File.read(pid_file_for(port)).chomp.to_i
+    def pid_file_for(number)
+      include_server_number pid_file, number
+    end
+    
+    def socket_for(number)
+      include_server_number socket, number
+    end
+    
+    def pid_for(number)
+      File.read(pid_file_for(number)).chomp.to_i
     end
     
     private
       # Send the command to the +thin+ script
-      def run(cmd, options, port)
-        shell_cmd = shellify(cmd, options.merge(:port => port, :pid => pid_file_for(port), :log => log_file_for(port)))
+      def run(cmd, options, number)
+        cmd_options = options.dup
+        cmd_options.merge!(:pid => pid_file_for(number), :log => log_file_for(number))
+        if socket
+          cmd_options.merge!(:socket => socket_for(number))
+        else
+          cmd_options.merge!(:port => number)
+        end
+        shell_cmd = shellify(cmd, cmd_options)
         trace shell_cmd
         ouput = `#{shell_cmd}`.chomp
-        log ouput unless ouput.empty?
+        log "  " + ouput.gsub("\n", "  \n") unless ouput.empty?
       end
       
       # Turn into a runnable shell command
@@ -93,14 +118,16 @@ module Thin
       end
       
       def with_each_server
-        @size.times { |n| yield first_port + n }
+        @size.times do |n|
+          yield socket ? n : (first_port + n)
+        end
       end
       
-      # Add the port numbers in the filename
+      # Add the server port or number in the filename
       # so each instance get its own file
-      def include_port_number(path, port)
-        raise ArgumentError, "filename '#{path}' must include an extension" unless path =~ /\./
-        path.gsub(/\.(.+)$/) { ".#{port}.#{$1}" }
+      def include_server_number(path, number)
+        ext = File.extname(path)
+        path.gsub(/#{ext}$/, ".#{number}#{ext}")
       end
   end
 end
