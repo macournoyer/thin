@@ -12,19 +12,19 @@ module Thin
     include Logging
     include Daemonizable
     
-    # Addresse and port on which the server is listening for connections.
+    # Address and port on which the server is listening for connections.
     attr_accessor :port, :host
     
     # UNIX domain socket on which the server is listening for connections.
     attr_accessor :socket
     
-    # App called with the request that produce the response.
+    # App called with the request that produces the response.
     attr_accessor :app
     
     # Maximum time for incoming data to arrive
     attr_accessor :timeout
     
-    # Creates a new server binded to <tt>host:port</tt>
+    # Creates a new server bound to <tt>host:port</tt>
     # or to +socket+ that will pass request to +app+.
     # If +host_or_socket+ contains a <tt>/</tt> it is assumed
     # to be a UNIX domain socket filename.
