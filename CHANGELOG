@@ -1,4 +1,4 @@
-== 0.5.5 Pony release
+== 0.6.0 Big Pony release
  * Add support for connection through UNIX domain socket.
    Use the --socket (-S) option w/ the thin script to configure the socket filename.
    Nginx support binding to a UNIX socket like this:
