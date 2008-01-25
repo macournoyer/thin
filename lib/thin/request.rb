@@ -15,7 +15,7 @@ module Thin
     
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
-    SERVER_PROTOCOL   = 'SERVER_PROTOCOL'.freeze
+    HTTP_VERSION      = 'HTTP_VERSION'.freeze
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
@@ -94,15 +94,23 @@ module Thin
       # Clients and servers SHOULD NOT assume that a persistent connection
       # is maintained for HTTP versions less than 1.1 unless it is explicitly
       # signaled. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html)
-      if @env[SERVER_PROTOCOL] == HTTP_1_0
+      if @env[HTTP_VERSION] == HTTP_1_0
         @env[CONNECTION] =~ KEEP_ALIVE_REGEXP
       
       # HTTP/1.1 client intends to maintain a persistent connection unless
       # a Connection header including the connection-token "close" was sent
       # in the request
       else
-        @env[CONNECTION] =~ NOT_CLOSE_REGEXP
+        @env[CONNECTION].nil? || @env[CONNECTION] =~ NOT_CLOSE_REGEXP
       end
+    end
+    
+    def remote_address=(address)
+      @env[REMOTE_ADDR] = address
+    end
+    
+    def forwarded_for
+      @env[FORWARDED_FOR]
     end
     
     # Close any resource used by the request

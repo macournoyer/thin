@@ -16,7 +16,7 @@ describe 'Daemonizing' do
   it 'should create a pid file' do
     @pid = fork do
       @server.daemonize
-      sleep 1
+      sleep 2
     end
     
     Process.wait(@pid)

@@ -26,10 +26,10 @@ module Thin
     
     def process
       # Add client info to the request env
-      @request.env[Request::REMOTE_ADDR] = remote_address
+      @request.remote_address = remote_address
       
       # Process the request
-      @response.status, @response.headers, @response.body = @app.call(env)
+      @response.status, @response.headers, @response.body = @app.call(@request.env)
       
       # Tell the client the connection is persistent if requested
       @response.persistent! if @request.persistent?
@@ -58,7 +58,7 @@ module Thin
     
     protected
       def remote_address
-        if remote_addr = @request.env[Request::FORWARDED_FOR]
+        if remote_addr = @request.forwarded_for
           remote_addr
         elsif @unix_socket
           # FIXME not sure about this, does it even make sense on a UNIX socket?
