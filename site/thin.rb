@@ -148,6 +148,7 @@ class Thin < Atchoum::Website
       li { a "feelfree.homelinux.com", :href => 'http://feelfree.homelinux.com' }
       li { a "to2posts.com", :href => 'http://to2blogs.com/' }
       li { a "James on Software", :href => 'http://jamesgolick.com/' }
+      li { a "FlashDen", :href => 'http://flashden.net/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
