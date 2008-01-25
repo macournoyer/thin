@@ -25,16 +25,14 @@ module Thin
     end
     
     def process
-      env = @request.env
-      
       # Add client info to the request env
-      env[Request::REMOTE_ADDR] = remote_address
+      @request.env[Request::REMOTE_ADDR] = remote_address
       
       # Process the request
       @response.status, @response.headers, @response.body = @app.call(env)
       
-      # Activate HTTP pipelining if the client requests it
-      @response.keep_alive! if @request.keep_alive?
+      # Tell the client the connection is persistent if requested
+      @response.persistent! if @request.persistent?
       
       # Send the response
       @response.each do |chunk|
@@ -43,7 +41,7 @@ module Thin
       end
       
       # If no more request on that same connection, we close it.
-      close_connection_after_writing unless @request.keep_alive?
+      close_connection_after_writing unless @response.persistent?
       
     rescue Object => e
       log "Unexpected error while processing request: #{e.message}"
@@ -53,9 +51,9 @@ module Thin
       @request.close  rescue nil
       @response.close rescue nil
       
-      # Prepare the connection for another request
-      # if the client supports HTTP pipelining.
-      post_init if @request.keep_alive?
+      # Prepare the connection for another request if the client
+      # supports HTTP pipelining (persistent connection).
+      post_init if @response.persistent?
     end    
     
     protected

@@ -17,6 +17,10 @@ module Thin
       end
     end
     
+    def has_key?(key)
+      @sent[key]
+    end
+    
     def to_s
       @out
     end

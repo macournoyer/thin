@@ -1,5 +1,4 @@
-require 'rubygems'
-require 'thin'
+require File.dirname(__FILE__) + '/../lib/thin'
 
 class SimpleAdapter
   def call(env)
@@ -7,8 +6,8 @@ class SimpleAdapter
     [
       200,
       {
-        'Content-Type' => 'text/plain',
-        'Content-Length' => body.join.size,
+        'Content-Type'   => 'text/plain',
+        'Content-Length' => body.join.size.to_s,
       },
       body
     ]
@@ -18,4 +17,4 @@ end
 app = Rack::URLMap.new('/test'  => SimpleAdapter.new,
                        '/files' => Rack::File.new('.'))
 
-Thin::Server.new('0.0.0.0', 3000, app).start!
+Thin::Server.start('0.0.0.0', 3000, app)
