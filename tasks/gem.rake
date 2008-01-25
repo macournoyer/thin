@@ -43,13 +43,13 @@ task :tag_warn do
   puts "*" * 40
   puts "Don't forget to tag the release:"
   puts
-  puts "  git tag -a v#{Thin::VERSION::STRING} -m 'Tagging #{Thin::SERVER}'"
+  puts "  git tag -m 'Tagging #{Thin::SERVER}' -a v#{Thin::VERSION::STRING}"
   puts
   puts "or run rake tag"
   puts "*" * 40
 end
 task :tag do
-  sh "git tag -a v#{Thin::VERSION::STRING} -m 'Tagging #{Thin::SERVER}'"
+  sh "git tag -m 'Tagging #{Thin::SERVER}' -a v#{Thin::VERSION::STRING}"
 end
 task :gem => :tag_warn
 
