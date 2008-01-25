@@ -25,13 +25,14 @@ module Thin
     end
     
     def process
-      env = @request.env
-      
       # Add client info to the request env
-      env[Request::REMOTE_ADDR] = remote_address(env)
+      @request.remote_address = remote_address
       
       # Process the request
-      @response.status, @response.headers, @response.body = @app.call(env)
+      @response.status, @response.headers, @response.body = @app.call(@request.env)
+      
+      # Tell the client the connection is persistent if requested
+      @response.persistent! if @request.persistent?
       
       # Send the response
       @response.each do |chunk|
@@ -39,20 +40,25 @@ module Thin
         send_data chunk
       end
       
-      close_connection_after_writing
+      # If no more request on that same connection, we close it.
+      close_connection_after_writing unless @response.persistent?
       
     rescue Object => e
       log "Unexpected error while processing request: #{e.message}"
       log_error e
       close_connection rescue nil
     ensure
-      @request.close rescue nil
+      @request.close  rescue nil
       @response.close rescue nil
-    end
+      
+      # Prepare the connection for another request if the client
+      # supports HTTP pipelining (persistent connection).
+      post_init if @response.persistent?
+    end    
     
     protected
-      def remote_address(env)
-        if remote_addr = env[Request::FORWARDED_FOR]
+      def remote_address
+        if remote_addr = @request.forwarded_for
           remote_addr
         elsif @unix_socket
           # FIXME not sure about this, does it even make sense on a UNIX socket?

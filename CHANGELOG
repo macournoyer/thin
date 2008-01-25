@@ -1,3 +1,6 @@
+== 0.7.0 Bionic Pickle release
+ * Persistent connection (keep-alive) & HTTP pipelining support
+
 == 0.6.0 Big Pony release
  * Add support for connection through UNIX domain socket.
    Use the --socket (-S) option w/ the thin script to configure the socket filename.

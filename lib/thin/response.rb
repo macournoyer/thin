@@ -2,8 +2,10 @@ module Thin
   # A response sent to the client.
   class Response
     CONNECTION     = 'Connection'.freeze
-    SERVER         = 'Server'.freeze
     CLOSE          = 'close'.freeze
+    KEEP_ALIVE     = 'keep-alive'.freeze
+    SERVER         = 'Server'.freeze
+    CONTENT_LENGTH = 'Content-Length'.freeze
     
     # Status code
     attr_accessor :status
@@ -15,19 +17,21 @@ module Thin
     attr_reader   :headers
     
     def initialize
-      @headers = Headers.new
-      @status  = 200
+      @headers    = Headers.new
+      @status     = 200
+      @persistent = false
     end
     
     # String representation of the headers
     # to be sent in the response.
     def headers_output
-      @headers[CONNECTION] = CLOSE
-      @headers[SERVER] = Thin::SERVER
+      # Set default headers
+      @headers[CONNECTION] = persistent? ? KEEP_ALIVE : CLOSE
+      @headers[SERVER]     = Thin::SERVER
       
       @headers.to_s
     end
-    
+        
     # Top header of the response,
     # containing the status code and response headers.
     def head
@@ -54,5 +58,16 @@ module Thin
         yield chunk
       end
     end
+    
+    # Tell the client the connection should stay open
+    def persistent!
+      @persistent = true
+    end
+    
+    # Persistent connection must be requested as keep-alive
+    # from the server and have a Content-Length.
+    def persistent?
+      @persistent && @headers.has_key?(CONTENT_LENGTH)
+    end    
   end
 end

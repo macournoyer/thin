@@ -13,11 +13,16 @@ module Thin
     MAX_BODY          = 1024 * (80 + 32)
     BODY_TMPFILE      = 'thin-body'.freeze
     
-    # Freeze some HTTP header names
+    # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
+    HTTP_VERSION      = 'HTTP_VERSION'.freeze
+    HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
+    CONNECTION        = 'HTTP_CONNECTION'.freeze
+    KEEP_ALIVE_REGEXP = /keep-alive/i
+    NOT_CLOSE_REGEXP  = /[^(close)]/i
     
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
@@ -84,10 +89,34 @@ module Thin
       @env[CONTENT_LENGTH].to_i
     end
     
+    # Returns +true+ if the client expect the connection be persistent.
+    def persistent?
+      # Clients and servers SHOULD NOT assume that a persistent connection
+      # is maintained for HTTP versions less than 1.1 unless it is explicitly
+      # signaled. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html)
+      if @env[HTTP_VERSION] == HTTP_1_0
+        @env[CONNECTION] =~ KEEP_ALIVE_REGEXP
+      
+      # HTTP/1.1 client intends to maintain a persistent connection unless
+      # a Connection header including the connection-token "close" was sent
+      # in the request
+      else
+        @env[CONNECTION].nil? || @env[CONNECTION] =~ NOT_CLOSE_REGEXP
+      end
+    end
+    
+    def remote_address=(address)
+      @env[REMOTE_ADDR] = address
+    end
+    
+    def forwarded_for
+      @env[FORWARDED_FOR]
+    end
+    
+    # Close any resource used by the request
     def close
       @body.close if @body === Tempfile
     end
-    
     
     private
       def move_body_to_tempfile

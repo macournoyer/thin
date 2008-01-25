@@ -6,6 +6,6 @@ module Thin
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Big Pony'
+    CODENAME = 'Bionic Pickle'
   end
 end

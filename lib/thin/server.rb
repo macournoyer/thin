@@ -42,7 +42,7 @@ module Thin
     #
     def initialize(host_or_socket, port=3000, app=nil, &block)
       if host_or_socket.include?('/')
-        @socket = host_or_socket
+        @socket   = host_or_socket
       else
         @host     = host_or_socket
         @port     = port.to_i

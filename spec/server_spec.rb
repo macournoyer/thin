@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 require 'net/http'
 require 'socket'
 
-describe Server do
+describe Server, 'on TCP socket' do
   before do
     app = proc do |env|
       body = ''
@@ -23,18 +23,18 @@ describe Server do
   end
   
   it 'should GET from TCPSocket' do
-    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\n\r\n").
+    send_data("GET /?this HTTP/1.1\r\nConnection: close\r\n\r\n").
       should include("HTTP/1.1 200 OK",
                      "Content-Type: text/html", "Content-Length: ",
                      "Connection: close", "this")
   end
   
   it 'should return empty string on incomplete headers' do
-    raw('0.0.0.0', 3333, "GET /?this HTTP/1.1\r\nHost:").should be_empty
+    send_data("GET /?this HTTP/1.1\r\nHost:").should be_empty
   end
   
   it 'should return empty string on incorrect Content-Length' do
-    raw('0.0.0.0', 3333, "POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye").should be_empty
+    send_data("POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye").should be_empty
   end
   
   it 'should POST from Net::HTTP' do
@@ -67,16 +67,16 @@ describe Server do
       Net::HTTP.get(URI.parse('http://0.0.0.0:3333' + url))
     end
     
-    def raw(host, port, data)
-      socket = TCPSocket.new(host, port)
+    def post(url, params={})
+      Net::HTTP.post_form(URI.parse('http://0.0.0.0:3333' + url), params).body
+    end
+    
+    def send_data(data)
+      socket = TCPSocket.new('0.0.0.0', 3333)
       socket.write data
       out = socket.read
       socket.close
       out
-    end
-    
-    def post(url, params={})
-      Net::HTTP.post_form(URI.parse('http://0.0.0.0:3333' + url), params).body
     end
 end
 
@@ -158,4 +158,71 @@ describe Server, "on UNIX domain socket" do
       socket.close
       out
     end
+end
+
+describe Server, "HTTP pipelining" do
+  before do
+    calls = 0
+    app = proc do |env|
+      calls += 1
+      body = env['PATH_INFO'] + '-' + calls.to_s
+      [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
+    end
+    server = Thin::Server.new('0.0.0.0', 3333, app)
+    server.timeout = 3
+    server.silent = true
+
+    @thread = Thread.new { server.start }
+    sleep 0.1 until @thread.status == 'sleep'
+  end
+  
+  it "should pipeline request on same socket" do
+    socket = TCPSocket.new('0.0.0.0', 3333)
+    socket.write "GET /first HTTP/1.1\r\nConnection: keep-alive\r\n\r\n"
+    socket.flush
+    socket.write "GET /second HTTP/1.1\r\nConnection: close\r\n\r\n"
+    response = socket.read
+    socket.close
+    
+    response.should include('/first-1', '/second-2')
+  end
+  
+  it "should pipeline requests by default on HTTP 1.1" do
+    socket = TCPSocket.new('0.0.0.0', 3333)
+    socket.write "GET /first HTTP/1.1\r\n\r\n"
+    socket.flush
+    socket.write "GET /second HTTP/1.1\r\nConnection: close\r\n\r\n"
+    response = socket.read
+    socket.close
+    
+    response.should include('/first-1', '/second-2')
+  end
+  
+  it "should not pipeline request by default on HTTP 1.0" do
+    socket = TCPSocket.new('0.0.0.0', 3333)
+    socket.write "GET /first HTTP/1.0\r\n\r\n"
+    socket.flush
+    socket.write "GET /second HTTP/1.0\r\nConnection: close\r\n\r\n"
+    response = socket.read
+    socket.close
+    
+    response.should include('/first-1')
+    response.should_not include('/second-2')
+  end
+  
+  it "should not pipeline request on same socket when connection is closed" do
+    socket = TCPSocket.new('0.0.0.0', 3333)
+    socket.write "GET /first HTTP/1.1\r\nConnection: close\r\n\r\n"
+    socket.flush
+    socket.write "GET /second HTTP/1.1\r\nConnection: close\r\n\r\n"
+    response = socket.read
+    socket.close
+    
+    response.should include('/first-1')
+    response.should_not include('/second-2')
+  end
+  
+  after do
+    @thread.kill
+  end
 end
