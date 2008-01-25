@@ -54,12 +54,27 @@ namespace :gem do
     system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
   end
   
-  desc 'Upload gem to rubyforge.org'
-  task :upload_rubyforge => :gem do
-    sh 'rubyforge login'
-    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
-    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"    
-  end
+  namespace :upload do
+    desc 'Upload the precompiled win32 gem to code.macournoyer.com'
+    task :win do
+      upload "pkg/#{spec.full_name}-x86-mswin32-60.gem", 'gems'
+      system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
+    end    
+
+    desc 'Upload gem to rubyforge.org'
+    task :rubyforge => :gem do
+      sh 'rubyforge login'
+      sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
+      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"    
+    end
+
+    desc 'Upload the precompiled win32 gem to rubyforge.org'
+    task 'rubyforge:win' do
+      sh 'rubyforge login'
+      sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-x86-mswin32-60.gem"
+      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-x86-mswin32-60.gem"
+    end
+  end  
 end
 
 task :install => [:clobber, :compile, :package] do
