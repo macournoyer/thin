@@ -60,6 +60,9 @@ module Thin
     # Start the server and listen for connections
     def start
       raise ArgumentError, 'app required' unless @app
+      if @socket && RUBY_PLATFORM =~ /mswin/
+        raise RuntimeError, "UNIX sockets not available on Windows"
+      end
       
       trap('INT')  { stop }
       trap('TERM') { stop! }
