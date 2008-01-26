@@ -1,3 +1,7 @@
+== 0.6.1 Cheesecake release
+ * Remove socket file when server stops.
+ * Set back cluster to use 'thin' command to launch servers.
+
 == 0.6.0 Big Pony release
  * Add support for connection through UNIX domain socket.
    Use the --socket (-S) option w/ the thin script to configure the socket filename.

@@ -20,7 +20,7 @@ module Thin
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
-      @script  = File.join(File.dirname(__FILE__), '..', '..', 'bin', 'thin')
+      @script  = 'thin'
       
       if socket
         @options.delete(:address)

@@ -122,11 +122,11 @@ describe Server, "on UNIX domain socket" do
     app = proc do |env|
       [200, { 'Content-Type' => 'text/html' }, [env.inspect]]
     end
-    server = Thin::Server.new('/tmp/thin_test.sock', nil, app)
-    server.timeout = 3
-    server.silent = true
+    @server = Thin::Server.new('/tmp/thin_test.sock', nil, app)
+    @server.timeout = 3
+    @server.silent = true
     
-    @thread = Thread.new { server.start }
+    @thread = Thread.new { @server.start }
     sleep 0.1 until @thread.status == 'sleep'
   end
   
@@ -140,7 +140,12 @@ describe Server, "on UNIX domain socket" do
   
   it "should handle GET in less then #{get_request_time = 0.002} RubySecond" do
     proc { get('/') }.should be_faster_then(get_request_time)
-  end  
+  end
+  
+  it "should remove socket file after server stops" do
+    @server.stop
+    File.exist?('/tmp/thin_test.sock').should be_false
+  end
   
   after do
     @thread.kill

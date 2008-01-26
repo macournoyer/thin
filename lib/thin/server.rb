@@ -43,12 +43,12 @@ module Thin
     def initialize(host_or_socket, port=3000, app=nil, &block)
       if host_or_socket.include?('/')
         @socket = host_or_socket
-      else
-        @host     = host_or_socket
-        @port     = port.to_i
-      end
-      @app        = app
-      @timeout    = 60 # sec
+      else      
+        @host   = host_or_socket
+        @port   = port.to_i
+      end       
+      @app      = app
+      @timeout  = 60 # sec
       
       @app = Rack::Builder.new(&block).to_app if block
     end
@@ -59,10 +59,12 @@ module Thin
     
     # Start the server and listen for connections
     def start
-      raise ArgumentError, "app required" unless @app
+      raise ArgumentError, 'app required' unless @app
       
       trap('INT')  { stop }
       trap('TERM') { stop! }
+      
+      at_exit { remove_socket_file } if @socket
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
@@ -83,6 +85,7 @@ module Thin
     # Stops the server by stopping the listening loop.
     def stop
       EventMachine.stop_event_loop
+      remove_socket_file
     rescue
       warn "Error stopping : #{$!}"
     end
@@ -116,6 +119,10 @@ module Thin
         connection.app                     = @app
         connection.silent                  = @silent
         connection.unix_socket             = !@socket.nil?
+      end
+      
+      def remove_socket_file
+        File.delete(@socket) if @socket && File.exist?(@socket)
       end
   end
 end
