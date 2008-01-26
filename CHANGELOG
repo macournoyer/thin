@@ -1,3 +1,13 @@
+== 0.6.2 ??? release
+ * Throw error if attempting to use unix sockets on windows.
+ * Add example config files for http://www.tildeslash.com/monit useage.
+   Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
+   The group settings let you do this to manage your clusters:
+   
+     sudo monit -g blog restart all
+    
+   There are examples of thin listening on sockets and thin listening on unix sockets.
+
 == 0.6.1 Cheesecake release
  * Remove socket file when server stops.
  * Set back cluster to use 'thin' command to launch servers.
