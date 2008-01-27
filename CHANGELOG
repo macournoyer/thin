@@ -1,6 +1,8 @@
 == 0.6.2 Rambo release
+ * Restructure thin script options in 3 sections: server, daemon and cluster
+ * Add --only (-o) option to control only one server of a cluster.
  * Stylize stats page and make the url configurable from the thin script.
- * Throw error if attempting to use unix sockets on windows.
+ * Raise error if attempting to use unix sockets on windows.
  * Add example config files for http://www.tildeslash.com/monit useage.
    Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
    The group settings let you do this to manage your clusters:

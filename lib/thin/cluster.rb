@@ -20,6 +20,7 @@ module Thin
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
+      @only    = @options.delete(:only)
       @script  = 'thin'
       
       if socket
@@ -118,8 +119,12 @@ module Thin
       end
       
       def with_each_server
-        @size.times do |n|
-          yield socket ? n : (first_port + n)
+        if @only
+          yield @only
+        else
+          @size.times do |n|
+            yield socket ? n : (first_port + n)
+          end
         end
       end
       
