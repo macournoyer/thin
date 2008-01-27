@@ -60,9 +60,6 @@ module Thin
     # Start the server and listen for connections
     def start
       raise ArgumentError, 'app required' unless @app
-      if @socket && RUBY_PLATFORM =~ /mswin/
-        raise RuntimeError, "UNIX sockets not available on Windows"
-      end
       
       trap('INT')  { stop }
       trap('TERM') { stop! }
@@ -113,6 +110,8 @@ module Thin
       end
       
       def start_server_on_socket
+        raise PlatformNotSupported, 'UNIX sockets not available on Windows' if Thin.win?
+        
         log ">> Listening on #{@socket}, CTRL+C to stop"
         EventMachine.start_unix_domain_server(@socket, Connection, &method(:initialize_connection))
       end

@@ -1,4 +1,4 @@
-== 0.6.2 ??? release
+== 0.6.2 Rambo release
  * Throw error if attempting to use unix sockets on windows.
  * Add example config files for http://www.tildeslash.com/monit useage.
    Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
