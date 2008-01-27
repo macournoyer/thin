@@ -1,8 +1,8 @@
 module Thin
   # Control a set of servers.
   # * Generate start and stop commands and run them.
-  # * Inject the port number in the pid and log filenames.
-  # Servers are started throught the +thin+ commandline script.
+  # * Inject the port or socket number in the pid and log filenames.
+  # Servers are started throught the +thin+ command-line script.
   class Cluster
     include Logging
     
