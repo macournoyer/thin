@@ -1,4 +1,6 @@
 module Thin
+  class PlatformNotSupported < RuntimeError; end
+  
   module VERSION #:nodoc:
     MAJOR    = 0
     MINOR    = 6
@@ -13,5 +15,7 @@ module Thin
     RUBY_PLATFORM =~ /mswin/
   end
   
-  class PlatformNotSupported < RuntimeError; end
+  def self.ruby_18?
+    RUBY_VERSION =~ /^1\.8/
+  end
 end

@@ -1,4 +1,6 @@
 == 0.6.2 Rambo release
+ * Revert to using #each when building response headers under Ruby 1.8,
+   solves an issue w/ Camping adapter, fixes #22
  * Restructure thin script options in 3 sections: server, daemon and cluster
  * Add --only (-o) option to control only one server of a cluster.
  * Stylize stats page and make the url configurable from the thin script.
