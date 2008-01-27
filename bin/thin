@@ -47,7 +47,7 @@ opts = OptionParser.new do |opts|
   opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")           { |group| options[:group] = group }
   opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| options[:prefix] = path }
   opts.on("-C", "--config PATH", "Load option from a config file")                { |file| options[:config] = file }
-  opts.on(      "--stats", "Install the Stats adapter at /stats")                 { options[:stats] = true }
+  opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| options[:stats] = path }
   
   opts.separator ""
   opts.separator "Common options:"
@@ -101,7 +101,7 @@ def start(options)
     server.app = Rack::URLMap.new(options[:prefix] => server.app) if options[:prefix]
     
     # If a stats are required, wrap in Stats adapter
-    server.app = Thin::Stats::Adapter.new(server.app) if options[:stats]
+    server.app = Thin::Stats::Adapter.new(server.app, options[:stats]) if options[:stats]
     
     server.start!
   end  

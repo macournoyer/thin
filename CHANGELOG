@@ -1,4 +1,5 @@
 == 0.6.2 Rambo release
+ * Stylize stats page and make the url configurable from the thin script.
  * Throw error if attempting to use unix sockets on windows.
  * Add example config files for http://www.tildeslash.com/monit useage.
    Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
