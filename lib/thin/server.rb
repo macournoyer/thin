@@ -84,7 +84,7 @@ module Thin
     
     # Stops the server by stopping the listening loop.
     def stop
-      EventMachine.stop_event_loop
+      EventMachine.stop
       remove_socket_file
     rescue
       warn "Error stopping : #{$!}"
