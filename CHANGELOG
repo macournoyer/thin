@@ -1,4 +1,6 @@
 == 0.6.2 Rambo release
+ * Add PID and more info from the last request to the Stats adapter
+   mostly taken from Rack::ShowException.
  * pid and log files in cluster are no longer required to be relative to the
    app directory (chdir option), fixes #24
  * Revert to using #each when building response headers under Ruby 1.8,

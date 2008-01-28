@@ -15,7 +15,6 @@ module Thin
         @requests          = 0
         @requests_finished = 0
         @start_time        = Time.now
-        @last_env          = {}
       end
       
       def call(env)
@@ -28,7 +27,7 @@ module Thin
       
       def log(env)
         @requests += 1
-        @last_env = env
+        @last_request = Rack::Request.new(env)
         request_started_at = Time.now
         
         response = yield
@@ -50,6 +49,37 @@ module Thin
           },
           [body]
         ]
+      end
+      
+      # Taken from Rails
+      def distance_of_time_in_words(from_time, to_time = 0, include_seconds = false)
+        from_time = from_time.to_time if from_time.respond_to?(:to_time)
+        to_time = to_time.to_time if to_time.respond_to?(:to_time)
+        distance_in_minutes = (((to_time - from_time).abs)/60).round
+        distance_in_seconds = ((to_time - from_time).abs).round
+
+        case distance_in_minutes
+          when 0..1
+            return (distance_in_minutes == 0) ? 'less than a minute' : '1 minute' unless include_seconds
+            case distance_in_seconds
+              when 0..4   then 'less than 5 seconds'
+              when 5..9   then 'less than 10 seconds'
+              when 10..19 then 'less than 20 seconds'
+              when 20..39 then 'half a minute'
+              when 40..59 then 'less than a minute'
+              else             '1 minute'
+            end
+
+          when 2..44           then "#{distance_in_minutes} minutes"
+          when 45..89          then 'about 1 hour'
+          when 90..1439        then "about #{(distance_in_minutes.to_f / 60.0).round} hours"
+          when 1440..2879      then '1 day'
+          when 2880..43199     then "#{(distance_in_minutes / 1440).round} days"
+          when 43200..86399    then 'about 1 month'
+          when 86400..525599   then "#{(distance_in_minutes / 43200).round} months"
+          when 525600..1051199 then 'about 1 year'
+          else                      "over #{(distance_in_minutes / 525600).round} years"
+        end
       end
 
 # Taken from Rack::ShowException
@@ -122,12 +152,29 @@ TEMPLATE = <<'HTML'
 <div id="summary">
   <h1>Server stats</h1>
   <h2><%= Thin::SERVER %></h2>
-  <div id="uptime">
-    <%= Time.now - @start_time %> uptime
-  </div>
+  <table>
+    <tr>
+      <th>Uptime</th>
+      <td><%= distance_of_time_in_words(@start_time, Time.now) %> (<%= Time.now - @start_time %> sec)</td>
+    </tr>
+    <tr>
+      <th>PID</th>
+      <td><%=h Process.pid %></td>
+    </tr>
+  </table>
+  
+  <% if @last_request %>
+    <h3>Jump to:</h3>
+    <ul id="quicklinks">
+      <li><a href="#get-info">GET</a></li>
+      <li><a href="#post-info">POST</a></li>
+      <li><a href="#cookie-info">Cookies</a></li>
+      <li><a href="#env-info">ENV</a></li>
+    </ul>
+  <% end %>
 </div>
 
-<div id="requests">
+<div id="stats">
   <h2>Requests</h2>
   <h3>Stats</h3>
   <table class="req">
@@ -148,24 +195,99 @@ TEMPLATE = <<'HTML'
       <td><%= @last_request_time %> sec</td>
     </tr>
   </table>
-  <% if @last_env %>
-    <h3>Last request</h3>
-    <table class="req">
-      <tr>
-        <th>Variable</th>
-        <th>Value</th>
-      </tr>
-      <tr>
-      <% @last_env.sort_by { |k, v| k.to_s }.each do |key, val| %>
-        <tr>
-          <td><%=h key %></td>
-          <td class="code"><div><%=h val.inspect %></div></td>
-        </tr>
-      <% end %>
-      </tr>
-    </table>
-  <% end %>
 </div>
+
+<% if @last_request %>
+  <div id="requestinfo">
+    <h2>Last Request information</h2>
+
+    <h3 id="get-info">GET</h3>
+    <% unless @last_request.GET.empty? %>
+      <table class="req">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+            <% @last_request.GET.sort_by { |k, v| k.to_s }.each { |key, val| %>
+            <tr>
+              <td><%=h key %></td>
+              <td class="code"><div><%=h val.inspect %></div></td>
+            </tr>
+            <% } %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No GET data.</p>
+    <% end %>
+
+    <h3 id="post-info">POST</h3>
+    <% unless @last_request.POST.empty? %>
+      <table class="req">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+            <% @last_request.POST.sort_by { |k, v| k.to_s }.each { |key, val| %>
+            <tr>
+              <td><%=h key %></td>
+              <td class="code"><div><%=h val.inspect %></div></td>
+            </tr>
+            <% } %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No POST data.</p>
+    <% end %>
+
+
+    <h3 id="cookie-info">COOKIES</h3>
+    <% unless @last_request.cookies.empty? %>
+      <table class="req">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @last_request.cookies.each { |key, val| %>
+            <tr>
+              <td><%=h key %></td>
+              <td class="code"><div><%=h val.inspect %></div></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No cookie data.</p>
+    <% end %>
+
+    <h3 id="env-info">Rack ENV</h3>
+      <table class="req">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+            <% @last_request.env.sort_by { |k, v| k.to_s }.each { |key, val| %>
+            <tr>
+              <td><%=h key %></td>
+              <td class="code"><div><%=h val %></div></td>
+            </tr>
+            <% } %>
+        </tbody>
+      </table>
+
+  </div>
+<% end %>
 
 <div id="explanation">
   <p>
