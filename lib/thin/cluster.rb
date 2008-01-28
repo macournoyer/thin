@@ -32,8 +32,8 @@ module Thin
     def first_port; @options[:port]     end
     def address;    @options[:address]  end
     def socket;     @options[:socket]   end
-    def pid_file;   File.expand_path File.join(@options[:chdir], @options[:pid]) end
-    def log_file;   File.expand_path File.join(@options[:chdir], @options[:log]) end
+    def pid_file;   @options[:pid]      end
+    def log_file;   @options[:log]      end
     
     # Start the servers
     def start

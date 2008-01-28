@@ -33,10 +33,6 @@ describe Cluster, "with host and port" do
     out.should_not include('--pid=')
   end
   
-  it 'should absolutize file path' do
-    @cluster.pid_file_for(3000).should == File.expand_path(File.dirname(__FILE__) + "/rails_app/thin.3000.pid")
-  end
-  
   it 'should start on specified port' do
     @cluster.should_receive(:`) do |with|
       with.should include('thin start', '--daemonize', 'thin.3001.log', 'thin.3001.pid', '--port=3001')
