@@ -59,10 +59,12 @@ module Thin
     
     # Start the server and listen for connections
     def start
-      raise ArgumentError, "app required" unless @app
+      raise ArgumentError, 'app required' unless @app
       
       trap('INT')  { stop }
       trap('TERM') { stop! }
+      
+      at_exit { remove_socket_file } if @socket
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
@@ -82,7 +84,8 @@ module Thin
     
     # Stops the server by stopping the listening loop.
     def stop
-      EventMachine.stop_event_loop
+      EventMachine.stop
+      remove_socket_file
     rescue
       warn "Error stopping : #{$!}"
     end
@@ -107,6 +110,8 @@ module Thin
       end
       
       def start_server_on_socket
+        raise PlatformNotSupported, 'UNIX sockets not available on Windows' if Thin.win?
+        
         log ">> Listening on #{@socket}, CTRL+C to stop"
         EventMachine.start_unix_domain_server(@socket, Connection, &method(:initialize_connection))
       end
@@ -116,6 +121,10 @@ module Thin
         connection.app                     = @app
         connection.silent                  = @silent
         connection.unix_socket             = !@socket.nil?
+      end
+      
+      def remove_socket_file
+        File.delete(@socket) if @socket && File.exist?(@socket)
       end
   end
 end

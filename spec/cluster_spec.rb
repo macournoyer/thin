@@ -33,10 +33,6 @@ describe Cluster, "with host and port" do
     out.should_not include('--pid=')
   end
   
-  it 'should absolutize file path' do
-    @cluster.pid_file_for(3000).should == File.expand_path(File.dirname(__FILE__) + "/rails_app/thin.3000.pid")
-  end
-  
   it 'should start on specified port' do
     @cluster.should_receive(:`) do |with|
       with.should include('thin start', '--daemonize', 'thin.3001.log', 'thin.3001.pid', '--port=3001')
@@ -104,5 +100,39 @@ describe Cluster, "with UNIX socket" do
     end
 
     @cluster.stop_server 1
+  end
+end
+
+describe Cluster, "controlling only one server" do
+  before do
+    @cluster = Cluster.new(:chdir => File.dirname(__FILE__) + '/rails_app',
+                           :address => '0.0.0.0',
+                           :port => 3000, 
+                           :servers => 3,
+                           :timeout => 10,
+                           :log => 'thin.log',
+                           :pid => 'thin.pid',
+                           :only => 3001
+                          )
+    @cluster.script = File.dirname(__FILE__) + '/../bin/thin'
+    @cluster.silent = true
+  end
+  
+  it 'should call only specified server' do
+    calls = []
+    @cluster.send(:with_each_server) do |n|
+      calls << n
+    end
+    calls.should == [3001]
+  end
+  
+  it "should start only specified server" do
+    @cluster.should_receive(:`) do |with|
+      with.should include('thin start', '--daemonize', 'thin.3001.log', 'thin.3001.pid', '--port=3001')
+      with.should_not include('3000', '3002')
+      ''
+    end
+
+    @cluster.start
   end
 end

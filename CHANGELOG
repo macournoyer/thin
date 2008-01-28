@@ -1,6 +1,29 @@
 == 0.7.0 Bionic Pickle release
  * Persistent connection (keep-alive) & HTTP pipelining support
 
+== 0.6.2 Rambo release
+ * Add PID and more info from the last request to the Stats adapter
+   mostly taken from Rack::ShowException.
+ * pid and log files in cluster are no longer required to be relative to the
+   app directory (chdir option), fixes #24
+ * Revert to using #each when building response headers under Ruby 1.8,
+   solves an issue w/ Camping adapter, fixes #22
+ * Restructure thin script options in 3 sections: server, daemon and cluster
+ * Add --only (-o) option to control only one server of a cluster.
+ * Stylize stats page and make the url configurable from the thin script.
+ * Raise error if attempting to use unix sockets on windows.
+ * Add example config files for http://www.tildeslash.com/monit useage.
+   Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
+   The group settings let you do this to manage your clusters:
+   
+     sudo monit -g blog restart all
+    
+   There are examples of thin listening on sockets and thin listening on unix sockets.
+
+== 0.6.1 Cheesecake release
+ * Remove socket file when server stops.
+ * Set back cluster to use 'thin' command to launch servers.
+
 == 0.6.0 Big Pony release
  * Add support for connection through UNIX domain socket.
    Use the --socket (-S) option w/ the thin script to configure the socket filename.

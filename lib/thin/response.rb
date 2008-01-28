@@ -38,10 +38,27 @@ module Thin
       "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
     end
     
-    def headers=(key_value_pairs)
-      key_value_pairs.each do |k, vs|
-        vs.each_line { |v| @headers[k] = v.chomp }
+    if Thin.ruby_18?
+      def headers=(key_value_pairs)
+        key_value_pairs.each do |k, vs|
+          vs.each { |v| @headers[k] = v.chomp }
+        end
       end
+    else
+      # Ruby 1.9 doesn't have a String#each anymore.
+      # Rack spec doesn't take care of that yet, for now we just use
+      # +each+ but fallback to +each_line+ on strings.
+      # I wish we could remove that condition.
+      # To be reviewed when a new Rack spec comes out.
+      def headers=(key_value_pairs)
+        key_value_pairs.each do |k, vs|
+          if vs.is_a?(String)
+            vs.each_line { |v| @headers[k] = v.chomp }
+          else
+            vs.each { |v| @headers[k] = v.chomp }
+          end
+        end
+      end      
     end
     
     # Close any resource used by the response

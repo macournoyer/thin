@@ -1,8 +1,8 @@
 module Thin
   # Control a set of servers.
   # * Generate start and stop commands and run them.
-  # * Inject the port number in the pid and log filenames.
-  # Servers are started throught the +thin+ commandline script.
+  # * Inject the port or socket number in the pid and log filenames.
+  # Servers are started throught the +thin+ command-line script.
   class Cluster
     include Logging
     
@@ -20,7 +20,8 @@ module Thin
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
-      @script  = File.join(File.dirname(__FILE__), '..', '..', 'bin', 'thin')
+      @only    = @options.delete(:only)
+      @script  = 'thin'
       
       if socket
         @options.delete(:address)
@@ -31,8 +32,8 @@ module Thin
     def first_port; @options[:port]     end
     def address;    @options[:address]  end
     def socket;     @options[:socket]   end
-    def pid_file;   File.expand_path File.join(@options[:chdir], @options[:pid]) end
-    def log_file;   File.expand_path File.join(@options[:chdir], @options[:log]) end
+    def pid_file;   @options[:pid]      end
+    def log_file;   @options[:log]      end
     
     # Start the servers
     def start
@@ -118,8 +119,12 @@ module Thin
       end
       
       def with_each_server
-        @size.times do |n|
-          yield socket ? n : (first_port + n)
+        if @only
+          yield @only
+        else
+          @size.times do |n|
+            yield socket ? n : (first_port + n)
+          end
         end
       end
       
