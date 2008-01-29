@@ -115,7 +115,7 @@ def start(options)
     # Register restart procedure
     server.on_restart { Thin::Command.run(:start, options) }
     
-    server.start!
+    server.start
   end  
 end
 

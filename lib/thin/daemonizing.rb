@@ -39,10 +39,10 @@ module Thin
       Daemonize.daemonize(File.expand_path(@log_file))
       
       Dir.chdir(pwd)
+            
+      write_pid_file
       
       trap('HUP') { restart }
-      
-      write_pid_file
       at_exit do
         log ">> Exiting!"
         remove_pid_file
@@ -75,7 +75,7 @@ module Thin
     
     # Restart the server
     def restart
-      raise ArgumentError, "Can't restart, no on_restart block specified" unless @on_restart
+      raise ArgumentError, "Can't restart, no 'on_restart' proc specified" unless @on_restart
       log '>> Restarting ...'
       stop
       remove_pid_file
