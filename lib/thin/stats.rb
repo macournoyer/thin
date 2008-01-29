@@ -1,8 +1,8 @@
 require 'erb'
 
 module Thin
-  # Rack adapter to log stats to a Rack application
   module Stats
+    # Rack adapter to log stats about a Rack application.
     class Adapter
       include ERB::Util
       

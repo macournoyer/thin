@@ -62,21 +62,27 @@ module Thin
     def parse(data)
       @data << data
       
-      if @parser.finished?                    # Header finished, can only be some more body
-        body << data
-      else                                    # Parse more header using the super parser
+      if @parser.finished?  # Header finished, can only be some more body
+        body << data        
+      else                  # Parse more header using the super parser
         @nparsed = @parser.execute(@env, @data, @nparsed)
+
         # Transfert to a tempfile if body is very big
         move_body_to_tempfile if @parser.finished? && content_length > MAX_BODY
       end
       
-      # Check if header and body are complete
-      if @parser.finished? && @body.size >= content_length
-        @body.rewind
-        return true # Request is fully parsed
-      end
       
-      false # Not finished, need more data
+      if finished?   # Check if header and body are complete
+        @body.rewind  
+        true         # Request is fully parsed
+      else            
+        false        # Not finished, need more data
+      end
+    end
+    
+    # +true+ if headers and body are finished parsing
+    def finished?
+      @parser.finished? && @body.size >= content_length
     end
     
     # Expected size of the body
@@ -84,10 +90,10 @@ module Thin
       @env[CONTENT_LENGTH].to_i
     end
     
+    # Close any resource used by the response
     def close
       @body.close if @body === Tempfile
-    end
-    
+    end    
     
     private
       def move_body_to_tempfile

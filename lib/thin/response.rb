@@ -1,9 +1,9 @@
 module Thin
   # A response sent to the client.
   class Response
-    CONNECTION     = 'Connection'.freeze
-    SERVER         = 'Server'.freeze
-    CLOSE          = 'close'.freeze
+    CONNECTION = 'Connection'.freeze
+    SERVER     = 'Server'.freeze
+    CLOSE      = 'close'.freeze
     
     # Status code
     attr_accessor :status
@@ -23,7 +23,7 @@ module Thin
     # to be sent in the response.
     def headers_output
       @headers[CONNECTION] = CLOSE
-      @headers[SERVER] = Thin::SERVER
+      @headers[SERVER]     = Thin::SERVER
       
       @headers.to_s
     end
@@ -35,12 +35,17 @@ module Thin
     end
     
     if Thin.ruby_18?
+      
+      # Ruby 1.8 implementation.
+      # Respects Rack specs.
       def headers=(key_value_pairs)
         key_value_pairs.each do |k, vs|
           vs.each { |v| @headers[k] = v.chomp }
         end
       end
+
     else
+
       # Ruby 1.9 doesn't have a String#each anymore.
       # Rack spec doesn't take care of that yet, for now we just use
       # +each+ but fallback to +each_line+ on strings.
@@ -55,6 +60,7 @@ module Thin
           end
         end
       end      
+
     end
     
     # Close any resource used by the response

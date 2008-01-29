@@ -1,4 +1,6 @@
 module Thin
+  # Raised when a feature is not supported on the
+  # current platform.
   class PlatformNotSupported < RuntimeError; end
   
   module VERSION #:nodoc:

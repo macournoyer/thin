@@ -25,13 +25,11 @@ module Thin
     end
     
     def process
-      env = @request.env
-      
       # Add client info to the request env
-      env[Request::REMOTE_ADDR] = remote_address(env)
+      @request.env[Request::REMOTE_ADDR] = remote_address
       
       # Process the request
-      @response.status, @response.headers, @response.body = @app.call(env)
+      @response.status, @response.headers, @response.body = @app.call(@request.env)
       
       # Send the response
       @response.each do |chunk|
@@ -46,13 +44,13 @@ module Thin
       log_error e
       close_connection rescue nil
     ensure
-      @request.close rescue nil
+      @request.close  rescue nil
       @response.close rescue nil
     end
     
     protected
-      def remote_address(env)
-        if remote_addr = env[Request::FORWARDED_FOR]
+      def remote_address
+        if remote_addr = @request.env[Request::FORWARDED_FOR]
           remote_addr
         elsif @unix_socket
           # FIXME not sure about this, does it even make sense on a UNIX socket?

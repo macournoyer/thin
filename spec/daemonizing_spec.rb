@@ -19,6 +19,7 @@ describe 'Daemonizing' do
       sleep 1
     end
     
+    sleep 1
     Process.wait(@pid)
     File.exist?(@server.pid_file).should be_true
     @pid = @server.pid
