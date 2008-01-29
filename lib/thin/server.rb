@@ -93,7 +93,7 @@ module Thin
     # Stops the server by raising an error.
     def stop!
       raise StopServer
-    end
+    end    
     
     protected
       def start_server

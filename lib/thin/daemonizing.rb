@@ -40,6 +40,8 @@ module Thin
       
       Dir.chdir(pwd)
       
+      trap('HUP') { restart }
+      
       write_pid_file
       at_exit do
         log ">> Exiting!"
@@ -66,37 +68,67 @@ module Thin
       log "Couldn't change user and group to #{user}:#{group}: #{e}"
     end
     
+    # Registerer a proc to be called to restart the server.
+    def on_restart(&block)
+      @on_restart = block
+    end
+    
+    # Restart the server
+    def restart
+      raise ArgumentError, "Can't restart, no on_restart block specified" unless @on_restart
+      log '>> Restarting ...'
+      stop
+      remove_pid_file
+      @on_restart.call
+      exit!
+    end
+    
     module ClassMethods
-      # Kill the process which PID is stored in +pid_file+.
+      # Send a INT signal the process which PID is stored in +pid_file+.
+      # If the process is still running after +timeout+, KILL signal is
+      # sent.
       def kill(pid_file, timeout=60)
-        if pid = open(pid_file).read
-          pid = pid.to_i
-          print "Sending INT signal to process #{pid} ... "
+        if pid = send_signal('INT', pid_file)
           begin
-            Process.kill('INT', pid)
             Timeout.timeout(timeout) do
               sleep 0.1 while Process.running?(pid)
             end
           rescue Timeout::Error
-            print "timeout, Sending KILL signal ... "
-            Process.kill('KILL', pid)
+            print "timeout! "
+            send_signal('KILL', pid_file)
           end
-          puts "stopped!"
+        end
+        File.delete(pid_file) if File.exist?(pid_file)
+      end
+      
+      # Restart the server by sending HUP signal
+      def restart(pid_file)
+        send_signal('HUP', pid_file)
+      end
+      
+      # Send a +signal+ to the process which PID is stored in +pid_file+.
+      def send_signal(signal, pid_file)
+        if File.exist?(pid_file) && pid = open(pid_file).read
+          pid = pid.to_i
+          print "Sending #{signal} signal to process #{pid} ... "
+          Process.kill(signal, pid)
+          puts
+          pid
         else
-          puts "Can't stop process, no PID found in #{@pid_file}"
+          puts "Can't stop process, no PID found in #{pid_file}"
+          nil
         end
       rescue Errno::ESRCH # No such process
         puts "process not found!"
-      ensure
-        File.delete(pid_file) rescue nil
+        nil
       end
     end
     
-    private
+    protected
       def remove_pid_file
         File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
       end
-      
+    
       def write_pid_file
         log ">> Writing PID to #{@pid_file}"
         FileUtils.mkdir_p File.dirname(@pid_file)

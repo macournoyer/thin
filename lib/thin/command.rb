@@ -10,7 +10,7 @@ module Thin
     def initialize(name, options={})
       @name    = name
       @options = options
-      @script  = 'thin'
+      @script  = $PROGRAM_NAME
     end
     
     def self.run(*args)

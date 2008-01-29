@@ -112,6 +112,9 @@ def start(options)
     # If a stats are required, wrap in Stats adapter
     server.app = Thin::Stats::Adapter.new(server.app, options[:stats]) if options[:stats]
     
+    # Register restart procedure
+    server.on_restart { Thin::Command.run(:start, options) }
+    
     server.start!
   end  
 end
@@ -122,7 +125,7 @@ def stop(options)
   if cluster?(options)
     Thin::Cluster.new(options).stop
   else
-    Thin::Server.kill options[:pid], options[:timeout]
+    Thin::Server.kill(options[:pid], options[:timeout])
   end
 end
 
@@ -132,11 +135,7 @@ def restart(options)
   if cluster?(options)
     Thin::Cluster.new(options).restart
   else
-    # Restart only make sense when running as a daemon
-    options.update :daemonize => true
-  
-    stop(options)
-    start(options)
+    Thin::Server.restart(options[:pid])
   end
 end
 

@@ -88,6 +88,8 @@ describe 'Daemonizing' do
     Process.running?(@pid).should be_false
   end
   
+  it "should restart"
+  
   after do
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
     Process.kill(9, @server.pid) if @server.pid && Process.running?(@server.pid)

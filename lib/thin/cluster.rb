@@ -21,7 +21,7 @@ module Thin
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
       @only    = @options.delete(:only)
-      @script  = 'thin'
+      @script  = $PROGRAM_NAME
       
       if socket
         @options.delete(:address)
