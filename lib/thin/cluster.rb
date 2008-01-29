@@ -100,22 +100,7 @@ module Thin
         else
           cmd_options.merge!(:port => number)
         end
-        shell_cmd = shellify(cmd, cmd_options)
-        trace shell_cmd
-        ouput = `#{shell_cmd}`.chomp
-        log "  " + ouput.gsub("\n", "  \n") unless ouput.empty?
-      end
-      
-      # Turn into a runnable shell command
-      def shellify(cmd, options)
-        shellified_options = options.inject([]) do |args, (name, value)|
-          args << case value
-          when NilClass
-          when TrueClass then "--#{name}"
-          else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
-          end
-        end
-        "#{@script} #{cmd} #{shellified_options.compact.join(' ')}"
+        Command.run(cmd, cmd_options)
       end
       
       def with_each_server
