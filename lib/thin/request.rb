@@ -92,16 +92,17 @@ module Thin
     
     # Close any resource used by the response
     def close
-      @body.close if @body === Tempfile
+      @body.delete if @body.class == Tempfile
     end    
     
     private
       def move_body_to_tempfile
         current_body = @body
+        current_body.rewind
         @body = Tempfile.new(BODY_TMPFILE)
         @body.binmode
-        @body << current_body unless current_body.size.zero?
-        @env[RACK_INPUT] = @body
+        @body << current_body.read
+        @env[RACK_INPUT] = @body        
       end
   end  
 end

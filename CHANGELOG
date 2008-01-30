@@ -1,5 +1,7 @@
 == 0.6.2 Rambo release
- * thin restart now sends HUP signals rather then stopping & starting.
+ * Fix uploading hanging bug when body is moved to a tempfile,
+   also delete the tempfile properly upon completion, fixes #25
+ * 'thin restart' now sends HUP signals rather then stopping & starting, closes #17
  * HUP signal now launches a new process with the same options.
  * Add PID and more info from the last request to the Stats adapter
    mostly taken from Rack::ShowException.

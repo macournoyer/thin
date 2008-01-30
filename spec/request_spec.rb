@@ -190,18 +190,28 @@ EOS
   end
   
   it "should move body to tempfile when too big" do
+    request = Request.new
+    request.parse("POST /postit HTTP/1.1\r\nContent-Length: #{Request::MAX_BODY*2}\r\n\r\n#{'X' * Request::MAX_BODY}")
+    request.parse('X' * Request::MAX_BODY)
+    
+    request.body.size.should == Request::MAX_BODY * 2
+    request.should be_finished
+    request.body.class.should == Tempfile
+  end
+  
+  it "should delete body tempfile when closing" do
     body = 'X' * (Request::MAX_BODY + 1)
     
     request = R(<<-EOS.chomp, true)
 POST /postit HTTP/1.1
-Host: localhost:3000
-Content-Type: text/html
 Content-Length: #{body.size}
 
 #{body}
 EOS
     
-    request.body.class.should == Tempfile
+    request.body.path.should_not be_nil
+    request.close
+    request.body.path.should be_nil
   end
   
   it "should raise error when header is too big" do
