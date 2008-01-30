@@ -10,6 +10,9 @@ module Thin
     # +true+ if the connection is on a UNIX domain socket.
     attr_accessor :unix_socket
     
+    # Server owning the connection
+    attr_accessor :server
+    
     def post_init
       @request  = Request.new
       @response = Response.new
@@ -46,6 +49,10 @@ module Thin
     ensure
       @request.close  rescue nil
       @response.close rescue nil
+    end
+    
+    def unbind
+      @server.connection_finished(self)
     end
     
     protected

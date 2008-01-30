@@ -1,7 +1,4 @@
 module Thin
-  # Raise when we require the server to stop
-  class StopServer < Exception; end
-  
   # The Thin HTTP server used to served request.
   # It listen for incoming request on a given port
   # and forward all request to +app+.
@@ -42,13 +39,14 @@ module Thin
     #
     def initialize(host_or_socket, port=3000, app=nil, &block)
       if host_or_socket.include?('/')
-        @socket = host_or_socket
+        @socket    = host_or_socket
       else      
-        @host   = host_or_socket
-        @port   = port.to_i
+        @host      = host_or_socket
+        @port      = port.to_i
       end       
-      @app      = app
-      @timeout  = 60 # sec
+      @app         = app
+      @timeout     = 60 # sec
+      @connections = []
       
       @app = Rack::Builder.new(&block).to_app if block
     end
@@ -72,28 +70,41 @@ module Thin
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       trace ">> Tracing ON"
       
-      EventMachine.run do
-        begin
-          start_server
-        rescue StopServer
-          stop
-        end
-      end
+      EventMachine.run { @signature = start_server }
     end
     alias :start! :start
     
-    # Stops the server by stopping the listening loop.
+    # Stops the server after processing all current connections.
+    # Calling twice is the equivalent of calling <tt>stop!</tt>.
     def stop
-      EventMachine.stop
-      remove_socket_file
-    rescue
-      warn "Error stopping : #{$!}"
+      if @stopping
+        stop!
+      else
+        @stopping = true
+        
+        # Do not accept anymore connection
+        EventMachine.stop_server(@signature)
+        
+        unless wait_for_connections_and_stop
+          # Still some connections running, schedule a check later
+          EventMachine.add_periodic_timer(1) { wait_for_connections_and_stop }
+        end
+      end
     end
     
-    # Stops the server by raising an error.
+    # Stops the server closing all current connections
     def stop!
-      raise StopServer
-    end    
+      log ">> Stopping ..."
+
+      @connections.each { |connection| connection.close_connection }
+      EventMachine.stop
+
+      remove_socket_file
+    end
+    
+    def connection_finished(connection)
+      @connections.delete(connection)
+    end
     
     protected
       def start_server
@@ -117,14 +128,27 @@ module Thin
       end
       
       def initialize_connection(connection)
+        connection.server                  = self
         connection.comm_inactivity_timeout = @timeout
         connection.app                     = @app
         connection.silent                  = @silent
         connection.unix_socket             = !@socket.nil?
+
+        @connections << connection
       end
       
       def remove_socket_file
         File.delete(@socket) if @socket && File.exist?(@socket)
+      end
+      
+      def wait_for_connections_and_stop
+        if @connections.empty?
+          stop!
+          true
+        else
+          log ">> Waiting for #{@connections.size} connection(s) to finish, CTRL+C to force stop"
+          false
+        end
       end
   end
 end

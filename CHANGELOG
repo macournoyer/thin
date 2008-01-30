@@ -1,4 +1,5 @@
 == 0.6.2 Rambo release
+ * Server now let current connections finish before stopping, fixes #18
  * Fix uploading hanging bug when body is moved to a tempfile,
    also delete the tempfile properly upon completion, fixes #25
  * 'thin restart' now sends HUP signals rather then stopping & starting, closes #17
