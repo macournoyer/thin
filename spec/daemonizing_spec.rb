@@ -88,7 +88,21 @@ describe 'Daemonizing' do
     Process.running?(@pid).should be_false
   end
   
-  it "should restart"
+  it "should restart" do
+    @pid = fork do
+      @server.on_restart {}
+      @server.daemonize
+      sleep 5
+    end
+    
+    proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(10)
+    
+    silence_stream STDOUT do
+      Server.restart(@server.pid_file)
+    end
+    
+    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
+  end
   
   after do
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
