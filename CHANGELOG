@@ -1,3 +1,6 @@
+== 0.6.3 Ninja Cookie release
+ * Raise an error when starting a server as a daemon and pid file already exist, fixes #27.
+
 == 0.6.2 Rambo release
  * Server now let current connections finish before stopping, fixes #18
  * Fix uploading hanging bug when body is moved to a tempfile,

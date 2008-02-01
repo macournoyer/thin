@@ -12,6 +12,9 @@ module Process
 end
 
 module Thin
+  # Raised when the pid file already exist starting as a daemon.
+  class PidFileExist < RuntimeError; end
+  
   # Module included in classes that can be turned into a daemon.
   # Handle stuff like:
   # * storing the PID in a file
@@ -31,15 +34,17 @@ module Thin
     
     # Turns the current script into a daemon process that detaches from the console.
     def daemonize
-      raise PlatformNotSupported, 'Daemonizing not supported on Windows' if Thin.win?
-      raise ArgumentError, 'You must specify a pid_file to deamonize' unless @pid_file
+      raise PlatformNotSupported, 'Daemonizing not supported on Windows'     if Thin.win?
+      raise ArgumentError,        'You must specify a pid_file to daemonize' unless @pid_file
+      raise PidFileExist,         "#{@pid_file} already exist, seems like it's already running. " +
+                                  "Stop the process or delete #{@pid_file}." if File.exist?(@pid_file)
       
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
       
       Daemonize.daemonize(File.expand_path(@log_file))
       
       Dir.chdir(pwd)
-            
+      
       write_pid_file
       
       trap('HUP') { restart }
