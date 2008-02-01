@@ -5,6 +5,8 @@ require 'benchmark'
 require 'timeout'
 require 'fileutils'
 require 'benchmark_unit'
+require 'net/http'
+require 'socket'
 
 include Thin
 
@@ -138,6 +140,52 @@ module Helpers
     yield
   ensure
     stream.reopen(old_stream)
+  end
+  
+  # Create and parse a request
+  def R(raw, convert_line_feed=false)
+    raw.gsub!("\n", "\r\n") if convert_line_feed
+    request = Thin::Request.new
+    request.parse(raw)
+    request
+  end
+  
+  def start_server(*args, &app)
+    @server = Thin::Server.new(args[0] || '0.0.0.0', args[1] || 3333, app)
+    @server.timeout = 3
+    @server.silent = true
+    
+    @thread = Thread.new { @server.start }
+    sleep 0.1 until @thread.status == 'sleep'
+  end
+  
+  def stop_server
+    @server.stop!
+    @thread.kill
+  end
+    
+  def send_data(data)
+    if @server.socket
+      socket = UNIXSocket.new(@server.socket)
+    else
+      socket = TCPSocket.new(@server.host, @server.port)
+    end
+    socket.write data
+    out = socket.read
+    socket.close
+    out
+  end
+  
+  def get(url)
+    if @server.socket
+      send_data("GET #{url} HTTP/1.1\r\n\r\n")
+    else
+      Net::HTTP.get(URI.parse("http://#{@server.host}:#{@server.port}" + url))
+    end
+  end
+  
+  def post(url, params={})
+    Net::HTTP.post_form(URI.parse("http://#{@server.host}:#{@server.port}" + url), params).body
   end
 end
 
