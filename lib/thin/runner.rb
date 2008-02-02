@@ -106,6 +106,10 @@ module Thin
     def run_command
       load_options_from_config_file! unless @command == 'config'
       
+      # PROGRAM_NAME is relative to the current directory, so make sure
+      # we store and expand it before changing directory.
+      Command.script = File.expand_path($PROGRAM_NAME)
+      
       Dir.chdir(@options[:chdir])
       
       if cluster?

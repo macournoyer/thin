@@ -1,4 +1,5 @@
 == 0.6.3 Ninja Cookie release
+ * Set process name to 'thin server (0.0.0.0:3000)' when running as a daemon, closes #32.
  * Make sure chdir option from config file is used when present.
  * Raise an error when starting a server as a daemon and pid file already exist, fixes #27.
 

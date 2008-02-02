@@ -41,7 +41,7 @@ module Thin
       
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
       
-      Daemonize.daemonize(File.expand_path(@log_file))
+      Daemonize.daemonize(File.expand_path(@log_file), name)
       
       Dir.chdir(pwd)
       

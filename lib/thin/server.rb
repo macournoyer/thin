@@ -106,6 +106,15 @@ module Thin
       @connections.delete(connection)
     end
     
+    def name
+      if @socket
+        "thin server (#{@socket})"
+      else
+        "thin server (#{@host}:#{@port})"
+      end
+    end
+    alias :to_s :name
+    
     protected
       def start_server
         if @socket

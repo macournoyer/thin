@@ -7,7 +7,6 @@ module Thin
       # Path to the +thin+ script used to control the servers.
       # Leave this to default to use the one in the path.
       attr_accessor :script
-      @script = $PROGRAM_NAME
     end
     
     def initialize(name, options={})
@@ -36,6 +35,9 @@ module Thin
         else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
         end
       end
+      
+      raise ArgumentError, "Path to thin script can't be found, set Command.script" unless self.class.script
+      
       "#{self.class.script} #{@name} #{shellified_options.compact.join(' ')}"
     end
   end
