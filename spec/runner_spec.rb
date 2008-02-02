@@ -33,6 +33,17 @@ describe Runner do
     end
   end
   
+  it "should change directory after loading config" do
+    runner = Runner.new(%w(start --config spec/config.yml))
+  
+    Cluster.should_receive(:new).and_return(mock('controller', :null_object => true))
+    expected_dir = File.expand_path('spec/rails_app')
+    
+    runner.run!
+  
+    Dir.pwd.should == expected_dir
+  end
+  
   it "should load options from file with :config option"
   
   it "should use controller when controlling a single server"

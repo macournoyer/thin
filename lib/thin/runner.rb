@@ -90,8 +90,6 @@ module Thin
     # Exits on error.
     def run!
       parse!
-      
-      Dir.chdir(@options[:chdir])
 
       if COMMANDS.include?(@command)
         run_command
@@ -107,6 +105,8 @@ module Thin
     # Send the command to the controller: single instance or cluster.
     def run_command
       load_options_from_config_file! unless @command == 'config'
+      
+      Dir.chdir(@options[:chdir])
       
       if cluster?
         controller = Cluster.new(@options)
