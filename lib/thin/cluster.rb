@@ -3,25 +3,15 @@ module Thin
   # * Generate start and stop commands and run them.
   # * Inject the port or socket number in the pid and log filenames.
   # Servers are started throught the +thin+ command-line script.
-  class Cluster
-    include Logging
-    
-    # Path to the +thin+ script used to control the servers.
-    # Leave this to default to use the one in the path.
-    attr_accessor :script
-    
+  class Cluster < Controller
     # Number of servers in the cluster.
     attr_accessor :size
-    
-    # Command line options passed to the thin script
-    attr_accessor :options
-    
+        
     # Create a new cluster of servers launched using +options+.
     def initialize(options)
       @options = options.merge(:daemonize => true)
       @size    = @options.delete(:servers)
       @only    = @options.delete(:only)
-      @script  = $PROGRAM_NAME
       
       if socket
         @options.delete(:address)

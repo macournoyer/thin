@@ -10,7 +10,6 @@ describe Cluster, "with host and port" do
                            :log => 'thin.log',
                            :pid => 'thin.pid'
                           )
-    @cluster.script = File.dirname(__FILE__) + '/../bin/thin'
     @cluster.silent = true
   end
     
@@ -60,7 +59,6 @@ describe Cluster, "with UNIX socket" do
                            :log => 'thin.log',
                            :pid => 'thin.pid'
                           )
-    @cluster.script = File.dirname(__FILE__) + '/../bin/thin'
     @cluster.silent = true
   end
   
@@ -111,7 +109,6 @@ describe Cluster, "controlling only one server" do
                            :pid => 'thin.pid',
                            :only => 3001
                           )
-    @cluster.script = File.dirname(__FILE__) + '/../bin/thin'
     @cluster.silent = true
   end
   

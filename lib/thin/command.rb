@@ -3,14 +3,16 @@ module Thin
   class Command
     include Logging
     
-    # Path to the +thin+ script used to control the servers.
-    # Leave this to default to use the one in the path.
-    attr_accessor :script
+    class << self
+      # Path to the +thin+ script used to control the servers.
+      # Leave this to default to use the one in the path.
+      attr_accessor :script
+      @script = $PROGRAM_NAME
+    end
     
     def initialize(name, options={})
       @name    = name
       @options = options
-      @script  = $PROGRAM_NAME
     end
     
     def self.run(*args)
@@ -34,7 +36,7 @@ module Thin
         else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
         end
       end
-      "#{@script} #{@name} #{shellified_options.compact.join(' ')}"
+      "#{self.class.script} #{@name} #{shellified_options.compact.join(' ')}"
     end
   end
 end

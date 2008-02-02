@@ -14,11 +14,13 @@ module Thin
   autoload :Cluster,      'thin/cluster'
   autoload :Command,      'thin/command'
   autoload :Connection,   'thin/connection'
+  autoload :Controller,   'thin/controller'
   autoload :Daemonizable, 'thin/daemonizing'
   autoload :Logging,      'thin/logging'
   autoload :Headers,      'thin/headers'
   autoload :Request,      'thin/request'
   autoload :Response,     'thin/response'
+  autoload :Runner,       'thin/runner'
   autoload :Server,       'thin/server'
   autoload :Stats,        'thin/stats'
 end

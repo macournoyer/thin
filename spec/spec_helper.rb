@@ -11,6 +11,7 @@ require 'socket'
 include Thin
 
 FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
+Command.script = File.dirname(__FILE__) + '/../bin/thin'
 
 class TestRequest < Thin::Request
   def initialize(path, verb='GET', params={})
