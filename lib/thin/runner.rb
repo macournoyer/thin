@@ -27,6 +27,8 @@ module Thin
         :pid         => 'tmp/pids/thin.pid',
         :servers     => 1 # no cluster
       }
+      
+      parse!
     end
     
     def parser
@@ -89,8 +91,6 @@ module Thin
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
-      parse!
-
       if COMMANDS.include?(@command)
         run_command
       elsif @command.nil?
