@@ -7,6 +7,12 @@ module Thin
   class Runner
     COMMANDS = %w(start stop restart config)
     
+    # Parsed options
+    attr_accessor :options
+    
+    # Parsed command name
+    attr_accessor :command
+    
     def initialize(argv)
       @argv = argv
       
@@ -21,8 +27,6 @@ module Thin
         :pid         => 'tmp/pids/thin.pid',
         :servers     => 1 # no cluster
       }
-      
-      @parser = parser
     end
     
     def parser
@@ -30,7 +34,7 @@ module Thin
       # same as the name of the command line option.
       # +option+ keys are used to build the command line to launch other processes,
       # see <tt>lib/thin/command.rb</tt>.
-      OptionParser.new do |opts|
+      @parser ||= OptionParser.new do |opts|
         opts.banner = "Usage: thin [options] #{COMMANDS.join('|')}"
 
         opts.separator ""
@@ -77,17 +81,21 @@ module Thin
       end
     end
     
+    def parse!
+      parser.parse! @argv
+      @command = @argv[0]
+    end
+    
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
-      @parser.parse! @argv
-      command = @argv[0]
-
+      parse!
+      
       Dir.chdir(@options[:chdir])
 
-      if COMMANDS.include?(command)
-        run_command(command)
-      elsif command.nil?
+      if COMMANDS.include?(@command)
+        run_command
+      elsif @command.nil?
         puts "Command required"
         puts @parser
         exit 1  
@@ -97,8 +105,8 @@ module Thin
     end
     
     # Send the command to the controller: single instance or cluster.
-    def run_command(command)
-      load_options_from_config_file! unless command == 'config'
+    def run_command
+      load_options_from_config_file! unless @command == 'config'
       
       if cluster?
         controller = Cluster.new(@options)
@@ -106,7 +114,7 @@ module Thin
         controller = Controller.new(@options)
       end
       
-      controller.send(command)
+      controller.send(@command)
     end
     
     # +true+ if we're controlling a cluster.
