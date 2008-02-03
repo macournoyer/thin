@@ -77,6 +77,8 @@ module Thin
     # Stops the server after processing all current connections.
     # Calling twice is the equivalent of calling <tt>stop!</tt>.
     def stop
+      return unless running?
+      
       if @stopping
         stop!
       else
@@ -94,6 +96,8 @@ module Thin
     
     # Stops the server closing all current connections
     def stop!
+      return unless running?
+      
       log ">> Stopping ..."
 
       @connections.each { |connection| connection.close_connection }
@@ -114,6 +118,10 @@ module Thin
       end
     end
     alias :to_s :name
+    
+    def running?
+      !@signature.nil?
+    end
     
     protected
       def start_server
