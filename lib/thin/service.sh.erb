@@ -1,0 +1,38 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          thin
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      S 0 1 6
+# Short-Description: thin initscript
+# Description:       thin
+### END INIT INFO
+
+# Original author: Forrest Robertson
+
+# Do NOT "set -e"
+
+DAEMON=<%= Command.script %>
+SCRIPTNAME=<%= INITD_PATH %>
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+case "$1" in
+  start)
+	$DAEMON start --all
+	;;
+  stop)
+	$DAEMON stop --all
+	;;
+  restart)
+	$DAEMON restart --all
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart}" >&2
+	exit 3
+	;;
+esac
+
+:

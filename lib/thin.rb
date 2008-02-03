@@ -22,6 +22,7 @@ module Thin
   autoload :Response,     'thin/response'
   autoload :Runner,       'thin/runner'
   autoload :Server,       'thin/server'
+  autoload :Service,      'thin/service'
   autoload :Stats,        'thin/stats'
 end
 

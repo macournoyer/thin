@@ -5,7 +5,12 @@ module Thin
   # CLI runner.
   # Parse options and send command to the correct Controller.
   class Runner
-    COMMANDS = %w(start stop restart config)
+    COMMANDS            = %w(start stop restart config)
+    # Linux only commands
+    COMMANDS           << 'install' if Thin.linux?
+    
+    # Commands that wont load options fron the config file
+    CONFIGLESS_COMMANDS = %w(config install)
     
     # Parsed options
     attr_accessor :options
@@ -43,36 +48,40 @@ module Thin
         opts.separator "Server options:"
 
         opts.on("-a", "--address HOST", "bind to HOST address " +
-                                        "(default: #{@options[:address]})")           { |host| @options[:address] = host }
-        opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")        { |port| @options[:port] = port.to_i }
-        opts.on("-S", "--socket PATH", "bind to unix domain socket")                  { |file| @options[:socket] = file }
-        opts.on("-e", "--environment ENV", "Rails environment " +                     
-                                           "(default: #{@options[:environment]})")    { |env| @options[:environment] = env }
-        opts.on("-c", "--chdir PATH", "Change to dir before starting")                { |dir| @options[:chdir] = File.expand_path(dir) }
-        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +          
-                                       "(default: #{@options[:timeout]})")            { |sec| @options[:timeout] = sec.to_i }
-        opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")     { |path| @options[:prefix] = path }
-        opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")           { |path| @options[:stats] = path }
+                                        "(default: #{@options[:address]})")             { |host| @options[:address] = host }
+        opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")          { |port| @options[:port] = port.to_i }
+        opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
+        opts.on("-e", "--environment ENV", "Rails environment " +                       
+                                           "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
+        opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
+        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
+                                       "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
+        opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
+        
+        unless Thin.win? # Daemonizing not supported on Windows
+          opts.separator ""
+          opts.separator "Daemon options:"
                                                                                       
-        opts.separator ""                                                             
-        opts.separator "Daemon options:"                                              
+          opts.on("-d", "--daemonize", "Run daemonized in the background")              { @options[:daemonize] = true }
+          opts.on("-l", "--log FILE", "File to redirect output " +                      
+                                      "(default: #{@options[:log]})")                   { |file| @options[:log] = file }
+          opts.on("-P", "--pid FILE", "File to store PID " +                            
+                                      "(default: #{@options[:pid]})")                   { |file| @options[:pid] = file }
+          opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")           { |user| @options[:user] = user }
+          opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")         { |group| @options[:group] = group }
                                                                                       
-        opts.on("-d", "--daemonize", "Run daemonized in the background")              { @options[:daemonize] = true }
-        opts.on("-l", "--log FILE", "File to redirect output " +                      
-                                    "(default: #{@options[:log]})")                   { |file| @options[:log] = file }
-        opts.on("-P", "--pid FILE", "File to store PID " +                            
-                                    "(default: #{@options[:pid]})")                   { |file| @options[:pid] = file }
-        opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")           { |user| @options[:user] = user }
-        opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")         { |group| @options[:group] = group }
+          opts.separator ""
+          opts.separator "Cluster options:"                                             
                                                                                       
-        opts.separator ""                                                             
-        opts.separator "Cluster options:"                                             
-                                                                                      
-        opts.on("-s", "--servers NUM", "Number of servers to start",                  
-                                       "set a value >1 to start a cluster")           { |num| @options[:servers] = num.to_i }
-        opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only }
-        opts.on("-C", "--config PATH", "Load options from a config file")             { |file| @options[:config] = file }
-
+          opts.on("-s", "--servers NUM", "Number of servers to start",                  
+                                         "set a value >1 to start a cluster")           { |num| @options[:servers] = num.to_i }
+          opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only }
+          opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
+          opts.on("-A", "--all", "Send command to each config files in " +
+                                       Service::CONFIG_PATH)                            { @options[:all] = true } if Thin.linux?
+        end
+        
         opts.separator ""
         opts.separator "Common options:"
 
@@ -98,13 +107,13 @@ module Thin
         puts @parser
         exit 1  
       else
-        abort "Invalid command : #{command}"
+        abort "Invalid command: #{@command}"
       end
     end
     
     # Send the command to the controller: single instance or cluster.
     def run_command
-      load_options_from_config_file! unless @command == 'config'
+      load_options_from_config_file! unless CONFIGLESS_COMMANDS.include?(@command)
       
       # PROGRAM_NAME is relative to the current directory, so make sure
       # we store and expand it before changing directory.
@@ -112,18 +121,27 @@ module Thin
       
       Dir.chdir(@options[:chdir])
       
-      if cluster?
-        controller = Cluster.new(@options)
-      else
-        controller = Controller.new(@options)
+      controller = case
+      when cluster? then Cluster.new(@options)
+      when service? then Service.new(@options)
+      else               Controller.new(@options)
       end
       
-      controller.send(@command)
+      if controller.respond_to?(@command)
+        controller.send(@command)
+      else
+        abort "Invalid options for command: #{@command}"
+      end
     end
     
     # +true+ if we're controlling a cluster.
     def cluster?
       @options[:only] || (@options[:servers] && @options[:servers] > 1)
+    end
+    
+    # +true+ if we're acting a as system service.
+    def service?
+      @options[:all] || @command == 'install'
     end
     
     private
