@@ -31,28 +31,6 @@ describe Runner do
     end
   end
   
-  it "should load options from file with :config option" do
-    runner = Runner.new(%w(start --config spec/config.yml))
-    
-    runner.send :load_options_from_config_file!
-    
-    runner.options[:environment].should == 'production'
-    runner.options[:chdir].should == 'spec/rails_app'
-    runner.options[:port].should == 5000
-    runner.options[:servers].should == 3
-  end
-  
-  it "should change directory after loading config" do
-    runner = Runner.new(%w(start --config spec/config.yml))
-  
-    Cluster.should_receive(:new).and_return(mock('controller', :null_object => true))
-    expected_dir = File.expand_path('spec/rails_app')
-    
-    runner.run!
-  
-    Dir.pwd.should == expected_dir
-  end
-  
   it "should use Controller when controlling a single server" do
     runner = Runner.new(%w(start))
     
@@ -84,4 +62,43 @@ describe Runner do
   it "should consider as a cluster with :only option" do
     Runner.new(%w(start --only 3000)).should be_a_cluster
   end
+end
+
+describe Runner, ' with config file' do
+  
+  before(:each) do
+    @runner = Runner.new(%w(start --config spec/config.yml))
+  end
+  
+  it "should load options from file with :config option" do
+    @runner.send :load_options_from_config_file!
+    
+    @runner.options[:environment].should == 'production'
+    @runner.options[:chdir].should == 'spec/rails_app'
+    @runner.options[:port].should == 5000
+    @runner.options[:servers].should == 3
+  end
+  
+  it "should change directory after loading config" do
+    @orig_dir = Dir.pwd
+    
+    controller = mock('controller')
+    controller.should_receive(:respond_to?).with('start').and_return(true)
+    controller.should_receive(:start)
+    Cluster.should_receive(:new).and_return(controller)
+    expected_dir = File.expand_path('spec/rails_app')
+    
+    begin
+      silence_stream(STDERR) do
+        @runner.run!
+      end
+  
+      Dir.pwd.should == expected_dir
+    
+    ensure
+      # any other spec using relative paths should work as expected
+      Dir.chdir(@orig_dir)
+    end
+  end
+  
 end
