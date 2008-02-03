@@ -1,9 +1,28 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+class TestServer
+  include Logging # Daemonizable should include this?
+  include Daemonizable
+  
+  def stop
+  end
+  
+  def name
+    'thin'
+  end
+end
+
 describe 'Daemonizing' do
-  before do
-    @server = Server.new('0.0.0.0', 3000, nil)
-    @server.log_file = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
+  
+  before(:all) do
+    @logfile = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
+    File.delete(@logfile) if File.exist?(@logfile)
+    @child_processes = []
+  end
+  
+  before(:each) do
+    @server = TestServer.new
+    @server.log_file = @logfile
     @server.pid_file = 'test.pid'
     @pid = nil
   end
@@ -15,6 +34,7 @@ describe 'Daemonizing' do
   
   it 'should create a pid file' do
     @pid = fork do
+      @child_processes << Process.pid
       @server.daemonize
       sleep 1
     end
@@ -29,6 +49,7 @@ describe 'Daemonizing' do
   
   it 'should redirect stdio to a log file' do
     @pid = fork do
+      @child_processes << Process.pid
       @server.log_file = 'daemon_test.log'
       @server.daemonize
 
@@ -49,6 +70,7 @@ describe 'Daemonizing' do
   
   it 'should change privilege' do
     @pid = fork do
+      @child_processes << Process.pid
       @server.daemonize
       @server.change_privilege('root', 'admin')
     end
@@ -58,6 +80,7 @@ describe 'Daemonizing' do
   
   it 'should kill process in pid file' do
     @pid = fork do
+      @child_processes << Process.pid
       @server.daemonize
       loop { sleep 1 }
     end
@@ -73,6 +96,7 @@ describe 'Daemonizing' do
   
   it 'should send kill signal if timeout' do
     @pid = fork do
+      @child_processes << Process.pid
       @server.should_receive(:stop) # pretend we cannot handle the INT signal
       @server.daemonize
       sleep 5
@@ -90,6 +114,7 @@ describe 'Daemonizing' do
   
   it "should restart" do
     @pid = fork do
+      @child_processes << Process.pid
       @server.on_restart {}
       @server.daemonize
       sleep 5
@@ -106,6 +131,7 @@ describe 'Daemonizing' do
   
   it "should exit if pid file already exist" do
     @pid = fork do
+      @child_processes << Process.pid
       @server.daemonize
       sleep 5
     end
@@ -116,10 +142,16 @@ describe 'Daemonizing' do
     File.exist?(@server.pid_file).should be_true
   end
   
-  after do
+  after(:each) do
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
     Process.kill(9, @server.pid) if @server.pid && Process.running?(@server.pid)
     File.delete(@server.pid_file) rescue nil
+  end
+  
+  after(:all) do
+    @child_processes.each do |pid|
+      Process.kill(9, pid) rescue nil
+    end
   end
   
   private
