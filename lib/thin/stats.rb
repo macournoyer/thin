@@ -10,7 +10,7 @@ module Thin
         @app  = app
         @path = path
 
-        @template = ERB.new(File.read(File.dirname(__FILE__) + '/stats.erb'))
+        @template = ERB.new(File.read(File.dirname(__FILE__) + '/stats.html.erb'))
         
         @requests          = 0
         @requests_finished = 0
