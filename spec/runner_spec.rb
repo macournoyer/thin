@@ -9,9 +9,9 @@ describe Runner do
   end
   
   it "should parse specified command" do
-    runner = Runner.new(%w(start))
-    
-    runner.command.should == 'start'
+    Runner.new(%w(start)).command.should == 'start'
+    Runner.new(%w(stop)).command.should == 'stop'
+    Runner.new(%w(restart)).command.should == 'restart'
   end
 
   it "should abort on unknow command" do
