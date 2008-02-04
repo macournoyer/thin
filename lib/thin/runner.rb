@@ -132,9 +132,9 @@ module Thin
       Dir.chdir(@options[:chdir])
       
       controller = case
-      when cluster? then Cluster.new(@options)
-      when service? then Service.new(@options)
-      else               Controller.new(@options)
+      when cluster? then Controllers::Cluster.new(@options)
+      when service? then Controllers::Service.new(@options)
+      else               Controllers::Controller.new(@options)
       end
       
       if controller.respond_to?(@command)

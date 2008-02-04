@@ -11,10 +11,8 @@ require 'thin/version'
 require 'thin/statuses'
 
 module Thin
-  autoload :Cluster,      'thin/cluster'
   autoload :Command,      'thin/command'
   autoload :Connection,   'thin/connection'
-  autoload :Controller,   'thin/controller'
   autoload :Daemonizable, 'thin/daemonizing'
   autoload :Logging,      'thin/logging'
   autoload :Headers,      'thin/headers'
@@ -22,8 +20,13 @@ module Thin
   autoload :Response,     'thin/response'
   autoload :Runner,       'thin/runner'
   autoload :Server,       'thin/server'
-  autoload :Service,      'thin/service'
   autoload :Stats,        'thin/stats'
+  
+  module Controllers
+    autoload :Cluster,    'thin/controllers/cluster'
+    autoload :Controller, 'thin/controllers/controller'
+    autoload :Service,    'thin/controllers/service'
+  end
 end
 
 require 'rack'
