@@ -29,7 +29,7 @@ def run(handler_name, n=1000, c=1)
 
   sleep 2
 
-  out = `nice -n20 ab -c #{c} -n #{n} http://127.0.0.1:port/ 2> /dev/null`
+  out = `nice -n20 ab -c #{c} -n #{n} http://127.0.0.1:#{port}/ 2> /dev/null`
 
   Process.kill('SIGKILL', server)
   Process.wait

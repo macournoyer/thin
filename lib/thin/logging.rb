@@ -16,6 +16,7 @@ module Thin
         puts msg || yield if ($DEBUG || $TRACE) && !@silent
       end
       
+      # Log an error backtrace if tracing is activated
       def log_error(e)
         trace { "#{e}\n\t" + e.backtrace.join("\n\t") }
       end

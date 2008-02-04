@@ -1,7 +1,24 @@
 == 0.7.0 Bionic Pickle release
  * Persistent connection (keep-alive) & HTTP pipelining support
 
+== 0.6.3 Ninja Cookie release
+ * Add a script to run thin as a system service that can start at startup, closes #31 [Gump]
+   Setup the service like this:
+   
+     sudo thin install /etc/thin
+   
+   This will install the boot script under /etc/init.d/thin. Then copy your config files to
+   /etc/thin. Works only under Linux.
+ * Set process name to 'thin server (0.0.0.0:3000)' when running as a daemon, closes #32.
+ * Make sure chdir option from config file is used when present.
+ * Raise an error when starting a server as a daemon and pid file already exist, fixes #27.
+
 == 0.6.2 Rambo release
+ * Server now let current connections finish before stopping, fixes #18
+ * Fix uploading hanging bug when body is moved to a tempfile,
+   also delete the tempfile properly upon completion, fixes #25
+ * 'thin restart' now sends HUP signals rather then stopping & starting, closes #17
+ * HUP signal now launches a new process with the same options.
  * Add PID and more info from the last request to the Stats adapter
    mostly taken from Rack::ShowException.
  * pid and log files in cluster are no longer required to be relative to the
@@ -12,7 +29,7 @@
  * Add --only (-o) option to control only one server of a cluster.
  * Stylize stats page and make the url configurable from the thin script.
  * Raise error if attempting to use unix sockets on windows.
- * Add example config files for http://www.tildeslash.com/monit useage.
+ * Add example config files for http://www.tildeslash.com/monit usage.
    Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
    The group settings let you do this to manage your clusters:
    

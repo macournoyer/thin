@@ -19,6 +19,7 @@ describe 'Daemonizing' do
       sleep 2
     end
     
+    sleep 1
     Process.wait(@pid)
     File.exist?(@server.pid_file).should be_true
     @pid = @server.pid
@@ -61,7 +62,7 @@ describe 'Daemonizing' do
       loop { sleep 1 }
     end
   
-    proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(3)
+    server_should_start_in_less_then 3
   
     silence_stream STDOUT do
       Server.kill(@server.pid_file, 1)
@@ -77,7 +78,7 @@ describe 'Daemonizing' do
       sleep 5
     end
   
-    proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(10)
+    server_should_start_in_less_then 10
   
     silence_stream STDOUT do
       Server.kill(@server.pid_file, 1)
@@ -87,8 +88,42 @@ describe 'Daemonizing' do
     Process.running?(@pid).should be_false
   end
   
+  it "should restart" do
+    @pid = fork do
+      @server.on_restart {}
+      @server.daemonize
+      sleep 5
+    end
+    
+    server_should_start_in_less_then 10
+  
+    silence_stream STDOUT do
+      Server.restart(@server.pid_file)
+    end
+    
+    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
+  end
+  
+  it "should exit if pid file already exist" do
+    @pid = fork do
+      @server.daemonize
+      sleep 5
+    end
+    server_should_start_in_less_then 10
+
+    proc { @server.daemonize }.should raise_error(PidFileExist)
+    
+    File.exist?(@server.pid_file).should be_true
+  end
+  
   after do
     Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
     Process.kill(9, @server.pid) if @server.pid && Process.running?(@server.pid)
+    File.delete(@server.pid_file) rescue nil
   end
+  
+  private
+    def server_should_start_in_less_then(sec=10)
+      proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(10)
+    end
 end

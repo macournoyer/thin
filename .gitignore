@@ -5,6 +5,7 @@ ext/thin_parser/*.o
 ext/thin_parser/*.bundle
 lib/*.bundle
 log/*.log
+spec/rails_app/log
 doc/rdoc/*
 tmp/*
 pkg/*

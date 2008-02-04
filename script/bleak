@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby-bleak-house
+# Script to launch thin with Bleak House
+# http://blog.evanweaver.com/files/doc/fauna/bleak_house/files/README.html
+# 
+# Will dump data to log/memlog
+# Analyze the dump w/:
+# 
+#  bleak log/memlog
+# 
+
+module BleakInstruments
+  module Connection
+    def self.included(base)
+      base.class_eval do
+        alias_method :process_without_instrument, :process
+        alias_method :process, :process_with_instrument
+      end
+    end
+    
+    def process_with_instrument
+      process_without_instrument
+      $memlogger.snapshot($logfile, "connection/process", false, 0.1)
+    end
+  end
+end
+
+require 'rubygems'
+require 'bleak_house'
+require File.dirname(__FILE__) + '/../lib/thin'
+
+Thin::Connection.send :include, BleakInstruments::Connection
+
+$memlogger = BleakHouse::Logger.new
+File.delete($logfile = File.expand_path("log/memlog")) rescue nil
+
+load 'bin/thin'

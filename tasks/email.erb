@@ -6,37 +6,27 @@ http://code.macournoyer.com/thin/
 
 == What's new?
 
-Bug fix in daemon mode and speed boost for all!
-
-* Don't read the full body, use direct streaming when sending response.
-  See: Response#each
-  As a result, the Content-Length can not be calculated anymore.
-  You have to do set this in your adapter. All frameworks do it anyway.
-  It improve memory usage and boost speed for low concurrency.
-  Thanks to Kent Sibilev and Ezra for their help on that one.
-* Add 'Server' response header
-* Fix --user and --group option not changing daemon process privileges
+<%= changelog %>
 
 == Get it!
 
  sudo gem install thin
  
-Might take some time for the gem mirrors to be updated, try adding
---source http://code.macournoyer.com to the command if it doesn't work
+Or using my mirror:
 
-If you installed a previous alpha version (if you have <%= Thin::VERSION::STRING %> already installed)
-uninstall it before: sudo gem uninstall thin
+ sudo gem install thin --source http://code.macournoyer.com
 
 WARNING:
-Thin is still alpha software, if you use it on your server you understand the
-risks that are involved.
+  Thin is still alpha software, if you use it on your server you understand the
+  risks that are involved.
  
 == Contribute
 
 If you're using Thin, let me know and I'll put your site on http://code.macournoyer.com/thin/users/
 
-Thin is driven by an active community of passionate coders and benchmarkers. Please join us, contribute
-or share some ideas in Thin Google Group: http://groups.google.com/group/thin-ruby/topics
+Thin is driven by an active community of passionate coders and benchmarkers.
+Please join us, contribute or share some ideas in Thin Google Group:
+http://groups.google.com/group/thin-ruby/topics
 
 Also on IRC: #thin on freenode
 

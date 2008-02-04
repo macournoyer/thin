@@ -1,7 +1,6 @@
-require File.dirname(__FILE__) + '/spec_helper'
-require 'digest/sha1'
+require File.dirname(__FILE__) + '/../spec_helper'
 
-describe Request do
+describe Request, 'parser' do
   it 'should include basic headers' do
     request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
     request.env['SERVER_PROTOCOL'].should == 'HTTP/1.1'
@@ -50,27 +49,6 @@ describe Request do
     request.should validate_with_lint
   end
   
-  it 'should raise error on large header names' do
-    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n") }.
-      should raise_error(InvalidRequest)
-  end
-
-  it 'should raise error on large mangled field values' do
-    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 100*1024+(1024), false)}\r\n\r\n") }.
-      should raise_error(InvalidRequest)
-  end
-  
-  it 'should raise error on big fat ugly headers' do
-    get = "GET /#{rand_data(10,120)} HTTP/1.1\r\n"
-    get << "X-Test: test\r\n" * (80 * 1024)
-    proc { R(get) }.should raise_error(InvalidRequest)
-  end
-
-  it 'should raise error on random garbage' do
-    proc { R("GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n") }.
-      should raise_error(InvalidRequest)
-  end
-  
   it 'should parse headers from GET request' do
     request = R(<<-EOS, true)
 GET / HTTP/1.1
@@ -89,10 +67,10 @@ EOS
     request.env['SERVER_NAME'].should == 'localhost'
     request.env['SERVER_PORT'].should == '3000'
     request.env['HTTP_COOKIE'].should == 'mium=7'
-    
+
     request.should validate_with_lint
   end
-  
+
   it 'should parse POST request with data' do
     request = R(<<-EOS.chomp, true)
 POST /postit HTTP/1.1
@@ -120,10 +98,10 @@ EOS
     request.body.rewind
     request.body.read.should == 'name=marc&email=macournoyer@gmail.com'
     request.body.class.should == StringIO
-    
+
     request.should validate_with_lint
   end
-  
+
   it 'should not fuck up on stupid fucked IE6 headers' do
     body = <<-EOS
 POST /codes/58-tracking-file-downloads-automatically-in-google-analytics-with-prototype/refactors HTTP/1.0
@@ -145,10 +123,10 @@ a
 EOS
     request = R(body, true)
     request.env['HTTP_COOKIE2'].should == '$Version="1"'
-    
+
     request.should validate_with_lint
   end
-  
+
   it 'shoud accept long query string' do
     body = <<-EOS
 GET /session?open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer HTTP/1.1
@@ -156,9 +134,9 @@ Host: localhost:3000
 
 EOS
     request = R(body, true)
-    
+
     request.env['QUERY_STRING'].should == 'open_id_complete=1&nonce=ytPOcwni&nonce=ytPOcwni&openid.assoc_handle=%7BHMAC-SHA1%7D%7B473e38fe%7D%7BJTjJxA%3D%3D%7D&openid.identity=http%3A%2F%2Fmacournoyer.myopenid.com%2F&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2007-11-29T01%3A19%3A35ZGA5FUU&openid.return_to=http%3A%2F%2Flocalhost%3A3000%2Fsession%3Fopen_id_complete%3D1%26nonce%3DytPOcwni%26nonce%3DytPOcwni&openid.sig=lPIRgwpfR6JAdGGnb0ZjcY%2FWjr8%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned%2Csreg.email%2Csreg.nickname&openid.sreg.email=macournoyer%40yahoo.ca&openid.sreg.nickname=macournoyer'
-    
+
     request.should validate_with_lint
   end
   
@@ -171,109 +149,9 @@ Content-Length: 300
 aye
 EOS
     request = R(body, true)
-    
+
     request.body.rewind
     request.body.read.should == 'aye'
   end
   
-  it 'should parse in chunks' do
-    request = Request.new
-    request.parse("POST / HTTP/1.1\r\n").should be_false
-    request.parse("Host: localhost\r\n").should be_false
-    request.parse("Content-Length: 9\r\n").should be_false
-    request.parse("\r\nvery ").should be_false
-    request.parse("cool").should be_true
-    
-    request.env['CONTENT_LENGTH'].should == '9'
-    request.body.read.should == 'very cool'
-    request.should validate_with_lint
-  end
-  
-  it "should move body to tempfile when too big" do
-    body = 'X' * (Request::MAX_BODY + 1)
-    
-    request = R(<<-EOS.chomp, true)
-POST /postit HTTP/1.1
-Host: localhost:3000
-Content-Type: text/html
-Content-Length: #{body.size}
-
-#{body}
-EOS
-    
-    request.body.class.should == Tempfile
-  end
-  
-  it "should raise error when header is too big" do
-    big_headers = "X-Test: X\r\n" * (1024 * (80 + 32))
-    proc { R("GET / HTTP/1.1\r\n#{big_headers}\r\n") }.should raise_error(InvalidRequest)
-  end
-  
-  it "should be faster then #{max_parsing_time = 0.0002} RubySeconds" do
-    body = <<-EOS.chomp.gsub("\n", "\r\n")
-POST /postit HTTP/1.1
-Host: localhost:3000
-User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
-Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
-Accept-Language: en-us,en;q=0.5
-Accept-Encoding: gzip,deflate
-Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-Keep-Alive: 300
-Connection: keep-alive
-Content-Type: text/html
-Content-Length: 37
-
-hi=there&name=marc&email=macournoyer@gmail.com
-EOS
-    
-    proc { R(body) }.should be_faster_then(max_parsing_time)
-  end
-  
-  it 'should be comparable to Mongrel parser' do
-    require 'http11'
-  
-    body = <<-EOS.chomp.gsub("\n", "\r\n")
-POST /postit HTTP/1.1
-Host: localhost:3000
-User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
-Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
-Accept-Language: en-us,en;q=0.5
-Accept-Encoding: gzip,deflate
-Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-Keep-Alive: 300
-Connection: keep-alive
-Content-Type: text/html
-Content-Length: 37
-
-hi=there&name=marc&email=macournoyer@gmail.com
-EOS
-  
-    tests = 10_000
-    puts
-    Benchmark.bmbm(10) do |results|
-      results.report("mongrel:") { tests.times { Mongrel::HttpParser.new.execute({}, body.dup, 0) } }
-      results.report("thin:") { tests.times { Thin::HttpParser.new.execute({'rack.input' => StringIO.new}, body.dup, 0) } }
-    end
-  end if ENV['BM']
-  
-  private
-    def rand_data(min, max, readable=true)
-      count = min + ((rand(max)+1) *10).to_i
-      res = count.to_s + "/"
-
-      if readable
-        res << Digest::SHA1.hexdigest(rand(count * 100).to_s) * (count / 40)
-      else
-        res << Digest::SHA1.digest(rand(count * 100).to_s) * (count / 20)
-      end
-
-      return res
-    end
-    
-    def R(raw, convert_line_feed=false)
-      raw.gsub!("\n", "\r\n") if convert_line_feed
-      request = Thin::Request.new
-      request.parse(raw)
-      request
-    end
 end

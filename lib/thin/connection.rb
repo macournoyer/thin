@@ -10,6 +10,9 @@ module Thin
     # +true+ if the connection is on a UNIX domain socket.
     attr_accessor :unix_socket
     
+    # Server owning the connection
+    attr_accessor :server
+    
     def post_init
       @request  = Request.new
       @response = Response.new
@@ -55,6 +58,10 @@ module Thin
       # supports HTTP pipelining (persistent connection).
       post_init if @response.persistent?
     end    
+    
+    def unbind
+      @server.connection_finished(self)
+    end
     
     protected
       def remote_address

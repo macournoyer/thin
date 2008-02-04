@@ -1,7 +1,7 @@
 require 'erb'
 
 MSG_TEMPLATE = File.dirname(__FILE__) + '/email.erb'
-SEND_TO      = %w(thin-ruby@googlegroups.com eventmachine-talk@rubyforge.org Rubymtl@lists.artengine.ca ruby-talk@ruby-lang.org)
+SEND_TO      = %w(thin-ruby@googlegroups.com eventmachine-talk@rubyforge.org Rubymtl@lists.artengine.ca ruby-talk@ruby-lang.org montreal-on-rails@googlegroups.com)
 
 desc 'Generate a template for the new version annoucement'
 task :ann do
@@ -9,10 +9,14 @@ task :ann do
     
   body = <<END_OF_MESSAGE
 To: #{SEND_TO.join(', ')}
-Subject: [ANN] Thin #{Thin::VERSION::STRING} #{Thin::VERSION::CODENAME} released
+Subject: [ANN] Thin #{Thin::VERSION::STRING} #{Thin::VERSION::CODENAME} release
 
 #{msg}
 END_OF_MESSAGE
 
-  puts body
+  `echo "#{body}" | mate`
+end
+
+def changelog
+  File.read('CHANGELOG').split("==")[1].split("\n")[1..-1].join("\n")
 end

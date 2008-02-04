@@ -39,12 +39,17 @@ module Thin
     end
     
     if Thin.ruby_18?
+      
+      # Ruby 1.8 implementation.
+      # Respects Rack specs.
       def headers=(key_value_pairs)
         key_value_pairs.each do |k, vs|
           vs.each { |v| @headers[k] = v.chomp }
         end
       end
+
     else
+
       # Ruby 1.9 doesn't have a String#each anymore.
       # Rack spec doesn't take care of that yet, for now we just use
       # +each+ but fallback to +each_line+ on strings.
@@ -59,6 +64,7 @@ module Thin
           end
         end
       end      
+
     end
     
     # Close any resource used by the response

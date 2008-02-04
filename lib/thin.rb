@@ -11,17 +11,18 @@ require 'thin/version'
 require 'thin/statuses'
 
 module Thin
-  NAME    = 'thin'.freeze
-  SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze  
-  
   autoload :Cluster,      'thin/cluster'
+  autoload :Command,      'thin/command'
   autoload :Connection,   'thin/connection'
+  autoload :Controller,   'thin/controller'
   autoload :Daemonizable, 'thin/daemonizing'
   autoload :Logging,      'thin/logging'
   autoload :Headers,      'thin/headers'
   autoload :Request,      'thin/request'
   autoload :Response,     'thin/response'
+  autoload :Runner,       'thin/runner'
   autoload :Server,       'thin/server'
+  autoload :Service,      'thin/service'
   autoload :Stats,        'thin/stats'
 end
 

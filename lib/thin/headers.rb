@@ -10,8 +10,11 @@ module Thin
       @out = ''
     end
     
+    # Add <tt>key: value</tt> pair to the headers.
+    # Ignore if already sent and no duplicates are allowed
+    # for this +key+.
     def []=(key, value)
-      if !@sent[key] || ALLOWED_DUPLICATES.include?(key)
+      if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key)
         @sent[key] = true
         @out << HEADER_FORMAT % [key, value]
       end
