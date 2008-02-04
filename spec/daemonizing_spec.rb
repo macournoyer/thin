@@ -88,7 +88,7 @@ describe 'Daemonizing' do
     server_should_start_in_less_then 3
   
     silence_stream STDOUT do
-      Server.kill(@server.pid_file, 1)
+      TestServer.kill(@server.pid_file, 1)
     end
   
     File.exist?(@server.pid_file).should_not be_true
@@ -105,7 +105,7 @@ describe 'Daemonizing' do
     server_should_start_in_less_then 10
   
     silence_stream STDOUT do
-      Server.kill(@server.pid_file, 1)
+      TestServer.kill(@server.pid_file, 1)
     end
   
     File.exist?(@server.pid_file).should be_false
@@ -123,7 +123,7 @@ describe 'Daemonizing' do
     server_should_start_in_less_then 10
   
     silence_stream STDOUT do
-      Server.restart(@server.pid_file)
+      TestServer.restart(@server.pid_file)
     end
     
     proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
