@@ -14,23 +14,24 @@
 # Do NOT "set -e"
 
 DAEMON=<%= Command.script %>
-SCRIPTNAME=<%= INITD_PATH %>
+SCRIPT_NAME=<%= INITD_PATH %>
+CONFIG_PATH=<%= config_files_path %>
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 
 case "$1" in
   start)
-	$DAEMON start --all
+	$DAEMON start --all $CONFIG_PATH
 	;;
   stop)
-	$DAEMON stop --all
+	$DAEMON stop --all $CONFIG_PATH
 	;;
   restart)
-	$DAEMON restart --all
+	$DAEMON restart --all $CONFIG_PATH
 	;;
   *)
-	echo "Usage: $SCRIPTNAME {start|stop|restart}" >&2
+	echo "Usage: $SCRIPT_NAME {start|stop|restart}" >&2
 	exit 3
 	;;
 esac

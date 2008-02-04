@@ -1,5 +1,6 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 require 'ostruct'
+include Controllers
 
 describe Controller, 'start' do
   before do

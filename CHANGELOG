@@ -1,12 +1,11 @@
 == 0.6.3 Ninja Cookie release
  * Add a script to run thin as a system service that can start at startup, closes #31 [Gump]
-   Setup your cluster to start at startup like this:
+   Setup the service like this:
    
-     thin config -C myapp.yml --servers 3 ...other options...
-     sudo thin install -C myapp.yml
+     sudo thin install /etc/thin
    
-   This will install the boot script under /etc/init.d/thin and symlink the config file
-   under /etc/thin/myapp.yml. Works only under Linux.
+   This will install the boot script under /etc/init.d/thin. Then copy your config files to
+   /etc/thin. Works only under Linux.
  * Set process name to 'thin server (0.0.0.0:3000)' when running as a daemon, closes #32.
  * Make sure chdir option from config file is used when present.
  * Raise an error when starting a server as a daemon and pid file already exist, fixes #27.
