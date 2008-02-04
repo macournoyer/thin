@@ -13,22 +13,6 @@ include Thin
 FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
 Command.script = File.dirname(__FILE__) + '/../bin/thin'
 
-class TestRequest < Thin::Request
-  def initialize(path, verb='GET', params={})
-    @path = path
-    @verb = verb.to_s.upcase
-    @params = {
-      'HTTP_HOST'      => 'localhost:3000',
-      'REQUEST_URI'    => @path,
-      'REQUEST_PATH'   => @path,
-      'REQUEST_METHOD' => @verb,
-      'SCRIPT_NAME'    => @path
-    }.merge(params)
-    
-    @body = "#{@verb} #{path} HTTP/1.1"
-  end
-end
-
 module Matchers
   class BeFasterThen
     def initialize(max_time)

@@ -6,17 +6,26 @@ module Thin
   # Parse options and send command to the correct Controller.
   class Runner
     COMMANDS            = %w(start stop restart config)
-    # Linux only commands
-    COMMANDS           << 'install' if Thin.linux?
+    LINUX_ONLY_COMMANDS = %w(install)
     
-    # Commands that wont load options fron the config file
+    # Commands that wont load options from the config file
     CONFIGLESS_COMMANDS = %w(config install)
     
     # Parsed options
     attr_accessor :options
     
-    # Parsed command name
+    # Name of the command to be runned.
     attr_accessor :command
+    
+    # Arguments to be passed to the command.
+    attr_accessor :arguments
+    
+    # Return all available commands
+    def self.commands
+      commands  = COMMANDS
+      commands += LINUX_ONLY_COMMANDS if Thin.linux?
+      commands
+    end
     
     def initialize(argv)
       @argv = argv
@@ -42,7 +51,7 @@ module Thin
       # +option+ keys are used to build the command line to launch other processes,
       # see <tt>lib/thin/command.rb</tt>.
       @parser ||= OptionParser.new do |opts|
-        opts.banner = "Usage: thin [options] #{COMMANDS.join('|')}"
+        opts.banner = "Usage: thin [options] #{self.class.commands.join('|')}"
 
         opts.separator ""
         opts.separator "Server options:"
@@ -78,8 +87,7 @@ module Thin
                                          "set a value >1 to start a cluster")           { |num| @options[:servers] = num.to_i }
           opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only }
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
-          opts.on("-A", "--all", "Send command to each config files in " +
-                                       Service::CONFIG_PATH)                            { @options[:all] = true } if Thin.linux?
+          opts.on(      "--all [DIR]", "Send command to each config files in DIR")      { |dir| @options[:all] = dir } if Thin.linux?
         end
         
         opts.separator ""
@@ -92,15 +100,17 @@ module Thin
       end
     end
     
+    # Parse the options.
     def parse!
       parser.parse! @argv
-      @command = @argv[0]
+      @command   = @argv.shift
+      @arguments = @argv
     end
-    
+        
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
-      if COMMANDS.include?(@command)
+      if self.class.commands.include?(@command)
         run_command
       elsif @command.nil?
         puts "Command required"
@@ -128,7 +138,7 @@ module Thin
       end
       
       if controller.respond_to?(@command)
-        controller.send(@command)
+        controller.send(@command, *@arguments)
       else
         abort "Invalid options for command: #{@command}"
       end
@@ -141,7 +151,7 @@ module Thin
     
     # +true+ if we're acting a as system service.
     def service?
-      @options[:all] || @command == 'install'
+      @options.has_key?(:all) || @command == 'install'
     end
     
     private

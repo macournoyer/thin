@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe HttpParser do
+describe Request, 'parser' do
   it 'should include basic headers' do
     request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
     request.env['SERVER_PROTOCOL'].should == 'HTTP/1.1'

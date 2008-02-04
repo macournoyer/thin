@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require 'digest/sha1'
 
-describe HttpParser, 'legacy Mongrel tests' do
+describe Request, 'legacy Mongrel tests' do
   it 'should raise error on large header names' do
     proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n") }.
       should raise_error(InvalidRequest)

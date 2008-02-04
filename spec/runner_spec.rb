@@ -61,12 +61,11 @@ describe Runner do
   
   it "should consider as a cluster with :only option" do
     Runner.new(%w(start --only 3000)).should be_a_cluster
-  end
+  end  
 end
 
-describe Runner, ' with config file' do
-  
-  before(:each) do
+describe Runner, 'with config file' do
+  before do
     @runner = Runner.new(%w(start --config spec/config.yml))
   end
   
@@ -100,5 +99,37 @@ describe Runner, ' with config file' do
       Dir.chdir(@orig_dir)
     end
   end
+end
+
+describe Runner, "service" do
+  before do
+    Thin.stub!(:linux?).and_return(true)
+    
+    @controller = mock('service')
+    Service.stub!(:new).and_return(@controller)
+  end
   
+  it "should use Service controller when controlling all servers" do
+    runner = Runner.new(%w(start --all))
+    
+    @controller.should_receive(:start)
+    
+    runner.run!
+  end
+  
+  it "should call install with arguments" do
+    runner = Runner.new(%w(install /etc/cool))
+    
+    @controller.should_receive(:install).with('/etc/cool')
+    
+    runner.run!
+  end
+
+  it "should call install without arguments" do
+    runner = Runner.new(%w(install))
+    
+    @controller.should_receive(:install).with()
+    
+    runner.run!
+  end  
 end
