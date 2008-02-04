@@ -8,13 +8,7 @@ module Thin
   class Server
     include Logging
     include Daemonizable
-    
-    # Address and port on which the server is listening for connections.
-    attr_accessor :port, :host
-    
-    # UNIX domain socket on which the server is listening for connections.
-    attr_accessor :socket
-    
+        
     # App called with the request that produces the response.
     attr_accessor :app
     
@@ -61,8 +55,6 @@ module Thin
       
       trap('INT')  { stop }
       trap('TERM') { stop! }
-      
-      at_exit { remove_socket_file } if @socket
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
@@ -70,7 +62,8 @@ module Thin
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       trace ">> Tracing ON"
       
-      EventMachine.run { @signature = start_server }
+      log ">> Listening on #{@connector}, CTRL+C to stop"
+      EventMachine.run { @connector.connect }
     end
     alias :start! :start
     
@@ -85,7 +78,7 @@ module Thin
         @stopping = true
         
         # Do not accept anymore connection
-        EventMachine.stop_server(@signature)
+        @connection.disconnect
         
         unless wait_for_connections_and_stop
           # Still some connections running, schedule a check later
@@ -103,67 +96,25 @@ module Thin
       @connections.each { |connection| connection.close_connection }
       EventMachine.stop
 
-      remove_socket_file
+      @connector.close
     end
-    
-    def connection_finished(connection)
-      @connections.delete(connection)
-    end
-    
+        
     def name
-      if @socket
-        "thin server (#{@socket})"
-      else
-        "thin server (#{@host}:#{@port})"
-      end
+      "thin server (#{@connector})"
     end
     alias :to_s :name
     
     def running?
-      !@signature.nil?
+      @connector.running?
     end
     
-    protected
-      def start_server
-        if @socket
-          start_server_on_socket
-        else
-          start_server_on_host
-        end
-      end
-      
-      def start_server_on_host
-        log ">> Listening on #{@host}:#{@port}, CTRL+C to stop"
-        EventMachine.start_server(@host, @port, Connection, &method(:initialize_connection))
-      end
-      
-      def start_server_on_socket
-        raise PlatformNotSupported, 'UNIX sockets not available on Windows' if Thin.win?
-        
-        log ">> Listening on #{@socket}, CTRL+C to stop"
-        EventMachine.start_unix_domain_server(@socket, Connection, &method(:initialize_connection))
-      end
-      
-      def initialize_connection(connection)
-        connection.server                  = self
-        connection.comm_inactivity_timeout = @timeout
-        connection.app                     = @app
-        connection.silent                  = @silent
-        connection.unix_socket             = !@socket.nil?
-
-        @connections << connection
-      end
-      
-      def remove_socket_file
-        File.delete(@socket) if @socket && File.exist?(@socket)
-      end
-      
+    protected            
       def wait_for_connections_and_stop
-        if @connections.empty?
+        if @connector.empty?
           stop!
           true
         else
-          log ">> Waiting for #{@connections.size} connection(s) to finish, CTRL+C to force stop"
+          log ">> Waiting for #{@connector.size} connection(s) to finish, CTRL+C to force stop"
           false
         end
       end
