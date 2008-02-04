@@ -66,7 +66,7 @@ end
 
 describe Runner, 'with config file' do
   before do
-    @runner = Runner.new(%w(start --config spec/config.yml))
+    @runner = Runner.new(%w(start --config spec/configs/cluster.yml))
   end
   
   it "should load options from file with :config option" do

@@ -35,12 +35,15 @@ module Thin
         log ">> Thin service already installed at #{INITD_PATH}"
       else
         log ">> Installing thin service at #{INITD_PATH} ..."
-        log "Writing #{INITD_PATH}"
+        sh "mkdir -p #{File.dirname(INITD_PATH)}"
+        log "writing #{INITD_PATH}"        
         File.open(INITD_PATH, 'w') do |f|
           f << ERB.new(File.read(TEMPLATE)).result(binding)
         end
-        FileUtils.chmod 0755, INITD_PATH, :verbose => true # Make executable        
+        sh "chmod +x #{INITD_PATH}" # Make executable
       end
+      
+      sh "mkdir -p #{config_files_path}"
 
       log ''
       log "To configure thin to start at system boot:"
@@ -56,8 +59,13 @@ module Thin
       def run(command)
         Dir[config_path + '/*'].each do |config|
           log "[#{command}] #{config} ..."
-          Command.run(command, :config => config, :daemonize => true)          
+          Command.run(command, :config => config, :daemonize => true)
         end
+      end
+      
+      def sh(cmd)
+        log cmd
+        system(cmd)
       end
   end
 end
