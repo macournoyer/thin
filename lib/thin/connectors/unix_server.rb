@@ -6,24 +6,27 @@ module Thin
       
       def initialize(socket)
         raise PlatformNotSupported, 'UNIX sockets not available on Windows' if Thin.win?
-        
         @socket = socket
         super()
       end
       
+      # Connect the server
       def connect
-        at_exit { remove_socket_file }
+        at_exit { remove_socket_file } # In case it crashes
         @signature = EventMachine.start_unix_domain_server(@socket, UnixConnection, &method(:initialize_connection))
       end
       
+      # Stops the server
       def disconnect
         EventMachine.stop_server(@signature)
       end
       
+      # Free up resources used by the connector.
       def close
         remove_socket_file
       end
       
+      # Returns +true+ if connected to the server
       def running?
         !@signature.nil?
       end

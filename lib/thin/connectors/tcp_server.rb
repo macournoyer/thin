@@ -10,14 +10,17 @@ module Thin
         super()
       end
       
+      # Connect the server
       def connect
         @signature = EventMachine.start_server(@host, @port, Connection, &method(:initialize_connection))
       end
       
+      # Stops the server
       def disconnect
         EventMachine.stop_server(@signature)
       end
       
+      # Returns +true+ if connected to the server
       def running?
         !@signature.nil?
       end

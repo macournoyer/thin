@@ -12,15 +12,17 @@ module Thin
       def initialize
         @connections = []
       end
+            
+      # Free up resources used by the connector.
+      def close
+      end
       
       def server=(server)
         @server = server
         @silent = @server.silent
       end
-      
-      def close
-      end
-      
+            
+      # Initialize a new connection to a client.
       def initialize_connection(connection)
         connection.connector               = self
         connection.app                     = @server.app
@@ -30,14 +32,17 @@ module Thin
         @connections << connection
       end
       
+      # Called by a connection when it's unbinded.
       def connection_finished(connection)
         @connections.delete(connection)
       end
       
+      # Returns +true+ if no active connection.
       def empty?
         @connections.empty?
       end
       
+      # Number of active connections.
       def size
         @connections.size
       end
