@@ -1,5 +1,6 @@
 module Thin
-  module Connectors    
+  module Connectors
+    # Connectior to act as a UNIX domain socket server.
     class UnixServer < Connector
       # UNIX domain socket on which the server is listening for connections.
       attr_accessor :socket

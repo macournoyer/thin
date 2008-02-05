@@ -1,8 +1,9 @@
 module Thin
   module Connectors
+    # Connectior to act as a TCP socket server.
     class TcpServer < Connector
       # Address and port on which the server is listening for connections.
-      attr_accessor :port, :host
+      attr_accessor :host, :port
       
       def initialize(host, port)
         @host = host

@@ -1,5 +1,9 @@
 module Thin
   module Connectors
+    # A Connector connect the server to the client. It handles:
+    # * connection/disconnection to the server
+    # * initialization of the connections
+    # * manitoring of the active connections.
     class Connector
       include Logging
       

@@ -1,6 +1,7 @@
 require 'socket'
 
 module Thin
+  # Connection between the server and client.
   class Connection < EventMachine::Connection
     include Logging
     
