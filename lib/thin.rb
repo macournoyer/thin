@@ -22,6 +22,12 @@ module Thin
   autoload :Server,       'thin/server'
   autoload :Stats,        'thin/stats'
   
+  module Connectors
+    autoload :Connector,  'thin/connectors/connector'
+    autoload :TcpServer,  'thin/connectors/tcp_server'
+    autoload :UnixServer, 'thin/connectors/unix_server'
+  end
+  
   module Controllers
     autoload :Cluster,    'thin/controllers/cluster'
     autoload :Controller, 'thin/controllers/controller'

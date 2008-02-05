@@ -7,7 +7,7 @@ module Thin
       def initialize(host, port)
         @host = host
         @port = port
-        super
+        super()
       end
       
       def connect

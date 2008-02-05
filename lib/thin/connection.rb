@@ -12,6 +12,8 @@ module Thin
     
     # Server owning the connection
     attr_accessor :server
+
+    attr_accessor :connector
     
     def post_init
       @request  = Request.new
@@ -52,7 +54,7 @@ module Thin
     end
     
     def unbind
-      @server.connection_finished(self)
+      @connector.connection_finished(self)
     end
     
     protected

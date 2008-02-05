@@ -3,6 +3,8 @@ module Thin
     class Connector
       include Logging
       
+      attr_accessor :server
+      
       def initialize
         @connections = []
       end
@@ -11,10 +13,11 @@ module Thin
       end
       
       def initialize_connection(connection)
+        connection.server                  = @server
         connection.connector               = self
-        connection.comm_inactivity_timeout = @timeout
-        connection.app                     = @app
-        connection.silent                  = @silent
+        connection.comm_inactivity_timeout = @server.timeout
+        connection.app                     = @server.app
+        connection.silent                  = @server.silent
         connection.unix_socket             = !@socket.nil?
 
         @connections << connection
