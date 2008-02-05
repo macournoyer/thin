@@ -8,12 +8,22 @@ module Thin
   class Server
     include Logging
     include Daemonizable
+    extend  Forwardable
         
     # App called with the request that produces the response.
     attr_accessor :app
     
+    # Connector handling the connections to the clients.
+    attr_accessor :connector
+    
     # Maximum time for incoming data to arrive
-    attr_accessor :timeout
+    def_delegators :@connector, :timeout, :timeout=
+    
+    # Address and port on which the server is listening for connections.
+    def_delegators :@connector, :host, :port
+    
+    # UNIX domain socket on which the server is listening for connections.
+    def_delegator :@connector, :socket
     
     # Creates a new server bound to <tt>host:port</tt>
     # or to +socket+ that will pass request to +app+.
@@ -78,7 +88,7 @@ module Thin
         @stopping = true
         
         # Do not accept anymore connection
-        @connection.disconnect
+        @connector.disconnect
         
         unless wait_for_connections_and_stop
           # Still some connections running, schedule a check later

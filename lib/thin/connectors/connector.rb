@@ -3,22 +3,29 @@ module Thin
     class Connector
       include Logging
       
-      attr_accessor :server
+      # Server serving the connections throught the connector
+      attr_reader :server
+      
+      # Maximum time for incoming data to arrive
+      attr_accessor :timeout
       
       def initialize
         @connections = []
+      end
+      
+      def server=(server)
+        @server = server
+        @silent = @server.silent
       end
       
       def close
       end
       
       def initialize_connection(connection)
-        connection.server                  = @server
         connection.connector               = self
-        connection.comm_inactivity_timeout = @server.timeout
         connection.app                     = @server.app
-        connection.silent                  = @server.silent
-        connection.unix_socket             = !@socket.nil?
+        connection.comm_inactivity_timeout = @timeout
+        connection.silent                  = @silent
 
         @connections << connection
       end

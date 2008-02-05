@@ -7,12 +7,7 @@ module Thin
     # Rack application served by this connection.
     attr_accessor :app
     
-    # +true+ if the connection is on a UNIX domain socket.
-    attr_accessor :unix_socket
-    
-    # Server owning the connection
-    attr_accessor :server
-
+    # Connector to the server
     attr_accessor :connector
     
     def post_init
@@ -59,14 +54,7 @@ module Thin
     
     protected
       def remote_address
-        if remote_addr = @request.env[Request::FORWARDED_FOR]
-          remote_addr
-        elsif @unix_socket
-          # FIXME not sure about this, does it even make sense on a UNIX socket?
-          Socket.unpack_sockaddr_un(get_peername)
-        else
-          Socket.unpack_sockaddr_in(get_peername)[1]
-        end
+        @request.env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
       end
   end
 end
