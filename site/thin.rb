@@ -151,6 +151,9 @@ class Thin < Atchoum::Website
       li { a "FlashDen", :href => 'http://flashden.net/' }
       li { a "Calico Web Development", :href => 'http://www.calicowebdev.com/' }
       li { a "Gitorious", :href => 'http://gitorious.org/' }
+      li { a "Cornerstone Web", :href => 'http://www.cornerstoneweb.org/' }
+      li { a "Osmos", :href => 'http://www.getosmos.com/' }
+      li { a "Lipomics", :href => 'http://www.lipomics.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
