@@ -1,4 +1,8 @@
 == 0.6.3 Ninja Cookie release
+ * Add a better sample god config file in example/thin.god that loads all info from config
+   files in /etc/thin [Gump].
+ * Add support for specifying a custom Connector to the server and a more doc about Server
+   configuration.
  * Add a script to run thin as a system service that can start at startup, closes #31 [Gump]
    Setup the service like this:
    
