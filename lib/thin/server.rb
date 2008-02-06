@@ -1,22 +1,59 @@
 module Thin
-  # The Thin HTTP server used to served request.
-  # It listen for incoming request on a given port
+  # The uterly famous Thin HTTP server.
+  # It listen for incoming request through a given connector
   # and forward all request to +app+.
   #
-  # Based on HTTP 1.1 protocol specs:
-  # http://www.w3.org/Protocols/rfc2616/rfc2616.html
+  # == TCP server
+  # Create a new TCP server on bound to <tt>host:port</tt> by specifiying +host+
+  # and +port+ as the first 2 arguments.
+  #
+  #   Thin::Server.start('0.0.0.0', 3000, app)
+  #
+  # == UNIX domain server
+  # Create a new UNIX domain socket bound to +socket+ file by specifiying a filename
+  # as the first argument. Eg.: /tmp/thin.sock. If the first argument contains a <tt>/</tt>
+  # it will be assumed to be a UNIX socket. 
+  #
+  #   Thin::Server.start('/tmp/thin.sock', nil, app)
+  #
+  # == Using a custom connector
+  # You can implement your own way to connect the server to its client by creating your
+  # own Thin::Connectors::Connector class and pass it as the first argument.
+  #
+  #   connector = Thin::Connectors::MyFancyConnector.new('galaxy://faraway:1345')
+  #   Thin::Server.start(connector, nil, app)
+  #
+  # == Rack application (+app+)
+  # All requests will be processed through +app+ that must be a valid Rack adapter.
+  # A valid Rack adapter (application) must respond to <tt>call(env#Hash)</tt> and
+  # return an array of <tt>[status, headers, body]</tt>.
+  #
+  # == Building an app in place
+  # If a block is passed, a <tt>Rack::Builder</tt> instance
+  # will be passed to build the +app+. So you can do cool stuff like this:
+  # 
+  #   Thin::Server.start('0.0.0.0', 3000) do
+  #     use Rack::CommonLogger
+  #     use Rack::ShowExceptions
+  #     map "/lobster" do
+  #       use Rack::Lint
+  #       run Rack::Lobster.new
+  #     end
+  #   end
+  #
   class Server
     include Logging
     include Daemonizable
     extend  Forwardable
         
-    # App called with the request that produces the response.
+    # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
     
     # Connector handling the connections to the clients.
     attr_accessor :connector
     
-    # Maximum time for incoming data to arrive
+    # Maximum number of seconds for incoming data to arrive before the connection
+    # is dropped.
     def_delegators :@connector, :timeout, :timeout=
     
     # Address and port on which the server is listening for connections.
@@ -25,41 +62,40 @@ module Thin
     # UNIX domain socket on which the server is listening for connections.
     def_delegator :@connector, :socket
     
-    # Creates a new server bound to <tt>host:port</tt>
-    # or to +socket+ that will pass request to +app+.
-    # If +host_or_socket+ contains a <tt>/</tt> it is assumed
-    # to be a UNIX domain socket filename.
-    # If a block is passed, a <tt>Rack::Builder</tt> instance
-    # will be passed to build the +app+.
-    # 
-    #   Server.new '0.0.0.0', 3000 do
-    #     use Rack::CommonLogger
-    #     use Rack::ShowExceptions
-    #     map "/lobster" do
-    #       use Rack::Lint
-    #       run Rack::Lobster.new
-    #     end
-    #   end.start
-    #
-    def initialize(host_or_socket, port=3000, app=nil, &block)
-      if host_or_socket.include?('/')
-        @connector = Connectors::UnixServer.new(host_or_socket)        
-      else      
-        @connector = Connectors::TcpServer.new(host_or_socket, port.to_i)
+    def initialize(host_or_socket_or_connector, port=3000, app=nil, &block)
+      # Try to intelligently select which connector to use.
+      @connector = case
+      when host_or_socket_or_connector.is_a?(Connectors::Connector)
+        host_or_socket_or_connector
+      when host_or_socket_or_connector.include?('/')
+        Connectors::UnixServer.new(host_or_socket_or_connector)
+      else
+        Connectors::TcpServer.new(host_or_socket_or_connector, port.to_i)
       end
+
       @connector.server = self
-      @app         = app
-      @timeout     = 60 # sec
-      @connections = []
+      @app              = app
       
+      # Allow using Rack builder as a block
       @app = Rack::Builder.new(&block).to_app if block
     end
     
+    # Lil' shortcut to turn this:
+    # 
+    #   Server.new(...).start
+    # 
+    # into this:
+    # 
+    #   Server.start(...)
+    # 
     def self.start(*args, &block)
       new(*args, &block).start!
     end
     
-    # Start the server and listen for connections
+    # Start the server and listen for connections.
+    # Also register signals:
+    # * INT calls +stop+ to shutdown gracefully.
+    # * TERM calls <tt>stop!</tt> to force shutdown.
     def start
       raise ArgumentError, 'app required' unless @app
       
@@ -73,19 +109,19 @@ module Thin
       trace ">> Tracing ON"
       
       log ">> Listening on #{@connector}, CTRL+C to stop"
+      @running = true
       EventMachine.run { @connector.connect }
     end
     alias :start! :start
     
+    # == Gracefull shutdown.
     # Stops the server after processing all current connections.
+    # As soon as this method is called, the server stops accepting
+    # new requests and wait for all current connections to finish.
     # Calling twice is the equivalent of calling <tt>stop!</tt>.
     def stop
-      return unless running?
-      
-      if @stopping
-        stop!
-      else
-        @stopping = true
+      if @running
+        @running = false
         
         # Do not accept anymore connection
         @connector.disconnect
@@ -94,16 +130,19 @@ module Thin
           # Still some connections running, schedule a check later
           EventMachine.add_periodic_timer(1) { wait_for_connections_and_stop }
         end
+      else
+        stop!
       end
     end
     
-    # Stops the server closing all current connections
+    # == Force shuting
+    # Stops the server closing all current connections right away.
+    # This doesn't wait for connection to finish their work and send data.
+    # All current requests will be dropped.
     def stop!
-      return unless running?
-      
       log ">> Stopping ..."
 
-      @connections.each { |connection| connection.close_connection }
+      @connector.close_connections
       EventMachine.stop
 
       @connector.close
@@ -114,8 +153,11 @@ module Thin
     end
     alias :to_s :name
     
+    # Return +true+ if the server is running and ready to receive requests.
+    # Note that the server might still be running and return +false+ when
+    # shuting down and waiting for active connections to complete.
     def running?
-      @connector.running?
+      @running
     end
     
     protected            

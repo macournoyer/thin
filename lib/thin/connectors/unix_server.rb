@@ -27,11 +27,6 @@ module Thin
         remove_socket_file
       end
       
-      # Returns +true+ if connected to the server
-      def running?
-        !@signature.nil?
-      end
-      
       def to_s
         @socket
       end
@@ -40,14 +35,14 @@ module Thin
         def remove_socket_file
           File.delete(@socket) if @socket && File.exist?(@socket)
         end
-    end
-    
-    class UnixConnection < Connection
-      protected
-        def remote_address
-          # FIXME not sure about this, does it even make sense on a UNIX socket?
-          Socket.unpack_sockaddr_un(get_peername)
-        end
-    end
+    end    
+  end
+
+  class UnixConnection < Connection
+    protected
+      def remote_address
+        # FIXME not sure about this, does it even make sense on a UNIX socket?
+        Socket.unpack_sockaddr_un(get_peername)
+      end
   end
 end

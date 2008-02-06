@@ -20,12 +20,7 @@ module Thin
       def disconnect
         EventMachine.stop_server(@signature)
       end
-      
-      # Returns +true+ if connected to the server
-      def running?
-        !@signature.nil?
-      end
-      
+            
       def to_s
         "#{@host}:#{@port}"
       end

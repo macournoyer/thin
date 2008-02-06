@@ -15,6 +15,7 @@ module Thin
       
       def initialize
         @connections = []
+        @timeout     = 60 # sec
       end
             
       # Free up resources used by the connector.
@@ -34,6 +35,11 @@ module Thin
         connection.silent                  = @silent
 
         @connections << connection
+      end
+      
+      # Close all active connections.
+      def close_connections
+        @connections.each { |connection| connection.close_connection }
       end
       
       # Called by a connection when it's unbinded.
