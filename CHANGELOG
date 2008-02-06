@@ -1,4 +1,15 @@
 == 0.6.3 Ninja Cookie release
+ * Add the --rackup option to load a Rack config file instead of the Rails adapter.
+   So you can use any framework with the thin script and start cluster and stuff like that.
+   A Rack config file is one that is usable through the rackup command and looks like this:
+     
+     use Rack::CommonLogger
+     run MyCrazyRackAdapter.new(:uterly, 'cool')
+     
+   Then use it with thin like this:
+     
+     thin start --rackup config.ru
+     
  * thin config --chrdir ... -C thin/yml do not change current directory anymore, fixes #33.
  * Add a better sample god config file in example/thin.god that loads all info from config
    files in /etc/thin [Gump].

@@ -9,7 +9,7 @@ module Thin
       end
     end
   
-    # Control a Thin server.
+    # Controls a Thin server.
     # Allow to start, stop, restart and configure a single thin server.
     class Controller
       include Logging
@@ -37,7 +37,15 @@ module Thin
           server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
         end
 
-        server.app = Rack::Adapter::Rails.new(@options.merge(:root => @options[:chdir]))
+        # If a Rack config file is specified we eval it inside a Rack::Builder block to create
+        # a Rack adapter from it. DHH was hacker of the year a couple years ago so we default
+        # to Rails adapter.
+        if @options[:rackup]
+          rackup_code = File.read(@options[:rackup])
+          server.app  = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", nil, @options[:rackup])
+        else
+          server.app = Rack::Adapter::Rails.new(@options.merge(:root => @options[:chdir]))
+        end
 
         # If a prefix is required, wrap in Rack URL mapper
         server.app = Rack::URLMap.new(@options[:prefix] => server.app) if @options[:prefix]

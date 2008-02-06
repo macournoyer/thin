@@ -39,18 +39,25 @@ describe Controller, 'start' do
     @controller.start
   end
   
-  it "should mount app under :prefix" do |variable|
+  it "should mount app under :prefix" do
     @controller.options[:prefix] = '/app'
     @controller.start
     
     @server.app.class.should == Rack::URLMap
   end
 
-  it "should mount Stats adapter under :stats" do |variable|
+  it "should mount Stats adapter under :stats" do
     @controller.options[:stats] = '/stats'
     @controller.start
     
     @server.app.class.should == Stats::Adapter
+  end
+  
+  it "should load app from Rack config" do
+    @controller.options[:rackup] = 'example/config.ru'    
+    @controller.start
+    
+    @server.app.class.should == Proc
   end
 end
 

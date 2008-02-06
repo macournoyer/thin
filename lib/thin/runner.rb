@@ -65,6 +65,8 @@ module Thin
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
+                                       "the Rails adapter")                             { |file| @options[:rackup] = file }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
         
