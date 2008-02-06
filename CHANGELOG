@@ -1,4 +1,5 @@
 == 0.6.3 Ninja Cookie release
+ * thin config --chrdir ... -C thin/yml do not change current directory anymore, fixes #33.
  * Add a better sample god config file in example/thin.god that loads all info from config
    files in /etc/thin [Gump].
  * Add support for specifying a custom Connector to the server and a more doc about Server

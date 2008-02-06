@@ -129,7 +129,9 @@ module Thin
       # we store and expand it before changing directory.
       Command.script = File.expand_path($PROGRAM_NAME)
       
-      Dir.chdir(@options[:chdir])
+      # Change the current directory ASAP so that all relative paths are
+      # relative to this one.
+      Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
       
       controller = case
       when cluster? then Controllers::Cluster.new(@options)
