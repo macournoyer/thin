@@ -114,7 +114,7 @@ module Thin
     end
     alias :start! :start
     
-    # == Gracefull shutdown.
+    # == Gracefull shutdown
     # Stops the server after processing all current connections.
     # As soon as this method is called, the server stops accepting
     # new requests and wait for all current connections to finish.
@@ -135,7 +135,7 @@ module Thin
       end
     end
     
-    # == Force shuting
+    # == Force shutdown
     # Stops the server closing all current connections right away.
     # This doesn't wait for connection to finish their work and send data.
     # All current requests will be dropped.

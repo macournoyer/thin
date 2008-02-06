@@ -7,7 +7,7 @@ module Thin
     
     def initialize
       @sent = {}
-      @out = ''
+      @out = []
     end
     
     # Add <tt>key: value</tt> pair to the headers.
@@ -21,7 +21,7 @@ module Thin
     end
     
     def to_s
-      @out
+      @out.join
     end
   end
 end
