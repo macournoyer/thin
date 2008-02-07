@@ -20,11 +20,12 @@ module Thin
         end
       end
     
-      def first_port; @options[:port]     end
-      def address;    @options[:address]  end
-      def socket;     @options[:socket]   end
-      def pid_file;   @options[:pid]      end
-      def log_file;   @options[:log]      end
+      def first_port; @options[:port]       end
+      def address;    @options[:address]    end
+      def socket;     @options[:socket]     end
+      def swiftiply;  @options[:swiftiply]  end
+      def pid_file;   @options[:pid]        end
+      def log_file;   @options[:log]        end
     
       # Start the servers
       def start
@@ -60,6 +61,8 @@ module Thin
       def server_id(number)
         if socket
           socket_for(number)
+        elsif swiftiply
+          [address, first_port, number].join(':')
         else
           [address, number].join(':')
         end
@@ -88,6 +91,8 @@ module Thin
           cmd_options.merge!(:pid => pid_file_for(number), :log => log_file_for(number))
           if socket
             cmd_options.merge!(:socket => socket_for(number))
+          elsif swiftiply
+            cmd_options.merge!(:port => first_port)
           else
             cmd_options.merge!(:port => number)
           end
@@ -99,7 +104,11 @@ module Thin
             yield @only
           else
             @size.times do |n|
-              yield socket ? n : (first_port + n)
+              if socket || swiftiply
+                yield n
+              else
+                yield first_port + n
+              end
             end
           end
         end
