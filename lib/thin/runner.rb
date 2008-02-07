@@ -38,8 +38,7 @@ module Thin
         :port        => 3000,
         :timeout     => 60,
         :log         => 'log/thin.log',
-        :pid         => 'tmp/pids/thin.pid',
-        :servers     => 1 # no cluster
+        :pid         => 'tmp/pids/thin.pid'
       }
       
       parse!
@@ -85,8 +84,7 @@ module Thin
           opts.separator ""
           opts.separator "Cluster options:"                                             
                                                                                       
-          opts.on("-s", "--servers NUM", "Number of servers to start",                  
-                                         "set a value >1 to start a cluster")           { |num| @options[:servers] = num.to_i }
+          opts.on("-s", "--servers NUM", "Number of servers to start")                  { |num| @options[:servers] = num.to_i }
           opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only }
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
           opts.on(      "--all [DIR]", "Send command to each config files in DIR")      { |dir| @options[:all] = dir } if Thin.linux?
@@ -150,7 +148,7 @@ module Thin
     
     # +true+ if we're controlling a cluster.
     def cluster?
-      @options[:only] || (@options[:servers] && @options[:servers] > 1)
+      @options[:only] || @options[:servers]
     end
     
     # +true+ if we're acting a as system service.
