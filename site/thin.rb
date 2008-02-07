@@ -154,6 +154,7 @@ class Thin < Atchoum::Website
       li { a "Cornerstone Web", :href => 'http://www.cornerstoneweb.org/' }
       li { a "Osmos", :href => 'http://www.getosmos.com/' }
       li { a "Lipomics", :href => 'http://www.lipomics.com/' }
+      li { a "RaPlanet", :href => 'http://planet.zhekov.net/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
