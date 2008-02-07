@@ -1,4 +1,5 @@
 == 0.6.3 Ninja Cookie release
+ * Add tasks for Vlad the Deployer in example/vlad.rake [cnantais]
  * Add Ramaze Rackup config file in example dir [tmm1]
    Use like this from you Ramaze app dir:
    
@@ -17,10 +18,10 @@
      
  * thin config --chrdir ... -C thin/yml do not change current directory anymore, fixes #33.
  * Add a better sample god config file in example/thin.god that loads all info from config
-   files in /etc/thin [Gump].
- * Add support for specifying a custom Connector to the server and a more doc about Server
+   files in /etc/thin. Drop-in replacement for the thin runlevel service [Gump].
+ * Add support for specifying a custom Connector to the server and add more doc about Server
    configuration.
- * Add a script to run thin as a system service that can start at startup, closes #31 [Gump]
+ * Add a script to run thin as a runlevel service that can start at startup, closes #31 [Gump]
    Setup the service like this:
    
      sudo thin install /etc/thin
