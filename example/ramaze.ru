@@ -4,7 +4,6 @@
 # 
 #   thin start -r ramaze.ru
 # 
-
 require 'start'
 
 Ramaze.trait[:essentials].delete Ramaze::Adapter
