@@ -1,4 +1,9 @@
 == 0.6.3 Ninja Cookie release
+ * Add Ramaze Rackup config file in example dir [tmm1]
+   Use like this from you Ramaze app dir:
+   
+     thin start -r /path/to/thin/example/ramaze.ru
+   
  * Add the --rackup option to load a Rack config file instead of the Rails adapter.
    So you can use any framework with the thin script and start cluster and stuff like that.
    A Rack config file is one that is usable through the rackup command and looks like this:
