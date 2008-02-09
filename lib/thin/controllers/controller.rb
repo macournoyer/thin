@@ -22,10 +22,13 @@ module Thin
       end
     
       def start
-        if @options[:socket]
-          server = Server.new(@options[:socket])
+        server = case
+        when @options.has_key?(:socket)
+          Server.new(@options[:socket])
+        when @options.has_key?(:swiftiply)
+          Server.new(Connectors::SwiftiplyClient.new(@options[:address], @options[:port], @options[:swiftiply]))
         else
-          server = Server.new(@options[:address], @options[:port])
+          Server.new(@options[:address], @options[:port])
         end
 
         server.pid_file = @options[:pid]

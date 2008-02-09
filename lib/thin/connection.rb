@@ -38,7 +38,7 @@ module Thin
         send_data chunk
       end
       
-      close_connection_after_writing
+      close_connection_after_writing unless persistent?
       
     rescue Object => e
       log "Unexpected error while processing request: #{e.message}"
@@ -47,10 +47,16 @@ module Thin
     ensure
       @request.close  rescue nil
       @response.close rescue nil
+      
+      post_init if persistent?
     end
     
     def unbind
       @connector.connection_finished(self)
+    end
+    
+    def persistent?
+      false
     end
     
     protected

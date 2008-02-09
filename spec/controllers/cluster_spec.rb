@@ -146,3 +146,47 @@ describe Cluster, "controlling only one server" do
       { :daemonize => true, :log => "thin.#{port}.log", :timeout => 10, :address => "0.0.0.0", :port => port, :pid => "thin.#{port}.pid", :chdir => "/rails_app" }
     end
 end
+
+describe Cluster, "with Swiftiply" do
+  before do
+    @cluster = Cluster.new(:chdir => '/rails_app',
+                           :address => '0.0.0.0',
+                           :port => 3000, 
+                           :servers => 3,
+                           :timeout => 10,
+                           :log => 'thin.log',
+                           :pid => 'thin.pid',
+                           :swiftiply => true
+                          )
+    @cluster.silent = true
+  end
+  
+  it 'should call each server' do
+    calls = []
+    @cluster.send(:with_each_server) do |n|
+      calls << n
+    end
+    calls.should == [0, 1, 2]
+  end
+  
+  it 'should start each server' do
+    Command.should_receive(:run).with(:start, options_for_swiftiply(0))
+    Command.should_receive(:run).with(:start, options_for_swiftiply(1))
+    Command.should_receive(:run).with(:start, options_for_swiftiply(2))
+
+    @cluster.start
+  end
+
+  it 'should stop each server' do
+    Command.should_receive(:run).with(:stop, options_for_swiftiply(0))
+    Command.should_receive(:run).with(:stop, options_for_swiftiply(1))
+    Command.should_receive(:run).with(:stop, options_for_swiftiply(2))
+
+    @cluster.stop
+  end
+  
+  private
+    def options_for_swiftiply(number)
+      { :address => '0.0.0.0', :port => 3000, :daemonize => true, :log => "thin.#{number}.log", :timeout => 10, :pid => "thin.#{number}.pid", :chdir => "/rails_app", :swiftiply => true }
+    end
+end

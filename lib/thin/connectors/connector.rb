@@ -22,6 +22,10 @@ module Thin
       def close
       end
       
+      def running?
+        @server.running?
+      end
+      
       def server=(server)
         @server = server
         @silent = @server.silent

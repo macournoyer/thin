@@ -11,27 +11,28 @@ require 'thin/version'
 require 'thin/statuses'
 
 module Thin
-  autoload :Command,      'thin/command'
-  autoload :Connection,   'thin/connection'
-  autoload :Daemonizable, 'thin/daemonizing'
-  autoload :Logging,      'thin/logging'
-  autoload :Headers,      'thin/headers'
-  autoload :Request,      'thin/request'
-  autoload :Response,     'thin/response'
-  autoload :Runner,       'thin/runner'
-  autoload :Server,       'thin/server'
-  autoload :Stats,        'thin/stats'
+  autoload :Command,            'thin/command'
+  autoload :Connection,         'thin/connection'
+  autoload :Daemonizable,       'thin/daemonizing'
+  autoload :Logging,            'thin/logging'
+  autoload :Headers,            'thin/headers'
+  autoload :Request,            'thin/request'
+  autoload :Response,           'thin/response'
+  autoload :Runner,             'thin/runner'
+  autoload :Server,             'thin/server'
+  autoload :Stats,              'thin/stats'
   
   module Connectors
-    autoload :Connector,  'thin/connectors/connector'
-    autoload :TcpServer,  'thin/connectors/tcp_server'
-    autoload :UnixServer, 'thin/connectors/unix_server'
+    autoload :Connector,        'thin/connectors/connector'
+    autoload :SwiftiplyClient,  'thin/connectors/swiftiply_client'
+    autoload :TcpServer,        'thin/connectors/tcp_server'
+    autoload :UnixServer,       'thin/connectors/unix_server'
   end
   
   module Controllers
-    autoload :Cluster,    'thin/controllers/cluster'
-    autoload :Controller, 'thin/controllers/controller'
-    autoload :Service,    'thin/controllers/service'
+    autoload :Cluster,          'thin/controllers/cluster'
+    autoload :Controller,       'thin/controllers/controller'
+    autoload :Service,          'thin/controllers/service'
   end
 end
 
