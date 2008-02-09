@@ -5,12 +5,12 @@ module Thin
   
   module VERSION #:nodoc:
     MAJOR    = 0
-    MINOR    = 6
-    TINY     = 3
+    MINOR    = 7
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Ninja Cookie'
+    CODENAME = 'Bionic Pickle'
   end
   
   NAME    = 'thin'.freeze
