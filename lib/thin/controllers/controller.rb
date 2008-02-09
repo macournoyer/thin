@@ -19,6 +19,11 @@ module Thin
     
       def initialize(options)
         @options = options
+        
+        if @options[:socket]
+          @options.delete(:address)
+          @options.delete(:port)
+        end
       end
     
       def start

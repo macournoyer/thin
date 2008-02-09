@@ -10,7 +10,7 @@ module Thin
       TEMPLATE            = File.dirname(__FILE__) + '/service.sh.erb'
     
       def initialize(options)
-        @options = options
+        super
       
         raise PlatformNotSupported, 'Running as a service only supported on Linux' unless Thin.linux?
       end
