@@ -74,7 +74,14 @@ namespace :gem do
       sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
       sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-x86-mswin32-60.gem"
     end
-  end  
+  end
+  
+  desc 'Download the Windows gem from Kevin repo'
+  task 'download:win' => 'pkg' do
+    cd 'pkg' do
+      `wget http://rubygems.bantamtech.com/ruby18/gems/#{spec.full_name}-x86-mswin32-60.gem`
+    end
+  end
 end
 
 task :install => [:clobber, :compile, :package] do

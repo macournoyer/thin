@@ -16,6 +16,8 @@ class Thin < Atchoum::Website
           li { a 'download', :href => "#{ROOT}/download/" }
           li { a 'usage', :href => "#{ROOT}/usage/" }
           li { a 'doc', :href => "#{ROOT}/doc/" }
+          li { a 'code', :href => "http://github.com/macournoyer/thin/" }
+          li { a 'bugs', :href => "http://thin.lighthouseapp.com/projects/7212-thin/" }
           li { a 'users', :href => "#{ROOT}/users/" }
           li { a 'community', :href => "http://groups.google.com/group/thin-ruby/" }
         end
@@ -93,7 +95,7 @@ class Thin < Atchoum::Website
     
     h2 'Install from source'
 
-    p 'Clone the Git repository'
+    p { "Clone the #{a 'Git repository', :href => 'http://github.com/macournoyer/thin/'}" }
     pre "git clone git://github.com/macournoyer/thin.git"
     
     p 'Hack the code, patch it, whatever, build the Gem and install'
@@ -101,37 +103,76 @@ class Thin < Atchoum::Website
   end
   
   def usage_page
-    h2 'Usage'
+    h2 'Using with Rails'
 
     p { "After installing the Gem, a #{code 'thin'} script should be in your " +
         "path to easily start your Rails application." }
 
     pre "cd to/your/rails/app\nthin start"
     
-    p { "But Thin is also usable through Rack #{code 'rackup'} command. You need " +
-        "to setup a #{code 'config.ru'} file and require thin in it." }
+    h2 'Using with anything, ANYTHING!'
+    
+    p "But Thin can also load Rack config file so you can use it with any framework that " +
+      "supports Rack. Even your own that is, like, soooo much better then Rails, rly!"
 
-    em.filename 'config.ru'
+    em.filename 'fart.ru'
     pre <<-EOS.gsub(/^\s{6}/, '')
-      require 'thin'
-      
       app = proc do |env|
         [
-          200,
-          {
+          200,                      # Status code
+          {                         # Response headers
             'Content-Type' => 'text/html',
             'Content-Length' => '2',
           },
-          ['hi']
+          ['hi']                    # Response body
         ]
       end
+      
+      # You can install Rack middlewares to do some
+      # crazy stuff like logging, filtering, auth
+      # or build your own.
+      use Rack::CommonLogger
       
       run app
     EOS
     
-    pre 'rackup -s thin'
-    
+    pre 'thin start -r fart.ru'
     p { "See #{a 'Rack doc', :href => 'http://rack.rubyforge.org/doc/'} for more." }
+    
+    hr
+    
+    h2 'Deploying'
+    
+    p 'Deploying a cluster of Thins is super easy. Just specify the number of servers you ' + 
+      'want to launch.'
+    pre 'thin start --servers 3'
+    
+    p 'You can also install Thin as a runlevel script that will start all your servers after boot.'
+    pre 'sudo thin install'
+    
+    p 'and setup a config file'
+    pre 'thin config -C /etc/thin/myapp.yml -c /var/...'
+    
+    p { "Run #{code 'thin -h'} to get all options." }
+    
+    h2 'Behind Nginx'
+    
+    p { "Check out this #{a 'sample Nginx config', :href => 'http://brainspl.at/nginx.conf.txt'} " +
+        "file to proxy requests to a Thin backend." }
+    
+    p 'To connect to Nginx using UNIX sockets:'
+    
+    em.filename 'nginx.conf'
+    pre <<-EOS.gsub(/^\s{6}/, '')
+      upstream  backend {
+         server   unix:/tmp/thin.0.sock;
+         server   unix:/tmp/thin.1.sock;
+         server   unix:/tmp/thin.2.sock;
+      }
+    EOS
+    
+    p 'and start your cluster like this:'
+    pre 'thin start -s3 --socket /tmp/thin.sock'
   end
   
   def users_page
@@ -155,6 +196,7 @@ class Thin < Atchoum::Website
       li { a "Osmos", :href => 'http://www.getosmos.com/' }
       li { a "Lipomics", :href => 'http://www.lipomics.com/' }
       li { a "RaPlanet", :href => 'http://planet.zhekov.net/' }
+      li { a "Ninja Hideout blog", :href => 'http://blog.ninjahideout.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
