@@ -1,17 +1,15 @@
 require 'socket'
 
 module Thin
+  # Connection between the server and client.
   class Connection < EventMachine::Connection
     include Logging
     
     # Rack application served by this connection.
     attr_accessor :app
     
-    # +true+ if the connection is on a UNIX domain socket.
-    attr_accessor :unix_socket
-    
-    # Server owning the connection
-    attr_accessor :server
+    # Connector to the server
+    attr_accessor :connector
     
     def post_init
       @request  = Request.new
@@ -44,7 +42,7 @@ module Thin
       end
       
       # If no more request on that same connection, we close it.
-      close_connection_after_writing unless @response.persistent?
+      close_connection_after_writing unless persistent?
       
     rescue Object => e
       log "Unexpected error while processing request: #{e.message}"
@@ -56,23 +54,20 @@ module Thin
       
       # Prepare the connection for another request if the client
       # supports HTTP pipelining (persistent connection).
-      post_init if @response.persistent?
-    end    
+      post_init if persistent?
+    end
     
     def unbind
-      @server.connection_finished(self)
+      @connector.connection_finished(self)
+    end
+    
+    def persistent?
+      @response.persistent?
     end
     
     protected
       def remote_address
-        if remote_addr = @request.forwarded_for
-          remote_addr
-        elsif @unix_socket
-          # FIXME not sure about this, does it even make sense on a UNIX socket?
-          Socket.unpack_sockaddr_un(get_peername)
-        else
-          Socket.unpack_sockaddr_in(get_peername)[1]
-        end
+        @request.forwarded_for || Socket.unpack_sockaddr_in(get_peername)[1]
       end
   end
 end

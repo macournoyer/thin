@@ -38,8 +38,7 @@ module Thin
         :port        => 3000,
         :timeout     => 60,
         :log         => 'log/thin.log',
-        :pid         => 'tmp/pids/thin.pid',
-        :servers     => 1 # no cluster
+        :pid         => 'tmp/pids/thin.pid'
       }
       
       parse!
@@ -60,11 +59,14 @@ module Thin
                                         "(default: #{@options[:address]})")             { |host| @options[:address] = host }
         opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")          { |port| @options[:port] = port.to_i }
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
+        opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-e", "--environment ENV", "Rails environment " +                       
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
+                                       "the Rails adapter")                             { |file| @options[:rackup] = file }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
         
@@ -83,8 +85,7 @@ module Thin
           opts.separator ""
           opts.separator "Cluster options:"                                             
                                                                                       
-          opts.on("-s", "--servers NUM", "Number of servers to start",                  
-                                         "set a value >1 to start a cluster")           { |num| @options[:servers] = num.to_i }
+          opts.on("-s", "--servers NUM", "Number of servers to start")                  { |num| @options[:servers] = num.to_i }
           opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only }
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
           opts.on(      "--all [DIR]", "Send command to each config files in DIR")      { |dir| @options[:all] = dir } if Thin.linux?
@@ -129,12 +130,14 @@ module Thin
       # we store and expand it before changing directory.
       Command.script = File.expand_path($PROGRAM_NAME)
       
-      Dir.chdir(@options[:chdir])
+      # Change the current directory ASAP so that all relative paths are
+      # relative to this one.
+      Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
       
       controller = case
-      when cluster? then Cluster.new(@options)
-      when service? then Service.new(@options)
-      else               Controller.new(@options)
+      when cluster? then Controllers::Cluster.new(@options)
+      when service? then Controllers::Service.new(@options)
+      else               Controllers::Controller.new(@options)
       end
       
       if controller.respond_to?(@command)
@@ -146,7 +149,7 @@ module Thin
     
     # +true+ if we're controlling a cluster.
     def cluster?
-      @options[:only] || (@options[:servers] && @options[:servers] > 1)
+      @options[:only] || @options[:servers]
     end
     
     # +true+ if we're acting a as system service.

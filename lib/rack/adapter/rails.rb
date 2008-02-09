@@ -1,6 +1,3 @@
-# This as been submitted to Rack as a patch, tested and everything.
-# Bug Christian Neukirchen at chneukirchen@gmail.com to apply the patch!
-
 require 'cgi'
 
 # Adapter to run a Rails app with any supported Rack handler.
