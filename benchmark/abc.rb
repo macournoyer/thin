@@ -30,7 +30,7 @@ puts '=' * 42
 c = options[:start]
 until c >= options[:end]
   sleep 0.5
-  out = `nice -n20 ab -c #{c} -n #{options[:requests]} #{options[:address]}:#{options[:port]}/#{options[:uri]} 2> /dev/null`
+  out = `nice -n20 ab -k -c #{c} -n #{options[:requests]} #{options[:address]}:#{options[:port]}/#{options[:uri]} 2> /dev/null`
 
   r = if requests = out.match(/^Requests.+?(\d+\.\d+)/)
     requests[1].to_i
