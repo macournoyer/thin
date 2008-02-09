@@ -30,8 +30,9 @@ module Thin
     def shellify
       shellified_options = @options.inject([]) do |args, (name, value)|
         args << case value
-        when NilClass
-        when TrueClass then "--#{name}"
+        when NilClass,
+             TrueClass then "--#{name}"
+        when FalseClass
         else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
         end
       end

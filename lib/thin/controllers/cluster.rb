@@ -25,10 +25,14 @@ module Thin
       def socket;     @options[:socket]   end
       def pid_file;   @options[:pid]      end
       def log_file;   @options[:log]      end
+
+      def swiftiply?
+        @options.has_key?(:swiftiply)
+      end
     
       # Start the servers
       def start
-        with_each_server { |port| start_server port }
+        with_each_server { |n| start_server n }
       end
     
       # Start a single server
@@ -60,6 +64,8 @@ module Thin
       def server_id(number)
         if socket
           socket_for(number)
+        elsif swiftiply?
+          [address, first_port, number].join(':')
         else
           [address, number].join(':')
         end
@@ -80,7 +86,7 @@ module Thin
       def pid_for(number)
         File.read(pid_file_for(number)).chomp.to_i
       end
-    
+      
       private
         # Send the command to the +thin+ script
         def run(cmd, options, number)
@@ -88,6 +94,8 @@ module Thin
           cmd_options.merge!(:pid => pid_file_for(number), :log => log_file_for(number))
           if socket
             cmd_options.merge!(:socket => socket_for(number))
+          elsif swiftiply?
+            cmd_options.merge!(:port => first_port)
           else
             cmd_options.merge!(:port => number)
           end
@@ -97,10 +105,10 @@ module Thin
         def with_each_server
           if @only
             yield @only
+          elsif socket || swiftiply?
+            @size.times { |n| yield n }
           else
-            @size.times do |n|
-              yield socket ? n : (first_port + n)
-            end
+            @size.times { |n| yield first_port + n }
           end
         end
       

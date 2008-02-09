@@ -59,7 +59,7 @@ module Thin
                                         "(default: #{@options[:address]})")             { |host| @options[:address] = host }
         opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")          { |port| @options[:port] = port.to_i }
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
-        opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| options[:swiftiply] = key }
+        opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-e", "--environment ENV", "Rails environment " +                       
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
