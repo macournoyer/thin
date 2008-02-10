@@ -5,19 +5,15 @@ module Thin
     # * Inject the port or socket number in the pid and log filenames.
     # Servers are started throught the +thin+ command-line script.
     class Cluster < Controller
-      # Number of servers in the cluster.
-      attr_accessor :size
-        
+      # Cluster only options that should not be passed in the command sent
+      # to the indiviual servers.
+      CLUSTER_OPTIONS = [:servers, :only]
+      
       # Create a new cluster of servers launched using +options+.
       def initialize(options)
-        @options = options.merge(:daemonize => true)
-        @size    = @options.delete(:servers)
-        @only    = @options.delete(:only)
-      
-        if socket
-          @options.delete(:address)
-          @options.delete(:port)
-        end
+        super
+        # Cluster can only contain daemonized servers
+        @options.merge!(:daemonize => true)
       end
     
       def first_port; @options[:port]     end
@@ -25,6 +21,8 @@ module Thin
       def socket;     @options[:socket]   end
       def pid_file;   @options[:pid]      end
       def log_file;   @options[:log]      end
+      def size;       @options[:servers]  end
+      def only;       @options[:only]     end
 
       def swiftiply?
         @options.has_key?(:swiftiply)
@@ -39,7 +37,7 @@ module Thin
       def start_server(number)
         log "Starting server on #{server_id(number)} ... "
       
-        run :start, @options, number
+        run :start, number
       end
   
       # Stop the servers
@@ -51,7 +49,7 @@ module Thin
       def stop_server(number)
         log "Stopping server on #{server_id(number)} ... "
       
-        run :stop, @options, number
+        run :stop, number
       end
     
       # Stop and start the servers.
@@ -89,8 +87,8 @@ module Thin
       
       private
         # Send the command to the +thin+ script
-        def run(cmd, options, number)
-          cmd_options = options.dup
+        def run(cmd, number)
+          cmd_options = @options.reject { |option, value| CLUSTER_OPTIONS.include?(option) }
           cmd_options.merge!(:pid => pid_file_for(number), :log => log_file_for(number))
           if socket
             cmd_options.merge!(:socket => socket_for(number))
@@ -103,12 +101,12 @@ module Thin
         end
       
         def with_each_server
-          if @only
-            yield @only
+          if only
+            yield only
           elsif socket || swiftiply?
-            @size.times { |n| yield n }
+            size.times { |n| yield n }
           else
-            @size.times { |n| yield first_port + n }
+            size.times { |n| yield first_port + n }
           end
         end
       

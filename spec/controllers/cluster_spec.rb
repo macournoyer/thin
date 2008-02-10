@@ -19,10 +19,6 @@ describe Cluster, "with host and port" do
     @cluster.send(:include_server_number, 'thin.pid', 3000).should == 'thin.3000.pid'
   end
   
-  it "should exclude :servers option" do
-    @cluster.options.should_not have_key(:servers)
-  end
-    
   it 'should call each server' do
     calls = []
     @cluster.send(:with_each_server) do |port|
@@ -120,11 +116,6 @@ describe Cluster, "controlling only one server" do
                            :only => 3001
                           )
     @cluster.silent = true
-  end
-  
-  it "should exclude :servers and :only options" do
-    @cluster.options.should_not have_key(:servers)
-    @cluster.options.should_not have_key(:only)
   end
   
   it 'should call only specified server' do

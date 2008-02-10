@@ -9,7 +9,7 @@ ext/thin_parser/vc60.pdb
 ext/thin_parser/*.so
 lib/*.bundle
 lib/*.so
-log/*.log
+log
 spec/rails_app/log
 doc/rdoc/*
 tmp/*

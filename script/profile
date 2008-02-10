@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# Script to profile thin using ruby-prof.
+# Takes the same arguments as the thin script.
+require 'rubygems'
+require 'ruby-prof'
+
+# Profile the code
+result = RubyProf.profile do
+  load 'bin/thin'
+end
+
+# Print a graph profile to text
+printer = RubyProf::GraphPrinter.new(result)
+printer.print(STDOUT, 0)

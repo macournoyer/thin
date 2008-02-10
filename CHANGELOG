@@ -1,5 +1,6 @@
 == 0.7.0 Bionic Pickle release
  * Persistent connection (keep-alive) & HTTP pipelining support
+ * Fix -s option not being included in generated config file, fixes #37.
  * Add Swiftiply support. Use w/ the --swiftiply (-y) option in the thin script,
    closes #28 [Alex MacCaw]
 
