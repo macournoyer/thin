@@ -2,6 +2,8 @@ require 'socket'
 
 module Thin
   # Connection between the server and client.
+  # This class is instanciated by EventMachine on each new connection
+  # that is opened.
   class Connection < EventMachine::Connection
     include Logging
     
@@ -11,11 +13,13 @@ module Thin
     # Connector to the server
     attr_accessor :connector
     
+    # Get the connection ready to process a request.
     def post_init
       @request  = Request.new
       @response = Response.new
     end
     
+    # Called when data is received from the client.
     def receive_data(data)
       trace { data }
       process if @request.parse(data)
@@ -25,6 +29,8 @@ module Thin
       close_connection
     end
     
+    # Called when all data was received and the request
+    # is ready to being processed.
     def process
       # Add client info to the request env
       @request.remote_address = remote_address
@@ -32,7 +38,7 @@ module Thin
       # Process the request
       @response.status, @response.headers, @response.body = @app.call(@request.env)
       
-      # Tell the client the connection is persistent if requested
+      # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
       
       # Send the response
@@ -57,10 +63,14 @@ module Thin
       post_init if persistent?
     end
     
+    # Called when the connection is unbinded from the socket
+    # and can no longer be used to process requests.
     def unbind
       @connector.connection_finished(self)
     end
     
+    # Return +true+ if the connection must be left open
+    # and ready to be reused for another request.
     def persistent?
       @response.persistent?
     end
