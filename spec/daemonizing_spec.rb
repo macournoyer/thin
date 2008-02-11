@@ -36,7 +36,7 @@ describe 'Daemonizing' do
     @pid = fork do
       @child_processes << Process.pid
       @server.daemonize
-      sleep 2
+      sleep 1
     end
     
     sleep 1

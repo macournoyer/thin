@@ -13,7 +13,7 @@ describe Server, 'on TCP socket' do
   end
   
   it 'should GET from TCPSocket' do
-    send_data("GET /?this HTTP/1.1\r\n\r\n").
+    send_data("GET /?this HTTP/1.1\r\nConnection: close\r\n\r\n").
       should include("HTTP/1.1 200 OK",
                      "Content-Type: text/html", "Content-Length: ",
                      "Connection: close", "this")
@@ -24,7 +24,7 @@ describe Server, 'on TCP socket' do
   end
   
   it 'should return empty string on incorrect Content-Length' do
-    send_data("POST / HTTP/1.1\r\nContent-Length: 300\r\n\r\naye").should be_empty
+    send_data("POST / HTTP/1.1\r\nContent-Length: 300\r\nConnection: close\r\n\r\naye").should be_empty
   end
   
   it 'should POST from Net::HTTP' do

@@ -163,7 +163,7 @@ module Helpers
   
   def get(url)
     if @server.connector.class == Connectors::UnixServer
-      send_data("GET #{url} HTTP/1.1\r\n\r\n")
+      send_data("GET #{url} HTTP/1.1\r\nConnection: close\r\n\r\n")
     else
       Net::HTTP.get(URI.parse("http://#{@server.host}:#{@server.port}" + url))
     end

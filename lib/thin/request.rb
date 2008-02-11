@@ -95,7 +95,7 @@ module Thin
       @env[CONTENT_LENGTH].to_i
     end
     
-    # Returns +true+ if the client expect the connection be persistent.
+    # Returns +true+ if the client expect the connection to be persistent.
     def persistent?
       # Clients and servers SHOULD NOT assume that a persistent connection
       # is maintained for HTTP versions less than 1.1 unless it is explicitly
