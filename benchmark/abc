@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # Automate benchmarking with ab with various concurrency levels.
 require 'optparse'
 
