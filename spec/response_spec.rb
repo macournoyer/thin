@@ -63,6 +63,24 @@ EOS
     proc { @response.each { |l| l } }.should be_faster_then(0.00011)
   end
   
+  it "should not be persistent by default" do
+    @response.should_not be_persistent
+  end
+  
+  it "should not be persistent when no Content-Length" do
+    @response = Response.new
+    @response.headers['Content-Type'] = 'text/html'
+    @response.body = ''
+    
+    @response.persistent!
+    @response.should_not be_persistent
+  end
+  
+  it "should be persistent when specified" do
+    @response.persistent!
+    @response.should be_persistent
+  end
+  
   it "should be closeable" do
     @response.close
   end
