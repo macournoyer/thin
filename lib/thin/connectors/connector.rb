@@ -4,18 +4,16 @@ module Thin
     # * connection/disconnection to the server
     # * initialization of the connections
     # * manitoring of the active connections.
-    class Connector
-      include Logging
-      
+    class Connector      
       # Server serving the connections throught the connector
-      attr_reader :server
+      attr_accessor :server
       
       # Maximum time for incoming data to arrive
       attr_accessor :timeout
       
       def initialize
         @connections = []
-        @timeout     = 60 # sec
+        @timeout     = Server::DEFAULT_TIMEOUT
       end
             
       # Free up resources used by the connector.
@@ -25,18 +23,12 @@ module Thin
       def running?
         @server.running?
       end
-      
-      def server=(server)
-        @server = server
-        @silent = @server.silent
-      end
             
       # Initialize a new connection to a client.
       def initialize_connection(connection)
         connection.connector               = self
         connection.app                     = @server.app
         connection.comm_inactivity_timeout = @timeout
-        connection.silent                  = @silent
 
         @connections << connection
       end

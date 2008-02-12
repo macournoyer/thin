@@ -11,7 +11,6 @@ describe Cluster, "with host and port" do
                            :log => 'thin.log',
                            :pid => 'thin.pid'
                           )
-    @cluster.silent = true
   end
     
   it 'should include port number in file names' do
@@ -60,7 +59,6 @@ describe Cluster, "with UNIX socket" do
                            :log => 'thin.log',
                            :pid => 'thin.pid'
                           )
-    @cluster.silent = true
   end
   
   it 'should include socket number in file names' do
@@ -115,7 +113,6 @@ describe Cluster, "controlling only one server" do
                            :pid => 'thin.pid',
                            :only => 3001
                           )
-    @cluster.silent = true
   end
   
   it 'should call only specified server' do
@@ -149,7 +146,6 @@ describe Cluster, "with Swiftiply" do
                            :pid => 'thin.pid',
                            :swiftiply => true
                           )
-    @cluster.silent = true
   end
   
   it 'should call each server' do

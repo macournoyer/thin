@@ -58,7 +58,7 @@ module Thin
         # If a prefix is required, wrap in Rack URL mapper
         server.app = Rack::URLMap.new(@options[:prefix] => server.app) if @options[:prefix]
 
-        # If a stats are required, wrap in Stats adapter
+        # If a stats URL is specified, wrap in Stats adapter
         server.app = Stats::Adapter.new(server.app, @options[:stats]) if @options[:stats]
 
         # Register restart procedure

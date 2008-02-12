@@ -94,10 +94,10 @@ module Thin
         opts.separator ""
         opts.separator "Common options:"
 
-        opts.on_tail("-D", "--debug", "Set debbuging on")       { $DEBUG = true }
-        opts.on_tail("-V", "--trace", "Set tracing on")         { $TRACE = true }
-        opts.on_tail("-h", "--help", "Show this message")       { puts opts; exit }
-        opts.on_tail('-v', '--version', "Show version")         { puts Thin::SERVER; exit }
+        opts.on_tail("-D", "--debug", "Set debbuging on")                               { Logging.debug = true }
+        opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { Logging.trace = true }
+        opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
+        opts.on_tail('-v', '--version', "Show version")                                 { puts Thin::SERVER; exit }
       end
     end
     

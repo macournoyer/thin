@@ -45,6 +45,10 @@ module Thin
     include Logging
     include Daemonizable
     extend  Forwardable
+    
+    # Default values
+    DEFAULT_TIMEOUT = 60 #sec
+    DEFAULT_PORT    = 3000
         
     # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
@@ -62,7 +66,7 @@ module Thin
     # UNIX domain socket on which the server is listening for connections.
     def_delegator :@connector, :socket
     
-    def initialize(host_or_socket_or_connector, port=3000, app=nil, &block)
+    def initialize(host_or_socket_or_connector, port=DEFAULT_PORT, app=nil, &block)
       # Try to intelligently select which connector to use.
       @connector = case
       when host_or_socket_or_connector.is_a?(Connectors::Connector)
@@ -78,6 +82,9 @@ module Thin
       
       # Allow using Rack builder as a block
       @app = Rack::Builder.new(&block).to_app if block
+      
+      # If in debug mode, wrap in logger adapter
+      @app = Rack::CommonLogger.new(@app) if Logging.debug?
     end
     
     # Lil' shortcut to turn this:
@@ -106,6 +113,7 @@ module Thin
       EventMachine.epoll
       
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
+      debug ">> Debugging ON"
       trace ">> Tracing ON"
       
       log ">> Listening on #{@connector}, CTRL+C to stop"

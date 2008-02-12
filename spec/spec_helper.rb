@@ -12,6 +12,7 @@ include Thin
 
 FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
 Command.script = File.dirname(__FILE__) + '/../bin/thin'
+Logging.silent = true
 
 module Matchers
   class BeFasterThen
@@ -138,7 +139,6 @@ module Helpers
   def start_server(*args, &app)
     @server = Thin::Server.new(args[0] || '0.0.0.0', args[1] || 3333, app)
     @server.timeout = 3
-    @server.silent = true
     
     @thread = Thread.new { @server.start }
     sleep 0.1 until @thread.status == 'sleep'

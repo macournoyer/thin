@@ -14,7 +14,6 @@ describe Service do
     FileUtils.mkdir_p 'tmp/sandbox'
         
     @service = Service.new(:all => 'spec/configs')
-    @service.silent = true
   end
   
   it "should call command for each config file" do
