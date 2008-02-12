@@ -199,6 +199,7 @@ class Thin < Atchoum::Website
       li { a "Ninja Hideout blog", :href => 'http://blog.ninjahideout.com/' }
       li { a "blog.hoodow.de", :href => 'http://blog.hoodow.de/articles/2008/02/09/thin' }
       li { a "moonitor.org", :href => 'http://moonitor.org' }
+      li { a "Daniel Fischer's Blog", :href => 'http://www.danielfischer.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
