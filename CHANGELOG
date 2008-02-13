@@ -8,6 +8,10 @@
  * Add Swiftiply support. Use w/ the --swiftiply (-y) option in the thin script,
    closes #28 [Alex MacCaw]
 
+== 0.6.4 Sexy Lobster release
+ * Fix error when stopping server on UNIX domain socket, fixes #42
+ * Rescue errors in Connection#get_peername more gracefully, setting REMOTE_ADDR to nil, fixes #43
+
 == 0.6.3 Ninja Cookie release
  * Add tasks for Vlad the Deployer in example/vlad.rake [cnantais]
  * Add Ramaze Rackup config file in example dir [tmm1]

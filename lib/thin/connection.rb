@@ -13,6 +13,8 @@ module Thin
     # Connector to the server
     attr_accessor :connector
     
+    attr_accessor :request, :response
+    
     # Get the connection ready to process a request.
     def post_init
       @request  = Request.new
@@ -75,9 +77,11 @@ module Thin
       @response.persistent?
     end
     
-    protected
-      def remote_address
-        @request.forwarded_for || Socket.unpack_sockaddr_in(get_peername)[1]
-      end
+    def remote_address
+      @request.env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
+    rescue
+      log_error($!)
+      nil
+    end
   end
 end

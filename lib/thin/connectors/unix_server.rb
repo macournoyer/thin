@@ -1,6 +1,6 @@
 module Thin
   module Connectors
-    # Connectior to act as a UNIX domain socket server.
+    # Connector to act as a UNIX domain socket server.
     class UnixServer < Connector
       # UNIX domain socket on which the server is listening for connections.
       attr_accessor :socket
@@ -14,7 +14,10 @@ module Thin
       # Connect the server
       def connect
         at_exit { remove_socket_file } # In case it crashes
-        @signature = EventMachine.start_unix_domain_server(@socket, UnixConnection, &method(:initialize_connection))
+        EventMachine.start_unix_domain_server(@socket, UnixConnection, &method(:initialize_connection))
+        # HACK EventMachine.start_unix_domain_server doesn't return the connection signature
+        #      so we have to go in the internal stuff to find it.
+        @signature = EventMachine.instance_eval{@acceptors.keys.first}
       end
       
       # Stops the server
@@ -38,11 +41,14 @@ module Thin
     end    
   end
 
+  # Connection through a UNIX domain socket.
   class UnixConnection < Connection
-    protected
-      def remote_address
-        # FIXME not sure about this, does it even make sense on a UNIX socket?
-        Socket.unpack_sockaddr_un(get_peername)
-      end
+    def remote_address
+      # FIXME not sure about this, does it even make sense on a UNIX socket?
+      Socket.unpack_sockaddr_un(get_peername)
+    rescue
+      log_error($!)
+      nil
+    end
   end
 end
