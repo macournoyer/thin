@@ -47,7 +47,7 @@ module Thin
     extend  Forwardable
     
     # Default values
-    DEFAULT_TIMEOUT = 60 #sec
+    DEFAULT_TIMEOUT = 30 #sec
     DEFAULT_PORT    = 3000
         
     # Application (Rack adapter) called with the request that produces the response.
