@@ -43,12 +43,10 @@ module Thin
 
   # Connection through a UNIX domain socket.
   class UnixConnection < Connection
-    def remote_address
-      # FIXME not sure about this, does it even make sense on a UNIX socket?
-      Socket.unpack_sockaddr_un(get_peername)
-    rescue
-      log_error($!)
-      nil
-    end
+    protected
+      def socket_address
+        # FIXME not sure about this, does it even make sense on a UNIX socket?
+        Socket.unpack_sockaddr_un(get_peername)
+      end
   end
 end
