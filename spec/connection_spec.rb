@@ -41,6 +41,16 @@ describe Connection do
     @connection.remote_address.should be_nil
   end
   
+  it "should return nil on nil get_peername" do
+    @connection.stub!(:get_peername).and_return(nil)
+    @connection.remote_address.should be_nil
+  end
+  
+  it "should return nil on empty get_peername" do
+    @connection.stub!(:get_peername).and_return('')
+    @connection.remote_address.should be_nil
+  end
+  
   it "should return remote_address" do
     @connection.stub!(:get_peername).and_return("\020\002?E\177\000\000\001\000\000\000\000\000\000\000\000")
     @connection.remote_address.should == '127.0.0.1'

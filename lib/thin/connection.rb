@@ -78,10 +78,19 @@ module Thin
     end
     
     def remote_address
-      @request.env[Request::FORWARDED_FOR] || Socket.unpack_sockaddr_in(get_peername)[1]
+      @request.env[Request::FORWARDED_FOR] || (has_peername? ? socket_address : nil)
     rescue
       log_error($!)
       nil
     end
+    
+    protected
+      def has_peername?
+        !get_peername.nil? && !get_peername.empty?
+      end
+      
+      def socket_address
+        Socket.unpack_sockaddr_in(get_peername)[1]
+      end
   end
 end
