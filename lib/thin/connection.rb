@@ -78,7 +78,7 @@ module Thin
     end
     
     def remote_address
-      @request.env[Request::FORWARDED_FOR] || (has_peername? ? socket_address : nil)
+      @request.forwarded_for || (has_peername? ? socket_address : nil)
     rescue
       log_error($!)
       nil
