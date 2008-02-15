@@ -1,6 +1,6 @@
 # == God config file
 # http://god.rubyforge.org/
-# Author: Gump
+# Authors: Gump and michael@glauche.de
 #
 # Config file for god that configures watches for each instance of a thin server for
 # each thin configuration file found in /etc/thin.
@@ -16,28 +16,32 @@ Dir[config_path + "/*.yml"].each do |file|
   config = YAML.load_file(file)
   num_servers = config["servers"] ||= 1
 
-  for i in 0...num_servers
+  (0...num_servers).each do |i|
+    # UNIX socket cluster use number 0 to 2 (for 3 servers)
+    # and tcp cluster use port number 3000 to 3002.
+    number = config['socket'] ? i : (config['port'] + i)
+    
     God.watch do |w|
       w.group = "thin-" + File.basename(file, ".yml")
-      w.name = w.group + "-#{i}"
+      w.name = w.group + "-#{number}"
       
       w.interval = 30.seconds
       
       w.uid = config["user"]
       w.gid = config["group"]
       
-      w.start = "thin start -C #{file} -o #{i}"
+      w.start = "thin start -C #{file} -o #{number}"
       w.start_grace = 10.seconds
       
-      w.stop = "thin stop -C #{file} -o #{i}"
+      w.stop = "thin stop -C #{file} -o #{number}"
       w.stop_grace = 10.seconds
       
-      w.restart = "thin restart -C #{file} -o #{i}"
+      w.restart = "thin restart -C #{file} -o #{number}"
 
       pid_path = config["chdir"] + "/" + config["pid"]
       ext = File.extname(pid_path)
 
-      w.pid_file = pid_path.gsub(/#{ext}$/, ".#{i}#{ext}")
+      w.pid_file = pid_path.gsub(/#{ext}$/, ".#{number}#{ext}")
       
       w.behavior(:clean_pid_file)
 
