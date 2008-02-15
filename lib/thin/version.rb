@@ -10,7 +10,7 @@ module Thin
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Bionic Pickle'
+    CODENAME = 'Spherical Cow'
   end
   
   NAME    = 'thin'.freeze
