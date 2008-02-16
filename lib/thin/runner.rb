@@ -36,9 +36,10 @@ module Thin
         :environment => 'development',
         :address     => '0.0.0.0',
         :port        => 3000,
-        :timeout     => 60,
+        :timeout     => 30,
         :log         => 'log/thin.log',
-        :pid         => 'tmp/pids/thin.pid'
+        :pid         => 'tmp/pids/thin.pid',
+        :descriptors => 4096
       }
       
       parse!
@@ -69,6 +70,8 @@ module Thin
                                        "the Rails adapter")                             { |file| @options[:rackup] = file }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
+        opts.on(      "--descriptors NUM", "Descriptor table size " +
+                                           "(default: #{@options[:descriptors]})")      { |num| @options[:descriptors] = num.to_i }
         
         unless Thin.win? # Daemonizing not supported on Windows
           opts.separator ""

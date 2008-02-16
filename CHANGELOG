@@ -1,9 +1,12 @@
 == 0.7.0 Spherical Cow release
- * Tail logfile when stoping and restarting a demonized server, fixes #26.
+ * Change default timeout from 60 to 30 seconds.
+ * Add --descriptors option to sets the maximum number of file or socket descriptors that
+   your process may open, defaults to 4096.
+ * Tail logfile when stopping and restarting a demonized server, fixes #26.
  * Wrap application in a Rack::CommonLogger adapter in debug mode.
  * --debug (-D) option no longer set $DEBUG so logging will be less verbose
    and Ruby won't be too strict, fixes #36.
- * Deprecate Server#silent in favor of Logging.silent.
+ * Deprecate Server#silent in favour of Logging.silent.
  * Persistent connection (keep-alive) & HTTP pipelining support.
  * Fix -s option not being included in generated config file, fixes #37.
  * Add Swiftiply support. Use w/ the --swiftiply (-y) option in the thin script,

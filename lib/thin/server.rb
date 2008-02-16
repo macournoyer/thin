@@ -56,6 +56,9 @@ module Thin
     # Connector handling the connections to the clients.
     attr_accessor :connector
     
+    # Sets the maximum number of file or socket descriptors that your process may open.
+    attr_accessor :descriptor_table_size
+    
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
     def_delegators :@connector, :timeout, :timeout=
@@ -115,8 +118,10 @@ module Thin
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
-      
+
+      log ">> Setting descriptor table size to #{set_descriptor_table_size}"      
       log ">> Listening on #{@connector}, CTRL+C to stop"
+      
       @running = true
       EventMachine.run { @connector.connect }
     end
@@ -174,9 +179,13 @@ module Thin
           stop!
           true
         else
-          log ">> Waiting for #{@connector.size} connection(s) to finish, CTRL+C to force stop"
+          log ">> Waiting for #{@connector.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           false
         end
+      end
+      
+      def set_descriptor_table_size
+        @descriptor_table_size = EventMachine.set_descriptor_table_size(@descriptor_table_size || 4096)
       end
   end
 end

@@ -36,9 +36,10 @@ module Thin
           Server.new(@options[:address], @options[:port])
         end
 
-        server.pid_file = @options[:pid]
-        server.log_file = @options[:log]
-        server.timeout  = @options[:timeout]
+        server.pid_file              = @options[:pid]
+        server.log_file              = @options[:log]
+        server.timeout               = @options[:timeout]
+        server.descriptor_table_size = @options[:descriptors]
 
         if @options[:daemonize]
           server.daemonize
