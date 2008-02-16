@@ -36,7 +36,7 @@ describe Server, 'on TCP socket' do
     post('/', :big => big).should include(big)
   end
   
-  it "should handle GET in less then #{get_request_time = 0.004} RubySecond" do
+  it "should handle GET in less then #{get_request_time = 0.0045} RubySecond" do
     proc { get('/') }.should be_faster_then(get_request_time)
   end
   

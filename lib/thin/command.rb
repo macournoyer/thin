@@ -1,3 +1,5 @@
+require 'open3'
+
 module Thin
   # Run a command though the +thin+ command-line script.
   class Command
@@ -22,8 +24,11 @@ module Thin
     def run
       shell_cmd = shellify
       trace shell_cmd
-      ouput = `#{shell_cmd}`.chomp
-      log "  " + ouput.gsub("\n", "  \n") unless ouput.empty?
+      trap('INT') {} # Ignore INT signal to pass CTRL+C to subprocess
+      Open3.popen3(shell_cmd) do |stdin, stdout, stderr|
+        log stdout.gets until stdout.eof?
+        log stderr.gets until stderr.eof?
+      end
     end
     
     # Turn into a runnable shell command

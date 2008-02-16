@@ -62,14 +62,19 @@ describe Controller, 'start' do
 end
 
 describe Controller do
+  before do
+    @controller = Controller.new(:pid => 'thin.pid', :timeout => 10)
+    @controller.stub!(:wait_for_file)
+  end
+  
   it "should stop" do
     Server.should_receive(:kill).with('thin.pid', 10)
-    Controller.new(:pid => 'thin.pid', :timeout => 10).stop
+    @controller.stop
   end
   
   it "should restart" do
     Server.should_receive(:restart).with('thin.pid')
-    Controller.new(:pid => 'thin.pid').restart
+    @controller.restart
   end
   
   it "should write configuration file" do

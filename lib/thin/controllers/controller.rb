@@ -70,13 +70,19 @@ module Thin
       def stop
         raise OptionRequired, :pid unless @options[:pid]
       
-        Server.kill(@options[:pid], @options[:timeout] || 60)
+        tail_log(@options[:log]) do
+          Server.kill(@options[:pid], @options[:timeout] || 60)
+          wait_for_file :deletion, @options[:pid]
+        end
       end
     
       def restart
         raise OptionRequired, :pid unless @options[:pid]
       
-        Server.restart(@options[:pid])
+        tail_log(@options[:log]) do
+          Server.restart(@options[:pid])
+          wait_for_file :creation, @options[:pid]
+        end
       end
     
       def config
@@ -88,6 +94,49 @@ module Thin
         File.open(config_file, 'w') { |f| f << @options.to_yaml }
         log ">> Wrote configuration to #{config_file}"
       end
+      
+      protected
+        # Wait for a pid file to either be created or deleted.
+        def wait_for_file(state, file)
+          case state
+          when :creation then sleep 0.1 until File.exist?(file)
+          when :deletion then sleep 0.1 while File.exist?(file)
+          end
+        end
+        
+        # Tail the log file of server +number+ during the execution of the block.        
+        def tail_log(log_file)
+          if log_file
+            tail_thread = tail(log_file)
+            yield
+            tail_thread.kill
+          else
+            yield
+          end
+        end
+        
+        # Acts like GNU tail command. Taken from Rails.
+        def tail(file)
+          tail_thread = Thread.new do
+            Thread.pass until File.exist?(file)
+            cursor = File.size(file)
+            last_checked = Time.now
+            File.open(file, 'r') do |f|
+              loop do
+                f.seek cursor
+                if f.mtime > last_checked
+                  last_checked = f.mtime
+                  contents = f.read
+                  cursor += contents.length
+                  print contents
+                  STDOUT.flush
+                end
+                sleep 0.1
+              end
+            end
+          end
+          tail_thread
+        end
     end
   end
 end

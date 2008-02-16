@@ -99,7 +99,9 @@ module Thin
               sleep 0.1 while Process.running?(pid)
             end
           rescue Timeout::Error
-            print "timeout! "
+            print "Timeout! "
+            send_signal('KILL', pid_file)
+          rescue Interrupt
             send_signal('KILL', pid_file)
           end
         end

@@ -18,7 +18,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency        'rack',         '>= 0.2.0'
   s.add_dependency        'eventmachine', '>= 0.8.1'
   unless WIN
-    s.add_dependency        'daemons',      '>= 1.0.9'
+    s.add_dependency      'daemons',      '>= 1.0.9'
   end
 
   s.files                 = %w(COPYING CHANGELOG README Rakefile) +

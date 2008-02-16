@@ -1,4 +1,5 @@
 == 0.7.0 Spherical Cow release
+ * Tail logfile when stoping and restarting a demonized server, fixes #26.
  * Wrap application in a Rack::CommonLogger adapter in debug mode.
  * --debug (-D) option no longer set $DEBUG so logging will be less verbose
    and Ruby won't be too strict, fixes #36.
