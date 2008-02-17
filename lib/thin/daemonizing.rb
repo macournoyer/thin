@@ -1,5 +1,5 @@
 require 'etc'
-require 'daemons'
+require 'daemons' unless Thin.win?
 
 module Process
   # Returns +true+ the process identied by +pid+ is running.
