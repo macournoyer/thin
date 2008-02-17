@@ -43,7 +43,7 @@ module Thin
   #
   class Server
     include Logging
-    include Daemonizable
+    include Daemonizable unless Thin.win?
     extend  Forwardable
     
     # Default values
