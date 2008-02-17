@@ -3,10 +3,19 @@
 # Takes the same arguments as the thin script.
 require 'rubygems'
 require 'ruby-prof'
+require File.dirname(__FILE__) + '/../lib/thin'
+
+class Adapter
+  def call(env)
+    [200, {'Content-Type' => 'text/html', 'Content-Length' => '11'}, ['hello world']]
+  end
+end
 
 # Profile the code
 result = RubyProf.profile do
-  load 'bin/thin'
+  Thin::Server.start('0.0.0.0', 3000) do
+    run Adapter.new
+  end
 end
 
 # Print a graph profile to text

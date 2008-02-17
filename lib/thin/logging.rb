@@ -42,7 +42,7 @@ module Thin
       end
       
       # Log an error backtrace if debugging is activated
-      def log_error(e)
+      def log_error(e=$!)
         debug "#{e}\n\t" + e.backtrace.join("\n\t")
       end
   end

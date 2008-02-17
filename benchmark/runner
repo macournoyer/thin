@@ -49,13 +49,14 @@ when :table
 when :graph
   require '/usr/local/lib/ruby/gems/1.8/gems/gruff-0.2.9/lib/gruff'
   g = Gruff::Area.new
-  g.title = "Server benchmark (#{options[:requests]} requests"
-  g.title << ', w/ Keep-Alive' if options[:keep_alive]
-  g.title << ')'
+  g.title = "#{options[:requests]} requests"
+  g.title << ' w/ Keep-Alive' if options[:keep_alive]
   
-  g.x_axis_label = 'Concurrency'
-  g.y_axis_label = 'Requests / sec'
-  g.labels = {}
+  g.x_axis_label  = 'Concurrency'
+  g.y_axis_label  = 'Requests / sec'
+  g.maximum_value = 0
+  g.minimum_value = 0
+  g.labels        = {}
   b.concurrencies.each_with_index { |c, i| g.labels[i] = c.to_s }
   
   results = {}
@@ -65,7 +66,7 @@ when :graph
     results[server] ||= []
     results[server] << req_sec
   end
-    
+  
   b.run!
   puts
   

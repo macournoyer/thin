@@ -1,3 +1,5 @@
+require 'rack/lobster'
+
 class Benchmarker
   PORT    = 7000
   ADDRESS = '0.0.0.0'
@@ -5,7 +7,7 @@ class Benchmarker
   attr_accessor :requests, :concurrencies, :servers, :keep_alive
   
   def initialize
-    @servers = %w(WEBrick Mongrel EMongrel Thin)
+    @servers = %w(Mongrel EMongrel Thin)
     @requests = 1000
     @concurrencies = [1, 10, 100]
   end

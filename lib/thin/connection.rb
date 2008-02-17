@@ -52,9 +52,9 @@ module Thin
       # If no more request on that same connection, we close it.
       close_connection_after_writing unless persistent?
       
-    rescue Object => e
-      log "Unexpected error while processing request: #{e.message}"
-      log_error e
+    rescue
+      log "Unexpected error while processing request: #{$!.message}"
+      log_error
       close_connection rescue nil
     ensure
       @request.close  rescue nil
@@ -77,18 +77,15 @@ module Thin
       @response.persistent?
     end
     
+    # IP Address of the remote client.
     def remote_address
-      @request.forwarded_for || (has_peername? ? socket_address : nil)
+      @request.forwarded_for || socket_address
     rescue
-      log_error($!)
+      log_error
       nil
     end
     
     protected
-      def has_peername?
-        !get_peername.nil? && !get_peername.empty?
-      end
-      
       def socket_address
         Socket.unpack_sockaddr_in(get_peername)[1]
       end
