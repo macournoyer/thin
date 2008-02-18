@@ -1,4 +1,5 @@
 == 0.7.0 Spherical Cow release
+ * Eval Rackup config file using top level bindings.
  * Remove daemons gem dependency on Windows plateform, fixes #45.
  * Change default timeout from 60 to 30 seconds.
  * Add --descriptors option to sets the maximum number of file or socket descriptors that

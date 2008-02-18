@@ -51,7 +51,7 @@ module Thin
         # to Rails adapter.
         if @options[:rackup]
           rackup_code = File.read(@options[:rackup])
-          server.app  = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", nil, @options[:rackup])
+          server.app  = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, @options[:rackup])
         else
           server.app = Rack::Adapter::Rails.new(@options.merge(:root => @options[:chdir]))
         end
