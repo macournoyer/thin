@@ -56,8 +56,8 @@ module Thin
     # Connector handling the connections to the clients.
     attr_accessor :connector
     
-    # Sets the maximum number of file or socket descriptors that your process may open.
-    attr_accessor :descriptor_table_size
+    # Maximum number of file or socket descriptors that the server may open.
+    attr_reader :descriptor_table_size
     
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
@@ -102,6 +102,21 @@ module Thin
       new(*args, &block).start!
     end
     
+    # Set the maximum number of socket descriptors that the server may open.
+    # The process needs to have required privilege to set it higher the 1024 on
+    # some systems.
+    def descriptor_table_size=(size)
+      @descriptor_table_size = EventMachine.set_descriptor_table_size(size)
+      
+      log ">> Setting descriptor table size to #{@descriptor_table_size}"
+      if @descriptor_table_size < size
+        log "!! descriptor table size smaller then requested, " +
+            "run with sudo to set higher"
+      end
+      
+      @descriptor_table_size
+    end
+    
     # Start the server and listen for connections.
     # Also register signals:
     # * INT calls +stop+ to shutdown gracefully.
@@ -118,8 +133,6 @@ module Thin
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
-
-      set_descriptor_table_size
       
       log ">> Listening on #{@connector}, CTRL+C to stop"
       
@@ -183,19 +196,6 @@ module Thin
           log ">> Waiting for #{@connector.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           false
         end
-      end
-      
-      def set_descriptor_table_size
-        requested_descriptor_table_size = @descriptor_table_size || 4096        
-        @descriptor_table_size = EventMachine.set_descriptor_table_size(requested_descriptor_table_size)
-        
-        log ">> Setting descriptor table size to #{@descriptor_table_size}"
-        if @descriptor_table_size < requested_descriptor_table_size
-          log "!! descriptor table size smaller then requested, " +
-              "run with sudo privileges to set higher"
-        end
-        
-        @descriptor_table_size
-      end
+      end      
   end
 end

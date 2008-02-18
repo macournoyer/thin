@@ -141,7 +141,7 @@ module Helpers
     @server.timeout = 3
     
     @thread = Thread.new { @server.start }
-    sleep 0.1 until @thread.status == 'sleep'
+    sleep 0.1 until @server.running? && EventMachine.reactor_running?
   end
   
   def stop_server
