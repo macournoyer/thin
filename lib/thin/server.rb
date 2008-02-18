@@ -119,7 +119,8 @@ module Thin
       debug ">> Debugging ON"
       trace ">> Tracing ON"
 
-      log ">> Setting descriptor table size to #{set_descriptor_table_size}"      
+      set_descriptor_table_size
+      
       log ">> Listening on #{@connector}, CTRL+C to stop"
       
       @running = true
@@ -185,7 +186,16 @@ module Thin
       end
       
       def set_descriptor_table_size
-        @descriptor_table_size = EventMachine.set_descriptor_table_size(@descriptor_table_size || 4096)
+        requested_descriptor_table_size = @descriptor_table_size || 4096        
+        @descriptor_table_size = EventMachine.set_descriptor_table_size(requested_descriptor_table_size)
+        
+        log ">> Setting descriptor table size to #{@descriptor_table_size}"
+        if @descriptor_table_size < requested_descriptor_table_size
+          log "!! descriptor table size smaller then requested, " +
+              "run with sudo privileges to set higher"
+        end
+        
+        @descriptor_table_size
       end
   end
 end

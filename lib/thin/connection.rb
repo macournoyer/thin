@@ -26,7 +26,7 @@ module Thin
       trace { data }
       process if @request.parse(data)
     rescue InvalidRequest => e
-      log "Invalid request"
+      log "!! Invalid request"
       log_error e
       close_connection
     end
@@ -53,7 +53,7 @@ module Thin
       close_connection_after_writing unless persistent?
       
     rescue
-      log "Unexpected error while processing request: #{$!.message}"
+      log "!! Unexpected error while processing request: #{$!.message}"
       log_error
       close_connection rescue nil
     ensure
