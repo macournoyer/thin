@@ -200,6 +200,7 @@ class Thin < Atchoum::Website
       li { a "blog.hoodow.de", :href => 'http://blog.hoodow.de/articles/2008/02/09/thin' }
       li { a "moonitor.org", :href => 'http://moonitor.org' }
       li { a "Daniel Fischer's Blog", :href => 'http://www.danielfischer.com/' }
+      li { a "RoundHaus", :href => 'http://www.roundhaus.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
