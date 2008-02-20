@@ -21,6 +21,7 @@ OptionParser.new do |opts|
   opts.on("-e", "--end N", "Last concurrency level")            { |n| options[:end] = n.to_i }
   opts.on("-S", "--step N", "Concurrency level step")           { |n| options[:step] = n.to_i }
   opts.on("-u", "--uri PATH", "Path to send to")                { |u| options[:uri] = u }
+  opts.on("-k", "--keep-alive", "Use Keep-Alive")               { options[:keep_alive] = true }
   
   opts.on_tail("-h", "--help", "Show this message")     { puts opts; exit }
 end.parse!(ARGV)
@@ -31,7 +32,7 @@ puts '=' * 42
 c = options[:start]
 until c >= options[:end]
   sleep 0.5
-  out = `nice -n20 ab -k -c #{c} -n #{options[:requests]} #{options[:address]}:#{options[:port]}/#{options[:uri]} 2> /dev/null`
+  out = `nice -n20 ab #{'-k' if options[:keep_alive]} -c #{c} -n #{options[:requests]} #{options[:address]}:#{options[:port]}/#{options[:uri]} 2> /dev/null`
 
   r = if requests = out.match(/^Requests.+?(\d+\.\d+)/)
     requests[1].to_i
