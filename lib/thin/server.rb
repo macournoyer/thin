@@ -124,8 +124,7 @@ module Thin
     def start
       raise ArgumentError, 'app required' unless @app
       
-      trap('INT')  { stop }
-      trap('TERM') { stop! }
+      setup_signals
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
@@ -196,6 +195,12 @@ module Thin
           log ">> Waiting for #{@connector.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           false
         end
-      end      
+      end
+      
+      def setup_signals
+        trap('QUIT') { stop }
+        trap('INT')  { stop! }
+        trap('TERM') { stop! }
+      end
   end
 end

@@ -89,11 +89,11 @@ module Thin
     end
     
     module ClassMethods
-      # Send a INT signal the process which PID is stored in +pid_file+.
+      # Send a QUIT signal the process which PID is stored in +pid_file+.
       # If the process is still running after +timeout+, KILL signal is
       # sent.
       def kill(pid_file, timeout=60)
-        if pid = send_signal('INT', pid_file)
+        if pid = send_signal('QUIT', pid_file)
           begin
             Timeout.timeout(timeout) do
               sleep 0.1 while Process.running?(pid)

@@ -13,7 +13,11 @@ module Thin
     # Connector to the server
     attr_accessor :connector
     
-    attr_accessor :request, :response
+    # Current request served by the connection
+    attr_accessor :request
+    
+    # Next response sent through connection
+    attr_accessor :response
     
     # Get the connection ready to process a request.
     def post_init
