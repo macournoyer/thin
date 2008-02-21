@@ -101,8 +101,6 @@ module Thin
       
       # If in debug mode, wrap in logger adapter
       @app = Rack::CommonLogger.new(@app) if Logging.debug?
-      
-      log_header
     end
     
     # Lil' shortcut to turn this:
@@ -128,6 +126,10 @@ module Thin
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
+      
+      log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
+      debug ">> Debugging ON"
+      trace ">> Tracing ON"
             
       log ">> Listening on #{@connector}, CTRL+C to stop"
       
@@ -213,13 +215,6 @@ module Thin
         trap('QUIT') { stop }
         trap('INT')  { stop! }
         trap('TERM') { stop! }
-      end
-      
-      def log_header
-        log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
-        debug ">> Debugging ON"
-        trace ">> Tracing ON"
-      end
-      
+      end      
   end
 end
