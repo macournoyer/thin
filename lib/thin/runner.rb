@@ -66,7 +66,7 @@ module Thin
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
-                                       "the Rails adapter")                             { |file| @options[:rackup] = file }
+                                       "Rails adapter")                                 { |file| @options[:rackup] = file }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
         
@@ -98,9 +98,9 @@ module Thin
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
         opts.on(      "--max-conns NUM",
                         "Maximum number of connections (default: #{@options[:max_conns]})",
-                        "Might require superuser privileges to set higher then 1024")   { |num| @options[:max_conns] = num.to_i }
+                        "Might require sudo to set higher then 1024")   { |num| @options[:max_conns] = num.to_i } unless Thin.win?
         opts.on(      "--max-persistent-conns NUM",
-                        "Maximum number of persistent connections " +
+                        "Maximum number of persistent connections",
                         "(default: #{@options[:max_persistent_conns]})")                { |num| @options[:max_persistent_conns] = num.to_i }
         
         opts.separator ""

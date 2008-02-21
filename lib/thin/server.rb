@@ -188,6 +188,8 @@ module Thin
     # The process needs to have required privilege to set it higher the 1024 on
     # some systems.
     def set_descriptor_table_size!
+      return 0 if Thin.win? # Not supported on Windows
+      
       requested_maximum_connections = @maximum_connections
       @maximum_connections = EventMachine.set_descriptor_table_size(requested_maximum_connections)
 
@@ -212,7 +214,7 @@ module Thin
       end
       
       def setup_signals
-        trap('QUIT') { stop }
+        trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }
         trap('TERM') { stop! }
       end      
