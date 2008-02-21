@@ -11,9 +11,17 @@ module Thin
       # Maximum time for incoming data to arrive
       attr_accessor :timeout
       
+      # Maximum number of connections that can be persistent
+      attr_accessor :maximum_persistent_connections
+      
+      # Number of persistent connections currently opened
+      attr_accessor :persistent_connection_count
+      
       def initialize
-        @connections = []
-        @timeout     = Server::DEFAULT_TIMEOUT
+        @connections                    = []
+        @timeout                        = Server::DEFAULT_TIMEOUT
+        @persistent_connection_count    = 0
+        @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       end
             
       # Free up resources used by the connector.
@@ -29,6 +37,13 @@ module Thin
         connection.connector               = self
         connection.app                     = @server.app
         connection.comm_inactivity_timeout = @timeout
+        
+        # We control the number of persistent connections by keeping
+        # a count of the total one allowed yet.
+        if @persistent_connection_count < @maximum_persistent_connections
+          connection.can_persist!
+          @persistent_connection_count += 1
+        end
 
         @connections << connection
       end
@@ -40,6 +55,7 @@ module Thin
       
       # Called by a connection when it's unbinded.
       def connection_finished(connection)
+        @persistent_connection_count -= 1 if connection.can_persist?
         @connections.delete(connection)
       end
       

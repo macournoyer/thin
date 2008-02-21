@@ -54,4 +54,19 @@ describe Connection do
     @connection.stub!(:get_peername).and_return("\020\002?E\177\000\000\001\000\000\000\000\000\000\000\000")
     @connection.remote_address.should == '127.0.0.1'
   end
+  
+  it "should not be persistent" do
+    @connection.should_not be_persistent
+  end
+
+  it "should be persistent when response is and allowed" do
+    @connection.response.stub!(:persistent?).and_return(true)
+    @connection.can_persist!
+    @connection.should be_persistent
+  end
+
+  it "should not be persistent when response is but not allowed" do
+    @connection.response.persistent!
+    @connection.should_not be_persistent
+  end
 end

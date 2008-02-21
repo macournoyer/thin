@@ -7,14 +7,16 @@ describe Server do
   
   it "should set descriptor table size" do
     @server.should_receive(:log).once
-    @server.descriptor_table_size = 100
-    @server.descriptor_table_size.should == 100
+    @server.maximum_connections = 100
+    @server.send(:set_descriptor_table_size)
+    @server.maximum_connections.should == 100
   end
 
   it "should warn when descriptor table size too large" do
     @server.stub!(:log)
-    @server.should_receive(:log).with(/^!! descriptor table size smaller then requested/)
-    @server.descriptor_table_size = 100_000
-    @server.descriptor_table_size.should < 100_000
+    @server.should_receive(:log).with(/^!!/)
+    @server.maximum_connections = 100_000
+    @server.send(:set_descriptor_table_size)
+    @server.maximum_connections.should < 100_000
   end
 end

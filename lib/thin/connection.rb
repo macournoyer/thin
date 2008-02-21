@@ -75,11 +75,21 @@ module Thin
       @connector.connection_finished(self)
     end
     
+    # Allows this connection to be persistent.
+    def can_persist!
+      @can_persist = true
+    end
+
+    # Return +true+ if this connection is allowed to stay open and be persistent.
+    def can_persist?
+      @can_persist
+    end
+
     # Return +true+ if the connection must be left open
     # and ready to be reused for another request.
     def persistent?
-      @response.persistent?
-    end
+      @can_persist && @response.persistent?
+    end    
     
     # IP Address of the remote client.
     def remote_address

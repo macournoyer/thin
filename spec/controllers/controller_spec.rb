@@ -4,7 +4,13 @@ include Controllers
 
 describe Controller, 'start' do
   before do
-    @controller = Controller.new(:address => '0.0.0.0', :port => 3000, :pid => 'thin.pid', :log => 'thin.log', :timeout => 60)
+    @controller = Controller.new(:address              => '0.0.0.0',
+                                 :port                 => 3000,
+                                 :pid                  => 'thin.pid',
+                                 :log                  => 'thin.log',
+                                 :timeout              => 60,
+                                 :max_conns            => 2000,
+                                 :max_persistent_conns => 1000)
     
     @server = OpenStruct.new
     @adapter = OpenStruct.new
@@ -19,7 +25,8 @@ describe Controller, 'start' do
     @server.app.should == @adapter
     @server.pid_file.should == 'thin.pid'
     @server.log_file.should == 'thin.log'
-    @server.timeout.should == 60
+    @server.maximum_connections.should == 2000
+    @server.maximum_persistent_connections.should == 1000
   end
   
   it "should start as daemon" do

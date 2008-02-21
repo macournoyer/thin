@@ -1,11 +1,13 @@
 == 0.7.0 Spherical Cow release
- * INT signal now force stop and QUIT signal graceful stop.
+ * Add --max-persistent-conns option to sets the maximum number of persistent connections.
+   Set to 0 to disable Keep-Alive.
+ * INT signal now force stop and QUIT signal gracefully stops.
  * Warn when descriptors table size can't be set as high as expected.
  * Eval Rackup config file using top level bindings.
  * Remove daemons gem dependency on Windows plateform, fixes #45.
  * Change default timeout from 60 to 30 seconds.
- * Add --descriptors option to sets the maximum number of file or socket descriptors that
-   your process may open, defaults to 4096.
+ * Add --max-conns option to sets the maximum number of file or socket descriptors that
+   your process may open, defaults to 1024.
  * Tail logfile when stopping and restarting a demonized server, fixes #26.
  * Wrap application in a Rack::CommonLogger adapter in debug mode.
  * --debug (-D) option no longer set $DEBUG so logging will be less verbose

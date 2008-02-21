@@ -36,10 +36,11 @@ module Thin
           Server.new(@options[:address], @options[:port])
         end
 
-        server.pid_file              = @options[:pid]
-        server.log_file              = @options[:log]
-        server.timeout               = @options[:timeout]
-        server.descriptor_table_size = @options[:descriptors]
+        server.pid_file                       = @options[:pid]
+        server.log_file                       = @options[:log]
+        server.timeout                        = @options[:timeout]
+        server.maximum_connections            = @options[:max_conns]
+        server.maximum_persistent_connections = @options[:max_persistent_conns]
 
         if @options[:daemonize]
           server.daemonize

@@ -32,14 +32,15 @@ module Thin
       
       # Default options values
       @options = {
-        :chdir       => Dir.pwd,
-        :environment => 'development',
-        :address     => '0.0.0.0',
-        :port        => 3000,
-        :timeout     => 30,
-        :log         => 'log/thin.log',
-        :pid         => 'tmp/pids/thin.pid',
-        :descriptors => 4096
+        :chdir                => Dir.pwd,
+        :environment          => 'development',
+        :address              => '0.0.0.0',
+        :port                 => Server::DEFAULT_PORT,
+        :timeout              => Server::DEFAULT_TIMEOUT,
+        :log                  => 'log/thin.log',
+        :pid                  => 'tmp/pids/thin.pid',
+        :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
+        :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       }
       
       parse!
@@ -64,14 +65,10 @@ module Thin
         opts.on("-e", "--environment ENV", "Rails environment " +                       
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
-        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
-                                       "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
         opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
                                        "the Rails adapter")                             { |file| @options[:rackup] = file }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
-        opts.on(      "--descriptors NUM", "Descriptor table size " +
-                                           "(default: #{@options[:descriptors]})")      { |num| @options[:descriptors] = num.to_i }
         
         unless Thin.win? # Daemonizing not supported on Windows
           opts.separator ""
@@ -93,6 +90,18 @@ module Thin
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
           opts.on(      "--all [DIR]", "Send command to each config files in DIR")      { |dir| @options[:all] = dir } if Thin.linux?
         end
+        
+        opts.separator ""
+        opts.separator "Tuning options:"
+        
+        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
+                                       "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on(      "--max-conns NUM",
+                        "Maximum number of connections (default: #{@options[:max_conns]})",
+                        "Might require superuser privileges to set higher then 1024")   { |num| @options[:max_conns] = num.to_i }
+        opts.on(      "--max-persistent-conns NUM",
+                        "Maximum number of persistent connections " +
+                        "(default: #{@options[:max_persistent_conns]})")                { |num| @options[:max_persistent_conns] = num.to_i }
         
         opts.separator ""
         opts.separator "Common options:"

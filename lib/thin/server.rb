@@ -47,8 +47,10 @@ module Thin
     extend  Forwardable
     
     # Default values
-    DEFAULT_TIMEOUT = 30 #sec
-    DEFAULT_PORT    = 3000
+    DEFAULT_TIMEOUT                        = 30 #sec
+    DEFAULT_PORT                           = 3000
+    DEFAULT_MAXIMUM_CONNECTIONS            = 1024
+    DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS = 512
         
     # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
@@ -57,11 +59,17 @@ module Thin
     attr_accessor :connector
     
     # Maximum number of file or socket descriptors that the server may open.
-    attr_reader :descriptor_table_size
+    attr_accessor :maximum_connections
     
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
     def_delegators :@connector, :timeout, :timeout=
+    
+    # Maximum number of connection that can be persistent at the same time.
+    # Most browser never close the connection so most of the time they are closed
+    # when the timeout occur. If we don't control the number of persistent connection,
+    # if would be very easy to overflow the server for a DoS attack.
+    def_delegators :@connector, :maximum_persistent_connections, :maximum_persistent_connections=
     
     # Address and port on which the server is listening for connections.
     def_delegators :@connector, :host, :port
@@ -80,8 +88,13 @@ module Thin
         Connectors::TcpServer.new(host_or_socket_or_connector, port.to_i)
       end
 
-      @connector.server = self
       @app              = app
+      @connector.server = self
+      
+      # Set defaults
+      @maximum_connections                      = DEFAULT_MAXIMUM_CONNECTIONS
+      @connector.maximum_persistent_connections = DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
+      @connector.timeout                        = DEFAULT_TIMEOUT
       
       # Allow using Rack builder as a block
       @app = Rack::Builder.new(&block).to_app if block
@@ -101,22 +114,7 @@ module Thin
     def self.start(*args, &block)
       new(*args, &block).start!
     end
-    
-    # Set the maximum number of socket descriptors that the server may open.
-    # The process needs to have required privilege to set it higher the 1024 on
-    # some systems.
-    def descriptor_table_size=(size)
-      @descriptor_table_size = EventMachine.set_descriptor_table_size(size)
-      
-      log ">> Setting descriptor table size to #{@descriptor_table_size}"
-      if @descriptor_table_size < size
-        log "!! descriptor table size smaller then requested, " +
-            "run with sudo to set higher"
-      end
-      
-      @descriptor_table_size
-    end
-    
+        
     # Start the server and listen for connections.
     # Also register signals:
     # * INT calls +stop+ to shutdown gracefully.
@@ -132,6 +130,8 @@ module Thin
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
+
+      set_descriptor_table_size
       
       log ">> Listening on #{@connector}, CTRL+C to stop"
       
@@ -202,5 +202,21 @@ module Thin
         trap('INT')  { stop! }
         trap('TERM') { stop! }
       end
+      
+      # Set the maximum number of socket descriptors that the server may open.
+      # The process needs to have required privilege to set it higher the 1024 on
+      # some systems.
+      def set_descriptor_table_size
+        requested_maximum_connections = @maximum_connections
+        @maximum_connections = EventMachine.set_descriptor_table_size(requested_maximum_connections)
+
+        log ">> Setting maximum connections to #{@maximum_connections}"
+        if @maximum_connections < requested_maximum_connections
+          log "!! Maximum connections smaller then requested, " +
+              "run with sudo to set higher"
+        end
+
+        @maximum_connections
+      end      
   end
 end
