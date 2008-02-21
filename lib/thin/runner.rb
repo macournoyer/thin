@@ -96,12 +96,12 @@ module Thin
         
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
-        opts.on(      "--max-conns NUM",
-                        "Maximum number of connections (default: #{@options[:max_conns]})",
-                        "Might require sudo to set higher then 1024")   { |num| @options[:max_conns] = num.to_i } unless Thin.win?
+        opts.on(      "--max-conns NUM", "Maximum number of connections " +
+                                         "(default: #{@options[:max_conns]})",
+                                         "Might require sudo to set higher then 1024")  { |num| @options[:max_conns] = num.to_i } unless Thin.win?
         opts.on(      "--max-persistent-conns NUM",
-                        "Maximum number of persistent connections",
-                        "(default: #{@options[:max_persistent_conns]})")                { |num| @options[:max_persistent_conns] = num.to_i }
+                                       "Maximum number of persistent connections",
+                                       "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
         
         opts.separator ""
         opts.separator "Common options:"
