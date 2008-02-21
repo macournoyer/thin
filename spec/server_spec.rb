@@ -8,7 +8,7 @@ describe Server do
   it "should set descriptor table size" do
     @server.should_receive(:log).once
     @server.maximum_connections = 100
-    @server.send(:set_descriptor_table_size)
+    @server.set_descriptor_table_size!
     @server.maximum_connections.should == 100
   end
 
@@ -16,7 +16,7 @@ describe Server do
     @server.stub!(:log)
     @server.should_receive(:log).with(/^!!/)
     @server.maximum_connections = 100_000
-    @server.send(:set_descriptor_table_size)
+    @server.set_descriptor_table_size!
     @server.maximum_connections.should < 100_000
   end
 end

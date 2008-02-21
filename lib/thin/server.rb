@@ -101,6 +101,8 @@ module Thin
       
       # If in debug mode, wrap in logger adapter
       @app = Rack::CommonLogger.new(@app) if Logging.debug?
+      
+      log_header
     end
     
     # Lil' shortcut to turn this:
@@ -126,13 +128,7 @@ module Thin
             
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
-      
-      log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
-      debug ">> Debugging ON"
-      trace ">> Tracing ON"
-
-      set_descriptor_table_size
-      
+            
       log ">> Listening on #{@connector}, CTRL+C to stop"
       
       @running = true
@@ -186,6 +182,22 @@ module Thin
       @running
     end
     
+    # Set the maximum number of socket descriptors that the server may open.
+    # The process needs to have required privilege to set it higher the 1024 on
+    # some systems.
+    def set_descriptor_table_size!
+      requested_maximum_connections = @maximum_connections
+      @maximum_connections = EventMachine.set_descriptor_table_size(requested_maximum_connections)
+
+      log ">> Setting maximum connections to #{@maximum_connections}"
+      if @maximum_connections < requested_maximum_connections
+        log "!! Maximum connections smaller then requested, " +
+            "run with sudo to set higher"
+      end
+
+      @maximum_connections
+    end
+    
     protected            
       def wait_for_connections_and_stop
         if @connector.empty?
@@ -203,20 +215,11 @@ module Thin
         trap('TERM') { stop! }
       end
       
-      # Set the maximum number of socket descriptors that the server may open.
-      # The process needs to have required privilege to set it higher the 1024 on
-      # some systems.
-      def set_descriptor_table_size
-        requested_maximum_connections = @maximum_connections
-        @maximum_connections = EventMachine.set_descriptor_table_size(requested_maximum_connections)
-
-        log ">> Setting maximum connections to #{@maximum_connections}"
-        if @maximum_connections < requested_maximum_connections
-          log "!! Maximum connections smaller then requested, " +
-              "run with sudo to set higher"
-        end
-
-        @maximum_connections
-      end      
+      def log_header
+        log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
+        debug ">> Debugging ON"
+        trace ">> Tracing ON"
+      end
+      
   end
 end

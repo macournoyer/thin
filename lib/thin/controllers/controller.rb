@@ -42,10 +42,11 @@ module Thin
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
 
-        if @options[:daemonize]
-          server.daemonize
-          server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
-        end
+        server.daemonize if @options[:daemonize]
+
+        # Must be called before changing privileges since it might require superuser power.
+        server.set_descriptor_table_size!
+        server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
 
         # If a Rack config file is specified we eval it inside a Rack::Builder block to create
         # a Rack adapter from it. DHH was hacker of the year a couple years ago so we default
