@@ -201,6 +201,8 @@ class Thin < Atchoum::Website
       li { a "moonitor.org", :href => 'http://moonitor.org' }
       li { a "Daniel Fischer's Blog", :href => 'http://www.danielfischer.com/' }
       li { a "RoundHaus", :href => 'http://www.roundhaus.com/' }
+      li { a "Socks and Sandals", :href => 'http://blog.cbcg.net/' }
+      li { a "indiagoes", :href => 'http://www.indiagoes.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
