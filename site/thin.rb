@@ -147,10 +147,10 @@ class Thin < Atchoum::Website
       'want to launch.'
     pre 'thin start --servers 3'
     
-    p 'You can also install Thin as a runlevel script that will start all your servers after boot.'
+    p 'You can also install Thin as a runlevel script (under /etc/init.d/thin) that will start all your servers after boot.'
     pre 'sudo thin install'
     
-    p 'and setup a config file'
+    p 'and setup a config file for each app you want to start:'
     pre 'thin config -C /etc/thin/myapp.yml -c /var/...'
     
     p { "Run #{code 'thin -h'} to get all options." }
@@ -160,7 +160,13 @@ class Thin < Atchoum::Website
     p { "Check out this #{a 'sample Nginx config', :href => 'http://brainspl.at/nginx.conf.txt'} " +
         "file to proxy requests to a Thin backend." }
     
-    p 'To connect to Nginx using UNIX sockets:'
+    p 'then start your Thin cluster like this:'
+    pre 'thin start -s3 -p 5000'
+    
+    p 'You can also setup a Thin config file and use it to control your cluster:'
+    pre "thin config -C myapp.yml -s3 -p 5000\nthin start -C myapp.yml"
+    
+    p 'To connect to Nginx using UNIX domain sockets edit the upstream block in your nginx config file:'
     
     em.filename 'nginx.conf'
     pre <<-EOS.gsub(/^\s{6}/, '')
@@ -203,6 +209,7 @@ class Thin < Atchoum::Website
       li { a "RoundHaus", :href => 'http://www.roundhaus.com/' }
       li { a "Socks and Sandals", :href => 'http://blog.cbcg.net/' }
       li { a "indiagoes", :href => 'http://www.indiagoes.com/' }
+      li { a "ajaxwhois", :href => 'http://ajaxwhois.com/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
