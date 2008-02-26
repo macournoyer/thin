@@ -50,8 +50,10 @@ module Thin
         log "To configure thin to start at system boot:"
         log "on RedHat like systems:"
         log "  sudo /sbin/chkconfig --level 345 #{NAME} on"
-        log "on Debian like systems (Ubuntu):"
+        log "on Debian-like systems (Ubuntu):"
         log "  sudo /usr/sbin/update-rc.d -f #{NAME} defaults"
+        log "on Gentoo:"
+        log "  sudo rc-update add #{NAME} default"
         log ''
         log "Then put your config files in #{config_files_path}"
       end
