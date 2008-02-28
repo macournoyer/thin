@@ -1,5 +1,5 @@
 == 0.7.1 Fancy Pants release
- * Fix high memory usage with big POST body.
+ * Fix high memory usage with big POST body, fixes #48
 
 == 0.7.0 Spherical Cow release
  * Add --max-persistent-conns option to sets the maximum number of persistent connections.
