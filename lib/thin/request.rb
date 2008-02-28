@@ -52,7 +52,7 @@ module Thin
         # Rack stuff
         RACK_INPUT        => @body,
         
-        RACK_VERSION      => [0, 2],
+        RACK_VERSION      => VERSION::RACK,
         RACK_ERRORS       => STDERR,
         
         RACK_MULTITHREAD  => false,

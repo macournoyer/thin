@@ -28,11 +28,16 @@ describe Server, 'app builder' do
   it "should work with Rack url mapper" do
     server = Server.new '0.0.0.0', 3000 do
       map '/test' do
-        run(proc { |env| :works })
+        run(proc { |env| [200, {}, 'Found /test'] })
       end
     end
     
-    server.app.call({})[0].should == 404
-    server.app.call({'PATH_INFO' => '/test'}).should == :works
+    default_env = { 'SCRIPT_NAME' => '' }
+    
+    server.app.call(default_env.update('PATH_INFO' => '/'))[0].should == 404
+    
+    status, headers, body = server.app.call(default_env.update('PATH_INFO' => '/test'))
+    status.should == 200
+    body.should == 'Found /test'
   end
 end
