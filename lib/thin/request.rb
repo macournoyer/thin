@@ -65,11 +65,10 @@ module Thin
     # Raises a +InvalidRequest+ if invalid.
     # Returns +true+ if the parsing is complete.
     def parse(data)
-      @data << data
-      
       if @parser.finished?  # Header finished, can only be some more body
         body << data        
       else                  # Parse more header using the super parser
+        @data << data
         @nparsed = @parser.execute(@env, @data, @nparsed)
 
         # Transfert to a tempfile if body is very big
@@ -78,9 +77,10 @@ module Thin
       
       
       if finished?   # Check if header and body are complete
-        @body.rewind  
+        @data = nil
+        @body.rewind
         true         # Request is fully parsed
-      else            
+      else
         false        # Not finished, need more data
       end
     end
