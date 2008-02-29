@@ -6,7 +6,7 @@ describe Server, 'on Swiftiply' do
       exec "swiftiply -c #{File.dirname(__FILE__)}/swiftiply.yml"
     end
     sleep 0.5
-    start_server(Connectors::SwiftiplyClient.new('0.0.0.0', 5555, nil)) do |env|
+    start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil)) do |env|
       body = env.inspect + env['rack.input'].read
       [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
     end

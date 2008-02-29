@@ -10,8 +10,8 @@ module Thin
     # Rack application served by this connection.
     attr_accessor :app
     
-    # Connector to the server
-    attr_accessor :connector
+    # Backend to the server
+    attr_accessor :backend
     
     # Current request served by the connection
     attr_accessor :request
@@ -72,7 +72,7 @@ module Thin
     # Called when the connection is unbinded from the socket
     # and can no longer be used to process requests.
     def unbind
-      @connector.connection_finished(self)
+      @backend.connection_finished(self)
     end
     
     # Allows this connection to be persistent.

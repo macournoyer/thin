@@ -51,7 +51,7 @@ module BleakInstruments
     end
   end
   
-  module Connector
+  module Backend
     def self.included(base)
       base.class_eval do
         alias_method_chain :connect, :instrument
@@ -61,12 +61,12 @@ module BleakInstruments
     
     def connect_with_instrument
       connect_without_instrument
-      $memlogger.snapshot($logfile, "connector/connect", false, 0.1)
+      $memlogger.snapshot($logfile, "backend/connect", false, 0.1)
     end
     
     def initialize_connection_with_instrument(connection)
       initialize_connection_without_instrument(connection)
-      $memlogger.snapshot($logfile, "connector/initialize_connection", false, 0.1)
+      $memlogger.snapshot($logfile, "backend/initialize_connection", false, 0.1)
     end
   end
 end
@@ -76,7 +76,7 @@ require 'bleak_house'
 require File.dirname(__FILE__) + '/../lib/thin'
 
 Thin::Connection.send :include, BleakInstruments::Connection
-Thin::Connectors::TcpServer.send :include, BleakInstruments::Connector
+Thin::Backends::TcpServer.send :include, BleakInstruments::Backend
 
 $memlogger = BleakHouse::Logger.new
 File.delete($logfile = File.expand_path("log/memlog")) rescue nil

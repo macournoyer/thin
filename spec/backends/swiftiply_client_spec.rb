@@ -1,22 +1,22 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe Connectors::SwiftiplyClient do
+describe Backends::SwiftiplyClient do
   before do
-    @connector = Connectors::SwiftiplyClient.new('0.0.0.0', 3333)
-    @connector.server = mock('server', :null_object => true)
+    @backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
+    @backend.server = mock('server', :null_object => true)
   end
   
   it "should connect" do
     EventMachine.run do
-      @connector.connect
+      @backend.connect
       EventMachine.stop
     end
   end
   
   it "should disconnect" do
     EventMachine.run do
-      @connector.connect
-      @connector.disconnect
+      @backend.connect
+      @backend.disconnect
       EventMachine.stop
     end
   end
@@ -25,8 +25,8 @@ end
 describe SwiftiplyConnection do
   before do
     @connection = SwiftiplyConnection.new(nil)
-    @connection.connector = Connectors::SwiftiplyClient.new('0.0.0.0', 3333)
-    @connection.connector.server = mock('server', :null_object => true)
+    @connection.backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
+    @connection.backend.server = mock('server', :null_object => true)
   end
   
   it do
@@ -39,7 +39,7 @@ describe SwiftiplyConnection do
   end
   
   it "should reconnect on unbind" do
-    @connection.connector.stub!(:running?).and_return(true)
+    @connection.backend.stub!(:running?).and_return(true)
     @connection.stub!(:rand).and_return(0) # Make sure we don't wait
     
     @connection.should_receive(:reconnect).with('0.0.0.0', 3333)
@@ -51,7 +51,7 @@ describe SwiftiplyConnection do
   end
   
   it "should not reconnect when not running" do
-    @connection.connector.stub!(:running?).and_return(false)
+    @connection.backend.stub!(:running?).and_return(false)
     EventMachine.should_not_receive(:add_timer)
     @connection.unbind
   end

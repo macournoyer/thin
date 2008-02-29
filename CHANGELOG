@@ -1,4 +1,5 @@
 == 0.7.1 Fancy Pants release
+ * Rename Connector to Backend. Extend Thin::Backends::Base to implement your own.
  * Fix high memory usage with big POST body, fixes #48
 
 == 0.7.0 Spherical Cow release

@@ -1,11 +1,11 @@
 module Thin
-  module Connectors
-    # A Connector connect the server to the client. It handles:
+  module Backends
+    # A Backend connects the server to the client. It handles:
     # * connection/disconnection to the server
     # * initialization of the connections
     # * manitoring of the active connections.
-    class Connector      
-      # Server serving the connections throught the connector
+    class Base
+      # Server serving the connections throught the backend
       attr_accessor :server
       
       # Maximum time for incoming data to arrive
@@ -24,7 +24,7 @@ module Thin
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       end
             
-      # Free up resources used by the connector.
+      # Free up resources used by the backend.
       def close
       end
       
@@ -34,7 +34,7 @@ module Thin
             
       # Initialize a new connection to a client.
       def initialize_connection(connection)
-        connection.connector               = self
+        connection.backend                 = self
         connection.app                     = @server.app
         connection.comm_inactivity_timeout = @timeout
         

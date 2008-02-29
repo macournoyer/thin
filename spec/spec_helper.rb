@@ -150,7 +150,7 @@ module Helpers
   end
     
   def send_data(data)
-    if @server.connector.class == Connectors::UnixServer
+    if @server.backend.class == Backends::UnixServer
       socket = UNIXSocket.new(@server.socket)
     else
       socket = TCPSocket.new(@server.host, @server.port)
@@ -162,7 +162,7 @@ module Helpers
   end
   
   def get(url)
-    if @server.connector.class == Connectors::UnixServer
+    if @server.backend.class == Backends::UnixServer
       send_data("GET #{url} HTTP/1.1\r\nConnection: close\r\n\r\n")
     else
       Net::HTTP.get(URI.parse("http://#{@server.host}:#{@server.port}" + url))

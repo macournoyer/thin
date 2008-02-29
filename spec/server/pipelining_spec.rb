@@ -75,8 +75,8 @@ describe Server, "HTTP pipelining" do
     socket2.write "GET / HTTP/1.1\r\n\r\n"
     socket2.flush
     
-    @server.connector.persistent_connection_count.should == 1
-    @server.connector.size.should == 2
+    @server.backend.persistent_connection_count.should == 1
+    @server.backend.size.should == 2
     
     socket1.close    
     socket2.close
@@ -87,14 +87,14 @@ describe Server, "HTTP pipelining" do
     socket.write "GET / HTTP/1.1\r\n\r\n"
     socket.flush
     
-    @server.connector.persistent_connection_count.should == 1
+    @server.backend.persistent_connection_count.should == 1
     
     socket.write "GET / HTTP/1.1\r\nConnection: close\r\n\r\n"
     socket.close
     
     wait_for_requests_to_complete!
     
-    @server.connector.persistent_connection_count.should == 0
+    @server.backend.persistent_connection_count.should == 0
   end
   
   after do
@@ -103,6 +103,6 @@ describe Server, "HTTP pipelining" do
   
   private
     def wait_for_requests_to_complete!
-      sleep 0.1 until @server.connector.size == 0
+      sleep 0.1 until @server.backend.size == 0
     end
 end

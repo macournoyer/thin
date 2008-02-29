@@ -1,27 +1,27 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe Connectors::UnixServer do
+describe Backends::UnixServer do
   before do
-    @connector = Connectors::UnixServer.new('/tmp/thin-test.sock')
+    @backend = Backends::UnixServer.new('/tmp/thin-test.sock')
   end
   
   it "should connect" do
     EventMachine.run do
-      @connector.connect
+      @backend.connect
       EventMachine.stop
     end
   end
   
   it "should disconnect" do
     EventMachine.run do
-      @connector.connect
-      @connector.disconnect
+      @backend.connect
+      @backend.disconnect
       EventMachine.stop
     end
   end
   
   it "should remove socket file on close" do
-    @connector.close
+    @backend.close
     File.exist?('/tmp/thin-test.sock').should be_false
   end
 end

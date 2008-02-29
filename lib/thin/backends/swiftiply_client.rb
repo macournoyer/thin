@@ -1,6 +1,6 @@
 module Thin
-  module Connectors
-    class SwiftiplyClient < Connector
+  module Backends
+    class SwiftiplyClient < Base
       attr_accessor :key
       
       attr_accessor :host, :port
@@ -30,7 +30,7 @@ module Thin
 
   class SwiftiplyConnection < Connection
     def connection_completed
-      send_data swiftiply_handshake(@connector.key)
+      send_data swiftiply_handshake(@backend.key)
     end
     
     def persistent?
@@ -39,17 +39,17 @@ module Thin
     
     def unbind
       super
-      EventMachine.add_timer(rand(2)) { reconnect(@connector.host, @connector.port) } if @connector.running?
+      EventMachine.add_timer(rand(2)) { reconnect(@backend.host, @backend.port) } if @backend.running?
     end
     
     protected
       def swiftiply_handshake(key)
-        'swiftclient' << host_ip.collect { |x| sprintf('%02x', x.to_i)}.join << sprintf('%04x', @connector.port) << sprintf('%02x', key.length) << key
+        'swiftclient' << host_ip.collect { |x| sprintf('%02x', x.to_i)}.join << sprintf('%04x', @backend.port) << sprintf('%02x', key.length) << key
       end
       
       # For some reason Swiftiply request the current host
       def host_ip
-        Socket.gethostbyname(@connector.host)[3].unpack('CCCC') rescue [0,0,0,0]
+        Socket.gethostbyname(@backend.host)[3].unpack('CCCC') rescue [0,0,0,0]
       end
   end
 end

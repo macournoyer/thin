@@ -1,21 +1,21 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-describe Connectors::TcpServer do
+describe Backends::TcpServer do
   before do
-    @connector = Connectors::TcpServer.new('0.0.0.0', 3333)
+    @backend = Backends::TcpServer.new('0.0.0.0', 3333)
   end
   
   it "should connect" do
     EventMachine.run do
-      @connector.connect
+      @backend.connect
       EventMachine.stop
     end
   end
   
   it "should disconnect" do
     EventMachine.run do
-      @connector.connect
-      @connector.disconnect
+      @backend.connect
+      @backend.disconnect
       EventMachine.stop
     end
   end

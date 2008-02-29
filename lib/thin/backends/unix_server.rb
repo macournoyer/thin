@@ -1,7 +1,7 @@
 module Thin
-  module Connectors
-    # Connector to act as a UNIX domain socket server.
-    class UnixServer < Connector
+  module Backends
+    # Backend to act as a UNIX domain socket server.
+    class UnixServer < Base
       # UNIX domain socket on which the server is listening for connections.
       attr_accessor :socket
       
@@ -25,7 +25,7 @@ module Thin
         EventMachine.stop_server(@signature)
       end
       
-      # Free up resources used by the connector.
+      # Free up resources used by the backend.
       def close
         remove_socket_file
       end

@@ -22,11 +22,11 @@ module Thin
   autoload :Server,             'thin/server'
   autoload :Stats,              'thin/stats'
   
-  module Connectors
-    autoload :Connector,        'thin/connectors/connector'
-    autoload :SwiftiplyClient,  'thin/connectors/swiftiply_client'
-    autoload :TcpServer,        'thin/connectors/tcp_server'
-    autoload :UnixServer,       'thin/connectors/unix_server'
+  module Backends
+    autoload :Base,             'thin/backends/base'
+    autoload :SwiftiplyClient,  'thin/backends/swiftiply_client'
+    autoload :TcpServer,        'thin/backends/tcp_server'
+    autoload :UnixServer,       'thin/backends/unix_server'
   end
   
   module Controllers

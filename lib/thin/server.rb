@@ -1,6 +1,6 @@
 module Thin
   # The uterly famous Thin HTTP server.
-  # It listen for incoming request through a given connector
+  # It listen for incoming request through a given backend
   # and forward all request to +app+.
   #
   # == TCP server
@@ -16,12 +16,12 @@ module Thin
   #
   #   Thin::Server.start('/tmp/thin.sock', nil, app)
   #
-  # == Using a custom connector
+  # == Using a custom backend
   # You can implement your own way to connect the server to its client by creating your
-  # own Thin::Connectors::Connector class and pass it as the first argument.
+  # own Backend class and pass it as the first argument.
   #
-  #   connector = Thin::Connectors::MyFancyConnector.new('galaxy://faraway:1345')
-  #   Thin::Server.start(connector, nil, app)
+  #   backend = Thin::Backends::MyFancyBackend.new('galaxy://faraway:1345')
+  #   Thin::Server.start(backend, nil, app)
   #
   # == Rack application (+app+)
   # All requests will be processed through +app+ that must be a valid Rack adapter.
@@ -55,46 +55,46 @@ module Thin
     # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
     
-    # Connector handling the connections to the clients.
-    attr_accessor :connector
+    # Backend handling the connections to the clients.
+    attr_accessor :backend
     
     # Maximum number of file or socket descriptors that the server may open.
     attr_accessor :maximum_connections
     
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
-    def_delegators :@connector, :timeout, :timeout=
+    def_delegators :@backend, :timeout, :timeout=
     
     # Maximum number of connection that can be persistent at the same time.
     # Most browser never close the connection so most of the time they are closed
     # when the timeout occur. If we don't control the number of persistent connection,
     # if would be very easy to overflow the server for a DoS attack.
-    def_delegators :@connector, :maximum_persistent_connections, :maximum_persistent_connections=
+    def_delegators :@backend, :maximum_persistent_connections, :maximum_persistent_connections=
     
     # Address and port on which the server is listening for connections.
-    def_delegators :@connector, :host, :port
+    def_delegators :@backend, :host, :port
     
     # UNIX domain socket on which the server is listening for connections.
-    def_delegator :@connector, :socket
+    def_delegator :@backend, :socket
     
-    def initialize(host_or_socket_or_connector, port=DEFAULT_PORT, app=nil, &block)
-      # Try to intelligently select which connector to use.
-      @connector = case
-      when host_or_socket_or_connector.is_a?(Connectors::Connector)
-        host_or_socket_or_connector
-      when host_or_socket_or_connector.include?('/')
-        Connectors::UnixServer.new(host_or_socket_or_connector)
+    def initialize(host_or_socket_or_backend, port=DEFAULT_PORT, app=nil, &block)
+      # Try to intelligently select which backend to use.
+      @backend = case
+      when host_or_socket_or_backend.is_a?(Backends::Base)
+        host_or_socket_or_backend
+      when host_or_socket_or_backend.include?('/')
+        Backends::UnixServer.new(host_or_socket_or_backend)
       else
-        Connectors::TcpServer.new(host_or_socket_or_connector, port.to_i)
+        Backends::TcpServer.new(host_or_socket_or_backend, port.to_i)
       end
 
-      @app              = app
-      @connector.server = self
+      @app            = app
+      @backend.server = self
       
       # Set defaults
-      @maximum_connections                      = DEFAULT_MAXIMUM_CONNECTIONS
-      @connector.maximum_persistent_connections = DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
-      @connector.timeout                        = DEFAULT_TIMEOUT
+      @maximum_connections                    = DEFAULT_MAXIMUM_CONNECTIONS
+      @backend.maximum_persistent_connections = DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
+      @backend.timeout                        = DEFAULT_TIMEOUT
       
       # Allow using Rack builder as a block
       @app = Rack::Builder.new(&block).to_app if block
@@ -123,18 +123,18 @@ module Thin
       raise ArgumentError, 'app required' unless @app
       
       setup_signals
-            
+      
       # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
       EventMachine.epoll
       
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
-            
-      log ">> Listening on #{@connector}, CTRL+C to stop"
+      
+      log ">> Listening on #{@backend}, CTRL+C to stop"
       
       @running = true
-      EventMachine.run { @connector.connect }
+      EventMachine.run { @backend.connect }
     end
     alias :start! :start
     
@@ -148,7 +148,7 @@ module Thin
         @running = false
         
         # Do not accept anymore connection
-        @connector.disconnect
+        @backend.disconnect
         
         unless wait_for_connections_and_stop
           # Still some connections running, schedule a check later
@@ -166,14 +166,14 @@ module Thin
     def stop!
       log ">> Stopping ..."
 
-      @connector.close_connections
+      @backend.close_connections
       EventMachine.stop
 
-      @connector.close
+      @backend.close
     end
         
     def name
-      "thin server (#{@connector})"
+      "thin server (#{@backend})"
     end
     alias :to_s :name
     
@@ -204,11 +204,11 @@ module Thin
     
     protected            
       def wait_for_connections_and_stop
-        if @connector.empty?
+        if @backend.empty?
           stop!
           true
         else
-          log ">> Waiting for #{@connector.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
+          log ">> Waiting for #{@backend.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           false
         end
       end

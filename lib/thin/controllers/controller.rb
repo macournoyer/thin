@@ -31,7 +31,7 @@ module Thin
         when @options.has_key?(:socket)
           Server.new(@options[:socket])
         when @options.has_key?(:swiftiply)
-          Server.new(Connectors::SwiftiplyClient.new(@options[:address], @options[:port], @options[:swiftiply]))
+          Server.new(Backends::SwiftiplyClient.new(@options[:address], @options[:port], @options[:swiftiply]))
         else
           Server.new(@options[:address], @options[:port])
         end

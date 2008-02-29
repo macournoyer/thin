@@ -13,7 +13,7 @@ else
     t.spec_files = FileList['spec/**/*_spec.rb']
     if WIN
       t.spec_files -= [
-          'spec/connectors/unix_server_spec.rb',
+          'spec/backends/unix_server_spec.rb',
           'spec/controllers/service_spec.rb',
           'spec/daemonizing_spec.rb',
           'spec/server/unix_socket_spec.rb',
