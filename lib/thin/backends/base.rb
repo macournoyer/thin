@@ -41,6 +41,7 @@ module Thin
         
         # Do not accept anymore connection
         disconnect
+        stop! if @connections.empty?
       end
       
       def stop!
