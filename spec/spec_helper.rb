@@ -14,6 +14,8 @@ FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
 Command.script = File.dirname(__FILE__) + '/../bin/thin'
 Logging.silent = true
 
+SWIFTIPLY_PATH = `which swiftiply`.chomp unless Object.const_defined?(:SWIFTIPLY_PATH)
+
 module Matchers
   class BeFasterThen
     def initialize(max_time)
