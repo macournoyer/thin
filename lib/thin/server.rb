@@ -123,18 +123,14 @@ module Thin
       raise ArgumentError, 'app required' unless @app
       
       setup_signals
-      
-      # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
-      EventMachine.epoll
-      
+            
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
       
       log ">> Listening on #{@backend}, CTRL+C to stop"
       
-      @running = true
-      EventMachine.run { @backend.connect }
+      @backend.start
     end
     alias :start! :start
     
@@ -144,12 +140,9 @@ module Thin
     # new requests and wait for all current connections to finish.
     # Calling twice is the equivalent of calling <tt>stop!</tt>.
     def stop
-      if @running
-        @running = false
-        
-        # Do not accept anymore connection
-        @backend.disconnect
-        
+      if running?
+        @backend.stop
+                
         unless wait_for_connections_and_stop
           # Still some connections running, schedule a check later
           EventMachine.add_periodic_timer(1) { wait_for_connections_and_stop }
@@ -166,10 +159,7 @@ module Thin
     def stop!
       log ">> Stopping ..."
 
-      @backend.close_connections
-      EventMachine.stop
-
-      @backend.close
+      @backend.stop!
     end
         
     def name
@@ -181,7 +171,7 @@ module Thin
     # Note that the server might still be running and return +false+ when
     # shuting down and waiting for active connections to complete.
     def running?
-      @running
+      @backend.running?
     end
     
     # Set the maximum number of socket descriptors that the server may open.

@@ -23,13 +23,33 @@ module Thin
         @persistent_connection_count    = 0
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       end
-            
+      
+      def start
+        # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
+        EventMachine.epoll
+        @running = true
+        EventMachine.run { connect }
+      end
+      
+      def stop
+        @running = false
+        # Do not accept anymore connection
+        disconnect
+      end
+      
+      def stop!
+        @running = false
+        close_connections
+        EventMachine.stop
+        close
+      end
+      
       # Free up resources used by the backend.
       def close
       end
       
       def running?
-        @server.running?
+        @running
       end
             
       # Initialize a new connection to a client.
