@@ -36,7 +36,7 @@ describe Runner do
     
     controller = mock('controller')
     controller.should_receive(:start)
-    Controller.should_receive(:new).and_return(controller)
+    Controllers::Controller.should_receive(:new).and_return(controller)
     
     runner.run!
   end
@@ -46,7 +46,7 @@ describe Runner do
     
     controller = mock('cluster')
     controller.should_receive(:start)
-    Cluster.should_receive(:new).and_return(controller)
+    Controllers::Cluster.should_receive(:new).and_return(controller)
     
     runner.run!
   end
@@ -84,7 +84,7 @@ describe Runner, 'with config file' do
     controller = mock('controller')
     controller.should_receive(:respond_to?).with('start').and_return(true)
     controller.should_receive(:start)
-    Cluster.should_receive(:new).and_return(controller)
+    Controllers::Cluster.should_receive(:new).and_return(controller)
     expected_dir = File.expand_path('spec/rails_app')
     
     begin
@@ -106,7 +106,7 @@ describe Runner, "service" do
     Thin.stub!(:linux?).and_return(true)
     
     @controller = mock('service')
-    Service.stub!(:new).and_return(@controller)
+    Controllers::Service.stub!(:new).and_return(@controller)
   end
   
   it "should use Service controller when controlling all servers" do

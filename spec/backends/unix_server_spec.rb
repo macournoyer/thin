@@ -31,13 +31,7 @@ describe UnixConnection do
     @connection = UnixConnection.new(nil)
   end
   
-  it "should return nil on error retreiving remote_address" do
-    @connection.stub!(:get_peername).and_raise(RuntimeError)
-    @connection.remote_address.should be_nil
-  end
-  
-  it "should return remote_address" do
-    @connection.stub!(:get_peername).and_return("\000\001127.0.0.1\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000")
-    @connection.remote_address.should == '127.0.0.1'
+  it "should return 0.0.0.0 as remote_address" do
+    @connection.remote_address.should == '0.0.0.0'
   end
 end

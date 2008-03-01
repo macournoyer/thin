@@ -44,9 +44,8 @@ module Thin
   # Connection through a UNIX domain socket.
   class UnixConnection < Connection
     protected
-      def socket_address
-        # FIXME not sure about this, does it even make sense on a UNIX socket?
-        Socket.unpack_sockaddr_un(get_peername)
+      def socket_address        
+        '0.0.0.0' # Unix domain sockets can only be local
       end
   end
 end
