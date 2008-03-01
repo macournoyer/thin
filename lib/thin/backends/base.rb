@@ -11,6 +11,9 @@ module Thin
       # Maximum time for incoming data to arrive
       attr_accessor :timeout
       
+      # Maximum number of file or socket descriptors that the server may open.
+      attr_accessor :maximum_connections
+      
       # Maximum number of connections that can be persistent
       attr_accessor :maximum_persistent_connections
       
@@ -21,12 +24,11 @@ module Thin
         @connections                    = []
         @timeout                        = Server::DEFAULT_TIMEOUT
         @persistent_connection_count    = 0
+        @maximum_connections            = Server::DEFAULT_MAXIMUM_CONNECTIONS
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       end
       
       def start
-        # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
-        EventMachine.epoll
         @running = true
         EventMachine.run { connect }
       end
@@ -42,6 +44,16 @@ module Thin
         close_connections
         EventMachine.stop
         close
+      end
+      
+      def config
+        # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
+        EventMachine.epoll
+        
+        # Set the maximum number of socket descriptors that the server may open.
+        # The process needs to have required privilege to set it higher the 1024 on
+        # some systems.
+        @maximum_connections = EventMachine.set_descriptor_table_size(@maximum_connections) unless Thin.win?
       end
       
       # Free up resources used by the backend.

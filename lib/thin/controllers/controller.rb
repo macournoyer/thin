@@ -44,8 +44,8 @@ module Thin
 
         server.daemonize if @options[:daemonize]
 
-        # Must be called before changing privileges since it might require superuser power.
-        server.set_descriptor_table_size!
+        server.config # Must be called before changing privileges since it might require superuser power.
+        
         server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
 
         # If a Rack config file is specified we eval it inside a Rack::Builder block to create

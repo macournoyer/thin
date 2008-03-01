@@ -16,6 +16,7 @@ describe Controller, 'start' do
     @adapter = OpenStruct.new
     
     Server.should_receive(:new).with('0.0.0.0', 3000).and_return(@server)
+    @server.should_receive(:config)
     Rack::Adapter::Rails.stub!(:new).and_return(@adapter)
   end
   

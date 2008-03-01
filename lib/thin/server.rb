@@ -58,12 +58,12 @@ module Thin
     # Backend handling the connections to the clients.
     attr_accessor :backend
     
-    # Maximum number of file or socket descriptors that the server may open.
-    attr_accessor :maximum_connections
-    
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
     def_delegators :@backend, :timeout, :timeout=
+    
+    # Maximum number of file or socket descriptors that the server may open.
+    def_delegators :@backend, :maximum_connections, :maximum_connections=
     
     # Maximum number of connection that can be persistent at the same time.
     # Most browser never close the connection so most of the time they are closed
@@ -92,7 +92,7 @@ module Thin
       @backend.server = self
       
       # Set defaults
-      @maximum_connections                    = DEFAULT_MAXIMUM_CONNECTIONS
+      @backend.maximum_connections            = DEFAULT_MAXIMUM_CONNECTIONS
       @backend.maximum_persistent_connections = DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       @backend.timeout                        = DEFAULT_TIMEOUT
       
@@ -128,6 +128,7 @@ module Thin
       debug ">> Debugging ON"
       trace ">> Tracing ON"
       
+      log ">> Maximum connections set to #{@backend.maximum_connections}"
       log ">> Listening on #{@backend}, CTRL+C to stop"
       
       @backend.start
@@ -145,6 +146,7 @@ module Thin
                 
         unless wait_for_connections_and_stop
           # Still some connections running, schedule a check later
+          log ">> Waiting for #{@backend.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           EventMachine.add_periodic_timer(1) { wait_for_connections_and_stop }
         end
       else
@@ -161,6 +163,13 @@ module Thin
 
       @backend.stop!
     end
+    
+    # Configure the server.
+    # The process might need to have superuser privilege to set configure
+    # server with optimal options.
+    def config
+      @backend.config
+    end
         
     def name
       "thin server (#{@backend})"
@@ -174,31 +183,12 @@ module Thin
       @backend.running?
     end
     
-    # Set the maximum number of socket descriptors that the server may open.
-    # The process needs to have required privilege to set it higher the 1024 on
-    # some systems.
-    def set_descriptor_table_size!
-      return 0 if Thin.win? # Not supported on Windows
-      
-      requested_maximum_connections = @maximum_connections
-      @maximum_connections = EventMachine.set_descriptor_table_size(requested_maximum_connections)
-
-      log ">> Setting maximum connections to #{@maximum_connections}"
-      if @maximum_connections < requested_maximum_connections
-        log "!! Maximum connections smaller then requested, " +
-            "run with sudo to set higher"
-      end
-
-      @maximum_connections
-    end
-    
     protected            
       def wait_for_connections_and_stop
         if @backend.empty?
           stop!
           true
         else
-          log ">> Waiting for #{@backend.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
           false
         end
       end
