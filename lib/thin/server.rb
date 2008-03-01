@@ -143,11 +143,9 @@ module Thin
     def stop
       if running?
         @backend.stop
-                
-        unless wait_for_connections_and_stop
-          # Still some connections running, schedule a check later
-          log ">> Waiting for #{@backend.size} connection(s) to finish, can take up to #{timeout} sec, CTRL+C to stop now"
-          EventMachine.add_periodic_timer(1) { wait_for_connections_and_stop }
+        unless @backend.empty?
+          log ">> Waiting for #{@backend.size} connection(s) to finish, " +
+                 "can take up to #{timeout} sec, CTRL+C to stop now"
         end
       else
         stop!
@@ -164,7 +162,7 @@ module Thin
       @backend.stop!
     end
     
-    # Configure the server.
+    # == Configure the server
     # The process might need to have superuser privilege to set configure
     # server with optimal options.
     def config
@@ -184,15 +182,6 @@ module Thin
     end
     
     protected            
-      def wait_for_connections_and_stop
-        if @backend.empty?
-          stop!
-          true
-        else
-          false
-        end
-      end
-      
       def setup_signals
         trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }

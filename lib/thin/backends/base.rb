@@ -29,20 +29,26 @@ module Thin
       end
       
       def start
-        @running = true
+        @running  = true
+        @stopping = false
+        
         EventMachine.run { connect }
       end
       
       def stop
-        @running = false
+        @running  = false
+        @stopping = true
+        
         # Do not accept anymore connection
         disconnect
       end
       
       def stop!
-        @running = false
-        close_connections
-        EventMachine.stop
+        @running  = false
+        @stopping = false
+        
+        EventMachine.stop if EventMachine.reactor_running?
+        @connections.each { |connection| connection.close_connection }
         close
       end
       
@@ -64,31 +70,13 @@ module Thin
         @running
       end
             
-      # Initialize a new connection to a client.
-      def initialize_connection(connection)
-        connection.backend                 = self
-        connection.app                     = @server.app
-        connection.comm_inactivity_timeout = @timeout
-        
-        # We control the number of persistent connections by keeping
-        # a count of the total one allowed yet.
-        if @persistent_connection_count < @maximum_persistent_connections
-          connection.can_persist!
-          @persistent_connection_count += 1
-        end
-
-        @connections << connection
-      end
-      
-      # Close all active connections.
-      def close_connections
-        @connections.each { |connection| connection.close_connection }
-      end
-      
       # Called by a connection when it's unbinded.
       def connection_finished(connection)
         @persistent_connection_count -= 1 if connection.can_persist?
         @connections.delete(connection)
+        
+        # Finalize gracefull stop if there's no more active connection.
+        stop! if @stopping && @connections.empty?
       end
       
       # Returns +true+ if no active connection.
@@ -100,6 +88,24 @@ module Thin
       def size
         @connections.size
       end
+      
+      protected
+        # Initialize a new connection to a client.
+        def initialize_connection(connection)
+          connection.backend                 = self
+          connection.app                     = @server.app
+          connection.comm_inactivity_timeout = @timeout
+
+          # We control the number of persistent connections by keeping
+          # a count of the total one allowed yet.
+          if @persistent_connection_count < @maximum_persistent_connections
+            connection.can_persist!
+            @persistent_connection_count += 1
+          end
+
+          @connections << connection
+        end
+      
     end
   end
 end
