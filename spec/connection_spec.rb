@@ -51,7 +51,7 @@ describe Connection do
   end
   
   it "should return remote_address" do
-    @connection.stub!(:get_peername).and_return("\020\002?E\177\000\000\001\000\000\000\000\000\000\000\000")
+    @connection.stub!(:get_peername).and_return(Socket.pack_sockaddr_in(3000, '127.0.0.1'))
     @connection.remote_address.should == '127.0.0.1'
   end
   
