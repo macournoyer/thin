@@ -120,10 +120,10 @@ module Thin
         
         # Acts like GNU tail command. Taken from Rails.
         def tail(file)
+          cursor = File.exist?(file) ? File.size(file) : 0
+          last_checked = Time.now
           tail_thread = Thread.new do
             Thread.pass until File.exist?(file)
-            cursor = File.size(file)
-            last_checked = Time.now
             File.open(file, 'r') do |f|
               loop do
                 f.seek cursor
@@ -138,6 +138,7 @@ module Thin
               end
             end
           end
+          sleep 1 if File.exist?(file) # HACK Give the thread a little time to open the file
           tail_thread
         end
     end

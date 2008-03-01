@@ -1,4 +1,6 @@
 == 0.7.1 Fancy Pants release
+ * Move all EventMachine stuff out of Server, you can now create a Thin Backend that
+   does not depend on EventMachine.
  * Rename Connector to Backend. Extend Thin::Backends::Base to implement your own.
  * Fix high memory usage with big POST body, fixes #48
 
