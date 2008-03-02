@@ -9,6 +9,7 @@ else
         exec "#{SWIFTIPLY_PATH} -c #{File.dirname(__FILE__)}/swiftiply.yml"
       end
       wait_for_socket('0.0.0.0', 3333)
+      sleep 2 # HACK ooh boy, I wish I knew how to make those specs more stable...
       start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil), nil, false) do |env|
         body = env.inspect + env['rack.input'].read
         [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
