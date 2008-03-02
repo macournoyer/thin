@@ -52,15 +52,6 @@ static VALUE global_path_info;
 /** Defines global strings in the init method. */
 #define DEF_GLOBAL(N, val)   global_##N = rb_obj_freeze(rb_str_new2(val)); rb_global_variable(&global_##N)
 
-/* for compatibility with Ruby 1.8.5, which doesn't declare RSTRING_PTR */
-#ifndef RSTRING_PTR
-#define RSTRING_PTR(s) (RSTRING(s)->ptr)
-#endif
-
-/* for compatibility with Ruby 1.8.5, which doesn't declare RSTRING_LEN */
-#ifndef RSTRING_LEN
-#define RSTRING_LEN(s) (RSTRING(s)->len)
-#endif
 
 /* Defines the maximum allowed lengths for various input elements.*/
 DEF_MAX_LENGTH(FIELD_NAME, 256);

@@ -87,8 +87,6 @@ module Thin
       else
         Backends::TcpServer.new(host_or_socket_or_backend, port.to_i)
       end
-      
-      load_cgi_multipart_eof_fix
 
       @app            = app
       @backend.server = self
@@ -188,20 +186,6 @@ module Thin
         trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }
         trap('TERM') { stop! }
-      end
-      
-      # Taken from Mongrel cgi_multipart_eof_fix
-      def load_cgi_multipart_eof_fix
-        version = RUBY_VERSION.split('.').map { |i| i.to_i }
-        
-        if version[0] <= 1 && version[1] <= 8 && version[2] <= 5 && RUBY_PLATFORM !~ /java/
-          begin
-            require 'cgi_multipart_eof_fix'
-          rescue LoadError
-            log "!! Ruby 1.8.5 is not secure please install cgi_multipart_eof_fix:"
-            log "   gem install cgi_multipart_eof_fix"
-          end
-        end
-      end
+      end      
   end
 end
