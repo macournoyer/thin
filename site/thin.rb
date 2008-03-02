@@ -210,6 +210,8 @@ class Thin < Atchoum::Website
       li { a "Socks and Sandals", :href => 'http://blog.cbcg.net/' }
       li { a "indiagoes", :href => 'http://www.indiagoes.com/' }
       li { a "ajaxwhois", :href => 'http://ajaxwhois.com/' }
+      li { a "Sproglogs", :href => 'http://sproglogs.com/' }
+      li { a "Look to the Stars", :href => 'http://www.looktothestars.org/' }
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
