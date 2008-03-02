@@ -138,19 +138,39 @@ module Helpers
     request
   end
   
-  def start_server(*args, &app)
-    @server = Thin::Server.new(args[0] || '0.0.0.0', args[1] || 3333, app)
+  def start_server(address='0.0.0.0', port=3333, wait_for_socket=true, &app)
+    @server = Thin::Server.new(address, port, app)
     @server.timeout = 3
     
     @thread = Thread.new { @server.start }
-    Timeout.timeout(3) do
-      sleep 0.1 until @server.running? && EventMachine.reactor_running?
+    if wait_for_socket
+      wait_for_socket(address, port)
+    else
+      # If we can't ping the address fallback to just wait for the server to run
+      sleep 1 until @server.running?
     end
   end
   
   def stop_server
     @server.stop!
     @thread.kill
+    raise "Reactor still running, wtf?" if EventMachine.reactor_running?
+  end
+  
+  def wait_for_socket(address='0.0.0.0', port=3333, timeout=5)
+    Timeout.timeout(timeout) do
+      loop do
+        begin
+          if address.include?('/')
+            UNIXSocket.new(address).close
+          else
+            TCPSocket.new(address, port).close
+          end
+          return true
+        rescue
+        end
+      end
+    end
   end
     
   def send_data(data)

@@ -8,7 +8,7 @@ describe Request, 'legacy Mongrel tests' do
   end
 
   it 'should raise error on large mangled field values' do
-    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 100*1024+(1024), false)}\r\n\r\n") }.
+    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 1024*1024, false)}\r\n\r\n") }.
       should raise_error(InvalidRequest)
   end
   

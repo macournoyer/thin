@@ -29,10 +29,12 @@ module Thin
       end
       
       def start
-        @running  = true
         @stopping = false
         
-        EventMachine.run { connect }
+        EventMachine.run do
+          connect
+          @running = true
+        end
       end
       
       def stop

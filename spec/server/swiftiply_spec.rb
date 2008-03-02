@@ -8,8 +8,8 @@ else
       @swiftiply = fork do
         exec "#{SWIFTIPLY_PATH} -c #{File.dirname(__FILE__)}/swiftiply.yml"
       end
-      sleep 0.5
-      start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil)) do |env|
+      wait_for_socket('0.0.0.0', 3333)
+      start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil), nil, false) do |env|
         body = env.inspect + env['rack.input'].read
         [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
       end
