@@ -8,7 +8,7 @@ class TestServer
   end
   
   def name
-    'thin'
+    'Thin test server'
   end
 end
 
@@ -82,7 +82,7 @@ describe 'Daemonizing' do
     @pid = fork do
       @child_processes << Process.pid
       @server.daemonize
-      loop { sleep 1 }
+      loop { sleep 3 }
     end
   
     server_should_start_in_less_then 3
@@ -91,7 +91,7 @@ describe 'Daemonizing' do
       TestServer.kill(@server.pid_file, 1)
     end
   
-    File.exist?(@server.pid_file).should_not be_true
+    File.exist?(@server.pid_file).should be_false
   end
   
   it 'should send kill signal if timeout' do
