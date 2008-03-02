@@ -35,15 +35,7 @@ describe Server, 'on TCP socket' do
     big = 'X' * (20 * 1024)
     post('/', :big => big).should include(big)
   end
-  
-  it "should handle GET in less then #{get_request_time = 0.0045} RubySecond" do
-    proc { get('/') }.should be_faster_then(get_request_time)
-  end
-  
-  it "should handle POST in less then #{post_request_time = 0.007} RubySecond" do
-    proc { post('/', :file => 'X' * 1000) }.should be_faster_then(post_request_time)
-  end
-  
+    
   it "should retreive remote address" do
     get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
   end

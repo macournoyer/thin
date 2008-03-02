@@ -51,18 +51,7 @@ describe Response do
     @response.each { |l| out << l }
     out.should include("\r\n\r\n<html></html>")
   end
-  
-  it "should be fast" do
-    @response.body << <<-EOS
-<html><head><title>Dir listing</title></head>
-<body><h1>Listing stuff</h1><ul>
-#{'<li>Hi!</li>' * 100}
-</ul></body></html>
-EOS
     
-    proc { @response.each { |l| l } }.should be_faster_then(0.00011)
-  end
-  
   it "should not be persistent by default" do
     @response.should_not be_persistent
   end

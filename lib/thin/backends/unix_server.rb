@@ -45,7 +45,7 @@ module Thin
   class UnixConnection < Connection
     protected
       def socket_address        
-        '0.0.0.0' # Unix domain sockets can only be local
+        '127.0.0.1' # Unix domain sockets can only be local
       end
   end
 end

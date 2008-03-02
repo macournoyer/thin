@@ -12,11 +12,7 @@ describe Server, "on UNIX domain socket" do
   end
   
   it "should retreive remote address" do    
-    get('/').should include('"REMOTE_ADDR"=>""') # Is that right?
-  end
-  
-  it "should handle GET in less then #{get_request_time = 0.002} RubySecond" do
-    proc { get('/') }.should be_faster_then(get_request_time)
+    get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
   end
   
   it "should remove socket file after server stops" do

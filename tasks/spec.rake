@@ -1,16 +1,15 @@
 CLEAN.include %w(coverage tmp log)
 
-if RUBY_1_9
+if RUBY_1_9 # RSpec not yet working w/ Ruby 1.9
   task :spec do
     warn 'RSpec not yet supporting Ruby 1.9, so cannot run the specs :('
   end
 else
-  # RSpec not yet working w/ Ruby 1.9
   require 'spec/rake/spectask'
   
   desc "Run all examples"
   Spec::Rake::SpecTask.new('spec') do |t|
-    t.spec_files = FileList['spec/**/*_spec.rb']
+    t.spec_files = FileList['spec/**/*_spec.rb'] - FileList['spec/perf/*_spec.rb']
     if WIN
       t.spec_files -= [
           'spec/backends/unix_server_spec.rb',
@@ -21,15 +20,20 @@ else
           ]
     end
   end
+  task :spec => :compile
   
-  task :check_spec_gems do
+  desc "Run all performance examples"
+  Spec::Rake::SpecTask.new('spec:perf') do |t|
+    t.spec_files = FileList['spec/perf/*_spec.rb']
+  end
+  
+  task :check_benchmark_unit_gem do
     begin
-      require 'spec'
       require 'benchmark_unit'
     rescue LoadError
-      abort "To run specs, install rspec and benchmark_unit gems"
+      abort "To run specs, install benchmark_unit gem"
     end
   end
   
-  task :spec => [:check_spec_gems, :compile]
+  task 'spec:perf' => :check_benchmark_unit_gem
 end

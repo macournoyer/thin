@@ -31,7 +31,7 @@ describe UnixConnection do
     @connection = UnixConnection.new(nil)
   end
   
-  it "should return 0.0.0.0 as remote_address" do
-    @connection.remote_address.should == '0.0.0.0'
+  it "should return 127.0.0.1 as remote_address" do
+    @connection.remote_address.should == '127.0.0.1'
   end
 end
