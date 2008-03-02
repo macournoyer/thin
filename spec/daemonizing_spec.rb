@@ -106,6 +106,8 @@ describe 'Daemonizing' do
     silence_stream STDOUT do
       TestServer.kill(@server.pid_file, 1)
     end
+    
+    sleep 1
   
     File.exist?(@server.pid_file).should be_false
     Process.running?(@pid).should be_false

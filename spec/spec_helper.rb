@@ -143,7 +143,7 @@ module Helpers
     @server.timeout = 3
     
     @thread = Thread.new { @server.start }
-    Timeout.timeout(1) do
+    Timeout.timeout(3) do
       sleep 0.1 until @server.running? && EventMachine.reactor_running?
     end
   end

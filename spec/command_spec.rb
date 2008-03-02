@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe Command do
   before do
+    Command.script = 'thin'
     @command = Command.new(:start, :port => 3000, :daemonize => true, :log => 'hi.log')
   end
   

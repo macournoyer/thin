@@ -8,7 +8,8 @@ else
   require 'spec/rake/spectask'
   
   desc "Run all examples"
-  Spec::Rake::SpecTask.new('spec') do |t|
+  Spec::Rake::SpecTask.new(:spec) do |t|
+    t.spec_opts = %w(-D -fs -c)
     t.spec_files = FileList['spec/**/*_spec.rb'] - FileList['spec/perf/*_spec.rb']
     if WIN
       t.spec_files -= [
