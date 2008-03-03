@@ -1,6 +1,6 @@
 module Thin
   # To be included in classes to allow some basic logging
-  # that can be silented (<tt>Logging.silent=</tt>) or made
+  # that can be silenced (<tt>Logging.silent=</tt>) or made
   # more verbose.
   # <tt>Logging.debug=</tt>: log all error backtrace and messages
   #                          logged with +debug+.
