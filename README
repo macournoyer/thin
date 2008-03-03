@@ -10,6 +10,10 @@ Which makes it, with all humility, the most secure, stable, fast and extensible 
 bundled in an easy to use gem for your own pleasure.
 
 === Installation
+IMPORTANT: Until EventMachine 0.11.0 is out, you have to install it from trunk or from my gem server:
+
+ sudo gem install eventmachine --source http://code.macournoyer.com
+
 For the latest stable version:
 
  sudo gem install thin
