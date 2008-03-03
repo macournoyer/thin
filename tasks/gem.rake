@@ -15,12 +15,14 @@ spec = Gem::Specification.new do |s|
   s.has_rdoc              = true
   s.executables           = %w(thin)
 
-  s.required_ruby_version = '>= 1.8.6' # Makes sure the CGI eof fix is there
+  s.required_ruby_version = '>= 1.8.5'
   
   s.add_dependency        'rack',         '>= 0.2.0'
-  s.add_dependency        'eventmachine', '>= 0.8.1'
-  unless WIN
+  if WIN
+    s.add_dependency      'eventmachine', '>= 0.8.1'
     s.add_dependency      'daemons',      '>= 1.0.9'
+  else
+    s.add_dependency      'eventmachine', '>= 0.11.0'
   end
 
   s.files                 = %w(COPYING CHANGELOG README Rakefile) +

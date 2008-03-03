@@ -1,4 +1,6 @@
 == 0.7.1 Fancy Pants release
+ * Require EventMachine 0.11. Until it's released, install from:
+   gem install eventmachine --source http://code.macournoyer.com
  * Ruby 1.8.5 compatibility, closes #49 [Wincent Colaiuta]
  * Move all EventMachine stuff out of Server, you can now create a Thin Backend that
    does not depend on EventMachine.
