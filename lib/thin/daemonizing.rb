@@ -34,11 +34,20 @@ module Thin
     
     # Turns the current script into a daemon process that detaches from the console.
     def daemonize
-      raise PlatformNotSupported, 'Daemonizing not supported on Windows'     if Thin.win?
+      raise PlatformNotSupported, 'Daemonizing is not supported on Windows'     if Thin.win?
       raise ArgumentError,        'You must specify a pid_file to daemonize' unless @pid_file
-      raise PidFileExist,         "#{@pid_file} already exist, seems like it's already running. " +
-                                  "Stop the process or delete #{@pid_file}." if File.exist?(@pid_file)
-      
+
+      # If PID file is stale, remove it.
+      if File.exist?(@pid_file)
+        if pid && Process.running?(pid)
+          raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
+                              "Stop the process or delete #{@pid_file}."
+        else
+          log ">> Deleting stale PID file #{@pid_file}"
+          remove_pid_file
+        end
+      end
+
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
       
       Daemonize.daemonize(File.expand_path(@log_file), name)
@@ -53,7 +62,7 @@ module Thin
         remove_pid_file
       end
     end
-    
+
     # Change privileges of the process
     # to the specified user and group.
     def change_privilege(user, group=user)
@@ -73,12 +82,12 @@ module Thin
       log "Couldn't change user and group to #{user}:#{group}: #{e}"
     end
     
-    # Registerer a proc to be called to restart the server.
+    # Register a proc to be called to restart the server.
     def on_restart(&block)
       @on_restart = block
     end
     
-    # Restart the server
+    # Restart the server.
     def restart
       raise ArgumentError, "Can't restart, no 'on_restart' proc specified" unless @on_restart
       log '>> Restarting ...'
@@ -108,7 +117,7 @@ module Thin
         File.delete(pid_file) if File.exist?(pid_file)
       end
       
-      # Restart the server by sending HUP signal
+      # Restart the server by sending HUP signal.
       def restart(pid_file)
         send_signal('HUP', pid_file)
       end
