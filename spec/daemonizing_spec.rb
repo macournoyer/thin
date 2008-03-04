@@ -15,13 +15,15 @@ end
 describe 'Daemonizing' do
   before :all do
     @logfile = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
+    @pidfile = 'test.pid'
     File.delete(@logfile) if File.exist?(@logfile)
+    File.delete(@pidfile) if File.exist?(@pidfile)
   end
   
   before :each do
     @server = TestServer.new
     @server.log_file = @logfile
-    @server.pid_file = 'test.pid'
+    @server.pid_file = @pidfile
     @pid = nil
   end
   
@@ -131,7 +133,7 @@ describe 'Daemonizing' do
     proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
   end
   
-  it "should exit if pid file already exist" do
+  it "should exit and raise if pid file already exist" do
     @pid = fork do
       @server.daemonize
       sleep 5
@@ -143,6 +145,15 @@ describe 'Daemonizing' do
     proc { @server.daemonize }.should raise_error(PidFileExist)
     
     File.exist?(@server.pid_file).should be_true
+  end
+  
+  it "should should delete pid file if stale" do
+    # Create a file w/ a PID that does not exist
+    File.open(@server.pid_file, 'w') { |f| f << 999999999 }
+    
+    @server.send(:remove_stale_pid_file)
+    
+    File.exist?(@server.pid_file).should be_false
   end
   
   after do

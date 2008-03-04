@@ -37,17 +37,8 @@ module Thin
       raise PlatformNotSupported, 'Daemonizing is not supported on Windows'     if Thin.win?
       raise ArgumentError,        'You must specify a pid_file to daemonize' unless @pid_file
 
-      # If PID file is stale, remove it.
-      if File.exist?(@pid_file)
-        if pid && Process.running?(pid)
-          raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
-                              "Stop the process or delete #{@pid_file}."
-        else
-          log ">> Deleting stale PID file #{@pid_file}"
-          remove_pid_file
-        end
-      end
-
+      remove_stale_pid_file
+      
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
       
       Daemonize.daemonize(File.expand_path(@log_file), name)
@@ -150,6 +141,19 @@ module Thin
         FileUtils.mkdir_p File.dirname(@pid_file)
         open(@pid_file,"w") { |f| f.write(Process.pid) }
         File.chmod(0644, @pid_file)
+      end
+      
+      # If PID file is stale, remove it.
+      def remove_stale_pid_file
+        if File.exist?(@pid_file)
+          if pid && Process.running?(pid)
+            raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
+                                "Stop the process or delete #{@pid_file}."
+          else
+            log ">> Deleting stale PID file #{@pid_file}"
+            remove_pid_file
+          end
+        end
       end
   end
 end
