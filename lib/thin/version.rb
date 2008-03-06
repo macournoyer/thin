@@ -12,7 +12,7 @@ module Thin
     
     CODENAME = 'Fancy Pants'
     
-    RACK     = [0, 3] # Latest Rack version that was tested
+    RACK     = [0, 3].freeze # Latest Rack version that was tested
   end
   
   NAME    = 'thin'.freeze

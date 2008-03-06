@@ -1,6 +1,6 @@
 == 0.7.1 Fancy Pants release
  * Clean stale PID files when starting as daemon, fixes #53 [Chu Yeow]
- * Require EventMachine 0.11. Until it's released, install from:
+ * Require EventMachine 0.11.0 for UNIX domain sockets. Until it's released, install from:
    gem install eventmachine --source http://code.macournoyer.com
  * Ruby 1.8.5 compatibility, closes #49 [Wincent Colaiuta]
  * Move all EventMachine stuff out of Server, you can now create a Thin Backend that
