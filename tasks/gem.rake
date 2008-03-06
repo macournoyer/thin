@@ -20,12 +20,12 @@ spec = Gem::Specification.new do |s|
   s.add_dependency        'rack',         '>= 0.2.0'
   if WIN
     s.add_dependency      'eventmachine', '>= 0.8.1'
-    s.add_dependency      'daemons',      '>= 1.0.9'
   else
-    s.add_dependency      'eventmachine', '>= 0.11.0'
+    s.add_dependency      'daemons',      '>= 1.0.9'
+    s.add_dependency      'eventmachine', '>= 0.10.0' # TODO '>= 0.11.0' when it's released
   end
 
-  s.files                 = %w(COPYING CHANGELOG README Rakefile) +
+  s.files                 = %w(COPYING CHANGELOG COMMITTERS README Rakefile) +
                             Dir.glob("{benchmark,bin,doc,example,lib,spec,tasks}/**/*") + 
                             Dir.glob("ext/**/*.{h,c,rb,rl}")
   
