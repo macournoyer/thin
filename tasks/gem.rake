@@ -1,5 +1,7 @@
 require 'rake/gempackagetask'
 
+WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'x86-mswin32-60'
+
 task :clean => :clobber_package
 
 spec = Gem::Specification.new do |s|
@@ -67,7 +69,7 @@ namespace :gem do
   namespace :upload do
     desc 'Upload the precompiled win32 gem to code.macournoyer.com'
     task :win do
-      upload "pkg/#{spec.full_name}-x86-mswin32-60.gem", 'gems'
+      upload "pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
       system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
     end    
 
@@ -76,14 +78,14 @@ namespace :gem do
       sh 'rubyforge login'
       sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
       sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
-      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-x86-mswin32-60.gem"
+      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem"
     end
   end
   
   desc 'Download the Windows gem from Kevin repo'
   task 'download:win' => 'pkg' do
     cd 'pkg' do
-      `wget http://rubygems.bantamtech.com/ruby18/gems/#{spec.full_name}-x86-mswin32-60.gem`
+      `wget http://rubygems.bantamtech.com/ruby18/gems/#{spec.full_name}-#{WIN_SUFFIX}.gem`
     end
   end
 end
