@@ -1,6 +1,6 @@
 module Thin
   # The uterly famous Thin HTTP server.
-  # It listen for incoming request through a given backend
+  # It listen for incoming request through a given +backend+
   # and forward all request to +app+.
   #
   # == TCP server
@@ -40,6 +40,10 @@ module Thin
   #       run Rack::Lobster.new
   #     end
   #   end
+  #
+  # == Controlling with signals
+  # * QUIT: Gracefull shutdown (see Server#stop)
+  # * INT and TERM: Force shutdown (see Server#stop!)
   #
   class Server
     include Logging
@@ -165,12 +169,14 @@ module Thin
     end
     
     # == Configure the server
-    # The process might need to have superuser privilege to set configure
+    # The process might need to have superuser privilege to configure
     # server with optimal options.
     def config
       @backend.config
     end
-        
+    
+    # Name of the server and type of backend used.
+    # This is also the name of the process in which Thin is running as a daemon.
     def name
       "thin server (#{@backend})"
     end
@@ -191,6 +197,7 @@ module Thin
       end
       
       # Taken from Mongrel cgi_multipart_eof_fix
+      # Ruby 1.8.5 has a security bug in cgi.rb, we need to patch it.
       def load_cgi_multipart_eof_fix
         version = RUBY_VERSION.split('.').map { |i| i.to_i }
         

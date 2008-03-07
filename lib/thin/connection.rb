@@ -7,7 +7,7 @@ module Thin
   class Connection < EventMachine::Connection
     include Logging
     
-    # Rack application served by this connection.
+    # Rack application (adapter) served by this connection.
     attr_accessor :app
     
     # Backend to the server
@@ -16,7 +16,7 @@ module Thin
     # Current request served by the connection
     attr_accessor :request
     
-    # Next response sent through connection
+    # Next response sent through the connection
     attr_accessor :response
     
     # Get the connection ready to process a request.
@@ -36,12 +36,12 @@ module Thin
     end
     
     # Called when all data was received and the request
-    # is ready to being processed.
+    # is ready to be processed.
     def process
       # Add client info to the request env
       @request.remote_address = remote_address
       
-      # Process the request
+      # Process the request calling the Rack adapter
       @response.status, @response.headers, @response.body = @app.call(@request.env)
       
       # Make the response persistent if requested by the client

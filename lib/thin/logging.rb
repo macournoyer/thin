@@ -15,7 +15,7 @@ module Thin
       def silent?;  @silent            end
     end
     
-    # Deprecated silencer methods, those are now a module methods
+    # Deprecated silencer methods, those are now module methods
     def silent
       warn "`#{self.class.name}\#silent` deprecated, use `Thin::Logging.silent?` instead"
       Logging.silent?

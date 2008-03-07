@@ -4,6 +4,12 @@ module Thin
     # * connection/disconnection to the server
     # * initialization of the connections
     # * manitoring of the active connections.
+    #
+    # == Implementing your own backend
+    # You can create your own minimal backend by inheriting this class and
+    # defining the +connect+ and +disconnect+ method.
+    # If your backend is not based on EventMachine you also need to redefine
+    # the +start+, +stop+, <tt>stop!</tt> and +config+ methods.
     class Base
       # Server serving the connections throught the backend
       attr_accessor :server
@@ -28,6 +34,7 @@ module Thin
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
       end
       
+      # Start the backend and connect it.
       def start
         @stopping = false
         
@@ -37,6 +44,7 @@ module Thin
         end
       end
       
+      # Stop of the backend from accepting new connections.
       def stop
         @running  = false
         @stopping = true
@@ -46,6 +54,7 @@ module Thin
         stop! if @connections.empty?
       end
       
+      # Force stop of the backend NOW, too bad for the current connections.
       def stop!
         @running  = false
         @stopping = false
@@ -55,6 +64,8 @@ module Thin
         close
       end
       
+      # Configure the backend. This method will be called before droping superuser privileges,
+      # so you can do crazy stuff that require godlike powers here.
       def config
         # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
         EventMachine.epoll
@@ -69,6 +80,7 @@ module Thin
       def close
       end
       
+      # Returns +true+ if the backend is connected and running.
       def running?
         @running
       end

@@ -1,6 +1,8 @@
 require 'yaml'
 
 module Thin
+  # Build and control one Thin server.
+  # Hey Controller pattern is not only for web apps yo!
   module Controllers
     # Raised when a mandatory option is missing to run a command.
     class OptionRequired < RuntimeError
@@ -27,6 +29,7 @@ module Thin
       end
     
       def start
+        # Select proper backend
         server = case
         when @options.has_key?(:socket)
           Server.new(@options[:socket])
@@ -35,16 +38,19 @@ module Thin
         else
           Server.new(@options[:address], @options[:port])
         end
-
+        
+        # Set options
         server.pid_file                       = @options[:pid]
         server.log_file                       = @options[:log]
         server.timeout                        = @options[:timeout]
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
 
+        # Detach the process, after this line the current process returns
         server.daemonize if @options[:daemonize]
 
-        server.config # Must be called before changing privileges since it might require superuser power.
+        # +config+ must be called before changing privileges since it might require superuser power.
+        server.config
         
         server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
 
@@ -64,7 +70,8 @@ module Thin
         # If a stats URL is specified, wrap in Stats adapter
         server.app = Stats::Adapter.new(server.app, @options[:stats]) if @options[:stats]
 
-        # Register restart procedure
+        # Register restart procedure which just start another process with same options,
+        # so that's why this is done here.
         server.on_restart { Command.run(:start, @options) }
 
         server.start

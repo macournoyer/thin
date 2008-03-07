@@ -1,5 +1,6 @@
 module Thin
   module Backends
+    # Backend to act as a Swiftiply client (http://swiftiply.swiftcore.org).
     class SwiftiplyClient < Base
       attr_accessor :key
       

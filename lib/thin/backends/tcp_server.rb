@@ -1,6 +1,6 @@
 module Thin
   module Backends
-    # Connectior to act as a TCP socket server.
+    # Backend to act as a TCP socket server.
     class TcpServer < Base
       # Address and port on which the server is listening for connections.
       attr_accessor :host, :port
