@@ -1,16 +1,22 @@
 require 'yaml'
 
 module Thin
+  # Error raised that will abort the process and print not backtrace.
+  class RunnerError < RuntimeError; end
+  
+  # Raised when a mandatory option is missing to run a command.
+  class OptionRequired < RunnerError
+    def initialize(option)
+      super("#{option} option required")
+    end
+  end
+  
+  # Raised when an option is not valid.
+  class InvalidOption < RunnerError; end
+  
   # Build and control one Thin server.
   # Hey Controller pattern is not only for web apps yo!
-  module Controllers
-    # Raised when a mandatory option is missing to run a command.
-    class OptionRequired < RuntimeError
-      def initialize(option)
-        super("#{option} option required")
-      end
-    end
-  
+  module Controllers  
     # Controls a Thin server.
     # Allow to start, stop, restart and configure a single thin server.
     class Controller
@@ -55,13 +61,11 @@ module Thin
         server.change_privilege @options[:user], @options[:group] if @options[:user] && @options[:group]
 
         # If a Rack config file is specified we eval it inside a Rack::Builder block to create
-        # a Rack adapter from it. DHH was hacker of the year a couple years ago so we default
-        # to Rails adapter.
+        # a Rack adapter from it. Or else we guess which adapter to use and load it.
         if @options[:rackup]
-          rackup_code = File.read(@options[:rackup])
-          server.app  = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, @options[:rackup])
+          server.app = load_rackup_config
         else
-          server.app = Rack::Adapter::Rails.new(@options.merge(:root => @options[:chdir]))
+          server.app = load_adapter
         end
 
         # If a prefix is required, wrap in Rack URL mapper
@@ -147,6 +151,20 @@ module Thin
           end
           sleep 1 if File.exist?(file) # HACK Give the thread a little time to open the file
           tail_thread
+        end
+
+      private
+        def load_adapter
+          adapter = @options[:adapter] || Rack::Adapter.guess(@options[:chdir])
+          log ">> Using #{adapter} adapter"
+          Rack::Adapter.for(adapter, @options)
+        rescue Rack::AdapterNotFound => e
+          raise InvalidOption, e.message
+        end
+        
+        def load_rackup_config
+          rackup_code = File.read(@options[:rackup])
+          eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, @options[:rackup])
         end
     end
   end

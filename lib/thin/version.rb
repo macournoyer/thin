@@ -5,12 +5,12 @@ module Thin
   
   module VERSION #:nodoc:
     MAJOR    = 0
-    MINOR    = 7
-    TINY     = 1
+    MINOR    = 8
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Fancy Pants'
+    CODENAME = 'No Name Yet'
     
     RACK     = [0, 3].freeze # Latest Rack version that was tested
   end

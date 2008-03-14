@@ -1,3 +1,7 @@
+== 0.8.0 ??? release
+ * Guess which adapter to use from directory (chdir option)
+   or use specified one in 'adapter' option, re #47.
+
 == 0.7.1 Fancy Pants release
  * Clean stale PID files when starting as daemon, fixes #53 [Chu Yeow]
  * Require EventMachine 0.11.0 for UNIX domain sockets. Until it's released, install from:

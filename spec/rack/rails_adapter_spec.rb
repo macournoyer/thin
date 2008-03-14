@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require File.dirname(__FILE__) + '/../spec_helper'
 require 'rack/mock'
 
 begin
@@ -6,7 +6,7 @@ begin
 
   describe Rack::Adapter::Rails do
     before do
-      @rails_app_path = File.dirname(__FILE__) + '/rails_app'
+      @rails_app_path = File.dirname(__FILE__) + '/../rails_app'
       @request = Rack::MockRequest.new(Rack::Adapter::Rails.new(:root => @rails_app_path))
     end
   
@@ -70,7 +70,7 @@ begin
   
   describe Rack::Adapter::Rails, 'with prefix' do
     before do
-      @rails_app_path = File.dirname(__FILE__) + '/rails_app'
+      @rails_app_path = File.dirname(__FILE__) + '/../rails_app'
       @prefix = '/nowhere'
       @request = Rack::MockRequest.new(
         Rack::URLMap.new(

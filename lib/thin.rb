@@ -37,6 +37,7 @@ module Thin
 end
 
 require 'rack'
+require 'rack/adapter/loader'
 
 module Rack
   module Handler

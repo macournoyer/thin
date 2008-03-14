@@ -10,7 +10,8 @@ describe Controller, 'start' do
                                  :log                  => 'thin.log',
                                  :timeout              => 60,
                                  :max_conns            => 2000,
-                                 :max_persistent_conns => 1000)
+                                 :max_persistent_conns => 1000,
+                                 :adapter              => 'rails')
     
     @server = OpenStruct.new
     @adapter = OpenStruct.new

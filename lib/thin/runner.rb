@@ -1,7 +1,7 @@
 require 'optparse'
 require 'yaml'
 
-module Thin
+module Thin  
   # CLI runner.
   # Parse options and send command to the correct Controller.
   class Runner
@@ -62,13 +62,18 @@ module Thin
         opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")          { |port| @options[:port] = port.to_i }
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
-        opts.on("-e", "--environment ENV", "Rails environment " +                       
-                                           "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
+        opts.on("-A", "--adapter NAME", "Rack adapter to use " +                       
+                                        "(default: auto-detected)")                     { |name| @options[:adapter] = name }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
                                        "Rails adapter")                                 { |file| @options[:rackup] = file }
-        opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
+        
+        opts.separator ""
+        opts.separator "Rails options:"
+        opts.on("-e", "--environment ENV", "Rails environment " +                       
+                                           "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
+        opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         
         unless Thin.win? # Daemonizing not supported on Windows
           opts.separator ""
@@ -153,7 +158,11 @@ module Thin
       end
       
       if controller.respond_to?(@command)
-        controller.send(@command, *@arguments)
+        begin
+          controller.send(@command, *@arguments)
+        rescue RunnerError => e
+          abort e.message
+        end
       else
         abort "Invalid options for command: #{@command}"
       end
