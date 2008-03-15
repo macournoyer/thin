@@ -21,7 +21,7 @@ spec = Gem::Specification.new do |s|
   
   s.add_dependency        'rack',         '>= 0.2.0'
   if WIN
-    s.add_dependency      'eventmachine', '>= 0.8.1'
+    s.add_dependency      'eventmachine', '= 0.8.1' # TODO replace w/ latest precompiled
   else
     s.add_dependency      'daemons',      '>= 1.0.9'
     s.add_dependency      'eventmachine', '>= 0.10.0' # TODO '>= 0.11.0' when it's released
