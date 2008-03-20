@@ -3,9 +3,12 @@ require 'cgi'
 # Adapter to run a Rails app with any supported Rack handler.
 # By default it will try to load the Rails application in the
 # current directory in the development environment.
+#
 # Options:
 #  root: Root directory of the Rails app
-#  env: Rails environment to run in (development, production or test)
+#  environment: Rails environment to run in (development [default], production or test)
+#  prefix: Set the relative URL root.
+#
 # Based on http://fuzed.rubyforge.org/ Rails adapter
 module Rack
   module Adapter 
