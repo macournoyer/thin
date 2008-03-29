@@ -64,22 +64,25 @@ module Thin
     
     # Maximum number of seconds for incoming data to arrive before the connection
     # is dropped.
-    def_delegators :@backend, :timeout, :timeout=
+    def_delegators :backend, :timeout, :timeout=
     
     # Maximum number of file or socket descriptors that the server may open.
-    def_delegators :@backend, :maximum_connections, :maximum_connections=
+    def_delegators :backend, :maximum_connections, :maximum_connections=
     
     # Maximum number of connection that can be persistent at the same time.
     # Most browser never close the connection so most of the time they are closed
     # when the timeout occur. If we don't control the number of persistent connection,
     # if would be very easy to overflow the server for a DoS attack.
-    def_delegators :@backend, :maximum_persistent_connections, :maximum_persistent_connections=
+    def_delegators :backend, :maximum_persistent_connections, :maximum_persistent_connections=
+    
+    # Allow using threads in the backend.
+    def_delegators :backend, :threaded?, :threaded=
     
     # Address and port on which the server is listening for connections.
-    def_delegators :@backend, :host, :port
+    def_delegators :backend, :host, :port
     
     # UNIX domain socket on which the server is listening for connections.
-    def_delegator :@backend, :socket
+    def_delegator :backend, :socket
     
     def initialize(host_or_socket_or_backend, port=DEFAULT_PORT, app=nil, &block)
       # Try to intelligently select which backend to use.
@@ -129,11 +132,12 @@ module Thin
       raise ArgumentError, 'app required' unless @app
       
       setup_signals
-            
+      
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
       trace ">> Tracing ON"
       
+      log ">> Threaded mode #{@backend.threaded? ? 'ON' : 'OFF'}"
       log ">> Maximum connections set to #{@backend.maximum_connections}"
       log ">> Listening on #{@backend}, CTRL+C to stop"
       

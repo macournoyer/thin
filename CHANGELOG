@@ -1,4 +1,6 @@
 == 0.8.0 ??? release
+ * Add threaded option to run server in threaded mode, calling the application in a
+   thread allowing for concurrency in the Rack adapter, closes #46
  * Guess which adapter to use from directory (chdir option)
    or use specified one in 'adapter' option, re #47.
 

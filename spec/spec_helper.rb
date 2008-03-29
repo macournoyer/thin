@@ -14,7 +14,11 @@ FileUtils.mkdir_p File.dirname(__FILE__) + '/../log'
 Command.script = File.dirname(__FILE__) + '/../bin/thin'
 Logging.silent = true
 
-SWIFTIPLY_PATH = `which swiftiply`.chomp unless Object.const_defined?(:SWIFTIPLY_PATH)
+unless Object.const_defined?(:SWIFTIPLY_PATH)
+  SWIFTIPLY_PATH       = `which swiftiply`.chomp
+  DEFAULT_TEST_ADDRESS = '0.0.0.0'
+  DEFAULT_TEST_PORT    = 3333
+end
 
 module Matchers
   class BeFasterThen
@@ -138,12 +142,13 @@ module Helpers
     request
   end
   
-  def start_server(address='0.0.0.0', port=3333, wait_for_socket=true, &app)
+  def start_server(address=DEFAULT_TEST_ADDRESS, port=DEFAULT_TEST_PORT, options={}, &app)
     @server = Thin::Server.new(address, port, app)
+    @server.threaded = options[:threaded]
     @server.timeout = 3
     
     @thread = Thread.new { @server.start }
-    if wait_for_socket
+    if options[:wait_for_socket]
       wait_for_socket(address, port)
     else
       # If we can't ping the address fallback to just wait for the server to run
@@ -157,7 +162,7 @@ module Helpers
     raise "Reactor still running, wtf?" if EventMachine.reactor_running?
   end
   
-  def wait_for_socket(address='0.0.0.0', port=3333, timeout=5)
+  def wait_for_socket(address=DEFAULT_TEST_ADDRESS, port=DEFAULT_TEST_PORT, timeout=5)
     Timeout.timeout(timeout) do
       loop do
         begin

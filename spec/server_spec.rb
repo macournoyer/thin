@@ -16,4 +16,13 @@ describe Server do
     @server.config
     @server.maximum_connections.should < 100_000
   end
+  
+  it "should default to non-threaded" do
+    @server.should_not be_threaded
+  end
+  
+  it "should set backend to threaded" do
+    @server.threaded = true
+    @server.backend.should be_threaded
+  end
 end

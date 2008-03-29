@@ -19,6 +19,10 @@ module Thin
     # Next response sent through the connection
     attr_accessor :response
     
+    # Calling the application in a threaded allowing
+    # concurrent processing of requests.
+    attr_accessor :threaded
+    
     # Get the connection ready to process a request.
     def post_init
       @request  = Request.new
@@ -38,11 +42,29 @@ module Thin
     # Called when all data was received and the request
     # is ready to be processed.
     def process
+      if @threaded
+        EventMachine.defer(method(:pre_process), method(:post_process))
+      else
+        post_process(pre_process)
+      end
+    end
+    
+    def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
       
       # Process the request calling the Rack adapter
-      @response.status, @response.headers, @response.body = @app.call(@request.env)
+      @app.call(@request.env)
+    rescue
+      handle_error
+      terminate_request
+      nil # Signal to post_process that the request could not be processed
+    end
+    
+    def post_process(result)
+      return unless result
+      
+      @response.status, @response.headers, @response.body = result
       
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
@@ -57,10 +79,18 @@ module Thin
       close_connection_after_writing unless persistent?
       
     rescue
+      handle_error
+    ensure
+      terminate_request
+    end
+    
+    def handle_error
       log "!! Unexpected error while processing request: #{$!.message}"
       log_error
       close_connection rescue nil
-    ensure
+    end
+    
+    def terminate_request
       @request.close  rescue nil
       @response.close rescue nil
       

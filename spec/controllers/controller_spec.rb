@@ -68,6 +68,13 @@ describe Controller, 'start' do
     
     @server.app.class.should == Proc
   end
+  
+  it "should set server as threaded" do
+    @controller.options[:threaded] = true
+    @controller.start
+    
+    @server.threaded.should be_true
+  end
 end
 
 describe Controller do

@@ -23,6 +23,10 @@ module Thin
       # Maximum number of connections that can be persistent
       attr_accessor :maximum_persistent_connections
       
+      # Allow using threads in the backend.
+      attr_writer :threaded
+      def threaded?; @threaded end
+      
       # Number of persistent connections currently opened
       attr_accessor :persistent_connection_count
       
@@ -110,6 +114,7 @@ module Thin
           connection.backend                 = self
           connection.app                     = @server.app
           connection.comm_inactivity_timeout = @timeout
+          connection.threaded                = @threaded
 
           # We control the number of persistent connections by keeping
           # a count of the total one allowed yet.

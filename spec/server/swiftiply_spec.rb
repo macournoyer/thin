@@ -10,7 +10,7 @@ else
       end
       wait_for_socket('0.0.0.0', 3333)
       sleep 2 # HACK ooh boy, I wish I knew how to make those specs more stable...
-      start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil), nil, false) do |env|
+      start_server(Backends::SwiftiplyClient.new('0.0.0.0', 5555, nil), nil, :wait_for_socket => false) do |env|
         body = env.inspect + env['rack.input'].read
         [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
       end
