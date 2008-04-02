@@ -11,6 +11,7 @@ module Rack
       when ::File.exist?("#{dir}/config/environment.rb") then :rails
       when ::File.exist?("#{dir}/start.rb")              then :ramaze
       when ::File.exist?("#{dir}/config/init.rb")        then :merb
+      when ::File.exist?("#{dir}/runner.ru")             then :halcyon
       else
         raise AdapterNotFound, "No adapter found for #{dir}"
       end
@@ -36,6 +37,12 @@ module Rack
       #   require "#{options[:chdir]}/config/init.rb"
       #   Merb::BootLoader.run
       #   Merb::Rack::Application.new
+      
+      when :halcyon
+        require 'halcyon'
+        $:.unshift(Halcyon.root/'lib')
+        Halcyon::Runner.load_config Halcyon.root/'config'/'config.yml'
+        Halcyon::Runner.new
       
       else
         raise AdapterNotFound, "Adapter not found: #{name}"
