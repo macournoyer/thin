@@ -56,6 +56,18 @@ begin
       res.body.should == 'cached'
     end
     
+    it "should not serve page cache on POST request" do
+      res = @request.get("/simple/cached?value=cached")
+
+      res.should be_ok
+      res.body.should == 'cached'
+      
+      res = @request.post("/simple/cached?value=notcached")
+      
+      res.should be_ok
+      res.body.should == 'notcached'
+    end
+    
     it "handles multiple cookies" do
       res = @request.get('/simple/set_cookie?name=a&value=1')
     
