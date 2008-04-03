@@ -21,7 +21,7 @@ module Rack
     def self.for(name, options={})
       case name.to_sym
       when :rails
-        Rails.new(options.merge(:root => options[:chdir]))
+        return Rails.new(options.merge(:root => options[:chdir]))
       
       when :ramaze
         require "#{options[:chdir]}/start"
@@ -29,20 +29,26 @@ module Rack
         Ramaze.trait[:essentials].delete Ramaze::Adapter
         Ramaze.start :force => true
 
-        Ramaze::Adapter::Base
+        return Ramaze::Adapter::Base
 
-      # FIXME not working, halp! halp!
-      # when :merb
-      #   require 'merb'
-      #   require "#{options[:chdir]}/config/init.rb"
-      #   Merb::BootLoader.run
-      #   Merb::Rack::Application.new
+      when :merb
+        require 'merb-core'
+
+        Merb::Config.setup(:merb_root   => options[:chdir],
+                           :environment => options[:environment])
+        Merb.environment = Merb::Config[:environment]
+        Merb.root = Merb::Config[:merb_root]
+        Merb::BootLoader.run
+
+        return Merb::Rack::Application.new
       
       when :halcyon
         require 'halcyon'
+        
         $:.unshift(Halcyon.root/'lib')
         Halcyon::Runner.load_config Halcyon.root/'config'/'config.yml'
-        Halcyon::Runner.new
+        
+        return Halcyon::Runner.new
       
       else
         raise AdapterNotFound, "Adapter not found: #{name}"
