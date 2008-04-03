@@ -69,4 +69,11 @@ describe Connection do
     @connection.response.persistent!
     @connection.should_not be_persistent
   end
+  
+  it "should set request env as rack.multithread" do
+    @connection.threaded = true
+    @connection.post_init
+    
+    @connection.request.env["rack.multithread"].should == true
+  end
 end

@@ -27,6 +27,8 @@ module Thin
     def post_init
       @request  = Request.new
       @response = Response.new
+      
+      @request.threaded = threaded      
     end
     
     # Called when data is received from the client.

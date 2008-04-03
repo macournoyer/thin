@@ -60,7 +60,7 @@ module Thin
         RACK_RUN_ONCE     => false
       }
     end
-    
+        
     # Parse a chunk of data into the request environment
     # Raises a +InvalidRequest+ if invalid.
     # Returns +true+ if the parsing is complete.
@@ -117,6 +117,10 @@ module Thin
     
     def forwarded_for
       @env[FORWARDED_FOR]
+    end
+    
+    def threaded=(value)
+      @env[RACK_MULTITHREAD] = value
     end
     
     # Close any resource used by the request
