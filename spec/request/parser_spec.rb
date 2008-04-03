@@ -154,4 +154,22 @@ EOS
     request.body.read.should == 'aye'
   end
   
+  it "should parse ie6 urls" do
+    %w(/some/random/path"
+       /some/random/path>
+       /some/random/path<
+       /we/love/you/ie6?q=<"">
+       /url?<="&>="
+       /mal"formed"?
+    ).each do |path|
+      parser     = HttpParser.new
+      req        = {}
+      sorta_safe = %(GET #{path} HTTP/1.1\r\n\r\n)
+      nread      = parser.execute(req, sorta_safe, 0)
+
+      sorta_safe.size.should == nread
+      parser.should be_finished
+      parser.should_not have_error
+    end
+  end
 end
