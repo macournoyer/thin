@@ -47,7 +47,3 @@ module Rack
     autoload :Rails, 'rack/adapter/rails'
   end
 end
-
-# Load plugins at last so we can reopen any stuff
-require 'thin/plugins'
-Thin::Plugins.load
