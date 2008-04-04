@@ -26,3 +26,58 @@ describe Server do
     @server.backend.should be_threaded
   end
 end
+
+describe Server, "initialization" do
+  it "should set host and port" do
+    server = Server.new('192.168.1.1', 8080)
+
+    server.host.should == '192.168.1.1'
+    server.port.should == 8080
+  end
+
+  it "should set socket" do
+    server = Server.new('/tmp/thin.sock')
+
+    server.socket.should == '/tmp/thin.sock'
+  end
+  
+  it "should set host, port and app" do
+    app = proc {}
+    server = Server.new('192.168.1.1', 8080, app)
+    
+    server.host.should_not be_nil
+    server.app.should == app
+  end
+
+  it "should set socket and app" do
+    app = proc {}
+    server = Server.new('/tmp/thin.sock', app)
+    
+    server.socket.should_not be_nil
+    server.app.should == app
+  end
+
+  it "should set socket, nil and app" do
+    app = proc {}
+    server = Server.new('/tmp/thin.sock', nil, app)
+    
+    server.socket.should_not be_nil
+    server.app.should == app
+  end
+  
+  it "should set host, port and backend" do
+    server = Server.new('192.168.1.1', 8080, :backend => Thin::Backends::SwiftiplyClient)
+    
+    server.host.should_not be_nil
+    server.backend.should be_kind_of(Thin::Backends::SwiftiplyClient)
+  end  
+
+  it "should set host, port, app and backend" do
+    app = proc {}
+    server = Server.new('192.168.1.1', 8080, app, :backend => Thin::Backends::SwiftiplyClient)
+    
+    server.host.should_not be_nil
+    server.app.should == app
+    server.backend.should be_kind_of(Thin::Backends::SwiftiplyClient)
+  end  
+end

@@ -2,9 +2,10 @@ require File.dirname(__FILE__) + '/../spec_helper'
 
 describe Server, 'app builder' do
   it "should build app from constructor" do
-    server = Server.new('0.0.0.0', 3000, :works)
+    app = proc {}
+    server = Server.new('0.0.0.0', 3000, app)
     
-    server.app.should == :works
+    server.app.should == app
   end
   
   it "should build app from builder block" do

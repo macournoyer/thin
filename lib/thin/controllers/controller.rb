@@ -37,10 +37,10 @@ module Thin
       def start
         # Select proper backend
         server = case
+        when @options.has_key?(:backend)
+          Server.new(@options[:address], @options[:port], :backend => eval(@options[:backend], TOPLEVEL_BINDING))
         when @options.has_key?(:socket)
           Server.new(@options[:socket])
-        when @options.has_key?(:swiftiply)
-          Server.new(Backends::SwiftiplyClient.new(@options[:address], @options[:port], @options[:swiftiply]))
         else
           Server.new(@options[:address], @options[:port])
         end

@@ -6,10 +6,10 @@ module Thin
       
       attr_accessor :host, :port
       
-      def initialize(host, port, key=nil)
+      def initialize(host, port, options={})
         @host = host
         @port = port.to_i
-        @key  = key || ''
+        @key  = options[:swiftiply].to_s
         super()
       end
 

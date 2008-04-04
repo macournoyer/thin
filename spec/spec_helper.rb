@@ -143,7 +143,7 @@ module Helpers
   end
   
   def start_server(address=DEFAULT_TEST_ADDRESS, port=DEFAULT_TEST_PORT, options={}, &app)
-    @server = Thin::Server.new(address, port, app)
+    @server = Thin::Server.new(address, port, options, app)
     @server.threaded = options[:threaded]
     @server.timeout = 3
     

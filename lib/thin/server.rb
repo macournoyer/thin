@@ -52,6 +52,7 @@ module Thin
     
     # Default values
     DEFAULT_TIMEOUT                        = 30 #sec
+    DEFAULT_HOST                           = '0.0.0.0'
     DEFAULT_PORT                           = 3000
     DEFAULT_MAXIMUM_CONNECTIONS            = 1024
     DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS = 512
@@ -84,20 +85,24 @@ module Thin
     # UNIX domain socket on which the server is listening for connections.
     def_delegator :backend, :socket
     
-    def initialize(host_or_socket_or_backend, port=DEFAULT_PORT, app=nil, &block)
-      # Try to intelligently select which backend to use.
-      @backend = case
-      when host_or_socket_or_backend.is_a?(Backends::Base)
-        host_or_socket_or_backend
-      when host_or_socket_or_backend.include?('/')
-        Backends::UnixServer.new(host_or_socket_or_backend)
-      else
-        Backends::TcpServer.new(host_or_socket_or_backend, port.to_i)
+    def initialize(*args, &block)
+      host, port, options = DEFAULT_HOST, DEFAULT_PORT, {}
+      
+      args.each do |arg|
+        case arg
+        when String then host    = arg
+        when Fixnum then port    = arg
+        when Hash   then options = arg
+        else
+          @app = arg if arg.respond_to?(:call)
+        end
       end
+      
+      # Try to intelligently select which backend to use.
+      @backend = select_backend(host, port, options)
       
       load_cgi_multipart_eof_fix
 
-      @app            = app
       @backend.server = self
       
       # Set defaults
@@ -198,6 +203,20 @@ module Thin
         trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }
         trap('TERM') { stop! }
+      end
+      
+      def select_backend(host, port, options)
+        case
+        when options.has_key?(:backend)
+          raise ArgumentError, ":backend must be a class" unless options[:backend].is_a?(Class)
+          options[:backend].new(host, port, options)
+        when options.has_key?(:swiftiply)
+          Backends::SwiftiplyClient.new(host, port, options)
+        when host.include?('/')
+          Backends::UnixServer.new(host)
+        else
+          Backends::TcpServer.new(host, port)
+        end
       end
       
       # Taken from Mongrel cgi_multipart_eof_fix

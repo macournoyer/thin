@@ -64,6 +64,7 @@ module Thin
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-A", "--adapter NAME", "Rack adapter to use " +                       
                                         "(default: auto-detected)")                     { |name| @options[:adapter] = name }
+        opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
                                        "Rails adapter")                                 { |file| @options[:rackup] = file }
