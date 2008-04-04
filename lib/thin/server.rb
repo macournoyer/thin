@@ -14,14 +14,13 @@ module Thin
   # as the first argument. Eg.: /tmp/thin.sock. If the first argument contains a <tt>/</tt>
   # it will be assumed to be a UNIX socket. 
   #
-  #   Thin::Server.start('/tmp/thin.sock', nil, app)
+  #   Thin::Server.start('/tmp/thin.sock', app)
   #
   # == Using a custom backend
   # You can implement your own way to connect the server to its client by creating your
-  # own Backend class and pass it as the first argument.
+  # own Backend class and pass it as the :backend option.
   #
-  #   backend = Thin::Backends::MyFancyBackend.new('galaxy://faraway:1345')
-  #   Thin::Server.start(backend, nil, app)
+  #   Thin::Server.start('galaxy://faraway', 1345, app, :backend => Thin::Backends::MyFancyBackend)
   #
   # == Rack application (+app+)
   # All requests will be processed through +app+ that must be a valid Rack adapter.
@@ -44,7 +43,8 @@ module Thin
   # == Controlling with signals
   # * QUIT: Gracefull shutdown (see Server#stop)
   # * INT and TERM: Force shutdown (see Server#stop!)
-  #
+  # Disable signals by passing <tt>:signals => false</tt>
+  # 
   class Server
     include Logging
     include Daemonizable
@@ -115,6 +115,8 @@ module Thin
       
       # If in debug mode, wrap in logger adapter
       @app = Rack::CommonLogger.new(@app) if Logging.debug?
+      
+      setup_signals unless options[:signals].class == FalseClass
     end
     
     # Lil' shortcut to turn this:
@@ -130,13 +132,8 @@ module Thin
     end
         
     # Start the server and listen for connections.
-    # Also register signals:
-    # * INT calls +stop+ to shutdown gracefully.
-    # * TERM calls <tt>stop!</tt> to force shutdown.
     def start
       raise ArgumentError, 'app required' unless @app
-      
-      setup_signals
       
       log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
       debug ">> Debugging ON"
@@ -198,7 +195,10 @@ module Thin
       @backend.running?
     end
     
-    protected            
+    protected
+      # Register signals:
+      # * INT calls +stop+ to shutdown gracefully.
+      # * TERM calls <tt>stop!</tt> to force shutdown.    
       def setup_signals
         trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }

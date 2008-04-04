@@ -79,5 +79,10 @@ describe Server, "initialization" do
     server.host.should_not be_nil
     server.app.should == app
     server.backend.should be_kind_of(Thin::Backends::SwiftiplyClient)
-  end  
+  end
+  
+  it "should not register signals w/ :signals => false" do
+    Server.should_not_receive(:setup_signals)
+    Server.new(:signals => false)
+  end
 end

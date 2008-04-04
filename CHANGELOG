@@ -1,4 +1,5 @@
 == 0.8.0 Dodgy Dentist release
+ * Allow disabling signal handling in Server with :signals => false
  * Make Server.new arguments more flexible, can now specify any of host, port, app or hash options.
  * Add --backend option to specified which backend to use, closes #55
  * Serve static file only on GET and HEAD requests in Rails adapter, fixes #58
