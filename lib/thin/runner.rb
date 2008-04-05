@@ -62,17 +62,16 @@ module Thin
         opts.on("-p", "--port PORT", "use PORT (default: #{@options[:port]})")          { |port| @options[:port] = port.to_i }
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
-        opts.on("-A", "--adapter NAME", "Rack adapter to use " +                       
-                                        "(default: auto-detected)")                     { |name| @options[:adapter] = name }
-        opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
-        opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
+        opts.on("-A", "--adapter NAME", "Rack adapter to use (default: autodetect)",
+                                        "(#{Rack::ADAPTERS.keys.join(', ')})")          { |name| @options[:adapter] = name }
         opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
-                                       "Rails adapter")                                 { |file| @options[:rackup] = file }
+                                       "Rack adapter")                                  { |file| @options[:rackup] = file }
+        opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
         
         opts.separator ""
-        opts.separator "Rails options:"
-        opts.on("-e", "--environment ENV", "Rails environment " +                       
+        opts.separator "Adapter options:"
+        opts.on("-e", "--environment ENV", "Framework environment " +                       
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
         
@@ -100,6 +99,7 @@ module Thin
         opts.separator ""
         opts.separator "Tuning options:"
         
+        opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
         opts.on(      "--max-conns NUM", "Maximum number of connections " +

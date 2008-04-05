@@ -9,13 +9,18 @@ describe Rack::Adapter do
     Rack::Adapter.guess(@rails_path).should == :rails
   end
   
-  it "should raise error when can't guess from dir" do
+  it "should return nil when can't guess from dir" do
     proc { Rack::Adapter.guess('.') }.should raise_error(Rack::AdapterNotFound)
   end
   
   it "should load Rails adapter" do
     Rack::Adapter::Rails.should_receive(:new)
     Rack::Adapter.for(:rails, :chdir => @rails_path)
+  end
+  
+  it "should load File adapter" do
+    Rack::File.should_receive(:new)
+    Rack::Adapter.for(:file)
   end
   
   it "should raise error when adapter can't be found" do

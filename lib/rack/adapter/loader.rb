@@ -1,20 +1,27 @@
 module Rack
   class AdapterNotFound < RuntimeError; end
-  
-  module Adapter
+
+  # Hash used to guess which adapter to use in <tt>Adapter.for</tt>.
+  # Framework name => file unique to this framework.
+  # +nil+ for value to never guess.
+  ADAPTERS = {
+    :rails   => "config/environment.rb",
+    :ramaze  => "start.rb",
+    :merb    => "config/init.rb",
+    :halcyon => 'runner.ru',
+    :file    => nil
+  }
+    
+  module Adapter    
     # Guess which adapter to use based on the directory structure
     # or file content.
     # Returns a symbol representing the name of the adapter to use
     # to load the application under <tt>dir/</tt>.
     def self.guess(dir)
-      case
-      when ::File.exist?("#{dir}/config/environment.rb") then :rails
-      when ::File.exist?("#{dir}/start.rb")              then :ramaze
-      when ::File.exist?("#{dir}/config/init.rb")        then :merb
-      when ::File.exist?("#{dir}/runner.ru")             then :halcyon
-      else
-        raise AdapterNotFound, "No adapter found for #{dir}"
+      ADAPTERS.each_pair do |adapter, file|
+        return adapter if file && ::File.exist?(::File.join(dir, file))
       end
+      raise AdapterNotFound, "No adapter found for #{dir}"
     end
     
     # Loads an adapter identified by +name+ using +options+ hash.
@@ -49,6 +56,9 @@ module Rack
         Halcyon::Runner.load_config Halcyon.root/'config'/'config.yml'
         
         return Halcyon::Runner.new
+      
+      when :file
+        return Rack::File.new(options[:chdir])
       
       else
         raise AdapterNotFound, "Adapter not found: #{name}"
