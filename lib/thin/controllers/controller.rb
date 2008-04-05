@@ -14,10 +14,10 @@ module Thin
   # Raised when an option is not valid.
   class InvalidOption < RunnerError; end
   
-  # Build and control one Thin server.
+  # Build and control Thin servers.
   # Hey Controller pattern is not only for web apps yo!
   module Controllers  
-    # Controls a Thin server.
+    # Controls one Thin server.
     # Allow to start, stop, restart and configure a single thin server.
     class Controller
       include Logging

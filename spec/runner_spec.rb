@@ -61,7 +61,20 @@ describe Runner do
   
   it "should consider as a cluster with :only option" do
     Runner.new(%w(start --only 3000)).should be_a_cluster
-  end  
+  end
+  
+  it "should warn when require a rack config file" do
+    STDERR.stub!(:write)
+    STDERR.should_receive(:write).with(/WARNING:/)
+
+    runner = Runner.new(%w(start -r config.ru))
+    
+    runner.options[:rackup].should == 'config.ru'
+  end
+  
+  it "should require file" do
+    proc { Runner.new(%w(start -r unexisting)) }.should raise_error(LoadError)
+  end
 end
 
 describe Runner, 'with config file' do

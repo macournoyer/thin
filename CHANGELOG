@@ -1,4 +1,6 @@
 == 0.8.0 Dodgy Dentist release
+ * Add --require (-r) option to require a library, before executing your script.
+ * Rename --rackup short option to -R, warn and load as rackup when file ends with .ru.
  * List supported adapters in command usage.
  * Add file adapter to built-in adapter, serve static files in current directory.
  * Allow disabling signal handling in Server with :signals => false

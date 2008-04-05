@@ -64,7 +64,7 @@ module Thin
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-A", "--adapter NAME", "Rack adapter to use (default: autodetect)",
                                         "(#{Rack::ADAPTERS.keys.join(', ')})")          { |name| @options[:adapter] = name }
-        opts.on("-r", "--rackup FILE", "Load a Rack config file instead of " +
+        opts.on("-R", "--rackup FILE", "Load a Rack config file instead of " +
                                        "Rack adapter")                                  { |file| @options[:rackup] = file }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
@@ -113,6 +113,7 @@ module Thin
         opts.separator ""
         opts.separator "Common options:"
 
+        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| ruby_require file }
         opts.on_tail("-D", "--debug", "Set debbuging on")                               { Logging.debug = true }
         opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { Logging.trace = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
@@ -184,6 +185,15 @@ module Thin
       def load_options_from_config_file!
         if file = @options.delete(:config)
           YAML.load_file(file).each { |key, value| @options[key.to_sym] = value }
+        end
+      end
+      
+      def ruby_require(file)
+        if File.extname(file) == '.ru'
+          warn 'WARNING: Use the -R option to load a Rack config file'
+          @options[:rackup] = file
+        else
+          require file
         end
       end
   end
