@@ -108,7 +108,8 @@ module Thin
         opts.on(      "--max-persistent-conns NUM",
                                        "Maximum number of persistent connections",
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
-        opts.on(      "--threaded", "Call the Rack application in threads")             { @options[:threaded] = true }
+        opts.on(      "--threaded", "Call the Rack application in threads " +
+                                    "[experimental]")                                   { @options[:threaded] = true }
         
         opts.separator ""
         opts.separator "Common options:"
