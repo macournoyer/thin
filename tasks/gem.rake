@@ -1,6 +1,6 @@
 require 'rake/gempackagetask'
 
-WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'x86-mswin32-60'
+WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'i386-mswin32'
 
 task :clean => :clobber_package
 
