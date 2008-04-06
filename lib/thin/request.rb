@@ -12,6 +12,7 @@ module Thin
     # and into a tempfile for reading.
     MAX_BODY          = 1024 * (80 + 32)
     BODY_TMPFILE      = 'thin-body'.freeze
+    MAX_HEADER        = 1024 * (80 + 32)
     
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
@@ -69,6 +70,8 @@ module Thin
         body << data        
       else                  # Parse more header using the super parser
         @data << data
+        raise InvalidRequest, 'Header longer than allowed' if @data.size > MAX_HEADER 
+        
         @nparsed = @parser.execute(@env, @data, @nparsed)
 
         # Transfert to a tempfile if body is very big

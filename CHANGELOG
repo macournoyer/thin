@@ -1,4 +1,5 @@
 == 0.8.0 Dodgy Dentist release
+ * Fix server crash when header too large.
  * Add --require (-r) option to require a library, before executing your script.
  * Rename --rackup short option to -R, warn and load as rackup when file ends with .ru.
  * List supported adapters in command usage.

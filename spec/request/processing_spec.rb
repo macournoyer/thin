@@ -15,24 +15,23 @@ describe Request, 'processing' do
   end
 
   it "should move body to tempfile when too big" do
+    len = Request::MAX_BODY + 2
     request = Request.new
-    request.parse("POST /postit HTTP/1.1\r\nContent-Length: #{Request::MAX_BODY*2}\r\n\r\n#{'X' * Request::MAX_BODY}")
-    request.parse('X' * Request::MAX_BODY)
+    request.parse("POST /postit HTTP/1.1\r\nContent-Length: #{len}\r\n\r\n#{'X' * (len/2)}")
+    request.parse('X' * (len/2))
 
-    request.body.size.should == Request::MAX_BODY * 2
+    request.body.size.should == len
     request.should be_finished
     request.body.class.should == Tempfile
   end
 
   it "should delete body tempfile when closing" do
     body = 'X' * (Request::MAX_BODY + 1)
-
-    request = R(<<-EOS.chomp, true)
-POST /postit HTTP/1.1
-Content-Length: #{body.size}
-
-#{body}
-EOS
+    
+    request = Request.new
+    request.parse("POST /postit HTTP/1.1\r\n")
+    request.parse("Content-Length: #{body.size}\r\n\r\n")
+    request.parse(body)
 
     request.body.path.should_not be_nil
     request.close

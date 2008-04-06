@@ -172,4 +172,8 @@ EOS
       parser.should_not have_error
     end
   end
+  
+  it "should fails on heders larger then MAX_HEADER" do
+    proc { R("GET / HTTP/1.1\r\nFoo: #{'X' * Request::MAX_HEADER}\r\n\r\n") }.should raise_error(InvalidRequest)
+  end
 end
