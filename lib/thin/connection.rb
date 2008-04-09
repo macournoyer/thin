@@ -21,14 +21,12 @@ module Thin
     
     # Calling the application in a threaded allowing
     # concurrent processing of requests.
-    attr_accessor :threaded
+    attr_writer :threaded
     
     # Get the connection ready to process a request.
     def post_init
       @request  = Request.new
       @response = Response.new
-      
-      @request.threaded = threaded      
     end
     
     # Called when data is received from the client.
@@ -44,7 +42,7 @@ module Thin
     # Called when all data was received and the request
     # is ready to be processed.
     def process
-      if @threaded
+      if threaded?
         EventMachine.defer(method(:pre_process), method(:post_process))
       else
         post_process(pre_process)
@@ -54,6 +52,7 @@ module Thin
     def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
+      @request.threaded       = threaded?
       
       # Process the request calling the Rack adapter
       @app.call(@request.env)
@@ -121,7 +120,14 @@ module Thin
     # and ready to be reused for another request.
     def persistent?
       @can_persist && @response.persistent?
-    end    
+    end
+    
+    # +true+ if <tt>app.call</tt> will be called inside a thread.
+    # You can set all requests as threaded setting <tt>Connection#threaded=true</tt>
+    # or on a per-request case returning +true+ in <tt>app.deferred?</tt>.
+    def threaded?
+      @threaded || (@app.respond_to?(:deferred?) && @app.deferred?(@request.env))
+    end
     
     # IP Address of the remote client.
     def remote_address

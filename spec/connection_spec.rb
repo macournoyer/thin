@@ -72,8 +72,22 @@ describe Connection do
   
   it "should set request env as rack.multithread" do
     @connection.threaded = true
-    @connection.post_init
+    @connection.pre_process
     
     @connection.request.env["rack.multithread"].should == true
+  end
+  
+  it "should set as threaded when app.deferred? is true" do
+    @connection.app.should_receive(:deferred?).and_return(true)
+    @connection.should be_threaded
+  end
+  
+  it "should not set as threaded when app.deferred? is false" do
+    @connection.app.should_receive(:deferred?).and_return(false)
+    @connection.should_not be_threaded
+  end
+
+  it "should not set as threaded when app do not respond to deferred?" do
+    @connection.should_not be_threaded
   end
 end

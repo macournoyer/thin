@@ -1,3 +1,7 @@
+== 0.8.1 Rebel Porpoise release
+ * Define deferred?(env) in your Rack application to set if a request is handled in a
+	 thread (return true) or not (return false).
+
 == 0.8.0 Dodgy Dentist release
  * Fix server crash when header too large.
  * Add --require (-r) option to require a library, before executing your script.
