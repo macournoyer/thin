@@ -81,6 +81,14 @@ describe Server, "initialization" do
     server.backend.should be_kind_of(Thin::Backends::SwiftiplyClient)
   end
   
+  it "should set port as string" do
+    app = proc {}
+    server = Server.new('192.168.1.1', '8080')
+    
+    server.host.should == '192.168.1.1'
+    server.port.should == 8080
+  end
+  
   it "should not register signals w/ :signals => false" do
     Server.should_not_receive(:setup_signals)
     Server.new(:signals => false)

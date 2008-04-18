@@ -90,9 +90,9 @@ module Thin
       
       args.each do |arg|
         case arg
-        when String then host    = arg
-        when Fixnum then port    = arg
-        when Hash   then options = arg
+        when Fixnum, /^\d+$/ then port    = arg.to_i
+        when String          then host    = arg
+        when Hash            then options = arg
         else
           @app = arg if arg.respond_to?(:call)
         end

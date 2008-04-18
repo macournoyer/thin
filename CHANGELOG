@@ -1,4 +1,5 @@
 == 0.8.1 Rebel Porpoise release
+ * Allow passing port as a string in Server.new
  * Define deferred?(env) in your Rack application to set if a request is handled in a
 	 thread (return true) or not (return false).
 
