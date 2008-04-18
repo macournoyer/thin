@@ -43,8 +43,10 @@ module Thin
     # is ready to be processed.
     def process
       if threaded?
+        @request.threaded = true
         EventMachine.defer(method(:pre_process), method(:post_process))
       else
+        @request.threaded = false
         post_process(pre_process)
       end
     end
@@ -52,7 +54,6 @@ module Thin
     def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
-      @request.threaded       = threaded?
       
       # Process the request calling the Rack adapter
       @app.call(@request.env)

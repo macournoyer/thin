@@ -71,8 +71,10 @@ describe Connection do
   end
   
   it "should set request env as rack.multithread" do
+    EventMachine.should_receive(:defer)
+    
     @connection.threaded = true
-    @connection.pre_process
+    @connection.process
     
     @connection.request.env["rack.multithread"].should == true
   end
