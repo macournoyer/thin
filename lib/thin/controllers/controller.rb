@@ -35,15 +35,12 @@ module Thin
       end
     
       def start
-        # Select proper backend
-        server = case
-        when @options.has_key?(:backend)
-          Server.new(@options[:address], @options[:port], :backend => eval(@options[:backend], TOPLEVEL_BINDING))
-        when @options.has_key?(:socket)
-          Server.new(@options[:socket])
-        else
-          Server.new(@options[:address], @options[:port])
-        end
+        # Constantize backend class
+        @options[:backend] = eval(@options[:backend], TOPLEVEL_BINDING) if @options[:backend]
+        
+        server = Server.new(@options[:socket] || @options[:address], # Server detects kind of socket
+                            @options[:port],                         # Port ignored on UNIX socket
+                            @options)
         
         # Set options
         server.pid_file                       = @options[:pid]

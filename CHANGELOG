@@ -1,10 +1,11 @@
 == 0.8.1 Rebel Porpoise release
+ * [bug] Use Swiftiply backend when -y option is specified, fixes #63 and #64
  * Allow passing port as a string in Server.new
  * Define deferred?(env) in your Rack application to set if a request is handled in a
 	 thread (return true) or not (return false).
 
 == 0.8.0 Dodgy Dentist release
- * Fix server crash when header too large.
+ * [bug] Fix server crash when header too large.
  * Add --require (-r) option to require a library, before executing your script.
  * Rename --rackup short option to -R, warn and load as rackup when file ends with .ru.
  * List supported adapters in command usage.
@@ -12,7 +13,7 @@
  * Allow disabling signal handling in Server with :signals => false
  * Make Server.new arguments more flexible, can now specify any of host, port, app or hash options.
  * Add --backend option to specified which backend to use, closes #55
- * Serve static file only on GET and HEAD requests in Rails adapter, fixes #58
+ * [bug] Serve static file only on GET and HEAD requests in Rails adapter, fixes #58
  * Add threaded option to run server in threaded mode, calling the application in a
    thread allowing for concurrency in the Rack adapter, closes #46
  * Guess which adapter to use from directory (chdir option)
