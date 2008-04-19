@@ -1,4 +1,5 @@
 == 0.8.1 Rebel Porpoise release
+ * [bug] Rescue all types of errors when processing request, fixes #62
  * [bug] Use Swiftiply backend when -y option is specified, fixes #63 and #64
  * Allow passing port as a string in Server.new
  * Define deferred?(env) in your Rack application to set if a request is handled in a

@@ -57,7 +57,7 @@ module Thin
       
       # Process the request calling the Rack adapter
       @app.call(@request.env)
-    rescue
+    rescue Object
       handle_error
       terminate_request
       nil # Signal to post_process that the request could not be processed
@@ -80,7 +80,7 @@ module Thin
       # If no more request on that same connection, we close it.
       close_connection_after_writing unless persistent?
       
-    rescue
+    rescue Object
       handle_error
     ensure
       terminate_request
@@ -133,7 +133,7 @@ module Thin
     # IP Address of the remote client.
     def remote_address
       @request.forwarded_for || socket_address
-    rescue
+    rescue Object
       log_error
       nil
     end

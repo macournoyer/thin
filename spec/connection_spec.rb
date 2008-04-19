@@ -30,6 +30,16 @@ describe Connection do
     @connection.process
   end
   
+  it "should rescue error in process" do
+    @connection.app.should_receive(:call).and_raise(StandardError)
+    @connection.process
+  end
+  
+  it "should rescue Timeout error in process" do
+    @connection.app.should_receive(:call).and_raise(Timeout::Error.new("timeout error not rescued"))
+    @connection.process
+  end
+  
   it "should return HTTP_X_FORWARDED_FOR as remote_address" do
     @connection.request.env['HTTP_X_FORWARDED_FOR'] = '1.2.3.4'
     @connection.remote_address.should == '1.2.3.4'
