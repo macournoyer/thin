@@ -1,3 +1,6 @@
+== 0.8.2 ??? release
+ * Allow rackup .rb files by getting a conventionally named constant as the app [bmizerany]
+
 == 0.8.1 Rebel Porpoise release
  * [bug] Rescue all types of errors when processing request, fixes #62
  * [bug] Use Swiftiply backend when -y option is specified, fixes #63 and #64
