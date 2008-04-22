@@ -1,4 +1,5 @@
 == 0.8.2 ??? release
+ * Added Mack adapter [markbates]
  * Allow rackup .rb files by getting a conventionally named constant as the app [bmizerany]
 
 == 0.8.1 Rebel Porpoise release
