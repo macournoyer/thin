@@ -60,6 +60,7 @@ module Rack
       
       when :mack
         ENV["MACK_ENV"] = options[:environment]
+        load(::File.join(options[:chdir], "Rakefile"))
         require 'mack'
         return Mack::Utils::Server.build_app
       when :file
