@@ -63,10 +63,24 @@ describe Controller, 'start' do
   end
   
   it "should load app from Rack config" do
-    @controller.options[:rackup] = 'example/config.ru'    
+    @controller.options[:rackup] = File.dirname(__FILE__) + '/../../example/config.ru'    
     @controller.start
     
     @server.app.class.should == Proc
+  end
+
+  it "should load app from ruby file" do
+    @controller.options[:rackup] = filename = File.dirname(__FILE__) + '/../../example/myapp.rb'    
+    @controller.start
+    
+    @server.app.should == Myapp
+  end
+
+  it "should throwup if rackup is not a .ru or .rb file" do
+    proc do
+      @controller.options[:rackup] = filename = File.dirname(__FILE__) + '/../../example/myapp.foo'    
+      @controller.start
+    end.should raise_error(RuntimeError, /please/)
   end
   
   it "should set server as threaded" do
@@ -75,6 +89,7 @@ describe Controller, 'start' do
     
     @server.threaded.should be_true
   end
+    
 end
 
 describe Controller do
