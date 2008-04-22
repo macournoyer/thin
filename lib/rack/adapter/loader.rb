@@ -9,6 +9,7 @@ module Rack
     :ramaze  => "start.rb",
     :merb    => "config/init.rb",
     :halcyon => 'runner.ru',
+    :mack    => 'config/app_config/default.yml',
     :file    => nil
   }
     
@@ -57,6 +58,10 @@ module Rack
         
         return Halcyon::Runner.new
       
+      when :mack
+        ENV["MACK_ENV"] = options[:environment]
+        require 'mack'
+        return Mack::Utils::Server.build_app
       when :file
         return Rack::File.new(options[:chdir])
       
