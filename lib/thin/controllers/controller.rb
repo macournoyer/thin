@@ -83,17 +83,19 @@ module Thin
         raise OptionRequired, :pid unless @options[:pid]
       
         tail_log(@options[:log]) do
-          Server.kill(@options[:pid], @options[:timeout] || 60)
-          wait_for_file :deletion, @options[:pid]
+          if Server.kill(@options[:pid], @options[:timeout] || 60)
+            wait_for_file :deletion, @options[:pid]
+          end
         end
       end
     
       def restart
         raise OptionRequired, :pid unless @options[:pid]
-      
+        
         tail_log(@options[:log]) do
-          Server.restart(@options[:pid])
-          wait_for_file :creation, @options[:pid]
+          if Server.restart(@options[:pid])
+            wait_for_file :creation, @options[:pid]
+          end
         end
       end
     
@@ -110,9 +112,11 @@ module Thin
       protected
         # Wait for a pid file to either be created or deleted.
         def wait_for_file(state, file)
-          case state
-          when :creation then sleep 0.1 until File.exist?(file)
-          when :deletion then sleep 0.1 while File.exist?(file)
+          Timeout.timeout(@options[:log] || 30) do
+            case state
+            when :creation then sleep 0.1 until File.exist?(file)
+            when :deletion then sleep 0.1 while File.exist?(file)
+            end
           end
         end
         

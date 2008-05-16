@@ -174,7 +174,7 @@ module Thin
     
     # +true+ if we're controlling a cluster.
     def cluster?
-      @options[:only] || @options[:servers]
+      @options[:only] || @options[:servers] || @options[:config]
     end
     
     # +true+ if we're acting a as system service.

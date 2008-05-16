@@ -94,17 +94,16 @@ module Thin
       # sent.
       def kill(pid_file, timeout=60)
         if pid = send_signal('QUIT', pid_file)
-          begin
-            Timeout.timeout(timeout) do
-              sleep 0.1 while Process.running?(pid)
-            end
-          rescue Timeout::Error
-            print "Timeout! "
-            send_signal('KILL', pid_file)
-          rescue Interrupt
-            send_signal('KILL', pid_file)
+          Timeout.timeout(timeout) do
+            sleep 0.1 while Process.running?(pid)
           end
         end
+      rescue Timeout::Error
+        print "Timeout! "
+        send_signal('KILL', pid_file)
+      rescue Interrupt
+        send_signal('KILL', pid_file)
+      ensure
         File.delete(pid_file) if File.exist?(pid_file)
       end
       

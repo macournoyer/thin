@@ -133,6 +133,12 @@ describe 'Daemonizing' do
     proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
   end
   
+  it "should not restart when not running" do
+    silence_stream STDOUT do
+      TestServer.restart(@server.pid_file)
+    end
+  end
+  
   it "should exit and raise if pid file already exist" do
     @pid = fork do
       @server.daemonize

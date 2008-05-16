@@ -1,4 +1,5 @@
 == 0.8.2 ??? release
+ * Fix hanging when restarting and no process is running in single server move, fixes #67
  * Added Mack adapter [markbates]
  * Allow rackup .rb files by getting a conventionally named constant as the app [bmizerany]
 
