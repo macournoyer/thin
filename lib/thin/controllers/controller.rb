@@ -112,7 +112,7 @@ module Thin
       protected
         # Wait for a pid file to either be created or deleted.
         def wait_for_file(state, file)
-          Timeout.timeout(@options[:log] || 30) do
+          Timeout.timeout(@options[:timeout] || 30) do
             case state
             when :creation then sleep 0.1 until File.exist?(file)
             when :deletion then sleep 0.1 while File.exist?(file)

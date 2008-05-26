@@ -214,6 +214,7 @@ class Thin < Atchoum::Website
       li { a "Look to the Stars", :href => 'http://www.looktothestars.org/' }
       li { a "kluster", :href => 'http://kluster.com'}
       li { a "SocialSpark", :href => 'http://socialspark.com'}
+      li { a "Tanga.com", :href => 'http://tanga.com'}
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
