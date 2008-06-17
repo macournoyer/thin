@@ -56,7 +56,9 @@ module Thin
       @request.remote_address = remote_address
       
       # Process the request calling the Rack adapter
-      @app.call(@request.env)
+      response = @app.call(@request.env)
+      @app.callback(self, :post_process) if :async == response
+	    response
     rescue Object
       handle_error
       terminate_request
@@ -65,6 +67,7 @@ module Thin
     
     def post_process(result)
       return unless result
+      return if :async == result
       
       @response.status, @response.headers, @response.body = result
       
@@ -83,7 +86,7 @@ module Thin
     rescue Object
       handle_error
     ensure
-      terminate_request
+      terminate_request unless result == :async
     end
     
     def handle_error
