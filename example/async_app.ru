@@ -32,55 +32,60 @@
 # Document Length:        12 bytes
 # 
 # Concurrency Level:      100
-# Time taken for tests:   5.251864 seconds
+# Time taken for tests:   5.244146 seconds
 # Complete requests:      500
 # Failed requests:        0
 # Write errors:           0
 # Total transferred:      47000 bytes
 # HTML transferred:       6000 bytes
-# Requests per second:    95.20 [#/sec] (mean)
-# Time per request:       1050.373 [ms] (mean)
-# Time per request:       10.504 [ms] (mean, across all concurrent requests)
-# Transfer rate:          8.57 [Kbytes/sec] received
+# Requests per second:    95.34 [#/sec] (mean)
+# Time per request:       1048.829 [ms] (mean)
+# Time per request:       10.488 [ms] (mean, across all concurrent requests)
+# Transfer rate:          8.58 [Kbytes/sec] received
 # 
 # Connection Times (ms)
 #               min  mean[+/-sd] median   max
-# Connect:        0    3   2.1      3       8
-# Processing:  1033 1044   4.7   1045    1052
-# Waiting:     1031 1040   4.9   1040    1051
-# Total:       1041 1047   3.3   1048    1054
+# Connect:        0    3   1.8      3       7
+# Processing:  1034 1043   3.0   1044    1050
+# Waiting:     1032 1039   3.8   1040    1049
+# Total:       1041 1046   1.9   1047    1051
 # 
 # Percentage of the requests served within a certain time (ms)
-#   50%   1048
-#   66%   1050
-#   75%   1051
-#   80%   1051
-#   90%   1051
-#   95%   1052
-#   98%   1052
-#   99%   1052
-#  100%   1054 (longest request)
-# 
+#   50%   1047
+#   66%   1048
+#   75%   1048
+#   80%   1048
+#   90%   1048
+#   95%   1049
+#   98%   1049
+#   99%   1049
+#  100%   1051 (longest request)
+
 
 class AsyncApp
   
+  # Status code 100 means CONTINUE
+  AsyncResponse = [100,{},'']
+  
   def call(env)
     @env = env
-    :async
+    # If we have fibers / threads available, we could fire off the processing
+    # here, but if we're trying to linearize, it's just as easy to wait until 
+    # async is called.
+    AsyncResponse
   end
   
-  def callback(instance, method)
-    process_async(instance, method)
-  end
-  
-  def process_async(instance, method)
-    EventMachine::add_timer(1) {
+  def async(instance, method)
+    # Semi-emulate a long db request, instead of a timer, in reality we'd be 
+    # waiting for the response data. Whilst this happens, other connections 
+    # can be serviced.
+    # This could be any callback based thing though, a deferrable waiting on 
+    # IO data, a db request, an http request, an smtp send, whatever.
+    EventMachine::add_timer(1) {      
       instance.send(method, [200, {}, 'Woah, async!'])
     }
   end
-  
 end
 
-use Rack::CommonLogger
-use Rack::Reloader
+# use Rack::Lint
 run AsyncApp.new
