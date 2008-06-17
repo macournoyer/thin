@@ -3,7 +3,8 @@
 #  async_app.ru
 #  raggi/thin
 #   
-#   A first demo app for async rack + thin app processing!
+#   A second demo app for async rack + thin app processing!
+#   Now using http status code 100 instead.
 # 
 #  Created by James Tucker on 2008-06-17.
 #  Copyright 2008 James Tucker <raggi@rubyforge.org>.
