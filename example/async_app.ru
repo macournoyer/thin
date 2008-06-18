@@ -62,19 +62,54 @@
 #   99%   1057
 #  100%   1057 (longest request)
 
+class DeferrableBody
+  include EventMachine::Deferrable
+
+  def call(body)
+    body.each do |chunk|
+      @body_callback.call(chunk)
+    end
+  end
+
+  def each &blk
+    @body_callback = blk
+  end
+
+end
+
 class AsyncApp
+  
+  # This is a template async response. N.B. Can't use string for body on 1.9
+  AsyncResponse = [100, {}, []].freeze
     
   def call(env)
-    @env = env
+    
+    body = DeferrableBody.new
+    
+    # Get the headers out there asap, let the client know we're alive...
+    EventMachine::next_tick { env['async.callback'].call [200, {'Content-Type' => 'text/plain'}, body] }
+    
     # Semi-emulate a long db request, instead of a timer, in reality we'd be 
     # waiting for the response data. Whilst this happens, other connections 
     # can be serviced.
     # This could be any callback based thing though, a deferrable waiting on 
     # IO data, a db request, an http request, an smtp send, whatever.
-    EventMachine::add_timer(1) {      
-      env['async.connection'].send(env['async.callback'], [200, {}, 'Woah, async!'])
+    EventMachine::add_timer(1) {
+      body.call ["Woah, async!\n"]
+      
+      EventMachine::next_tick {
+        # This could actually happen any time, you could spawn off to new 
+        # threads, pause as a good looking lady walks by, whatever.
+        # Just shows off how we can defer chunks of data in the body, you can
+        # even call this many times.
+        body.call ["Cheers then!"]
+        body.succeed
+      }
     }
-    throw :async
+    
+    # throw :async # Still works for supporting non-async frameworks...
+    
+    AsyncResponse # May end up in Rack :-)
   end
   
 end

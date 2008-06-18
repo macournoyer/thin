@@ -7,6 +7,9 @@ module Thin
   class Connection < EventMachine::Connection
     include Logging
     
+    # This is a template async response. N.B. Can't use string for body on 1.9
+    AsyncResponse = [100, {}, []].freeze
+    
     # Rack application (adapter) served by this connection.
     attr_accessor :app
     
@@ -55,14 +58,20 @@ module Thin
       # Add client info to the request env
       @request.remote_address = remote_address
 
-      # Add the async references to env, these can be use to construct 
-      # callback targets for the async response.
-      @request.env['async.connection'] = self
-      @request.env['async.callback'] = :post_process
+      # TODO - remove excess documentation / move it somewhere more sensible.
+      # (interface specs!) - (rack)
       
-      # Process the request calling the Rack adapter
-      response = :async
+      # Connection may be closed unless the App#call response was a [100, ...]
+      # It should be noted that connection objects will linger until this 
+      # callback is no longer referenced, so be tidy!
+      @request.env['async.callback'] = method(:post_process)
+      
+      # When we're under a non-async framework like rails, we can still spawn
+      # off async responses using the callback info, so there's little point
+      # in removing this.
+      response = AsyncResponse
       catch(:async) do
+        # Process the request calling the Rack adapter
         response = @app.call(@request.env)
       end
       response
@@ -74,7 +83,9 @@ module Thin
     
     def post_process(result)
       return unless result
-      return if result == :async
+      
+      # Status code 100 indicates that we're going to respond later (async).
+      return if result.first == 100
       
       @response.status, @response.headers, @response.body = result
 
@@ -87,13 +98,27 @@ module Thin
         send_data chunk
       end
       
-      # If no more request on that same connection, we close it.
-      close_connection_after_writing unless persistent?
+      unless persistent?
+        # If the body is deferred, then close_connection needs to happen after
+        # the last chunk has been sent.
+        if @response.body.kind_of?(EventMachine::Deferrable)
+          @response.body.callback { close_connection_after_writing }
+        else
+          # If no more request or data on that same connection, we close it.
+          close_connection_after_writing
+        end
+      end
       
     rescue Object
       handle_error
     ensure
-      terminate_request unless result == :async
+      # If the body is being deferred, then terminate afterward.
+      if @response.body.kind_of?(EventMachine::Deferrable)
+        @response.body.callback { terminate_request }
+      else
+        # Don't terminate the response if we're going async.
+        terminate_request unless result.first == 100
+      end
     end
     
     def handle_error
@@ -114,6 +139,9 @@ module Thin
     # Called when the connection is unbinded from the socket
     # and can no longer be used to process requests.
     def unbind
+      if @response.body.kind_of?(EventMachine::Deferrable)
+        @response.body.fail
+      end
       @backend.connection_finished(self)
     end
     
