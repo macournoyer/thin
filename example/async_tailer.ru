@@ -30,7 +30,7 @@ module TailRenderer
   end
 
   def unbind
-    @body.succeed
+    @callback.succeed
   end
 end
 
