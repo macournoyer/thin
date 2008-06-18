@@ -8,13 +8,7 @@ module Thin
     include Logging
     
     # Rack application (adapter) served by this connection.
-    attr_reader :app
-    attr_accessor :app_async
-    def app=(app)
-      @app = app
-      @app_async = app.respond_to?(:async) ? true : false
-      app
-    end
+    attr_accessor :app
     
     # Backend to the server
     attr_accessor :backend
@@ -60,9 +54,18 @@ module Thin
     def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
+
+      # Add the async references to env, these can be use to construct 
+      # callback targets for the async response.
+      @request.env['async.connection'] = self
+      @request.env['async.callback'] = :post_process
       
       # Process the request calling the Rack adapter
-      @app.call(@request.env)
+      response = :async
+      catch(:async) do
+        response = @app.call(@request.env)
+      end
+      response
     rescue Object
       handle_error
       terminate_request
@@ -71,13 +74,10 @@ module Thin
     
     def post_process(result)
       return unless result
-
-      # An async app should return a [100, {}, ''], meaning continue.
+      return if result == :async
+      
       @response.status, @response.headers, @response.body = result
 
-      # If we're going async, then setup our callback on the app, and get outta here.
-      return @app.async(self, :post_process) if @app_async && @response.status == 100
-      
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
       
@@ -93,7 +93,7 @@ module Thin
     rescue Object
       handle_error
     ensure
-      terminate_request unless @response.status == 100
+      terminate_request unless result == :async
     end
     
     def handle_error
