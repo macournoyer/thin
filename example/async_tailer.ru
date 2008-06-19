@@ -2,22 +2,42 @@
 # 
 #  async_tailer.ru
 #  raggi/thin
+#
+#  Tested with 150 spawned tails on OS X
 #  
 #  Created by James Tucker on 2008-06-18.
 #  Copyright 2008 James Tucker <raggi@rubyforge.org>.
 
+# Uncomment if appropriate for you..
+# EM.epoll
+# EM.kqueue
 
 class DeferrableBody
   include EventMachine::Deferrable
+  
+  def initialize
+    @queue = []
+  end
+  
+  def schedule_dequeue
+    return unless @body_callback
+    EventMachine::next_tick do
+      next unless body = @queue.shift
+      body.each do |chunk|
+        @body_callback.call(chunk)
+      end
+      schedule_dequeue unless @queue.empty?
+    end
+  end 
 
   def call(body)
-    body.each do |chunk|
-      @body_callback.call(chunk)
-    end
+    @queue << body
+    schedule_dequeue
   end
 
   def each &blk
     @body_callback = blk
+    schedule_dequeue
   end
 
 end
