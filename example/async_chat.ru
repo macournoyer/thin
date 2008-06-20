@@ -42,6 +42,10 @@ end
 
 class Chat
   
+  module UserBody
+    attr_accessor :username
+  end
+  
   def initialize
     @users = {}
   end
@@ -85,6 +89,9 @@ class Chat
           width: 100%;
           border: 0px;
           border-top: 1px solid black;
+        }
+        .gray {
+          color: gray;
         }
       </style>
       <script type="text/javascript" src="http://ra66i.org/tmp/jquery-1.2.6.min.js"></script>
@@ -130,7 +137,9 @@ class Chat
       <div id="header">
         <h1>Async Chat</h1>
       </div>
-      <div id="messages"></div>
+      <div id="messages">
+        <span class="gray">Your first message will become your nickname!</span>
+      </div>
       <form id="send_form" onSubmit="return send_message(this.message)">
         <input type="text" id="message_box" name="message"></input>
       </form>
@@ -139,48 +148,62 @@ class Chat
   </html>
   EOPAGE
   
-  def register_user(request)
-    user_id = request.env['REMOTE_ADDR']
-    renderer = request.env['async.callback']
+  def register_user(user_id, renderer)
+    body = create_user(user_id)
+    body.call Page
+    body.errback { delete_user user_id }
+    body.callback { delete_user user_id }
     
-    schedule_render user_id, renderer
+    EventMachine::next_tick do
+      renderer.call [200, {'Content-Type' => 'text/html'}, body]
+    end
   end
   
-  def new_message(message)
-    EventMachine::next_tick do
-      @users.each { |id, body| body.call [js_message(id, message)] }
+  def new_message(user_id, message)
+    return unless @users[user_id]
+    if @users[user_id].username == :anonymous
+      username = unique_username(message)
+      log "User: #{user_id} is #{username}"
+      @users[user_id].username = message
+      message = "<span class='gray'>-> #{username} signed on.</span>"
+    end
+    username ||= @users[user_id].username
+    log "User: #{username} sent: #{message}"
+    @users.each do |id, body|
+      EventMachine::next_tick { body.call [js_message(username, message)] }
     end
   end
   
   private
+  def unique_username(name)
+    name.concat('_') while @users.any? { |id,u| name == u.username }
+    name
+  end
   
-  def schedule_render(user_id, renderer)
-    EventMachine::next_tick do
-      body = create_user(user_id)
-      body.call Page
-      renderer.call [200, {'Content-Type' => 'text/html'}, body]
-      body.errback { delete_user user_id }
-      body.callback { delete_user user_id }
-    end
+  def log(str)
+    print str, "\n"
+  end
+  
+  def add_user(id, body)
+    @users[id] = body
   end
   
   def delete_user(id)
-    puts "User: #{id} disconnected"
+    log "User: #{id} - #{@users[id].username} disconnected"
     @users.delete id
   end
   
-  JsHead = %!<script type="text/javascript">new_message("!
-  JsMid  = %!","!
-  JsTail = %!");</script>!
-  
   def js_message(username, message)
-    [JsHead, username, JsMid, message, JsTail].join
+    %(<script type="text/javascript">new_message("#{username}","#{message}");</script>)
   end
   
   def create_user(id)
-    puts "User: #{id} signed on"
+    log "User: #{id} signed on"
     body = DeferrableBody.new
-    @users[id] = body
+    body.extend UserBody
+    body.username = :anonymous
+    add_user(id, body)
+    body
   end
   
 end
@@ -196,11 +219,15 @@ class AsyncChat
   
   def call(env)  
     request = Rack::Request.new(env)
+    # TODO - cookie me, baby
+    user_id = request.env['REMOTE_ADDR']
     if request.xhr?
-      @chat.new_message(request['message'])
+      message = request['message']
+      @chat.new_message(user_id, Rack::Utils.escape_html(message))
       AjaxResponse
     else
-      @chat.register_user(request)
+      renderer = request.env['async.callback']
+      @chat.register_user(user_id, renderer)
       AsyncResponse
     end
   end
