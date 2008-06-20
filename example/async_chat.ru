@@ -195,7 +195,9 @@ class Chat
   end
   
   def delete_user(id)
-    log "User: #{id} - #{@users[id].username} disconnected"
+    message = "User: #{id} - #{@users[id].username if @users[id]} disconnected."
+    log message
+    new_message(id, message)
     @users.delete id
   end
   
@@ -204,7 +206,9 @@ class Chat
   end
   
   def create_user(id)
-    log "User: #{id} signed on"
+    message = "User: #{id} connected."
+    log message
+    new_message(id, message)
     body = DeferrableBody.new
     body.extend UserBody
     body.username = :anonymous
