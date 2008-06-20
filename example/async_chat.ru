@@ -50,7 +50,8 @@ class Chat
     @users = {}
   end
   
-  Page = [] << <<-EOPAGE
+  def render_page
+    [] << <<-EOPAGE
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
   <html>
     <head>
@@ -111,6 +112,9 @@ class Chat
         	window.scrollBy(0,50);
         	setTimeout('scroll()',100);
         }
+        focus = function() {
+          $('#message_box').focus();
+        }
         send_message = function(message_box) {
           xhr = XHR();
           xhr.open("POST", "/", true); 
@@ -119,7 +123,7 @@ class Chat
       		xhr.send("message="+escape(message_box.value));
           scroll();
           message_box.value = '';
-          message_box.focus();
+          focus();
           return false;
         }
         new_message = function(username, message) {
@@ -137,20 +141,22 @@ class Chat
       <div id="header">
         <h1>Async Chat</h1>
       </div>
-      <div id="messages">
+      <div id="messages" onclick="focus();">
         <span class="gray">Your first message will become your nickname!</span>
+        <span>Users: #{@users.map{|k,u|u.username}.join(', ')}</span>
       </div>
       <form id="send_form" onSubmit="return send_message(this.message)">
         <input type="text" id="message_box" name="message"></input>
       </form>
-      <script type="text/javascript">$('#message_box').focus();</script>
+      <script type="text/javascript">focus();</script>
     </body>
   </html>
   EOPAGE
+  end
   
   def register_user(user_id, renderer)
     body = create_user(user_id)
-    body.call Page
+    body.call render_page
     body.errback { delete_user user_id }
     body.callback { delete_user user_id }
     
