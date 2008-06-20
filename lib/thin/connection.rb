@@ -103,6 +103,7 @@ module Thin
         # the last chunk has been sent.
         if @response.body.kind_of?(EventMachine::Deferrable)
           @response.body.callback { close_connection_after_writing }
+          @response.body.errback  { close_connection_after_writing }
         else
           # If no more request or data on that same connection, we close it.
           close_connection_after_writing
