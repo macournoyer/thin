@@ -203,7 +203,7 @@ class Thin < Atchoum::Website
       li { a "Lipomics", :href => 'http://www.lipomics.com/' }
       li { a "RaPlanet", :href => 'http://planet.zhekov.net/' }
       li { a "Ninja Hideout blog", :href => 'http://blog.ninjahideout.com/' }
-      li { a "blog.hoodow.de", :href => 'http://blog.hoodow.de/articles/2008/02/09/thin' }
+      li { a "Hoodows Blog", :href => 'http://blog.hoodow.de/articles/2008/02/09/thin' }
       li { a "moonitor.org", :href => 'http://moonitor.org' }
       li { a "Daniel Fischer's Blog", :href => 'http://www.danielfischer.com/' }
       li { a "RoundHaus", :href => 'http://www.roundhaus.com/' }
@@ -217,6 +217,8 @@ class Thin < Atchoum::Website
       li { a "Tanga.com", :href => 'http://tanga.com'}
       li { a "Opening Times", :href => 'http://opening-times.co.uk/'}
       li { a "p0pulist", :href => 'http://p0pulist.com/'}
+      li { a "pickhost.eu", :href => 'http://pickhost.eu'}
+      li { a "HowFlow", :href => 'http://howflow.com/'}
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
