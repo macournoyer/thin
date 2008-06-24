@@ -7,7 +7,6 @@ module Thin
       
       def initialize(socket)
         raise PlatformNotSupported, 'UNIX domain sockets not available on Windows' if Thin.win?
-        check_event_machine_version
         @socket = socket
         super()
       end
@@ -38,17 +37,6 @@ module Thin
       protected
         def remove_socket_file
           File.delete(@socket) if @socket && File.exist?(@socket)
-        end
-        
-        def check_event_machine_version
-          # TODO remove this crap once eventmachine 0.11.0 is released
-          begin
-            gem 'eventmachine', '>= 0.11.0'
-          rescue Gem::LoadError
-            raise LoadError, "UNIX domain sockets require EventMachine version 0.11.0 or higher, " +
-                             "install the (not yet released) gem with: " +
-                             "gem install eventmachine --source http://code.macournoyer.com"
-          end
         end
     end    
   end

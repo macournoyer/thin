@@ -20,11 +20,9 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 1.8.5'
   
   s.add_dependency        'rack',         '>= 0.3.0'
-  if WIN
-    s.add_dependency      'eventmachine', '>= 0.8.1' # TODO replace w/ latest precompiled
-  else
+  s.add_dependency        'eventmachine', '>= 0.12.0'
+  unless WIN
     s.add_dependency      'daemons',      '>= 1.0.9'
-    s.add_dependency      'eventmachine', '>= 0.10.0' # TODO '>= 0.11.0' when it's released
   end
 
   s.files                 = %w(COPYING CHANGELOG COMMITTERS README Rakefile) +
