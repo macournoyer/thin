@@ -63,7 +63,7 @@ module Thin
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-A", "--adapter NAME", "Rack adapter to use (default: autodetect)",
-                                        "(#{Rack::ADAPTERS.keys.join(', ')})")          { |name| @options[:adapter] = name }
+                                        "(#{Rack::ADAPTERS.map{|a|a.first}.join(', ')})") { |name| @options[:adapter] = name }
         opts.on("-R", "--rackup FILE", "Load a Rack config file instead of " +
                                        "Rack adapter")                                  { |file| @options[:rackup] = file }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
