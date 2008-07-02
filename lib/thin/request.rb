@@ -23,7 +23,7 @@ module Thin
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
     CONNECTION        = 'HTTP_CONNECTION'.freeze
     KEEP_ALIVE_REGEXP = /keep-alive/i
-    NOT_CLOSE_REGEXP  = /[^(close)]/i
+    CLOSE_REGEXP      = /close/i
     
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
@@ -110,7 +110,7 @@ module Thin
       # a Connection header including the connection-token "close" was sent
       # in the request
       else
-        @env[CONNECTION].nil? || @env[CONNECTION] =~ NOT_CLOSE_REGEXP
+        @env[CONNECTION].nil? || @env[CONNECTION] !~ CLOSE_REGEXP
       end
     end
     
