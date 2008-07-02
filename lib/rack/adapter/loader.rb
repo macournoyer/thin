@@ -1,9 +1,12 @@
 module Rack
   class AdapterNotFound < RuntimeError; end
   
-  # Hash used to guess which adapter to use in <tt>Adapter.for</tt>.
-  # Framework name => file unique to this framework.
+  # Mapping used to guess which adapter to use in <tt>Adapter.for</tt>.
+  # Framework <name> => <file unique to this framework> in order they will
+  # be tested.
   # +nil+ for value to never guess.
+  # NOTE: If a framework has a file that is not unique, make sure to place
+  # it at the end.
   ADAPTERS = [
     [:rails,   'config/environment.rb'],
     [:ramaze,  'start.rb'],
@@ -19,7 +22,7 @@ module Rack
     # Returns a symbol representing the name of the adapter to use
     # to load the application under <tt>dir/</tt>.
     def self.guess(dir)
-      ADAPTERS.each do |(adapter, file)|
+      ADAPTERS.each do |adapter, file|
         return adapter if file && ::File.exist?(::File.join(dir, file))
       end
       raise AdapterNotFound, "No adapter found for #{dir}"
