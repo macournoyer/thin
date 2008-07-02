@@ -4,13 +4,13 @@ module Thin
   class PlatformNotSupported < RuntimeError; end
   
   module VERSION #:nodoc:
-    MAJOR    = 0
-    MINOR    = 8
-    TINY     = 2
+    MAJOR    = 1
+    MINOR    = 0
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'Double Margarita'
+    CODENAME = 'The Big'
     
     RACK     = [0, 3].freeze # Latest Rack version that was tested
   end
