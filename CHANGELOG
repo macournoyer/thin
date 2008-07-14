@@ -1,4 +1,6 @@
 == 1.0.0 The Big release
+ * Make Set-Cookie header, in Rails adapter, compatible with current Rack spec [Pedro Belo]
+   [#73, state:resolved]
  * Add --no-epoll option to disable epoll usage on Linux [#61 state:resolved]
  * Add --force (-f) option to force stopping of a daemonized server [#72 state:resolved]
  * Update halycon adapter loader [mtodd]
