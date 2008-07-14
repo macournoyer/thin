@@ -86,7 +86,7 @@ module Thin
     def_delegator :backend, :socket
     
     # Disable the use of epoll under Linux
-    def_delegator :backend, :no_epoll, :no_epoll=
+    def_delegators :backend, :no_epoll, :no_epoll=
     
     def initialize(*args, &block)
       host, port, options = DEFAULT_HOST, DEFAULT_PORT, {}
