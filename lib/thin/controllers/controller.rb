@@ -83,7 +83,7 @@ module Thin
         raise OptionRequired, :pid unless @options[:pid]
       
         tail_log(@options[:log]) do
-          if Server.kill(@options[:pid], @options[:timeout] || 60)
+          if Server.kill(@options[:pid], @options[:force] ? 0 : (@options[:timeout] || 60))
             wait_for_file :deletion, @options[:pid]
           end
         end

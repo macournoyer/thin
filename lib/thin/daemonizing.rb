@@ -89,22 +89,16 @@ module Thin
     end
     
     module ClassMethods
-      # Send a QUIT signal the process which PID is stored in +pid_file+.
+      # Send a QUIT or INT (if timeout is +0+) signal the process which
+      # PID is stored in +pid_file+.
       # If the process is still running after +timeout+, KILL signal is
       # sent.
       def kill(pid_file, timeout=60)
-        if pid = send_signal('QUIT', pid_file)
-          Timeout.timeout(timeout) do
-            sleep 0.1 while Process.running?(pid)
-          end
+        if timeout == 0
+          send_signal('INT', pid_file, timeout)
+        else
+          send_signal('QUIT', pid_file, timeout)
         end
-      rescue Timeout::Error
-        print "Timeout! "
-        send_signal('KILL', pid_file)
-      rescue Interrupt
-        send_signal('KILL', pid_file)
-      ensure
-        File.delete(pid_file) if File.exist?(pid_file)
       end
       
       # Restart the server by sending HUP signal.
@@ -113,21 +107,28 @@ module Thin
       end
       
       # Send a +signal+ to the process which PID is stored in +pid_file+.
-      def send_signal(signal, pid_file)
-        if File.exist?(pid_file) && pid = open(pid_file).read
+      def send_signal(signal, pid_file, timeout=60)
+        if File.file?(pid_file) && pid = open(pid_file).read
           pid = pid.to_i
           print "Sending #{signal} signal to process #{pid} ... "
           Process.kill(signal, pid)
+          Timeout.timeout(timeout) do
+            sleep 0.1 while Process.running?(pid)
+          end
           puts
-          pid
         else
           puts "Can't stop process, no PID found in #{pid_file}"
-          nil
         end
+      rescue Timeout::Error
+        puts "Timeout! "
+        Process.kill("KILL", pid)
+      rescue Interrupt
+        Process.kill("KILL", pid)
       rescue Errno::ESRCH # No such process
         puts "process not found!"
-        nil
-      end
+      ensure
+        File.delete(pid_file) if File.exist?(pid_file)
+      end      
     end
     
     protected

@@ -102,6 +102,7 @@ module Thin
         opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on("-f", "--force", "Force the execution of the command")                  { @options[:force] = true }
         opts.on(      "--max-conns NUM", "Maximum number of connections " +
                                          "(default: #{@options[:max_conns]})",
                                          "Might require sudo to set higher then 1024")  { |num| @options[:max_conns] = num.to_i } unless Thin.win?
