@@ -31,5 +31,5 @@ end
 #
 #   app = Rack::URLMap.new('/test'  => SimpleAdapter.new,
 #                          '/files' => Rack::File.new('.'))
-#   Thin::Server.new('0.0.0.0', 3000, app).start
+#   Thin::Server.start('0.0.0.0', 3000, app)
 #
