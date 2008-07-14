@@ -1,5 +1,6 @@
 == 1.0.0 The Big release
- * Add --force (-f) option to force stopping of a daemonized server, fixes [#72 state:resolved]
+ * Add --no-epoll option to disable epoll usage on Linux [#61 state:resolved]
+ * Add --force (-f) option to force stopping of a daemonized server [#72 state:resolved]
  * Update halycon adapter loader [mtodd]
 
 == 0.8.2 Double Margarita release

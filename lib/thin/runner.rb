@@ -111,6 +111,7 @@ module Thin
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
         opts.on(      "--threaded", "Call the Rack application in threads " +
                                     "[experimental]")                                   { @options[:threaded] = true }
+        opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
         
         opts.separator ""
         opts.separator "Common options:"

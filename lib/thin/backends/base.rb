@@ -30,6 +30,9 @@ module Thin
       # Number of persistent connections currently opened
       attr_accessor :persistent_connection_count
       
+      # Disable the use of epoll under Linux
+      attr_accessor :no_epoll
+      
       def initialize
         @connections                    = []
         @timeout                        = Server::DEFAULT_TIMEOUT
@@ -72,7 +75,7 @@ module Thin
       # so you can do crazy stuff that require godlike powers here.
       def config
         # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
-        EventMachine.epoll
+        EventMachine.epoll unless @no_epoll
         
         # Set the maximum number of socket descriptors that the server may open.
         # The process needs to have required privilege to set it higher the 1024 on

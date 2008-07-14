@@ -49,6 +49,7 @@ module Thin
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
         server.threaded                       = @options[:threaded]
+        server.no_epoll                       = @options[:no_epoll]
 
         # Detach the process, after this line the current process returns
         server.daemonize if @options[:daemonize]
