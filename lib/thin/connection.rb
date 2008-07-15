@@ -83,11 +83,12 @@ module Thin
     
     def post_process(result)
       return unless result
+      result = result.to_a
       
       # Status code 100 indicates that we're going to respond later (async).
       return if result.first == 100
       
-      @response.status, @response.headers, @response.body = result
+      @response.status, @response.headers, @response.body = *result
 
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
