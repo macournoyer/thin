@@ -59,14 +59,14 @@ module Thin
       @request.remote_address = remote_address
 
       # TODO - remove excess documentation / move it somewhere more sensible.
-      # (interface specs!) - (rack)
+      # (interface specs!) - (rack)
       
       # Connection may be closed unless the App#call response was a [100, ...]
       # It should be noted that connection objects will linger until this 
       # callback is no longer referenced, so be tidy!
       @request.env['async.callback'] = method(:post_process)
       
-      # When we're under a non-async framework like rails, we can still spawn
+      # When we're under a non-async framework like rails, we can still spawn
       # off async responses using the callback info, so there's little point
       # in removing this.
       response = AsyncResponse
@@ -100,7 +100,7 @@ module Thin
       
       unless persistent?
         # If the body is deferred, then close_connection needs to happen after
-        # the last chunk has been sent.
+        # the last chunk has been sent.
         if @response.body.kind_of?(EventMachine::Deferrable)
           @response.body.callback { close_connection_after_writing }
           @response.body.errback  { close_connection_after_writing }
@@ -113,12 +113,12 @@ module Thin
     rescue Object
       handle_error
     ensure
-      # If the body is being deferred, then terminate afterward.
+      # If the body is being deferred, then terminate afterward.
       if @response.body.kind_of?(EventMachine::Deferrable)
         @response.body.callback { terminate_request }
       else
         # Don't terminate the response if we're going async.
-        terminate_request unless result.first == 100
+        terminate_request unless result && result.first == 100
       end
     end
     
