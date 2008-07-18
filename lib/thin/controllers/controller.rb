@@ -48,8 +48,8 @@ module Thin
         server.timeout                        = @options[:timeout]
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
-        server.threaded                       = @options[:threaded]
-        server.no_epoll                       = @options[:no_epoll]
+        server.threaded                       = @options[:threaded] if server.backend.respond_to?(:threaded)
+        server.no_epoll                       = @options[:no_epoll] if server.backend.respond_to?(:no_epoll)
 
         # Detach the process, after this line the current process returns
         server.daemonize if @options[:daemonize]

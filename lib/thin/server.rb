@@ -91,6 +91,8 @@ module Thin
     def initialize(*args, &block)
       host, port, options = DEFAULT_HOST, DEFAULT_PORT, {}
       
+      # Guess each parameter by its type so they can be
+      # received in any order.
       args.each do |arg|
         case arg
         when Fixnum, /^\d+$/ then port    = arg.to_i
@@ -105,7 +107,7 @@ module Thin
       @backend = select_backend(host, port, options)
       
       load_cgi_multipart_eof_fix
-
+      
       @backend.server = self
       
       # Set defaults

@@ -34,12 +34,14 @@ module Thin
     # Turn into a runnable shell command
     def shellify
       shellified_options = @options.inject([]) do |args, (name, value)|
-        args << case value
+        case value
         when NilClass,
-             TrueClass then "--#{name}"
+             TrueClass then args << "--#{name}"
         when FalseClass
-        else                "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
+        when Array     then value.each { |v| args << "--#{name}=#{v.inspect}" }
+        else                args << "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
         end
+        args
       end
       
       raise ArgumentError, "Path to thin script can't be found, set Command.script" unless self.class.script

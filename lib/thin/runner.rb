@@ -41,7 +41,7 @@ module Thin
         :pid                  => 'tmp/pids/thin.pid',
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
-        :requires             => []
+        :require              => []
       }
       
       parse!
@@ -117,7 +117,7 @@ module Thin
         opts.separator ""
         opts.separator "Common options:"
 
-        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:requires] << file }
+        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:require] << file }
         opts.on_tail("-D", "--debug", "Set debbuging on")                               { @options[:debug] = true }
         opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { @options[:trace] = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
@@ -158,7 +158,7 @@ module Thin
       # relative to this one.
       Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
       
-      @options[:requires].each { |r| ruby_require r }
+      @options[:require].each { |r| ruby_require r }
       Logging.debug = @options[:debug]
       Logging.trace = @options[:trace]
       

@@ -80,7 +80,7 @@ describe Runner do
   
   it "should remember requires" do
     runner = Runner.new(%w(start -r rubygems -r thin))
-    runner.options[:requires].should == %w(rubygems thin)
+    runner.options[:require].should == %w(rubygems thin)
   end
 
   it "should remember debug options" do
