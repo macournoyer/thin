@@ -144,7 +144,6 @@ module Thin
       debug ">> Debugging ON"
       trace ">> Tracing ON"
       
-      log ">> Threaded mode #{@backend.threaded? ? 'ON' : 'OFF'}"
       log ">> Maximum connections set to #{@backend.maximum_connections}"
       log ">> Listening on #{@backend}, CTRL+C to stop"
       

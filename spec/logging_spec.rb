@@ -28,12 +28,16 @@ describe Logging do
     @object.log 'hi'
   end
   
-  it "should not output when silenced [deprecated]" do
-    @object.should_receive(:warn)
+  it "should not output when silenced as instance method" do
     @object.silent = true
     
     @object.should_not_receive(:puts)
     @object.log 'hi'
+  end
+  
+  it "should be usable as module functions" do
+    Logging.silent = true
+    Logging.log "hi"
   end
   
   after do

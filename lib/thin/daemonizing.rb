@@ -108,27 +108,31 @@ module Thin
       
       # Send a +signal+ to the process which PID is stored in +pid_file+.
       def send_signal(signal, pid_file, timeout=60)
-        if File.file?(pid_file) && pid = open(pid_file).read
+        if File.file?(pid_file) && pid = File.read(pid_file)
           pid = pid.to_i
-          print "Sending #{signal} signal to process #{pid} ... "
+          Logging.log "Sending #{signal} signal to process #{pid} ... "
           Process.kill(signal, pid)
           Timeout.timeout(timeout) do
             sleep 0.1 while Process.running?(pid)
           end
-          puts
+          Logging.log ""
         else
           puts "Can't stop process, no PID found in #{pid_file}"
         end
       rescue Timeout::Error
-        puts "Timeout! "
-        Process.kill("KILL", pid)
+        Logging.log "Timeout!"
+        force_kill pid_file
       rescue Interrupt
-        Process.kill("KILL", pid)
+        force_kill pid_file
       rescue Errno::ESRCH # No such process
-        puts "process not found!"
-      ensure
-        File.delete(pid_file) if File.exist?(pid_file)
-      end      
+        Logging.log "process not found!"
+        force_kill pid_file
+      end
+      
+      def force_kill(pid_file)
+        Process.kill("KILL", File.read(pid_file))      rescue nil
+        File.delete(pid_file) if File.exist?(pid_file) rescue nil
+      end
     end
     
     protected
