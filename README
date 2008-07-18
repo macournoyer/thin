@@ -57,7 +57,7 @@ You need to setup a config.ru file and pass it to the thin script:
  
  run app
 
- thin start -r config.ru
+ thin start -R config.ru
  
 See example directory for more samples and run 'thin -h' for usage.
 

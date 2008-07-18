@@ -40,7 +40,8 @@ module Thin
         :log                  => 'log/thin.log',
         :pid                  => 'tmp/pids/thin.pid',
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
-        :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
+        :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
+        :requires             => []
       }
       
       parse!
@@ -116,9 +117,9 @@ module Thin
         opts.separator ""
         opts.separator "Common options:"
 
-        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| ruby_require file }
-        opts.on_tail("-D", "--debug", "Set debbuging on")                               { Logging.debug = true }
-        opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { Logging.trace = true }
+        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:requires] << file }
+        opts.on_tail("-D", "--debug", "Set debbuging on")                               { @options[:debug] = true }
+        opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { @options[:trace] = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
         opts.on_tail('-v', '--version', "Show version")                                 { puts Thin::SERVER; exit }
       end
@@ -156,6 +157,10 @@ module Thin
       # Change the current directory ASAP so that all relative paths are
       # relative to this one.
       Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
+      
+      @options[:requires].each { |r| ruby_require r }
+      Logging.debug = @options[:debug]
+      Logging.trace = @options[:trace]
       
       controller = case
       when cluster? then Controllers::Cluster.new(@options)
