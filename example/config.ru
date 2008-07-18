@@ -15,10 +15,7 @@ app = proc do |env|
   
   [
     200,                                        # Status code
-    {
-      'Content-Type' => 'text/html',            # Reponse headers
-      'Content-Length' => body.join.size.to_s
-    },
+    { 'Content-Type' => 'text/html' },          # Reponse headers
     body                                        # Body of the response
   ]
 end

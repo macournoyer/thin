@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../spec_helper'
 describe Server, "stopping" do
   before do
     start_server do |env|
-      [200, { 'Content-Type' => 'text/html', 'Content-Length' => '2' }, ['ok']]
+      [200, { 'Content-Type' => 'text/html' }, ['ok']]
     end
   end
   

@@ -8,10 +8,7 @@ class SimpleAdapter
     body = ["hello!"]
     [
       200,
-      {
-        'Content-Type'   => 'text/plain',
-        'Content-Length' => body.join.size.to_s,
-      },
+      { 'Content-Type' => 'text/plain' },
       body
     ]
   end

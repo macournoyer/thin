@@ -5,6 +5,10 @@ module Thin
   # This class is instanciated by EventMachine on each new connection
   # that is opened.
   class Connection < EventMachine::Connection
+    CONTENT_LENGTH    = 'Content-Length'.freeze
+    TRANSFER_ENCODING = 'Transfer-Encoding'.freeze
+    CHUNKED_REGEXP    = /\bchunked\b/i.freeze
+
     include Logging
     
     # Rack application (adapter) served by this connection.
@@ -65,6 +69,9 @@ module Thin
     
     def post_process(result)
       return unless result
+      
+      # Set the Content-Length header if possible
+      set_content_length(result) if need_content_length?(result)
       
       @response.status, @response.headers, @response.body = result
       
@@ -141,6 +148,30 @@ module Thin
     protected
       def socket_address
         Socket.unpack_sockaddr_in(get_peername)[1]
+      end
+      
+    private
+      def need_content_length?(result)
+        status, headers, body = result
+        return false if headers.has_key?(CONTENT_LENGTH)
+        return false if (100..199).include?(status) || status == 204 || status == 304
+        return false if headers.has_key?(TRANSFER_ENCODING) && headers[TRANSFER_ENCODING] =~ CHUNKED_REGEXP
+        return false unless body.kind_of?(String) || body.kind_of?(Array)
+        true
+      end
+      
+      def set_content_length(result)
+        headers, body = result[1..2]
+        case body
+        when String
+          headers[CONTENT_LENGTH] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
+        when Array
+           bytes = 0
+           body.each do |p|
+             bytes += p.respond_to?(:bytesize) ? p.bytesize : p.size
+           end
+           headers[CONTENT_LENGTH] = bytes.to_s
+        end
       end
   end
 end

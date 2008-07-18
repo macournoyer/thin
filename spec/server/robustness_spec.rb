@@ -4,7 +4,7 @@ describe Server, 'robustness' do
   before do
     start_server do |env|
       body = 'hello!'
-      [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
+      [200, { 'Content-Type' => 'text/html' }, body]
     end
   end
   

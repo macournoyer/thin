@@ -4,19 +4,30 @@ describe Server, 'on TCP socket' do
   before do
     start_server do |env|
       body = env.inspect + env['rack.input'].read
-      [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
+      [200, { 'Content-Type' => 'text/html' }, body]
     end
   end
-    
+  
   it 'should GET from Net::HTTP' do
     get('/?cthis').should include('cthis')
   end
   
   it 'should GET from TCPSocket' do
-    send_data("GET /?this HTTP/1.1\r\nConnection: close\r\n\r\n").
-      should include("HTTP/1.1 200 OK",
-                     "Content-Type: text/html", "Content-Length: ",
-                     "Connection: close", "this")
+    status, headers, body = parse_response(send_data("GET /?this HTTP/1.0\r\nConnection: close\r\n\r\n"))
+    status.should == 200
+    headers['Content-Type'].should == 'text/html'
+    headers['Connection'].should == 'close'
+    body.should include('this')
+  end
+  
+  it "should add the Content-Length to the response when not present" do
+    status, headers, body = parse_response(send_data("GET / HTTP/1.0\r\nConnection: close\r\n\r\n"))
+    headers.should have_key('Content-Length')
+  end
+  
+  it 'should set the Content-Length to equal the body size in bytes' do
+    status, headers, body = parse_response(send_data("GET / HTTP/1.0\r\nConnection: close\r\n\r\n"))
+    headers['Content-Length'].should == (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
   end
   
   it 'should return empty string on incomplete headers' do
@@ -35,7 +46,7 @@ describe Server, 'on TCP socket' do
     big = 'X' * (20 * 1024)
     post('/', :big => big).should include(big)
   end
-    
+  
   it "should retreive remote address" do
     get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
   end

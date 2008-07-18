@@ -22,8 +22,8 @@ module Thin
     FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
     CONNECTION        = 'HTTP_CONNECTION'.freeze
-    KEEP_ALIVE_REGEXP = /keep-alive/i
-    CLOSE_REGEXP      = /close/i
+    KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
+    CLOSE_REGEXP      = /\bclose\b/i.freeze
     
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
