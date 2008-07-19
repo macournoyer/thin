@@ -164,6 +164,7 @@ module Thin
         headers, body = result[1..2]
         case body
         when String
+          # See http://redmine.ruby-lang.org/issues/show/203
           headers[CONTENT_LENGTH] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
         when Array
            bytes = 0

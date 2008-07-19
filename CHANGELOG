@@ -1,4 +1,5 @@
 == 1.0.0 The Big release
+ * Add Content-Length header to response automatically when possible [#74 state:resolved] [dkubb]
  * Runner now remembers -r, -D and -V parameters so that clustered servers inherit those and
    `restart` keep your parameters.
  * Make Set-Cookie header, in Rails adapter, compatible with current Rack spec [Pedro Belo]
