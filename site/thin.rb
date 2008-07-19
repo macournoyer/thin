@@ -136,7 +136,7 @@ class Thin < Atchoum::Website
       run app
     EOS
     
-    pre 'thin start -r fart.ru'
+    pre 'thin start -R fart.ru'
     p { "See #{a 'Rack doc', :href => 'http://rack.rubyforge.org/doc/'} for more." }
     
     hr
