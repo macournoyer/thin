@@ -61,7 +61,7 @@ module Thin
       
       # Process the request calling the Rack adapter
       @app.call(@request.env)
-    rescue Object
+    rescue Exception
       handle_error
       terminate_request
       nil # Signal to post_process that the request could not be processed
