@@ -87,7 +87,7 @@ module Thin
       # If no more request on that same connection, we close it.
       close_connection_after_writing unless persistent?
       
-    rescue Object
+    rescue Exception
       handle_error
     ensure
       terminate_request
