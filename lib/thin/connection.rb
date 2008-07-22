@@ -146,6 +146,8 @@ module Thin
     end
     
     protected
+
+      # Returns IP address of peer as a string.
       def socket_address
         Socket.unpack_sockaddr_in(get_peername)[1]
       end
