@@ -140,7 +140,7 @@ module Thin
     # IP Address of the remote client.
     def remote_address
       @request.forwarded_for || socket_address
-    rescue Object
+    rescue Exception
       log_error
       nil
     end
