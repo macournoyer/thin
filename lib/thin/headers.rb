@@ -16,6 +16,14 @@ module Thin
     def []=(key, value)
       if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key)
         @sent[key] = true
+        value = case value
+                when Time
+                  value.rfc822
+                when NilClass
+                  return
+                else
+                  value.to_s
+                end
         @out << HEADER_FORMAT % [key, value]
       end
     end
