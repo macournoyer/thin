@@ -44,8 +44,8 @@ module Thin
       # Respects Rack specs.
       def headers=(key_value_pairs)
         key_value_pairs.each do |k, vs|
-          vs.each { |v| @headers[k] = v.chomp }
-        end
+          vs.each { |v| @headers[k] = v.chomp } if vs
+        end if key_value_pairs
       end
 
     else
@@ -57,13 +57,14 @@ module Thin
       # To be reviewed when a new Rack spec comes out.
       def headers=(key_value_pairs)
         key_value_pairs.each do |k, vs|
+          next unless vs
           if vs.is_a?(String)
             vs.each_line { |v| @headers[k] = v.chomp }
           else
             vs.each { |v| @headers[k] = v.chomp }
           end
-        end
-      end      
+        end if key_value_pairs
+      end
 
     end
     

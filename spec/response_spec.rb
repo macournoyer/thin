@@ -43,6 +43,13 @@ describe Response do
     
     @response.head.should include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
   end
+
+  it 'should ignore nil headers' do
+    @response.headers = nil
+    @response.headers = { 'Host' => 'localhost' }
+    @response.headers = { 'Set-Cookie' => nil }
+    @response.head.should include('Host: localhost')
+  end
   
   it 'should output body' do
     @response.body = '<html></html>'
