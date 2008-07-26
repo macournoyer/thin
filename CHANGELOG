@@ -1,4 +1,5 @@
 == 1.0.0 The Big release
+ * Handle nil and Time header values correctly [#76 state:resolved] [tmm1]
  * Add Content-Length header to response automatically when possible [#74 state:resolved] [dkubb]
  * Runner now remembers -r, -D and -V parameters so that clustered servers inherit those and
    `restart` keep your parameters.
