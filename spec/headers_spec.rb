@@ -35,6 +35,6 @@ describe Headers do
   it 'should format Time values correctly' do
     time = Time.now
     @headers['Modified-At'] = time
-    @headers.to_s.should include("Modified-At: #{time.rfc822}")
+    @headers.to_s.should include("Modified-At: #{time.httpdate}")
   end
 end

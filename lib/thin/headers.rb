@@ -18,7 +18,7 @@ module Thin
         @sent[key] = true
         value = case value
                 when Time
-                  value.rfc822
+                  value.httpdate
                 when NilClass
                   return
                 else
