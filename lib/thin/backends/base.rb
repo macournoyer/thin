@@ -45,11 +45,8 @@ module Thin
       # Start the backend and connect it.
       def start
         @stopping = false
-        
-        EventMachine.run do
-          connect
-          @running = true
-        end
+        connect
+        @running = true
       end
       
       # Stop of the backend from accepting new connections.

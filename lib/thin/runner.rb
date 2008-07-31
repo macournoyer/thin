@@ -135,14 +135,20 @@ module Thin
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
-      if self.class.commands.include?(@command)
-        run_command
-      elsif @command.nil?
-        puts "Command required"
-        puts @parser
-        exit 1  
-      else
-        abort "Invalid command: #{@command}"
+      # jftucker at gmail dot com - move EM::run to a muuuch higher place in
+      # the stack, for the purposes of starting up other evented services 
+      # without having to break into framework / server code to hook a timely 
+      # startup.
+      EventMachine.run do
+        if self.class.commands.include?(@command)
+          run_command
+        elsif @command.nil?
+          puts "Command required"
+          puts @parser
+          exit 1  
+        else
+          abort "Invalid command: #{@command}"
+        end
       end
     end
     
