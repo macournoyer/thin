@@ -1,6 +1,12 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 describe Runner do
+  it "should start eventmachine on run!" do
+    runner = Runner.new(%w(start --pid test.pid --port 5000))
+    EventMachine.should_receive(:run).once
+    runner.run!
+  end
+  
   it "should parse options" do
     runner = Runner.new(%w(start --pid test.pid --port 5000))
     
@@ -18,7 +24,7 @@ describe Runner do
     runner = Runner.new(%w(poop))
     
     runner.should_receive(:abort)
-    runner.run!
+    runner.start
   end
   
   it "should exit on empty command" do
@@ -27,7 +33,7 @@ describe Runner do
     runner.should_receive(:exit).with(1)
     
     silence_stream(STDOUT) do
-      runner.run!
+      runner.start
     end
   end
   
@@ -38,7 +44,7 @@ describe Runner do
     controller.should_receive(:start)
     Controllers::Controller.should_receive(:new).and_return(controller)
     
-    runner.run!
+    runner.start
   end
 
   it "should use Cluster controller when controlling multiple servers" do
@@ -48,7 +54,7 @@ describe Runner do
     controller.should_receive(:start)
     Controllers::Cluster.should_receive(:new).and_return(controller)
     
-    runner.run!
+    runner.start
   end
   
   it "should default to single server controller" do
@@ -68,14 +74,14 @@ describe Runner do
     STDERR.should_receive(:write).with(/WARNING:/)
     
     runner = Runner.new(%w(start -r config.ru))
-    runner.run! rescue nil
+    runner.start rescue nil
     
     runner.options[:rackup].should == 'config.ru'
   end
   
   it "should require file" do
     runner = Runner.new(%w(start -r unexisting))
-    proc { runner.run! }.should raise_error(LoadError)
+    proc { runner.start }.should raise_error(LoadError)
   end
   
   it "should remember requires" do
@@ -121,7 +127,7 @@ describe Runner, 'with config file' do
     
     begin
       silence_stream(STDERR) do
-        @runner.run!
+        @runner.start
       end
   
       Dir.pwd.should == expected_dir
@@ -146,7 +152,7 @@ describe Runner, "service" do
     
     @controller.should_receive(:start)
     
-    runner.run!
+    runner.start
   end
   
   it "should call install with arguments" do
@@ -154,7 +160,7 @@ describe Runner, "service" do
     
     @controller.should_receive(:install).with('/etc/cool')
     
-    runner.run!
+    runner.start
   end
 
   it "should call install without arguments" do
@@ -162,6 +168,6 @@ describe Runner, "service" do
     
     @controller.should_receive(:install).with()
     
-    runner.run!
+    runner.start
   end  
 end

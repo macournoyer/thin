@@ -45,8 +45,17 @@ module Thin
       # Start the backend and connect it.
       def start
         @stopping = false
-        connect
-        @running = true
+        # Allow for early run up of eventmachine. TODO : maybe move this into
+        # a method or proc to DRY.
+        if EventMachine::reactor_running?
+          connect
+          @running = true
+        else
+          EventMachine::run do
+            connect
+            @running = true
+          end
+        end
       end
       
       # Stop of the backend from accepting new connections.

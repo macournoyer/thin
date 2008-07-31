@@ -131,7 +131,7 @@ module Thin
       @command   = @argv.shift
       @arguments = @argv
     end
-        
+    
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
@@ -140,15 +140,18 @@ module Thin
       # without having to break into framework / server code to hook a timely 
       # startup.
       EventMachine.run do
-        if self.class.commands.include?(@command)
-          run_command
-        elsif @command.nil?
-          puts "Command required"
-          puts @parser
-          exit 1  
-        else
-          abort "Invalid command: #{@command}"
-        end
+      end
+    end
+    
+    def start
+      if self.class.commands.include?(@command)
+        run_command
+      elsif @command.nil?
+        puts "Command required"
+        puts @parser
+        exit 1
+      else
+        abort "Invalid command: #{@command}"
       end
     end
     
