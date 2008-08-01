@@ -47,11 +47,11 @@ module Thin
         @stopping = false
         # Allow for early run up of eventmachine. TODO : maybe move this into
         # a method or proc to DRY.
-        if EventMachine::reactor_running?
+        if EventMachine.reactor_running?
           connect
           @running = true
         else
-          EventMachine::run do
+          EventMachine.run do
             connect
             @running = true
           end
