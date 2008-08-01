@@ -169,7 +169,7 @@ EOS
 
       sorta_safe.size.should == nread
       parser.should be_finished
-      parser.should_not have_error
+      parser.should_not be_error
     end
   end
   
