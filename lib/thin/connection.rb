@@ -10,29 +10,29 @@ module Thin
     CHUNKED_REGEXP    = /\bchunked\b/i.freeze
 
     include Logging
-    
+
     # Rack application (adapter) served by this connection.
     attr_accessor :app
-    
+
     # Backend to the server
     attr_accessor :backend
-    
+
     # Current request served by the connection
     attr_accessor :request
-    
+
     # Next response sent through the connection
     attr_accessor :response
-    
+
     # Calling the application in a threaded allowing
     # concurrent processing of requests.
     attr_writer :threaded
-    
+
     # Get the connection ready to process a request.
     def post_init
       @request  = Request.new
       @response = Response.new
     end
-    
+
     # Called when data is received from the client.
     def receive_data(data)
       trace { data }
@@ -42,7 +42,7 @@ module Thin
       log_error e
       close_connection
     end
-    
+
     # Called when all data was received and the request
     # is ready to be processed.
     def process
@@ -54,11 +54,11 @@ module Thin
         post_process(pre_process)
       end
     end
-    
+
     def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
-      
+
       # Process the request calling the Rack adapter
       @app.call(@request.env)
     rescue Exception
@@ -66,28 +66,28 @@ module Thin
       terminate_request
       nil # Signal to post_process that the request could not be processed
     end
-    
+
     def post_process(result)
       return unless result
-      
+
       # Set the Content-Length header if possible
       set_content_length(result) if need_content_length?(result)
-      
+
       @response.status, @response.headers, @response.body = result
 
       log "!! Rack application returned nil body. Probably you wanted it to be an empty string?" if @response.body.nil?
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
-      
+
       # Send the response
       @response.each do |chunk|
         trace { chunk }
         send_data chunk
       end
-      
+
       # If no more request on that same connection, we close it.
       close_connection_after_writing unless persistent?
-      
+
     rescue Exception
       handle_error
     ensure
@@ -108,18 +108,18 @@ module Thin
     def terminate_request
       @request.close  rescue nil
       @response.close rescue nil
-      
+
       # Prepare the connection for another request if the client
       # supports HTTP pipelining (persistent connection).
       post_init if persistent?
     end
-    
+
     # Called when the connection is unbinded from the socket
     # and can no longer be used to process requests.
     def unbind
       @backend.connection_finished(self)
     end
-    
+
     # Allows this connection to be persistent.
     def can_persist!
       @can_persist = true
@@ -135,14 +135,14 @@ module Thin
     def persistent?
       @can_persist && @response.persistent?
     end
-    
+
     # +true+ if <tt>app.call</tt> will be called inside a thread.
     # You can set all requests as threaded setting <tt>Connection#threaded=true</tt>
     # or on a per-request case returning +true+ in <tt>app.deferred?</tt>.
     def threaded?
       @threaded || (@app.respond_to?(:deferred?) && @app.deferred?(@request.env))
     end
-    
+
     # IP Address of the remote client.
     def remote_address
       @request.forwarded_for || socket_address
@@ -150,14 +150,14 @@ module Thin
       log_error
       nil
     end
-    
+
     protected
 
       # Returns IP address of peer as a string.
       def socket_address
         Socket.unpack_sockaddr_in(get_peername)[1]
       end
-      
+
     private
       def need_content_length?(result)
         status, headers, body = result
@@ -167,7 +167,7 @@ module Thin
         return false unless body.kind_of?(String) || body.kind_of?(Array)
         true
       end
-      
+
       def set_content_length(result)
         headers, body = result[1..2]
         case body
