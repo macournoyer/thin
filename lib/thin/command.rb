@@ -1,7 +1,7 @@
 require 'open3'
 
 module Thin
-  # Run a command though the +thin+ command-line script.
+  # Run a command through the +thin+ command-line script.
   class Command
     include Logging
     
