@@ -37,7 +37,7 @@ module Rack
       # TODO refactor this in File#can_serve?(path) ??
       def file_exist?(path)
         full_path = ::File.join(@file_server.root, Utils.unescape(path))
-        ::File.file?(full_path) && ::File.readable?(full_path)
+        ::File.file?(full_path) && ::File.readable_real?(full_path)
       end
       
       def serve_file(env)
