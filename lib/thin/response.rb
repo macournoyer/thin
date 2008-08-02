@@ -42,6 +42,8 @@ module Thin
       
       # Ruby 1.8 implementation.
       # Respects Rack specs.
+      #
+      # See http://rack.rubyforge.org/doc/files/SPEC.html
       def headers=(key_value_pairs)
         key_value_pairs.each do |k, vs|
           vs.each { |v| @headers[k] = v.chomp } if vs
