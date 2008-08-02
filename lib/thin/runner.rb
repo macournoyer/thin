@@ -142,7 +142,7 @@ module Thin
         puts @parser
         exit 1  
       else
-        abort "Invalid command: #{@command}"
+        abort "Unknown command: #{@command}. Use one of #{self.class.commands.join(', ')}"
       end
     end
     
