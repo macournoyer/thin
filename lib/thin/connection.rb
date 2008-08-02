@@ -74,7 +74,8 @@ module Thin
       set_content_length(result) if need_content_length?(result)
       
       @response.status, @response.headers, @response.body = result
-      
+
+      log "!! Rack application returned nil body. Probably you wanted it to be an empty string?" if @response.body.nil?
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
       
