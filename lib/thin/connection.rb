@@ -100,7 +100,10 @@ module Thin
       log_error
       close_connection rescue nil
     end
-    
+
+    # Does request and response cleanup (like closing open IO streams).
+    # Re-initializes response and request if client supports persistent
+    # connection.
     def terminate_request
       @request.close  rescue nil
       @response.close rescue nil
