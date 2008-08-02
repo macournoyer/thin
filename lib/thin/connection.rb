@@ -101,7 +101,8 @@ module Thin
       close_connection rescue nil
     end
 
-    # Does request and response cleanup (like closing open IO streams).
+    # Does request and response cleanup (closes open IO streams and
+    # deletes created temporary files).
     # Re-initializes response and request if client supports persistent
     # connection.
     def terminate_request
