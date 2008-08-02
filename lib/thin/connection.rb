@@ -93,7 +93,8 @@ module Thin
     ensure
       terminate_request
     end
-    
+
+    # Logs catched exception and closes the connection.
     def handle_error
       log "!! Unexpected error while processing request: #{$!.message}"
       log_error
