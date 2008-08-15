@@ -220,6 +220,7 @@ class Thin < Atchoum::Website
       li { a "pickhost.eu", :href => 'http://pickhost.eu'}
       li { a "HowFlow", :href => 'http://howflow.com/'}
       li { a "boo-widgets", :href => 'http://widgets.boo-box.com/widgets/demo/3'}
+      li { a "BigCity.cz", :href => 'http://www.bigcity.cz/'}
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
