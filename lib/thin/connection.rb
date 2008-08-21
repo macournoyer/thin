@@ -108,16 +108,14 @@ module Thin
         send_data chunk
       end
       
-      unless persistent?
-        # If the body is deferred, then close_connection needs to happen after
-        # the last chunk has been sent.
-        if @response.body.kind_of?(EventMachine::Deferrable)
-          @response.body.callback { close_connection_after_writing }
-          @response.body.errback  { close_connection_after_writing }
-        else
-          # If no more request or data on that same connection, we close it.
-          close_connection_after_writing
-        end
+      # If the body is deferred, then close_connection needs to happen after
+      # the last chunk has been sent.
+      if @response.body.kind_of?(EventMachine::Deferrable)
+        @response.body.callback { close_connection_after_writing unless persistent? }
+        @response.body.errback  { close_connection_after_writing unless persistent? }
+      else
+        # If no more request or data on that same connection, we close it.
+        close_connection_after_writing unless persistent?
       end
       
     rescue Exception
@@ -126,6 +124,7 @@ module Thin
       # If the body is being deferred, then terminate afterward.
       if @response.body.kind_of?(EventMachine::Deferrable)
         @response.body.callback { terminate_request }
+        @response.body.errback  { terminate_request }
       else
         # Don't terminate the response if we're going async.
         terminate_request unless result && result.first == AsyncResponse.first
