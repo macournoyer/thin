@@ -12,7 +12,7 @@ module Thin
     include Logging
     
     # This is a template async response. N.B. Can't use string for body on 1.9
-    AsyncResponse = [100, {}, []].freeze
+    AsyncResponse = [-1, {}, []].freeze
     
     # Rack application (adapter) served by this connection.
     attr_accessor :app
@@ -89,8 +89,8 @@ module Thin
       return unless result
       result = result.to_a
       
-      # Status code 100 indicates that we're going to respond later (async).
-      return if result.first == 100
+      # Status code -1 indicates that we're going to respond later (async).
+      return if result.first == AsyncResponse.first
 
       # Set the Content-Length header if possible
       set_content_length(result) if need_content_length?(result)
@@ -128,7 +128,7 @@ module Thin
         @response.body.callback { terminate_request }
       else
         # Don't terminate the response if we're going async.
-        terminate_request unless result && result.first == 100
+        terminate_request unless result && result.first == AsyncResponse.first
       end
     end
 
