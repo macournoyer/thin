@@ -1,4 +1,16 @@
-== 0.8.2 ??? release
+== 1.0.0 The Big release
+ * Handle nil and Time header values correctly [#76 state:resolved] [tmm1]
+ * Add Content-Length header to response automatically when possible [#74 state:resolved] [dkubb]
+ * Runner now remembers -r, -D and -V parameters so that clustered servers inherit those and
+   `restart` keep your parameters.
+ * Make Set-Cookie header, in Rails adapter, compatible with current Rack spec [Pedro Belo]
+   [#73, state:resolved]
+ * Add --no-epoll option to disable epoll usage on Linux [#61 state:resolved]
+ * Add --force (-f) option to force stopping of a daemonized server [#72 state:resolved]
+ * Update halycon adapter loader [mtodd]
+
+== 0.8.2 Double Margarita release
+ * Require EventMachine 0.12.0
  * [bug] Fix timeout handling when running command
  * [bug] Fix hanging when restarting and no process is running in single server move, fixes #67
  * Added Mack adapter [markbates]

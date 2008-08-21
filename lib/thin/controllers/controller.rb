@@ -49,6 +49,7 @@ module Thin
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
         server.threaded                       = @options[:threaded]
+        server.no_epoll                       = @options[:no_epoll] if server.backend.respond_to?(:no_epoll=)
 
         # Detach the process, after this line the current process returns
         server.daemonize if @options[:daemonize]
@@ -83,7 +84,7 @@ module Thin
         raise OptionRequired, :pid unless @options[:pid]
       
         tail_log(@options[:log]) do
-          if Server.kill(@options[:pid], @options[:timeout] || 60)
+          if Server.kill(@options[:pid], @options[:force] ? 0 : (@options[:timeout] || 60))
             wait_for_file :deletion, @options[:pid]
           end
         end

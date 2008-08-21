@@ -40,7 +40,8 @@ module Thin
         :log                  => 'log/thin.log',
         :pid                  => 'tmp/pids/thin.pid',
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
-        :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
+        :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
+        :require              => []
       }
       
       parse!
@@ -63,7 +64,7 @@ module Thin
         opts.on("-S", "--socket FILE", "bind to unix domain socket")                    { |file| @options[:socket] = file }
         opts.on("-y", "--swiftiply [KEY]", "Run using swiftiply")                       { |key| @options[:swiftiply] = key }
         opts.on("-A", "--adapter NAME", "Rack adapter to use (default: autodetect)",
-                                        "(#{Rack::ADAPTERS.keys.join(', ')})")          { |name| @options[:adapter] = name }
+                                        "(#{Rack::ADAPTERS.map{|(a,b)|a}.join(', ')})") { |name| @options[:adapter] = name }
         opts.on("-R", "--rackup FILE", "Load a Rack config file instead of " +
                                        "Rack adapter")                                  { |file| @options[:rackup] = file }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
@@ -102,6 +103,7 @@ module Thin
         opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
         opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
+        opts.on("-f", "--force", "Force the execution of the command")                  { @options[:force] = true }
         opts.on(      "--max-conns NUM", "Maximum number of connections " +
                                          "(default: #{@options[:max_conns]})",
                                          "Might require sudo to set higher then 1024")  { |num| @options[:max_conns] = num.to_i } unless Thin.win?
@@ -110,13 +112,14 @@ module Thin
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
         opts.on(      "--threaded", "Call the Rack application in threads " +
                                     "[experimental]")                                   { @options[:threaded] = true }
+        opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
         
         opts.separator ""
         opts.separator "Common options:"
 
-        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| ruby_require file }
-        opts.on_tail("-D", "--debug", "Set debbuging on")                               { Logging.debug = true }
-        opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { Logging.trace = true }
+        opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:require] << file }
+        opts.on_tail("-D", "--debug", "Set debbuging on")                               { @options[:debug] = true }
+        opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { @options[:trace] = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
         opts.on_tail('-v', '--version', "Show version")                                 { puts Thin::SERVER; exit }
       end
@@ -139,7 +142,7 @@ module Thin
         puts @parser
         exit 1  
       else
-        abort "Invalid command: #{@command}"
+        abort "Unknown command: #{@command}. Use one of #{self.class.commands.join(', ')}"
       end
     end
     
@@ -154,6 +157,10 @@ module Thin
       # Change the current directory ASAP so that all relative paths are
       # relative to this one.
       Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
+      
+      @options[:require].each { |r| ruby_require r }
+      Logging.debug = @options[:debug]
+      Logging.trace = @options[:trace]
       
       controller = case
       when cluster? then Controllers::Cluster.new(@options)

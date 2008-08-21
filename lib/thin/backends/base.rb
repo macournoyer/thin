@@ -30,21 +30,31 @@ module Thin
       # Number of persistent connections currently opened
       attr_accessor :persistent_connection_count
       
+      # Disable the use of epoll under Linux
+      attr_accessor :no_epoll
+      
       def initialize
         @connections                    = []
         @timeout                        = Server::DEFAULT_TIMEOUT
         @persistent_connection_count    = 0
         @maximum_connections            = Server::DEFAULT_MAXIMUM_CONNECTIONS
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
+        @no_epoll                       = false
       end
       
       # Start the backend and connect it.
       def start
         @stopping = false
-        
-        EventMachine.run do
+        starter   = proc do
           connect
           @running = true
+        end
+        
+        # Allow for early run up of eventmachine.
+        if EventMachine.reactor_running?
+          starter.call
+        else
+          EventMachine.run(&starter)
         end
       end
       
@@ -72,7 +82,7 @@ module Thin
       # so you can do crazy stuff that require godlike powers here.
       def config
         # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
-        EventMachine.epoll
+        EventMachine.epoll unless @no_epoll
         
         # Set the maximum number of socket descriptors that the server may open.
         # The process needs to have required privilege to set it higher the 1024 on

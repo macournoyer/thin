@@ -6,7 +6,7 @@ describe Server, 'with threads' do
     start_server DEFAULT_TEST_ADDRESS, DEFAULT_TEST_PORT, :threaded => true do |env|
       sleep env['PATH_INFO'].delete('/').to_i
       @requests += 1
-      [200, { 'Content-Type' => 'text/html', 'Content-Length' => '2' }, 'hi']
+      [200, { 'Content-Type' => 'text/html' }, 'hi']
     end
   end
   

@@ -26,4 +26,15 @@ describe Headers do
     
     @headers.to_s.should == "Host: localhost:3000\r\nSet-Cookie: twice\r\nSet-Cookie: is cooler the once\r\n"
   end
+
+  it 'should ignore nil values' do
+    @headers['Something'] = nil
+    @headers.to_s.should_not include('Something: ')
+  end
+
+  it 'should format Time values correctly' do
+    time = Time.now
+    @headers['Modified-At'] = time
+    @headers.to_s.should include("Modified-At: #{time.httpdate}")
+  end
 end

@@ -12,7 +12,7 @@ else
       sleep 2 # HACK ooh boy, I wish I knew how to make those specs more stable...
       start_server('0.0.0.0', 5555, :backend => Backends::SwiftiplyClient, :wait_for_socket => false) do |env|
         body = env.inspect + env['rack.input'].read
-        [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
+        [200, { 'Content-Type' => 'text/html' }, body]
       end
     end
     

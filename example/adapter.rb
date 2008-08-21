@@ -8,10 +8,7 @@ class SimpleAdapter
     body = ["hello!"]
     [
       200,
-      {
-        'Content-Type'   => 'text/plain',
-        'Content-Length' => body.join.size.to_s,
-      },
+      { 'Content-Type' => 'text/plain' },
       body
     ]
   end
@@ -31,5 +28,5 @@ end
 #
 #   app = Rack::URLMap.new('/test'  => SimpleAdapter.new,
 #                          '/files' => Rack::File.new('.'))
-#   Thin::Server.new('0.0.0.0', 3000, app).start
+#   Thin::Server.start('0.0.0.0', 3000, app)
 #

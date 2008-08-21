@@ -1,7 +1,7 @@
 require 'erb'
 
 MSG_TEMPLATE = File.dirname(__FILE__) + '/email.erb'
-SEND_TO      = %w(thin-ruby@googlegroups.com eventmachine-talk@rubyforge.org ruby-talk@ruby-lang.org montreal-on-rails@googlegroups.com)
+SEND_TO      = %w(thin-ruby@googlegroups.com ruby-talk@ruby-lang.org)
 
 desc 'Generate a template for the new version annoucement'
 task :ann do

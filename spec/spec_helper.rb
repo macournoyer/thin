@@ -190,6 +190,16 @@ module Helpers
     out
   end
   
+  def parse_response(response)
+    raw_headers, body = response.split("\r\n\r\n", 2)
+    raw_status, raw_headers = raw_headers.split("\r\n", 2)
+
+    status  = raw_status.match(%r{\AHTTP/1.1\s+(\d+)\b}).captures.first.to_i
+    headers = Hash[ *raw_headers.split("\r\n").map { |h| h.split(/:\s+/, 2) }.flatten ]
+
+    [ status, headers, body ]
+  end
+  
   def get(url)
     if @server.backend.class == Backends::UnixServer
       send_data("GET #{url} HTTP/1.1\r\nConnection: close\r\n\r\n")

@@ -89,22 +89,16 @@ module Thin
     end
     
     module ClassMethods
-      # Send a QUIT signal the process which PID is stored in +pid_file+.
+      # Send a QUIT or INT (if timeout is +0+) signal the process which
+      # PID is stored in +pid_file+.
       # If the process is still running after +timeout+, KILL signal is
       # sent.
       def kill(pid_file, timeout=60)
-        if pid = send_signal('QUIT', pid_file)
-          Timeout.timeout(timeout) do
-            sleep 0.1 while Process.running?(pid)
-          end
+        if timeout == 0
+          send_signal('INT', pid_file, timeout)
+        else
+          send_signal('QUIT', pid_file, timeout)
         end
-      rescue Timeout::Error
-        print "Timeout! "
-        send_signal('KILL', pid_file)
-      rescue Interrupt
-        send_signal('KILL', pid_file)
-      ensure
-        File.delete(pid_file) if File.exist?(pid_file)
       end
       
       # Restart the server by sending HUP signal.
@@ -113,20 +107,31 @@ module Thin
       end
       
       # Send a +signal+ to the process which PID is stored in +pid_file+.
-      def send_signal(signal, pid_file)
-        if File.exist?(pid_file) && pid = open(pid_file).read
+      def send_signal(signal, pid_file, timeout=60)
+        if File.file?(pid_file) && pid = File.read(pid_file)
           pid = pid.to_i
-          print "Sending #{signal} signal to process #{pid} ... "
+          Logging.log "Sending #{signal} signal to process #{pid} ... "
           Process.kill(signal, pid)
-          puts
-          pid
+          Timeout.timeout(timeout) do
+            sleep 0.1 while Process.running?(pid)
+          end
+          Logging.log ""
         else
           puts "Can't stop process, no PID found in #{pid_file}"
-          nil
         end
+      rescue Timeout::Error
+        Logging.log "Timeout!"
+        force_kill pid_file
+      rescue Interrupt
+        force_kill pid_file
       rescue Errno::ESRCH # No such process
-        puts "process not found!"
-        nil
+        Logging.log "process not found!"
+        force_kill pid_file
+      end
+      
+      def force_kill(pid_file)
+        Process.kill("KILL", File.read(pid_file))      rescue nil
+        File.delete(pid_file) if File.exist?(pid_file) rescue nil
       end
     end
     

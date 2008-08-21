@@ -21,7 +21,7 @@ begin
 
     it "should handle POST parameters" do
       data = "foo=bar"
-      res = @request.post("/simple/post_form", :input => data, 'CONTENT_LENGTH' => data.size)
+      res = @request.post("/simple/post_form", :input => data, 'CONTENT_LENGTH' => data.size.to_s, :lint => true)
 
       res.should be_ok
       res["Content-Type"].should include("text/html")
@@ -31,21 +31,21 @@ begin
     end
   
     it "should serve static files" do
-      res = @request.get("/index.html")
+      res = @request.get("/index.html", :lint => true)
 
       res.should be_ok
       res["Content-Type"].should include("text/html")
     end
     
     it "should serve root with index.html if present" do
-      res = @request.get("/")
+      res = @request.get("/", :lint => true)
 
       res.should be_ok
       res["Content-Length"].to_i.should == File.size(@rails_app_path + '/public/index.html')
     end
     
     it "should serve page cache if present" do
-      res = @request.get("/simple/cached?value=cached")
+      res = @request.get("/simple/cached?value=cached", :lint => true)
 
       res.should be_ok
       res.body.should == 'cached'
@@ -57,7 +57,7 @@ begin
     end
     
     it "should not serve page cache on POST request" do
-      res = @request.get("/simple/cached?value=cached")
+      res = @request.get("/simple/cached?value=cached", :lint => true)
 
       res.should be_ok
       res.body.should == 'cached'
@@ -69,10 +69,12 @@ begin
     end
     
     it "handles multiple cookies" do
-      res = @request.get('/simple/set_cookie?name=a&value=1')
+      res = @request.get('/simple/set_cookie?name=a&value=1', :lint => true)
     
-      res.should be_ok    
-      res.original_headers['Set-Cookie'].should include('a=1; path=/', '_rails_app_session')
+      res.should be_ok
+      res.original_headers['Set-Cookie'].size.should == 2
+      res.original_headers['Set-Cookie'].first.should include('a=1; path=/')
+      res.original_headers['Set-Cookie'].last.should include('_rails_app_session')
     end
     
     after do

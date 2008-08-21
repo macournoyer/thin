@@ -85,9 +85,14 @@ module Thin
     # UNIX domain socket on which the server is listening for connections.
     def_delegator :backend, :socket
     
+    # Disable the use of epoll under Linux
+    def_delegators :backend, :no_epoll, :no_epoll=
+    
     def initialize(*args, &block)
       host, port, options = DEFAULT_HOST, DEFAULT_PORT, {}
       
+      # Guess each parameter by its type so they can be
+      # received in any order.
       args.each do |arg|
         case arg
         when Fixnum, /^\d+$/ then port    = arg.to_i
@@ -102,7 +107,7 @@ module Thin
       @backend = select_backend(host, port, options)
       
       load_cgi_multipart_eof_fix
-
+      
       @backend.server = self
       
       # Set defaults
@@ -139,7 +144,6 @@ module Thin
       debug ">> Debugging ON"
       trace ">> Tracing ON"
       
-      log ">> Threaded mode #{@backend.threaded? ? 'ON' : 'OFF'}"
       log ">> Maximum connections set to #{@backend.maximum_connections}"
       log ">> Listening on #{@backend}, CTRL+C to stop"
       

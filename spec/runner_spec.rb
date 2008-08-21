@@ -13,7 +13,7 @@ describe Runner do
     Runner.new(%w(stop)).command.should == 'stop'
     Runner.new(%w(restart)).command.should == 'restart'
   end
-
+  
   it "should abort on unknow command" do
     runner = Runner.new(%w(poop))
     
@@ -66,14 +66,33 @@ describe Runner do
   it "should warn when require a rack config file" do
     STDERR.stub!(:write)
     STDERR.should_receive(:write).with(/WARNING:/)
-
+    
     runner = Runner.new(%w(start -r config.ru))
+    runner.run! rescue nil
     
     runner.options[:rackup].should == 'config.ru'
   end
   
   it "should require file" do
-    proc { Runner.new(%w(start -r unexisting)) }.should raise_error(LoadError)
+    runner = Runner.new(%w(start -r unexisting))
+    proc { runner.run! }.should raise_error(LoadError)
+  end
+  
+  it "should remember requires" do
+    runner = Runner.new(%w(start -r rubygems -r thin))
+    runner.options[:require].should == %w(rubygems thin)
+  end
+
+  it "should remember debug options" do
+    runner = Runner.new(%w(start -D -V))
+    runner.options[:debug].should be_true
+    runner.options[:trace].should be_true
+  end
+
+  it "should default debug and trace to false" do
+    runner = Runner.new(%w(start))
+    runner.options[:debug].should_not be_true
+    runner.options[:trace].should_not be_true
   end
 end
 

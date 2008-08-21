@@ -94,6 +94,23 @@ describe 'Daemonizing' do
     File.exist?(@server.pid_file).should be_false
   end
   
+  it 'should force kill process in pid file' do
+    @pid = fork do
+      @server.daemonize
+      loop { sleep 3 }
+    end
+  
+    server_should_start_in_less_then 3
+    
+    @pid = @server.pid
+  
+    silence_stream STDOUT do
+      TestServer.kill(@server.pid_file, 0)
+    end
+  
+    File.exist?(@server.pid_file).should be_false
+  end
+  
   it 'should send kill signal if timeout' do
     @pid = fork do
       @server.should_receive(:stop) # pretend we cannot handle the INT signal

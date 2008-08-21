@@ -217,6 +217,9 @@ ENDIF:title
       <li><a href="/thin/download/">download</a></li>
       <li><a href="/thin/usage/">usage</a></li>
       <li><a href="/thin/doc/">doc</a></li>
+      <li><a href="http://github.com/macournoyer/thin/">code</a></li>
+      <li><a href="http://thin.lighthouseapp.com/projects/7212-thin/">bugs</a></li>
+      <li><a href="/thin/users/">users</a></li>
       <li><a href="http://groups.google.com/group/thin-ruby/">community</a></li>
     </ul>
     <div id="sidebar">

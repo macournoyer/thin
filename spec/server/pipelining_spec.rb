@@ -6,7 +6,7 @@ describe Server, "HTTP pipelining" do
     start_server do |env|
       calls += 1
       body = env['PATH_INFO'] + '-' + calls.to_s
-      [200, { 'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, body]
+      [200, { 'Content-Type' => 'text/html' }, body]
     end
     @server.maximum_persistent_connections = 1024
   end
