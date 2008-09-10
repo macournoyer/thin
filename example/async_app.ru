@@ -80,7 +80,7 @@ end
 class AsyncApp
   
   # This is a template async response. N.B. Can't use string for body on 1.9
-  AsyncResponse = [100, {}, []].freeze
+  AsyncResponse = [-1, {}, []].freeze
     
   def call(env)
     

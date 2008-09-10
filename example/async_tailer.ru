@@ -56,7 +56,7 @@ end
 
 class AsyncTailer
   
-  AsyncResponse = [100, {}, []].freeze
+  AsyncResponse = [-1, {}, []].freeze
     
   def call(env)
     

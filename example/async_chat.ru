@@ -220,7 +220,7 @@ end
 
 class AsyncChat
   
-  AsyncResponse = [100, {}, []].freeze
+  AsyncResponse = [-1, {}, []].freeze
   AjaxResponse = [200, {}, []].freeze
   
   def initialize
