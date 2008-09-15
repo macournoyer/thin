@@ -13,6 +13,7 @@ module Rack
     [:halcyon, 'runner.ru'],
     [:merb,    'config/init.rb'],
     [:mack,    'config/app_config/default.yml'],
+    [:mack,    'config/configatron/default.rb'],
     [:file,    nil]
   ]
   
