@@ -61,14 +61,14 @@ namespace :gem do
   desc 'Upload gem to code.macournoyer.com'
   task :upload => :gem do
     upload "pkg/#{spec.full_name}.gem", 'gems'
-    system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
+    system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
   end
   
   namespace :upload do
     desc 'Upload the precompiled win32 gem to code.macournoyer.com'
     task :win do
       upload "pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
-      system 'ssh macournoyer@macournoyer.com "cd code.macournoyer.com && gem generate_index"'
+      system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
     end    
 
     desc 'Upload gems (ruby & win32) to rubyforge.org'
