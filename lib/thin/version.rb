@@ -10,7 +10,7 @@ module Thin
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'The Big'
+    CODENAME = "That's What She Said".freeze
     
     RACK     = [0, 3].freeze # Latest Rack version that was tested
   end

@@ -1,4 +1,8 @@
-== 1.0.0 The Big release
+== 1.0.0 That's What She Said release
+ * Fixed vlad.rake to allow TCP or socket [hellekin]
+ * Updated Mack adapter to handle both <0.8.0 and >0.8.0 [Mark Bates]
+ * rails rack adapter uses File.readable_real? so it recognizes ACL permissions [Ricardo Chimal]
+ * Log a warning if Rack application returns nil body [Michael S. Klishin]
  * Handle nil and Time header values correctly [#76 state:resolved] [tmm1]
  * Add Content-Length header to response automatically when possible [#74 state:resolved] [dkubb]
  * Runner now remembers -r, -D and -V parameters so that clustered servers inherit those and
