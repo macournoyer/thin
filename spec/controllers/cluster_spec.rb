@@ -135,6 +135,39 @@ describe Cluster, "controlling only one server" do
     end
 end
 
+describe Cluster, "controlling only one server, by sequence number" do
+  before do
+    @cluster = Cluster.new(:chdir => '/rails_app',
+                           :address => '0.0.0.0',
+                           :port => 3000, 
+                           :servers => 3,
+                           :timeout => 10,
+                           :log => 'thin.log',
+                           :pid => 'thin.pid',
+                           :only => 1
+                          )
+  end
+  
+  it 'should call only specified server' do
+    calls = []
+    @cluster.send(:with_each_server) do |n|
+      calls << n
+    end
+    calls.should == [3001]
+  end
+  
+  it "should start only specified server" do
+    Command.should_receive(:run).with(:start, options_for_port(3001))
+
+    @cluster.start
+  end
+  
+  private
+    def options_for_port(port)
+      { :daemonize => true, :log => "thin.#{port}.log", :timeout => 10, :address => "0.0.0.0", :port => port, :pid => "thin.#{port}.pid", :chdir => "/rails_app" }
+    end
+end
+
 describe Cluster, "with Swiftiply" do
   before do
     @cluster = Cluster.new(:chdir => '/rails_app',
