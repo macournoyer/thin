@@ -1,3 +1,6 @@
+== 1.0.1 ? release
+ * --only can work as a sequence number (if < 80) or a port number (if >= 80) [jmay] [#81 state:resolved]
+
 == 1.0.0 That's What She Said release
  * Fixed vlad.rake to allow TCP or socket [hellekin]
  * Updated Mack adapter to handle both <0.8.0 and >0.8.0 [Mark Bates]
