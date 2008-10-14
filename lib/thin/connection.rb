@@ -65,7 +65,7 @@ module Thin
       # TODO - remove excess documentation / move it somewhere more sensible.
       # (interface specs!) - (rack)
       
-      # Connection may be closed unless the App#call response was a [100, ...]
+      # Connection may be closed unless the App#call response was a [-1, ...]
       # It should be noted that connection objects will linger until this 
       # callback is no longer referenced, so be tidy!
       @request.env['async.callback'] = method(:post_process)
@@ -107,22 +107,12 @@ module Thin
         trace { chunk }
         send_data chunk
       end
-      
-      # If the body is deferred, then close_connection needs to happen after
-      # the last chunk has been sent.
-      if @response.body.kind_of?(EventMachine::Deferrable)
-        @response.body.callback { close_connection_after_writing unless persistent? }
-        @response.body.errback  { close_connection_after_writing unless persistent? }
-      else
-        # If no more request or data on that same connection, we close it.
-        close_connection_after_writing unless persistent?
-      end
-      
+
     rescue Exception
       handle_error
     ensure
       # If the body is being deferred, then terminate afterward.
-      if @response.body.kind_of?(EventMachine::Deferrable)
+      if @response.body.respond_to?(:callback) && @response.body.respond_to?(:errback)
         @response.body.callback { terminate_request }
         @response.body.errback  { terminate_request }
       else
@@ -138,25 +128,31 @@ module Thin
       close_connection rescue nil
     end
 
+    def close_request_response
+      @request.close  rescue nil
+      @response.close rescue nil
+    end
+
     # Does request and response cleanup (closes open IO streams and
     # deletes created temporary files).
     # Re-initializes response and request if client supports persistent
     # connection.
     def terminate_request
-      @request.close  rescue nil
-      @response.close rescue nil
-
-      # Prepare the connection for another request if the client
-      # supports HTTP pipelining (persistent connection).
-      post_init if persistent?
+      unless persistent?
+        close_connection_after_writing rescue nil
+        close_request_response
+      else
+        close_request_response
+        # Prepare the connection for another request if the client
+        # supports HTTP pipelining (persistent connection).
+        post_init
+      end
     end
 
     # Called when the connection is unbinded from the socket
     # and can no longer be used to process requests.
     def unbind
-      if @response.body.kind_of?(EventMachine::Deferrable)
-        @response.body.fail
-      end
+      @response.body.fail if @response.body.respond_to?(:fail)
       @backend.connection_finished(self)
     end
 
@@ -201,6 +197,7 @@ module Thin
     private
       def need_content_length?(result)
         status, headers, body = result
+        return false if status == -1
         return false if headers.has_key?(CONTENT_LENGTH)
         return false if (100..199).include?(status) || status == 204 || status == 304
         return false if headers.has_key?(TRANSFER_ENCODING) && headers[TRANSFER_ENCODING] =~ CHUNKED_REGEXP

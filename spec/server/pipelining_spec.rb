@@ -16,6 +16,7 @@ describe Server, "HTTP pipelining" do
     socket.write "GET /first HTTP/1.1\r\nConnection: keep-alive\r\n\r\n"
     socket.flush
     socket.write "GET /second HTTP/1.1\r\nConnection: close\r\n\r\n"
+    socket.flush
     response = socket.read
     socket.close
     
