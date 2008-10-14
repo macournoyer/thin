@@ -102,7 +102,13 @@ module Thin
       
         def with_each_server
           if only
-            yield only
+            if only < 80
+              # interpret +only+ as a sequence number
+              yield(first_port + only)
+            else
+              # interpret +only+ as an absolute port number
+              yield only
+            end
           elsif socket || swiftiply?
             size.times { |n| yield n }
           else

@@ -6,11 +6,11 @@ module Thin
   module VERSION #:nodoc:
     MAJOR    = 1
     MINOR    = 0
-    TINY     = 0
+    TINY     = 1
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = 'The Big'
+    CODENAME = "?".freeze
     
     RACK     = [0, 3].freeze # Latest Rack version that was tested
   end
