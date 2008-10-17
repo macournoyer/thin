@@ -31,7 +31,7 @@ module Rack
         require "#{@root}/config/environment"
         require 'dispatcher'
         
-        ActionController::AbstractRequest.relative_url_root = @prefix if @prefix 
+        ActionController::Base.relative_url_root = @prefix if @prefix
       end
       
       # TODO refactor this in File#can_serve?(path) ??
