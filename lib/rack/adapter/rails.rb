@@ -31,7 +31,13 @@ module Rack
         require "#{@root}/config/environment"
         require 'dispatcher'
         
-        ActionController::Base.relative_url_root = @prefix if @prefix
+        if @prefix
+          if ActionController::Base.respond_to?('relative_url_root=')
+            ActionController::Base.relative_url_root = @prefix # Rails 2.1.1
+          else
+            ActionController::AbstractRequest.relative_url_root = @prefix
+          end
+        end
       end
       
       # TODO refactor this in File#can_serve?(path) ??
