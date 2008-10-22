@@ -1,4 +1,5 @@
 == 1.0.1 ? release
+ * Fixes a warning RE relative_url_root when using a prefix with Rails 2.1.1 [seriph] [#85 state:resolved]
  * --only can work as a sequence number (if < 80) or a port number (if >= 80) [jmay] [#81 state:resolved]
 
 == 1.0.0 That's What She Said release
