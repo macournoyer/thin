@@ -166,6 +166,7 @@ module Thin
         end
         
         def load_rackup_config
+          ENV['RACK_ENV'] = @options[:environment]
           case @options[:rackup]
           when /\.rb$/
             Kernel.load(@options[:rackup])
