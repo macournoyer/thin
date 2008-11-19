@@ -188,8 +188,9 @@ class Thin < Atchoum::Website
     
     ul do
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
-      li { a "Joao Pedrosa's Blog", :href => 'http://www.deze9.com/jp/blog/post?p=enabling-thin-support-for-this-site-replacing' }
+      li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
       li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/tag/thin' }
+      li { a "Gitorious", :href => 'http://gitorious.org/' }
       li { a "Dinooz", :href => 'http://www.nicomoayudarte.com/' }
       li { a "Mobile Dyne Systems", :href => 'http://www.mobiledyne.com/' }
       li { a "feelfree.homelinux.com", :href => 'http://feelfree.homelinux.com' }
@@ -197,10 +198,10 @@ class Thin < Atchoum::Website
       li { a "James on Software", :href => 'http://jamesgolick.com/' }
       li { a "FlashDen", :href => 'http://flashden.net/' }
       li { a "Calico Web Development", :href => 'http://www.calicowebdev.com/' }
-      li { a "Gitorious", :href => 'http://gitorious.org/' }
       li { a "Cornerstone Web", :href => 'http://www.cornerstoneweb.org/' }
       li { a "Osmos", :href => 'http://www.getosmos.com/' }
       li { a "Lipomics", :href => 'http://www.lipomics.com/' }
+      li { a "Joao Pedrosa's Blog", :href => 'http://www.deze9.com/jp/blog/post?p=enabling-thin-support-for-this-site-replacing' }
       li { a "RaPlanet", :href => 'http://planet.zhekov.net/' }
       li { a "Ninja Hideout blog", :href => 'http://blog.ninjahideout.com/' }
       li { a "Hoodows Blog", :href => 'http://blog.hoodow.de/articles/2008/02/09/thin' }
@@ -226,6 +227,13 @@ class Thin < Atchoum::Website
       li { a "Hacknight", :href => 'http://hacknight.gangplankhq.com/'}
       li { a "Sizzix", :href => 'http://www.sizzix.com/'}
       li { a "Ellison Retailers", :href => 'http://www.ellisonretailers.com/'}
+      li { a "ShareMeme", :href => 'http://sharememe.com/'}
+      li { a "ylastic", :href => 'http://ylastic.com/'}
+      li { a "hello2morrow", :href => 'http://www.hello2morrow.com/'}
+      li { a "TimmyOnTime", :href => 'http://www.timmyontime.com/'}
+      li { a "Generous", :href => 'http://generous.org.uk/'}
+      li { a "Catapult Magazine", :href => 'http://www.catapultmagazine.com/'}
+      li { a "Good-Tutorials", :href => 'http://www.good-tutorials.com/'}
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
