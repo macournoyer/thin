@@ -72,7 +72,7 @@ DEF_MAX_LENGTH(QUERY_STRING, (1024 * 10));
 DEF_MAX_LENGTH(HEADER, (1024 * (80 + 32)));
 
 
-void http_field(void *data, const char *field, size_t flen, const char *value, size_t vlen)
+static void http_field(void *data, const char *field, size_t flen, const char *value, size_t vlen)
 {
   char *ch, *end;
   VALUE req = (VALUE)data;
@@ -97,7 +97,7 @@ void http_field(void *data, const char *field, size_t flen, const char *value, s
   rb_hash_aset(req, f, v);
 }
 
-void request_method(void *data, const char *at, size_t length)
+static void request_method(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = Qnil;
@@ -106,7 +106,7 @@ void request_method(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_request_method, val);
 }
 
-void request_uri(void *data, const char *at, size_t length)
+static void request_uri(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = Qnil;
@@ -117,7 +117,7 @@ void request_uri(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_request_uri, val);
 }
 
-void fragment(void *data, const char *at, size_t length)
+static void fragment(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = Qnil;
@@ -128,7 +128,7 @@ void fragment(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_fragment, val);
 }
 
-void request_path(void *data, const char *at, size_t length)
+static void request_path(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = Qnil;
@@ -140,7 +140,7 @@ void request_path(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_path_info, val);
 }
 
-void query_string(void *data, const char *at, size_t length)
+static void query_string(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = Qnil;
@@ -151,7 +151,7 @@ void query_string(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_query_string, val);
 }
 
-void http_version(void *data, const char *at, size_t length)
+static void http_version(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = rb_str_new(at, length);
@@ -161,7 +161,7 @@ void http_version(void *data, const char *at, size_t length)
 /** Finalizes the request header to have a bunch of stuff that's
   needed. */
 
-void header_done(void *data, const char *at, size_t length)
+static void header_done(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE temp = Qnil;
@@ -215,7 +215,7 @@ void header_done(void *data, const char *at, size_t length)
 }
 
 
-void HttpParser_free(void *data) {
+void Thin_HttpParser_free(void *data) {
   TRACE();
 
   if(data) {
@@ -224,7 +224,7 @@ void HttpParser_free(void *data) {
 }
 
 
-VALUE HttpParser_alloc(VALUE klass)
+VALUE Thin_HttpParser_alloc(VALUE klass)
 {
   VALUE obj;
   http_parser *hp = ALLOC_N(http_parser, 1);
@@ -239,7 +239,7 @@ VALUE HttpParser_alloc(VALUE klass)
   hp->header_done = header_done;
   http_parser_init(hp);
 
-  obj = Data_Wrap_Struct(klass, NULL, HttpParser_free, hp);
+  obj = Data_Wrap_Struct(klass, NULL, Thin_HttpParser_free, hp);
 
   return obj;
 }
@@ -251,7 +251,7 @@ VALUE HttpParser_alloc(VALUE klass)
  *
  * Creates a new parser.
  */
-VALUE HttpParser_init(VALUE self)
+VALUE Thin_HttpParser_init(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -268,7 +268,7 @@ VALUE HttpParser_init(VALUE self)
  * Resets the parser to it's initial state so that you can reuse it
  * rather than making new ones.
  */
-VALUE HttpParser_reset(VALUE self)
+VALUE Thin_HttpParser_reset(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -285,7 +285,7 @@ VALUE HttpParser_reset(VALUE self)
  * Finishes a parser early which could put in a "good" or bad state.
  * You should call reset after finish it or bad things will happen.
  */
-VALUE HttpParser_finish(VALUE self)
+VALUE Thin_HttpParser_finish(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -312,7 +312,7 @@ VALUE HttpParser_finish(VALUE self)
  * the parsing from that position.  It needs all of the original data as well 
  * so you have to append to the data buffer as you read.
  */
-VALUE HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE start)
+VALUE Thin_HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE start)
 {
   http_parser *http = NULL;
   int from = 0;
@@ -349,7 +349,7 @@ VALUE HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE start)
  *
  * Tells you whether the parser is in an error state.
  */
-VALUE HttpParser_has_error(VALUE self)
+VALUE Thin_HttpParser_has_error(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -364,7 +364,7 @@ VALUE HttpParser_has_error(VALUE self)
  *
  * Tells you whether the parser is finished or not and in a good state.
  */
-VALUE HttpParser_is_finished(VALUE self)
+VALUE Thin_HttpParser_is_finished(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -380,7 +380,7 @@ VALUE HttpParser_is_finished(VALUE self)
  * Returns the amount of data processed so far during this processing cycle.  It is
  * set to 0 on initialize or reset calls and is incremented each time execute is called.
  */
-VALUE HttpParser_nread(VALUE self)
+VALUE Thin_HttpParser_nread(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
@@ -422,12 +422,12 @@ void Init_thin_parser()
   eHttpParserError = rb_define_class_under(mThin, "InvalidRequest", rb_eIOError);
 
   cHttpParser = rb_define_class_under(mThin, "HttpParser", rb_cObject);
-  rb_define_alloc_func(cHttpParser, HttpParser_alloc);
-  rb_define_method(cHttpParser, "initialize", HttpParser_init,0);
-  rb_define_method(cHttpParser, "reset", HttpParser_reset,0);
-  rb_define_method(cHttpParser, "finish", HttpParser_finish,0);
-  rb_define_method(cHttpParser, "execute", HttpParser_execute,3);
-  rb_define_method(cHttpParser, "error?", HttpParser_has_error,0);
-  rb_define_method(cHttpParser, "finished?", HttpParser_is_finished,0);
-  rb_define_method(cHttpParser, "nread", HttpParser_nread,0);
+  rb_define_alloc_func(cHttpParser, Thin_HttpParser_alloc);
+  rb_define_method(cHttpParser, "initialize", Thin_HttpParser_init,0);
+  rb_define_method(cHttpParser, "reset", Thin_HttpParser_reset,0);
+  rb_define_method(cHttpParser, "finish", Thin_HttpParser_finish,0);
+  rb_define_method(cHttpParser, "execute", Thin_HttpParser_execute,3);
+  rb_define_method(cHttpParser, "error?", Thin_HttpParser_has_error,0);
+  rb_define_method(cHttpParser, "finished?", Thin_HttpParser_is_finished,0);
+  rb_define_method(cHttpParser, "nread", Thin_HttpParser_nread,0);
 }
