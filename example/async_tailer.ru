@@ -17,6 +17,12 @@ class DeferrableBody
   
   def initialize
     @queue = []
+    # make sure to flush out the queue before closing the connection
+    callback{
+      until @queue.empty?
+        @queue.shift.each{|chunk| @body_callback.call(chunk) }
+      end
+    }
   end
   
   def schedule_dequeue
