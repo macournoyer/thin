@@ -331,12 +331,12 @@ VALUE Thin_HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE star
     http->data = (void *)req_hash;
     thin_http_parser_execute(http, dptr, dlen, from);
 
-    VALIDATE_MAX_LENGTH(thin_http_parser_nread(http), HEADER);
+    VALIDATE_MAX_LENGTH(http_parser_nread(http), HEADER);
 
     if(thin_http_parser_has_error(http)) {
       rb_raise(eHttpParserError, "Invalid HTTP format, parsing fails.");
     } else {
-      return INT2FIX(thin_http_parser_nread(http));
+      return INT2FIX(http_parser_nread(http));
     }
   }
 }
