@@ -69,6 +69,7 @@ module Thin
       # It should be noted that connection objects will linger until this 
       # callback is no longer referenced, so be tidy!
       @request.env['async.callback'] = method(:post_process)
+      @request.env['async.close'] = EM::DefaultDeferrable.new
       
       # When we're under a non-async framework like rails, we can still spawn
       # off async responses using the callback info, so there's little point
@@ -129,6 +130,7 @@ module Thin
     end
 
     def close_request_response
+      @request.env['async.close'].succeed
       @request.close  rescue nil
       @response.close rescue nil
     end
@@ -152,6 +154,7 @@ module Thin
     # Called when the connection is unbinded from the socket
     # and can no longer be used to process requests.
     def unbind
+      @request.env['async.close'].succeed if @request.env['async.close']
       @response.body.fail if @response.body.respond_to?(:fail)
       @backend.connection_finished(self)
     end
