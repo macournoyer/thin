@@ -43,7 +43,7 @@ module Thin
     attr_reader :body
 
     def initialize
-      @parser   = HttpParser.new
+      @parser   = Thin::HttpParser.new
       @data     = ''
       @nparsed  = 0
       @body     = StringIO.new
