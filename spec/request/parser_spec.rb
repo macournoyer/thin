@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
+#require 'mongrel'
+
 describe Request, 'parser' do
   it 'should include basic headers' do
     request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
