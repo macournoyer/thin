@@ -237,7 +237,7 @@ VALUE Thin_HttpParser_alloc(VALUE klass)
   hp->query_string = query_string;
   hp->http_version = http_version;
   hp->header_done = header_done;
-  http_parser_init(hp);
+  thin_http_parser_init(hp);
 
   obj = Data_Wrap_Struct(klass, NULL, Thin_HttpParser_free, hp);
 
@@ -255,7 +255,7 @@ VALUE Thin_HttpParser_init(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
-  http_parser_init(http);
+  thin_http_parser_init(http);
 
   return self;
 }
@@ -272,7 +272,7 @@ VALUE Thin_HttpParser_reset(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
-  http_parser_init(http);
+  thin_http_parser_init(http);
 
   return Qnil;
 }
@@ -289,9 +289,9 @@ VALUE Thin_HttpParser_finish(VALUE self)
 {
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
-  http_parser_finish(http);
+  thin_http_parser_finish(http);
 
-  return http_parser_is_finished(http) ? Qtrue : Qfalse;
+  return thin_http_parser_is_finished(http) ? Qtrue : Qfalse;
 }
 
 
@@ -329,14 +329,14 @@ VALUE Thin_HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE star
     rb_raise(eHttpParserError, "Requested start is after data buffer end.");
   } else {
     http->data = (void *)req_hash;
-    http_parser_execute(http, dptr, dlen, from);
+    thin_http_parser_execute(http, dptr, dlen, from);
 
-    VALIDATE_MAX_LENGTH(http_parser_nread(http), HEADER);
+    VALIDATE_MAX_LENGTH(thin_http_parser_nread(http), HEADER);
 
-    if(http_parser_has_error(http)) {
+    if(thin_http_parser_has_error(http)) {
       rb_raise(eHttpParserError, "Invalid HTTP format, parsing fails.");
     } else {
-      return INT2FIX(http_parser_nread(http));
+      return INT2FIX(thin_http_parser_nread(http));
     }
   }
 }
@@ -354,7 +354,7 @@ VALUE Thin_HttpParser_has_error(VALUE self)
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
 
-  return http_parser_has_error(http) ? Qtrue : Qfalse;
+  return thin_http_parser_has_error(http) ? Qtrue : Qfalse;
 }
 
 
@@ -369,7 +369,7 @@ VALUE Thin_HttpParser_is_finished(VALUE self)
   http_parser *http = NULL;
   DATA_GET(self, http_parser, http);
 
-  return http_parser_is_finished(http) ? Qtrue : Qfalse;
+  return thin_http_parser_is_finished(http) ? Qtrue : Qfalse;
 }
 
 
