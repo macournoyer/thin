@@ -220,7 +220,7 @@ class Thin < Atchoum::Website
       li { a "p0pulist", :href => 'http://p0pulist.com/'}
       li { a "pickhost.eu", :href => 'http://pickhost.eu'}
       li { a "HowFlow", :href => 'http://howflow.com/'}
-      li { a "boo-widgets", :href => 'http://widgets.boo-box.com/widgets/demo/3'}
+      li { a "boo-widgets", :href => 'http://boo-box.com/site/en/widget/get'}
       li { a "BigCity.cz", :href => 'http://www.bigcity.cz/'}
       li { a "yabadaba.ru", :href => 'http://yabadaba.ru/'}
       li { a "Freebootr.com", :href => 'http://freebootr.com/'}
