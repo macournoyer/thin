@@ -1,6 +1,11 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
-#require 'mongrel'
+# Require mongrel so we can test that Thin parser don't clash w/ Mongrel parser.
+begin
+  require 'mongrel'
+rescue LoadError
+  warn "Install mongrel to test compatibility w/ it"
+end
 
 describe Request, 'parser' do
   it 'should include basic headers' do
@@ -169,7 +174,7 @@ EOS
       sorta_safe = %(GET #{path} HTTP/1.1\r\n\r\n)
       nread      = parser.execute(req, sorta_safe, 0)
 
-      sorta_safe.size.should == nread
+      sorta_safe.size.should == nread - 1 # Ragel 6 skips last linebreak
       parser.should be_finished
       parser.should_not be_error
     end
