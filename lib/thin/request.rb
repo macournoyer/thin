@@ -16,6 +16,8 @@ module Thin
 
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
+    SERVER_NAME       = 'SERVER_NAME'.freeze
+    LOCALHOST         = 'localhost'.freeze
     HTTP_VERSION      = 'HTTP_VERSION'.freeze
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
@@ -49,6 +51,7 @@ module Thin
       @body     = StringIO.new
       @env      = {
         SERVER_SOFTWARE   => SERVER,
+        SERVER_NAME       => LOCALHOST,
 
         # Rack stuff
         RACK_INPUT        => @body,

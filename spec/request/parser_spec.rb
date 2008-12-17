@@ -59,7 +59,7 @@ describe Request, 'parser' do
   it 'should parse headers from GET request' do
     request = R(<<-EOS, true)
 GET / HTTP/1.1
-Host: localhost:3000
+Host: myhost.com:3000
 User-Agent: Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Language: en-us,en;q=0.5
@@ -70,8 +70,8 @@ Keep-Alive: 300
 Connection: keep-alive
 
 EOS
-    request.env['HTTP_HOST'].should == 'localhost:3000'
-    request.env['SERVER_NAME'].should == 'localhost'
+    request.env['HTTP_HOST'].should == 'myhost.com:3000'
+    request.env['SERVER_NAME'].should == 'myhost.com'
     request.env['SERVER_PORT'].should == '3000'
     request.env['HTTP_COOKIE'].should == 'mium=7'
 
@@ -194,5 +194,10 @@ EOS
   
   it "should fails on heders larger then MAX_HEADER" do
     proc { R("GET / HTTP/1.1\r\nFoo: #{'X' * Request::MAX_HEADER}\r\n\r\n") }.should raise_error(InvalidRequest)
+  end
+  
+  it "should default SERVER_NAME to localhost" do
+    request = R("GET / HTTP/1.1\r\n\r\n")
+    request.env['SERVER_NAME'].should == "localhost"
   end
 end
