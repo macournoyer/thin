@@ -200,4 +200,16 @@ EOS
     request = R("GET / HTTP/1.1\r\n\r\n")
     request.env['SERVER_NAME'].should == "localhost"
   end
+  
+  it 'should normalize http_fields' do
+    [ "GET /index.html HTTP/1.1\r\nhos-t: localhost\r\n\r\n",
+      "GET /index.html HTTP/1.1\r\nhOs_t: localhost\r\n\r\n",
+      "GET /index.html HTTP/1.1\r\nhoS-T: localhost\r\n\r\n"
+    ].each { |req_str|
+      parser     = HttpParser.new
+      req        = {}
+      nread      = parser.execute(req, req_str, 0)
+      req.should be_has_key('HTTP_HOS_T')
+    }
+  end
 end

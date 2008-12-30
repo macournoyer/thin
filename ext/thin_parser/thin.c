@@ -86,7 +86,7 @@ static void http_field(void *data, const char *field, size_t flen, const char *v
   f = rb_str_dup(global_http_prefix);
   f = rb_str_buf_cat(f, field, flen); 
 
-  for(ch = RSTRING_PTR(f), end = ch + RSTRING_LEN(f); ch < end; ch++) {
+  for(ch = RSTRING_PTR(f) + RSTRING_LEN(global_http_prefix), end = RSTRING_PTR(f) + RSTRING_LEN(f); ch < end; ch++) {
     if(*ch == '-') {
       *ch = '_';
     } else {
