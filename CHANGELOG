@@ -1,4 +1,5 @@
 == 1.0.1 ? release
+ * Omit parsing #defined strings [Jérémy Zurcher]
  * Defaults SERVER_NAME to localhost like webrick does [#87 state:resolved]
  * Namespace parser to prevent error when mongrel is required [cliffmoon]
  * Set RACK_ENV based on environment option when loading rackup file [Curtis Summers] [#83 state:resolved]
