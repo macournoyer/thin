@@ -187,6 +187,7 @@ class Thin < Atchoum::Website
     p "Who's using Thin ?"
     
     ul do
+      li { a 'HostingRails', :href => 'http://www.hostingrails.com/mongrel_and_thin_hosting' }
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
       li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/tag/thin' }
