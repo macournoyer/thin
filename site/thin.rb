@@ -187,6 +187,7 @@ class Thin < Atchoum::Website
     p "Who's using Thin ?"
     
     ul do
+      li { a 'HostingRails', :href => 'http://www.hostingrails.com/mongrel_and_thin_hosting' }
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
       li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/tag/thin' }
@@ -220,7 +221,7 @@ class Thin < Atchoum::Website
       li { a "p0pulist", :href => 'http://p0pulist.com/'}
       li { a "pickhost.eu", :href => 'http://pickhost.eu'}
       li { a "HowFlow", :href => 'http://howflow.com/'}
-      li { a "boo-widgets", :href => 'http://widgets.boo-box.com/widgets/demo/3'}
+      li { a "boo-widgets", :href => 'http://boo-box.com/site/en/widget/get'}
       li { a "BigCity.cz", :href => 'http://www.bigcity.cz/'}
       li { a "yabadaba.ru", :href => 'http://yabadaba.ru/'}
       li { a "Freebootr.com", :href => 'http://freebootr.com/'}

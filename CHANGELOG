@@ -1,4 +1,7 @@
 == 1.0.1 ? release
+ * Omit parsing #defined strings [Jérémy Zurcher]
+ * Defaults SERVER_NAME to localhost like webrick does [#87 state:resolved]
+ * Namespace parser to prevent error when mongrel is required [cliffmoon]
  * Set RACK_ENV based on environment option when loading rackup file [Curtis Summers] [#83 state:resolved]
  * Fixes a warning RE relative_url_root when using a prefix with Rails 2.1.1 [seriph] [#85 state:resolved]
  * --only can work as a sequence number (if < 80) or a port number (if >= 80) [jmay] [#81 state:resolved]

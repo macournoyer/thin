@@ -1,4 +1,5 @@
 require 'rake/gempackagetask'
+require 'yaml'
 
 WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'i386-mswin32'
 
@@ -58,6 +59,11 @@ end
 task :gem => :tag_warn
 
 namespace :gem do
+  desc "Update the gemspec for GitHub's gem server"
+  task :github do
+    File.open("thin.gemspec", 'w') { |f| f << YAML.dump(spec) }
+  end
+  
   desc 'Upload gem to code.macournoyer.com'
   task :upload => :gem do
     upload "pkg/#{spec.full_name}.gem", 'gems'

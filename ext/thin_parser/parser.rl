@@ -83,7 +83,7 @@
 /** Data **/
 %% write data;
 
-int http_parser_init(http_parser *parser)  {
+int thin_http_parser_init(http_parser *parser)  {
   int cs = 0;
   %% write init;
   parser->cs = cs;
@@ -99,7 +99,7 @@ int http_parser_init(http_parser *parser)  {
 
 
 /** exec **/
-size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, size_t off)  {
+size_t thin_http_parser_execute(http_parser *parser, const char *buffer, size_t len, size_t off)  {
   const char *p, *pe;
   int cs = parser->cs;
 
@@ -126,34 +126,32 @@ size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, 
 
   if(parser->body_start) {
     /* final \r\n combo encountered so stop right here */
-    %%write eof;
     parser->nread++;
   }
 
   return(parser->nread);
 }
 
-int http_parser_finish(http_parser *parser)
+int thin_http_parser_finish(http_parser *parser)
 {
   int cs = parser->cs;
 
-  %%write eof;
 
   parser->cs = cs;
 
-  if (http_parser_has_error(parser) ) {
+  if (thin_http_parser_has_error(parser) ) {
     return -1;
-  } else if (http_parser_is_finished(parser) ) {
+  } else if (thin_http_parser_is_finished(parser) ) {
     return 1;
   } else {
     return 0;
   }
 }
 
-int http_parser_has_error(http_parser *parser) {
+int thin_http_parser_has_error(http_parser *parser) {
   return parser->cs == http_parser_error;
 }
 
-int http_parser_is_finished(http_parser *parser) {
+int thin_http_parser_is_finished(http_parser *parser) {
   return parser->cs == http_parser_first_final;
 }
