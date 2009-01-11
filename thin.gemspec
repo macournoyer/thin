@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2008-12-16 00:00:00 -05:00
+date: 2009-01-11 00:00:00 +00:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -60,94 +60,10 @@ files:
 - benchmark/benchmarker.rb
 - benchmark/runner
 - bin/thin
-- doc/rdoc
-- doc/rdoc/classes
-- doc/rdoc/classes/Process.html
-- doc/rdoc/classes/Rack
-- doc/rdoc/classes/Rack/Adapter
-- doc/rdoc/classes/Rack/Adapter/Rails
-- doc/rdoc/classes/Rack/Adapter/Rails/CGIWrapper.html
-- doc/rdoc/classes/Rack/Adapter/Rails.html
-- doc/rdoc/classes/Rack/Adapter.html
-- doc/rdoc/classes/Rack/AdapterNotFound.html
-- doc/rdoc/classes/Rack/Handler
-- doc/rdoc/classes/Rack/Handler/Thin.html
-- doc/rdoc/classes/Rack/Handler.html
-- doc/rdoc/classes/Rack.html
-- doc/rdoc/classes/Thin
-- doc/rdoc/classes/Thin/Backends
-- doc/rdoc/classes/Thin/Backends/Base.html
-- doc/rdoc/classes/Thin/Backends/SwiftiplyClient.html
-- doc/rdoc/classes/Thin/Backends/TcpServer.html
-- doc/rdoc/classes/Thin/Backends/UnixServer.html
-- doc/rdoc/classes/Thin/Backends.html
-- doc/rdoc/classes/Thin/Command.html
-- doc/rdoc/classes/Thin/Connection.html
-- doc/rdoc/classes/Thin/Controllers
-- doc/rdoc/classes/Thin/Controllers/Cluster.html
-- doc/rdoc/classes/Thin/Controllers/Controller.html
-- doc/rdoc/classes/Thin/Controllers/Service.html
-- doc/rdoc/classes/Thin/Controllers.html
-- doc/rdoc/classes/Thin/Daemonizable
-- doc/rdoc/classes/Thin/Daemonizable/ClassMethods.html
-- doc/rdoc/classes/Thin/Daemonizable.html
-- doc/rdoc/classes/Thin/Headers.html
-- doc/rdoc/classes/Thin/InvalidOption.html
-- doc/rdoc/classes/Thin/InvalidRequest.html
-- doc/rdoc/classes/Thin/Logging.html
-- doc/rdoc/classes/Thin/OptionRequired.html
-- doc/rdoc/classes/Thin/PidFileExist.html
-- doc/rdoc/classes/Thin/PlatformNotSupported.html
-- doc/rdoc/classes/Thin/Request.html
-- doc/rdoc/classes/Thin/Response.html
-- doc/rdoc/classes/Thin/Runner.html
-- doc/rdoc/classes/Thin/RunnerError.html
-- doc/rdoc/classes/Thin/Server.html
-- doc/rdoc/classes/Thin/Stats
-- doc/rdoc/classes/Thin/Stats/Adapter.html
-- doc/rdoc/classes/Thin/Stats.html
-- doc/rdoc/classes/Thin/SwiftiplyConnection.html
-- doc/rdoc/classes/Thin/UnixConnection.html
-- doc/rdoc/classes/Thin.html
-- doc/rdoc/created.rid
-- doc/rdoc/files
-- doc/rdoc/files/bin
-- doc/rdoc/files/bin/thin.html
-- doc/rdoc/files/lib
-- doc/rdoc/files/lib/rack
-- doc/rdoc/files/lib/rack/adapter
-- doc/rdoc/files/lib/rack/adapter/loader_rb.html
-- doc/rdoc/files/lib/rack/adapter/rails_rb.html
-- doc/rdoc/files/lib/rack/handler
-- doc/rdoc/files/lib/rack/handler/thin_rb.html
-- doc/rdoc/files/lib/thin
-- doc/rdoc/files/lib/thin/backends
-- doc/rdoc/files/lib/thin/backends/base_rb.html
-- doc/rdoc/files/lib/thin/backends/swiftiply_client_rb.html
-- doc/rdoc/files/lib/thin/backends/tcp_server_rb.html
-- doc/rdoc/files/lib/thin/backends/unix_server_rb.html
-- doc/rdoc/files/lib/thin/command_rb.html
-- doc/rdoc/files/lib/thin/connection_rb.html
-- doc/rdoc/files/lib/thin/controllers
-- doc/rdoc/files/lib/thin/controllers/cluster_rb.html
-- doc/rdoc/files/lib/thin/controllers/controller_rb.html
-- doc/rdoc/files/lib/thin/controllers/service_rb.html
-- doc/rdoc/files/lib/thin/daemonizing_rb.html
-- doc/rdoc/files/lib/thin/headers_rb.html
-- doc/rdoc/files/lib/thin/logging_rb.html
-- doc/rdoc/files/lib/thin/request_rb.html
-- doc/rdoc/files/lib/thin/response_rb.html
-- doc/rdoc/files/lib/thin/runner_rb.html
-- doc/rdoc/files/lib/thin/server_rb.html
-- doc/rdoc/files/lib/thin/stats_rb.html
-- doc/rdoc/files/lib/thin/statuses_rb.html
-- doc/rdoc/files/lib/thin/version_rb.html
-- doc/rdoc/files/lib/thin_rb.html
-- doc/rdoc/files/README.html
-- doc/rdoc/index.html
-- doc/rdoc/logo.gif
-- doc/rdoc/rdoc-style.css
 - example/adapter.rb
+- example/async_app.ru
+- example/async_chat.ru
+- example/async_tailer.ru
 - example/config.ru
 - example/monit_sockets
 - example/monit_unixsock
@@ -188,7 +104,6 @@ files:
 - lib/thin/statuses.rb
 - lib/thin/version.rb
 - lib/thin.rb
-- lib/thin_parser.bundle
 - spec/backends
 - spec/backends/swiftiply_client_spec.rb
 - spec/backends/tcp_server_spec.rb
@@ -233,8 +148,6 @@ files:
 - spec/rails_app/config/initializers/inflections.rb
 - spec/rails_app/config/initializers/mime_types.rb
 - spec/rails_app/config/routes.rb
-- spec/rails_app/log
-- spec/rails_app/log/mongrel_debug
 - spec/rails_app/public
 - spec/rails_app/public/404.html
 - spec/rails_app/public/422.html
@@ -269,8 +182,6 @@ files:
 - spec/rails_app/script/process/spawner
 - spec/rails_app/script/runner
 - spec/rails_app/script/server
-- spec/rails_app/tmp
-- spec/rails_app/tmp/pids
 - spec/request
 - spec/request/mongrel_spec.rb
 - spec/request/parser_spec.rb
@@ -328,7 +239,7 @@ required_rubygems_version: !ruby/object:Gem::Requirement
 requirements: []
 
 rubyforge_project: thin
-rubygems_version: 1.2.0
+rubygems_version: 1.3.1
 signing_key: 
 specification_version: 2
 summary: A thin and fast web server
