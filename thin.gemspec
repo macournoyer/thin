@@ -8,7 +8,6 @@ authors:
 autorequire: 
 bindir: bin
 cert_chain: []
-
 date: 2009-01-11 00:00:00 +00:00
 default_executable: 
 dependencies: 
@@ -53,7 +52,6 @@ extra_rdoc_files: []
 files: 
 - COPYING
 - CHANGELOG
-- COMMITTERS
 - README
 - Rakefile
 - benchmark/abc
