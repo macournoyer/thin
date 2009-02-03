@@ -1,7 +1,7 @@
 --- !ruby/object:Gem::Specification 
 name: thin
 version: !ruby/object:Gem::Version 
-  version: 1.0.1
+  version: 1.1.0
 platform: ruby
 authors: 
 - Marc-Andre Cournoyer
@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2009-01-10 00:00:00 -05:00
+date: 2009-02-03 00:00:00 -05:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -240,7 +240,7 @@ required_rubygems_version: !ruby/object:Gem::Requirement
 requirements: []
 
 rubyforge_project: thin
-rubygems_version: 1.2.0
+rubygems_version: 1.3.1
 signing_key: 
 specification_version: 2
 summary: A thin and fast web server
