@@ -63,7 +63,7 @@ module Matchers
   class ValidateWithLint
     def matches?(request)
       @request = request
-      Rack::Lint.new(proc{[200, {'Content-Type' => 'text/html'}, []]}).call(@request.env)
+      Rack::Lint.new(proc{[200, {'Content-Type' => 'text/html', 'Content-Length' => '0'}, []]}).call(@request.env)
       true
     rescue Rack::Lint::LintError => e
       @message = e.message
@@ -71,7 +71,7 @@ module Matchers
     end
     
     def failure_message(negation=nil)
-      "should#{negation} validate with Rack Lint"
+      "should#{negation} validate with Rack Lint: #{@message}"
     end
 
     def negative_failure_message
