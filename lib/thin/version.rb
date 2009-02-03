@@ -5,14 +5,14 @@ module Thin
   
   module VERSION #:nodoc:
     MAJOR    = 1
-    MINOR    = 0
-    TINY     = 1
+    MINOR    = 1
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = "?".freeze
+    CODENAME = "Super Disco Power".freeze
     
-    RACK     = [0, 3].freeze # Latest Rack version that was tested
+    RACK     = [0, 1].freeze # Rack protocol version that was tested
   end
   
   NAME    = 'thin'.freeze

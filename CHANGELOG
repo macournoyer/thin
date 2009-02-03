@@ -1,4 +1,5 @@
-== 1.0.1 ? release
+== 1.1.0 Super Disco Power release
+ * Fix Rack protocol version to 0.1 in environment hash.
  * Fix error when passing no_epoll option to a cluster.
  * Omit parsing #defined strings [Jérémy Zurcher]
  * Defaults SERVER_NAME to localhost like webrick does [#87 state:resolved]
