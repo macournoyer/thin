@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2009-02-03 00:00:00 -05:00
+date: 2009-02-23 00:00:00 -05:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -20,7 +20,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.3.0
+        version: 0.9.1
     version: 
 - !ruby/object:Gem::Dependency 
   name: eventmachine
@@ -30,7 +30,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.12.0
+        version: 0.12.4
     version: 
 - !ruby/object:Gem::Dependency 
   name: daemons
@@ -73,8 +73,6 @@ files:
 - lib/rack/adapter
 - lib/rack/adapter/loader.rb
 - lib/rack/adapter/rails.rb
-- lib/rack/handler
-- lib/rack/handler/thin.rb
 - lib/thin
 - lib/thin/backends
 - lib/thin/backends/base.rb
