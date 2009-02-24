@@ -1,4 +1,5 @@
 == 1.1.0 Super Disco Power release
+ * Remove Thin handler, now part of Rack 0.9.1
  * Fix Rack protocol version to 0.1 in environment hash.
  * Fix error when passing no_epoll option to a cluster.
  * Omit parsing #defined strings [Jérémy Zurcher]
