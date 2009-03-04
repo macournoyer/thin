@@ -2,10 +2,11 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe Runner do
   it "should parse options" do
-    runner = Runner.new(%w(start --pid test.pid --port 5000))
+    runner = Runner.new(%w(start --pid test.pid --port 5000 -o 3000))
     
     runner.options[:pid].should == 'test.pid'
     runner.options[:port].should == 5000
+    runner.options[:only].should == 3000
   end
   
   it "should parse specified command" do
