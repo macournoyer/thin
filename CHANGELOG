@@ -1,3 +1,6 @@
+== 1.1.1 Super Disco Power Plus release 
+ * Fix bug when running with only options [hasimo]
+
 == 1.1.0 Super Disco Power release
  * Require EventMachine 0.12.4
  * Remove Thin handler, now part of Rack 0.9.1
