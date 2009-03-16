@@ -41,9 +41,6 @@ require 'rack'
 require 'rack/adapter/loader'
 
 module Rack
-  module Handler
-    autoload :Thin, 'rack/handler/thin'
-  end
   module Adapter
     autoload :Rails, 'rack/adapter/rails'
   end

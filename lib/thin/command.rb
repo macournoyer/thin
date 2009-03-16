@@ -34,12 +34,13 @@ module Thin
     # Turn into a runnable shell command
     def shellify
       shellified_options = @options.inject([]) do |args, (name, value)|
+        option_name = name.to_s.tr("_", "-")
         case value
         when NilClass,
-             TrueClass then args << "--#{name}"
+             TrueClass then args << "--#{option_name}"
         when FalseClass
-        when Array     then value.each { |v| args << "--#{name}=#{v.inspect}" }
-        else                args << "--#{name.to_s.tr('_', '-')}=#{value.inspect}"
+        when Array     then value.each { |v| args << "--#{option_name}=#{v.inspect}" }
+        else                args << "--#{option_name}=#{value.inspect}"
         end
         args
       end
