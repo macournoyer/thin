@@ -4,6 +4,7 @@ require 'fileutils'
 require 'timeout'
 require 'stringio'
 require 'time'
+require 'forwardable'
 
 require 'rubygems'
 require 'eventmachine'
