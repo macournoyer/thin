@@ -1,14 +1,15 @@
 --- !ruby/object:Gem::Specification 
 name: thin
 version: !ruby/object:Gem::Version 
-  version: 1.0.1
+  version: 1.1.0
 platform: ruby
 authors: 
 - Marc-Andre Cournoyer
 autorequire: 
 bindir: bin
 cert_chain: []
-date: 2009-01-11 00:00:00 +00:00
+
+date: 2009-02-23 00:00:00 -05:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -19,7 +20,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.3.0
+        version: 0.9.1
     version: 
 - !ruby/object:Gem::Dependency 
   name: eventmachine
@@ -29,7 +30,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.12.0
+        version: 0.12.4
     version: 
 - !ruby/object:Gem::Dependency 
   name: daemons
@@ -59,9 +60,6 @@ files:
 - benchmark/runner
 - bin/thin
 - example/adapter.rb
-- example/async_app.ru
-- example/async_chat.ru
-- example/async_tailer.ru
 - example/config.ru
 - example/monit_sockets
 - example/monit_unixsock
@@ -75,8 +73,6 @@ files:
 - lib/rack/adapter
 - lib/rack/adapter/loader.rb
 - lib/rack/adapter/rails.rb
-- lib/rack/handler
-- lib/rack/handler/thin.rb
 - lib/thin
 - lib/thin/backends
 - lib/thin/backends/base.rb
@@ -102,6 +98,7 @@ files:
 - lib/thin/statuses.rb
 - lib/thin/version.rb
 - lib/thin.rb
+- lib/thin_parser.bundle
 - spec/backends
 - spec/backends/swiftiply_client_spec.rb
 - spec/backends/tcp_server_spec.rb
@@ -146,6 +143,8 @@ files:
 - spec/rails_app/config/initializers/inflections.rb
 - spec/rails_app/config/initializers/mime_types.rb
 - spec/rails_app/config/routes.rb
+- spec/rails_app/log
+- spec/rails_app/log/mongrel_debug
 - spec/rails_app/public
 - spec/rails_app/public/404.html
 - spec/rails_app/public/422.html
@@ -180,6 +179,8 @@ files:
 - spec/rails_app/script/process/spawner
 - spec/rails_app/script/runner
 - spec/rails_app/script/server
+- spec/rails_app/tmp
+- spec/rails_app/tmp/pids
 - spec/request
 - spec/request/mongrel_spec.rb
 - spec/request/parser_spec.rb
