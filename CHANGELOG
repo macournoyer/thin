@@ -1,3 +1,6 @@
+== 1.2.0 Asynctilicious Supreme release 
+ * Add async response support, see example/async_*.ru [raggi]
+
 == 1.1.1 Super Disco Power Plus release 
  * Fix bug when running with only options [hasimo]
 
