@@ -26,7 +26,7 @@ module Thin
     CONNECTION        = 'HTTP_CONNECTION'.freeze
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
     CLOSE_REGEXP      = /\bclose\b/i.freeze
-
+    
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
     RACK_VERSION      = 'rack.version'.freeze
@@ -34,6 +34,8 @@ module Thin
     RACK_MULTITHREAD  = 'rack.multithread'.freeze
     RACK_MULTIPROCESS = 'rack.multiprocess'.freeze
     RACK_RUN_ONCE     = 'rack.run_once'.freeze
+    ASYNC_CALLBACK    = 'async.callback'.freeze
+    ASYNC_CLOSE       = 'async.close'.freeze
 
     # CGI-like request environment variables
     attr_reader :env
@@ -127,6 +129,15 @@ module Thin
 
     def threaded=(value)
       @env[RACK_MULTITHREAD] = value
+    end
+    
+    def async_callback=(callback)
+      @env[ASYNC_CALLBACK] = callback
+      @env[ASYNC_CLOSE] = EventMachine::DefaultDeferrable.new
+    end
+    
+    def async_close
+      @async_close ||= @env[ASYNC_CLOSE]
     end
 
     # Close any resource used by the request
