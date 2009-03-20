@@ -19,7 +19,7 @@ module Thin
   SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze  
   
   def self.win?
-    RUBY_PLATFORM =~ /mswin/
+    RUBY_PLATFORM =~ /mswin|mingw/
   end
   
   def self.linux?
