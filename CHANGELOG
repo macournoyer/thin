@@ -1,4 +1,5 @@
 == 1.2.0 Asynctilicious Supreme release 
+ * Add support for Windows mingw Ruby distro [Juan C. Rodriguez]
  * Add async response support, see example/async_*.ru [raggi]
 
 == 1.1.1 Super Disco Power Plus release 
