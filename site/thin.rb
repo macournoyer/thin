@@ -187,6 +187,7 @@ class Thin < Atchoum::Website
     p "Who's using Thin ?"
     
     ul do
+      li { a 'Heroku', :href => 'http://heroku.com/' }
       li { a 'HostingRails', :href => 'http://www.hostingrails.com/mongrel_and_thin_hosting' }
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
@@ -235,6 +236,7 @@ class Thin < Atchoum::Website
       li { a "Generous", :href => 'http://generous.org.uk/'}
       li { a "Catapult Magazine", :href => 'http://www.catapultmagazine.com/'}
       li { a "Good-Tutorials", :href => 'http://www.good-tutorials.com/'}
+      li { a "audioreload", :href => 'http://www.audioreload.com/'}
     end
     
     p { "If you'd like to have your site listed here, #{a 'drop me an email', :href => 'mailto:macournoyer@gmail.com'}" }
