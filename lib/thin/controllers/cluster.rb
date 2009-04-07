@@ -1,3 +1,5 @@
+require 'socket'
+
 module Thin
   module Controllers
     # Control a set of servers.
@@ -7,7 +9,10 @@ module Thin
     class Cluster < Controller
       # Cluster only options that should not be passed in the command sent
       # to the indiviual servers.
-      CLUSTER_OPTIONS = [:servers, :only, :restart_one_by_one]
+      CLUSTER_OPTIONS = [:servers, :only, :onebyone, :wait]
+      
+      # Maximum wait time for the server to be restarted
+      MAXIMUM_WAIT_TIME = 30    # seconds
       
       # Create a new cluster of servers launched using +options+.
       def initialize(options)
@@ -15,7 +20,7 @@ module Thin
         # Cluster can only contain daemonized servers
         @options.merge!(:daemonize => true)
       end
-    
+      
       def first_port; @options[:port]     end
       def address;    @options[:address]  end
       def socket;     @options[:socket]   end
@@ -23,7 +28,11 @@ module Thin
       def log_file;   @options[:log]      end
       def size;       @options[:servers]  end
       def only;       @options[:only]     end
-      def restart_one_by_one; @options[:restart_one_by_one] end
+      def onebyone;   @options[:onebyone] end
+      def wait;       @options[:wait]     end
+      
+      # An exception class to handle the event that server didn't start on time
+      class ServerNotStartedInTimeError < RuntimeError; end
 
       def swiftiply?
         @options.has_key?(:swiftiply)
@@ -55,13 +64,37 @@ module Thin
     
       # Stop and start the servers.
       def restart
-        unless restart_one_by_one
+        unless onebyone
           # Let's do a normal restart by defaults
           stop
           sleep 0.1 # Let's breath a bit shall we ?
           start
         else
-          with_each_server{ |n| stop_server(n); start_server(n); }
+          with_each_server do |n| 
+            stop_server(n)
+            sleep 0.1 # Let's breath a bit shall we ?
+            start_server(n)
+            wait_until_server_started(n)
+          end
+        end
+      end
+      
+      # Make sure the server is running before moving on to the next one.
+      def wait_until_server_started(number)
+        tries = 0
+        log "Waiting for server to start ..."
+        
+        loop do
+          test_socket = (socket ? UNIXSocket.new(socket_for(number)) : TCPSocket.new("127.0.0.1", number)) rescue nil
+          if test_socket
+            test_socket.close
+            break
+          elsif tries < wait
+            sleep 1
+            tries += 1
+          else
+            raise ServerNotStartedInTimeError, "The server didn't start in time. Please look at server's log file for more information, or set the value of 'wait' in your config file to be higher (defaults: 30)."
+          end
         end
       end
     
