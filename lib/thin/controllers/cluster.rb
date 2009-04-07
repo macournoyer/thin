@@ -83,6 +83,7 @@ module Thin
       def wait_until_server_started(number)
         tries = 0
         log "Waiting for server to start ..."
+        STDOUT.flush # Need this to make sure user got the message
         
         loop do
           test_socket = (socket ? UNIXSocket.new(socket_for(number)) : TCPSocket.new("127.0.0.1", number)) rescue nil
