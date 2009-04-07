@@ -7,7 +7,7 @@ module Thin
     class Cluster < Controller
       # Cluster only options that should not be passed in the command sent
       # to the indiviual servers.
-      CLUSTER_OPTIONS = [:servers, :only]
+      CLUSTER_OPTIONS = [:servers, :only, :restart_one_by_one]
       
       # Create a new cluster of servers launched using +options+.
       def initialize(options)
@@ -23,6 +23,7 @@ module Thin
       def log_file;   @options[:log]      end
       def size;       @options[:servers]  end
       def only;       @options[:only]     end
+      def restart_one_by_one; @options[:restart_one_by_one] end
 
       def swiftiply?
         @options.has_key?(:swiftiply)
@@ -54,9 +55,14 @@ module Thin
     
       # Stop and start the servers.
       def restart
-        stop
-        sleep 0.1 # Let's breath a bit shall we ?
-        start
+        unless restart_one_by_one
+          # Let's do a normal restart by defaults
+          stop
+          sleep 0.1 # Let's breath a bit shall we ?
+          start
+        else
+          with_each_server{ |n| stop_server(n); start_server(n); }
+        end
       end
     
       def server_id(number)
