@@ -41,7 +41,8 @@ module Thin
         :pid                  => 'tmp/pids/thin.pid',
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
-        :require              => []
+        :require              => [],
+        :wait                 => Controllers::Cluster::MAXIMUM_WAIT_TIME
       }
       
       parse!
