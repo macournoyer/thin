@@ -80,8 +80,10 @@ module Thin
     # define your own +each+ method on +body+.
     def each
       yield head
-      @body.each do |chunk|
-        yield chunk
+      if @body.is_a?(String)
+        yield @body
+      else
+        @body.each { |chunk| yield chunk }
       end
     end
 

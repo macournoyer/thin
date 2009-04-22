@@ -7,6 +7,7 @@ require 'time'
 require 'forwardable'
 
 require 'rubygems'
+require 'openssl'
 require 'eventmachine'
 
 require 'thin/version'

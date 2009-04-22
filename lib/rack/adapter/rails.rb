@@ -22,7 +22,13 @@ module Rack
         
         load_application
         
-        @file_server = Rack::File.new(::File.join(RAILS_ROOT, "public"))
+        @rails_app = if ActionController::Dispatcher.instance_methods.include?(:call)
+          ActionController::Dispatcher.new
+        else
+          CgiApp.new
+        end
+        
+        @file_app = Rack::File.new(::File.join(RAILS_ROOT, "public"))
       end
       
       def load_application
@@ -32,7 +38,7 @@ module Rack
         require 'dispatcher'
         
         if @prefix
-          if ActionController::Base.respond_to?('relative_url_root=')
+          if ActionController::Base.respond_to?(:relative_url_root=)
             ActionController::Base.relative_url_root = @prefix # Rails 2.1.1
           else
             ActionController::AbstractRequest.relative_url_root = @prefix
@@ -40,26 +46,9 @@ module Rack
         end
       end
       
-      # TODO refactor this in File#can_serve?(path) ??
       def file_exist?(path)
-        full_path = ::File.join(@file_server.root, Utils.unescape(path))
+        full_path = ::File.join(@file_app.root, Utils.unescape(path))
         ::File.file?(full_path) && ::File.readable_real?(full_path)
-      end
-      
-      def serve_file(env)
-        @file_server.call(env)
-      end
-      
-      def serve_rails(env)
-        request         = Request.new(env)
-        response        = Response.new
-        
-        session_options = ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS
-        cgi             = CGIWrapper.new(request, response)
-    
-        Dispatcher.dispatch(cgi, session_options, response)
-
-        response.finish
       end
       
       def call(env)
@@ -69,18 +58,31 @@ module Rack
         
         if FILE_METHODS.include?(method)
           if file_exist?(path)              # Serve the file if it's there
-            return serve_file(env)
+            return @file_app.call(env)
           elsif file_exist?(cached_path)    # Serve the page cache if it's there
             env['PATH_INFO'] = cached_path
-            return serve_file(env)
+            return @file_app.call(env)
           end
         end
         
         # No static file, let Rails handle it
-        serve_rails(env)
+        @rails_app.call(env)
       end
     
       protected
+        # For Rails pre Rack (2.3)
+        class CgiApp
+          def call(env)
+            request         = Request.new(env)
+            response        = Response.new
+            session_options = ActionController::CgiRequest::DEFAULT_SESSION_OPTIONS
+            cgi             = CGIWrapper.new(request, response)
+
+            Dispatcher.dispatch(cgi, session_options, response)
+
+            response.finish
+          end
+        end
         
         class CGIWrapper < ::CGI
           def initialize(request, response, *args)

@@ -1,3 +1,8 @@
+== 1.2.1 Asynctilicious Ultra Supreme release
+ * Use Rails Rack based dispatcher when available in Rails 2.3
+ * Allow String for response body
+ * Require openssl before eventmachine to prevent crash in 1.9
+
 == 1.2.0 Asynctilicious Supreme release 
  * Add support for Windows mingw Ruby distro [Juan C. Rodriguez]
  * Add async response support, see example/async_*.ru [raggi]

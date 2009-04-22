@@ -52,6 +52,14 @@ describe Response do
   end
   
   it 'should output body' do
+    @response.body = ['<html>', '</html>']
+    
+    out = ''
+    @response.each { |l| out << l }
+    out.should include("\r\n\r\n<html></html>")
+  end
+    
+  it 'should output String body' do
     @response.body = '<html></html>'
     
     out = ''
