@@ -6,7 +6,7 @@
 # Check Rack::Builder doc for more details on this file format:
 #  http://rack.rubyforge.org/doc/classes/Rack/Builder.html
 
-require File.dirname(__FILE__) + '/../lib/thin'
+require ::File.dirname(__FILE__) + '/../lib/thin'
 
 app = proc do |env|
   # Response body has to respond to each and yield strings
