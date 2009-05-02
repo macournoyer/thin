@@ -12,7 +12,7 @@ module Thin
     
     CODENAME = "Asynctilicious Ultra Supreme".freeze
     
-    RACK     = [0, 1].freeze # Rack protocol version that was tested
+    RACK     = [1, 0].freeze # Rack protocol version
   end
   
   NAME    = 'thin'.freeze

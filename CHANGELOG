@@ -1,5 +1,7 @@
 == 1.2.1 Asynctilicious Ultra Supreme release
- * Use Rails Rack based dispatcher when available in Rails 2.3
+ * Require Rack 1.0.0
+ * Require EventMachine 0.12.6
+ * Use Rails Rack based dispatcher when available
  * Allow String for response body
  * Require openssl before eventmachine to prevent crash in 1.9
 

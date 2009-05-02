@@ -20,8 +20,8 @@ spec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '>= 0.9.1'
-  s.add_dependency        'eventmachine', '>= 0.12.4'
+  s.add_dependency        'rack',         '>= 1.0.0'
+  s.add_dependency        'eventmachine', '>= 0.12.6'
   unless WIN
     s.add_dependency      'daemons',      '>= 1.0.9'
   end
