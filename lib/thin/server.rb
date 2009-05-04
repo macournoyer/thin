@@ -59,7 +59,10 @@ module Thin
         
     # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
-    
+
+    # A tag that will show in the process listing
+    attr_accessor :tag
+
     # Backend handling the connections to the clients.
     attr_accessor :backend
     
@@ -103,6 +106,9 @@ module Thin
         end
       end
       
+      # Set tag if needed
+      self.tag = options[:tag]
+
       # Try to intelligently select which backend to use.
       @backend = select_backend(host, port, options)
       
@@ -188,7 +194,8 @@ module Thin
     # Name of the server and type of backend used.
     # This is also the name of the process in which Thin is running as a daemon.
     def name
-      "thin server (#{@backend})"
+      buffer = "thin server (#{@backend})"
+      	buffer << " [#{tag}]" unless tag.nil? || tag.empty?
     end
     alias :to_s :name
     

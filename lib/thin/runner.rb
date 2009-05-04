@@ -87,6 +87,7 @@ module Thin
                                       "(default: #{@options[:pid]})")                   { |file| @options[:pid] = file }
           opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")           { |user| @options[:user] = user }
           opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")         { |group| @options[:group] = group }
+          opts.on(      "--tag NAME", "Additional text to display in process listing")  { |tag| @options[:tag] = tag }
                                                                                       
           opts.separator ""
           opts.separator "Cluster options:"                                             
