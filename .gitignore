@@ -2,6 +2,7 @@ ext/thin_parser/Makefile
 ext/thin_parser/conftest.dSYM/*
 ext/thin_parser/*.log
 ext/thin_parser/*.o
+ext/thin_parser/*.class
 ext/thin_parser/*.bundle
 ext/thin_parser/*.obj
 ext/thin_parser/*mswin32*

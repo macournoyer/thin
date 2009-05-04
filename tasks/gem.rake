@@ -71,12 +71,6 @@ namespace :gem do
   end
   
   namespace :upload do
-    desc 'Upload the precompiled win32 gem to code.macournoyer.com'
-    task :win do
-      upload "pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
-      system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
-    end    
-
     desc 'Upload gems (ruby & win32) to rubyforge.org'
     task :rubyforge => :gem do
       sh 'rubyforge login'
@@ -85,24 +79,4 @@ namespace :gem do
       sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem"
     end
   end
-  
-  desc 'Download the Windows gem from Kevin repo'
-  task 'download:win' => 'pkg' do
-    cd 'pkg' do
-      `wget http://rubygems.bantamtech.com/ruby18/gems/#{spec.full_name}-#{WIN_SUFFIX}.gem`
-    end
-  end
-end
-
-task :install => [:clobber, :compile, :package] do
-  sh "#{SUDO} #{gem} install pkg/#{spec.full_name}.gem"
-end
-
-task :uninstall => :clean do
-  sh "#{SUDO} #{gem} uninstall -v #{Thin::VERSION::STRING} -x #{Thin::NAME}"
-end
-
-
-def gem
-  RUBY_1_9 ? 'gem19' : 'gem'
 end

@@ -14,7 +14,7 @@ def ext_task(name)
   
   task "compile:#{name}" => ["#{ext_dir}/Makefile", ext_bundle]
   task :compile => "compile:#{name}"
-  
+
   file "#{ext_dir}/Makefile" => ["#{ext_dir}/extconf.rb"] do
     cd(ext_dir) { ruby "extconf.rb" }
   end
@@ -27,16 +27,25 @@ def ext_task(name)
   end
 end
 
-desc "Compile the Ragel state machines"
-task :ragel do
-  Dir.chdir 'ext/thin_parser' do
-    target = "parser.c"
-    File.unlink target if File.exist? target
-    sh "ragel parser.rl | rlgen-cd -G2 -o #{target}"
-    raise "Failed to compile Ragel state machine" unless File.exist? target
-  end
-end
+def jruby_ext_task(name)
+  ext_dir   = "ext/#{name}"
+  build_dir = "ext/#{name}/classes"
+  jar_file  = "lib/#{name}.jar"
   
+  # Avoid JRuby in-process launching problem
+  require 'jruby'
+  JRuby.runtime.instance_config.run_ruby_in_process = false
+  classpath = Java::java.lang.System.getProperty('java.class.path')
+  
+  file jar_file do
+    mkdir_p build_dir
+    sources = FileList["ext/#{name}/**/*.java"].join(' ')
+    sh "javac -target 1.4 -source 1.4 -d #{build_dir} -cp #{classpath} #{sources}"
+    sh "jar cf #{jar_file} -C #{build_dir} ."
+  end
+  task :compile => [jar_file]
+end
+
 desc "Compile the extensions"
 task :compile
 task :package => :compile
