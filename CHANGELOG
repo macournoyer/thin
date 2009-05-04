@@ -1,3 +1,7 @@
+== ? release
+ * Add process name 'tag' functionality. Easier to distinguish thin daemons 
+   from eachother in process listing [ctcherry]
+
 == 1.2.1 Asynctilicious Ultra Supreme release
  * Require Rack 1.0.0
  * Require EventMachine 0.12.6

@@ -194,8 +194,7 @@ module Thin
     # Name of the server and type of backend used.
     # This is also the name of the process in which Thin is running as a daemon.
     def name
-      buffer = "thin server (#{@backend})"
-      	buffer << " [#{tag}]" unless tag.nil? || tag.empty?
+      "thin server (#{@backend})" + (tag ? " [#{tag}]" : "")
     end
     alias :to_s :name
     
