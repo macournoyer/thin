@@ -12,7 +12,7 @@ Dir['tasks/**/*.rake'].each { |rake| load rake }
 task :default => :spec
 
 if JRUBY
-  jruby_ext_task :thin_parser_jruby
+  jruby_ext_task :thin_parser_jruby, "lib/thin_parser.jar"
 else
   ext_task :thin_parser
 end

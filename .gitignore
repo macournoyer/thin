@@ -8,8 +8,10 @@ ext/thin_parser/*.obj
 ext/thin_parser/*mswin32*
 ext/thin_parser/vc60.pdb
 ext/thin_parser/*.so
+ext/thin_parser_jruby/classes
 lib/*.bundle
 lib/*.so
+lib/*.jar
 log
 spec/rails_app/log
 doc/rdoc/*

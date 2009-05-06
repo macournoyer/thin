@@ -29,4 +29,8 @@ module Thin
   def self.ruby_18?
     RUBY_VERSION =~ /^1\.8/
   end
+
+  def self.jruby?
+    RUBY_PLATFORM =~ /java/
+  end
 end

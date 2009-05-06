@@ -79,7 +79,7 @@ public class HttpParser {
      public void call(Object data, int field, int flen, int value, int vlen);
    }
 
-   public static class HttpParser {
+   public static class HttpParserMachine {
       int cs;
       int body_start;
       int content_len;
@@ -115,7 +115,7 @@ public class HttpParser {
       }
    }
 
-   public final HttpParser parser = new HttpParser();
+   public final HttpParserMachine parser = new HttpParserMachine();
 
    public int execute(ByteList buffer, int off) {
      int p, pe;
@@ -142,7 +142,6 @@ public class HttpParser {
 
      if(parser.body_start>0) {
         /* final \r\n combo encountered so stop right here */
-        parser.eof = p;
         parser.nread++;
      }
 
@@ -151,8 +150,6 @@ public class HttpParser {
 
    public int finish() {
      int cs = parser.cs;
-
-     parser.eof = p;
 
      parser.cs = cs;
  

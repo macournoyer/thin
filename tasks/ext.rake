@@ -27,10 +27,9 @@ def ext_task(name)
   end
 end
 
-def jruby_ext_task(name)
+def jruby_ext_task(name, jar_file)
   ext_dir   = "ext/#{name}"
   build_dir = "ext/#{name}/classes"
-  jar_file  = "lib/#{name}.jar"
   
   # Avoid JRuby in-process launching problem
   require 'jruby'

@@ -248,7 +248,7 @@ static final int http_parser_en_main = 1;
       }
    }
 
-   public final HttpParser parser = new HttpParserMachine();
+   public final HttpParserMachine parser = new HttpParserMachine();
 
    public int execute(ByteList buffer, int off) {
      int p, pe;
@@ -456,7 +456,6 @@ case 5:
 
      if(parser.body_start>0) {
         /* final \r\n combo encountered so stop right here */
-        parser.eof = p;
         parser.nread++;
      }
 
@@ -465,8 +464,6 @@ case 5:
 
    public int finish() {
      int cs = parser.cs;
-
-     parser.eof = p;
 
      parser.cs = cs;
  
