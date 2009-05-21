@@ -135,6 +135,29 @@ describe Cluster, "controlling only one server" do
     end
 end
 
+describe Cluster, "controlling only one server with UNIX socket" do
+  before do
+    @cluster = Cluster.new(:chdir => '/rails_app',
+                           :socket => '/tmp/thin.sock',
+                           :address => '0.0.0.0',
+                           :port => 3000,
+                           :servers => 3,
+                           :timeout => 10,
+                           :log => 'thin.log',
+                           :pid => 'thin.pid',
+                           :only => 1
+                          )
+  end
+  
+  it 'should call only specified server' do
+    calls = []
+    @cluster.send(:with_each_server) do |n|
+      calls << n
+    end
+    calls.should == [1]
+  end
+end
+
 describe Cluster, "controlling only one server, by sequence number" do
   before do
     @cluster = Cluster.new(:chdir => '/rails_app',

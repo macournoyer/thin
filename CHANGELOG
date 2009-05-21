@@ -1,4 +1,5 @@
 == ? release
+ * Fix regression when --only option is used w/ --socket.
  * Add process name 'tag' functionality. Easier to distinguish thin daemons 
    from eachother in process listing [ctcherry]
 

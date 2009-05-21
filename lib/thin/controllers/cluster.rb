@@ -102,9 +102,9 @@ module Thin
       
         def with_each_server
           if only
-            if only < 80
+            if first_port && only < 80
               # interpret +only+ as a sequence number
-              yield(first_port + only)
+              yield first_port + only
             else
               # interpret +only+ as an absolute port number
               yield only
