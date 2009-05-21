@@ -108,16 +108,14 @@ module Thin
       
       # Send a +signal+ to the process which PID is stored in +pid_file+.
       def send_signal(signal, pid_file, timeout=60)
-        if File.file?(pid_file) && pid = File.read(pid_file)
-          pid = pid.to_i
+        if pid = read_pid_file(pid_file)
           Logging.log "Sending #{signal} signal to process #{pid} ... "
           Process.kill(signal, pid)
           Timeout.timeout(timeout) do
             sleep 0.1 while Process.running?(pid)
           end
-          Logging.log ""
         else
-          puts "Can't stop process, no PID found in #{pid_file}"
+          Logging.log "Can't stop process, no PID found in #{pid_file}"
         end
       rescue Timeout::Error
         Logging.log "Timeout!"
@@ -130,8 +128,21 @@ module Thin
       end
       
       def force_kill(pid_file)
-        Process.kill("KILL", File.read(pid_file))      rescue nil
-        File.delete(pid_file) if File.exist?(pid_file) rescue nil
+        if pid = read_pid_file(pid_file)
+          Logging.log "Sending KILL signal to process #{pid} ... "
+          Process.kill("KILL", pid)
+          File.delete(pid_file) if File.exist?(pid_file)
+        else
+          Logging.log "Can't stop process, no PID found in #{pid_file}"
+        end
+      end
+      
+      def read_pid_file(file)
+        if File.file?(file) && pid = File.read(file)
+          pid.to_i
+        else
+          nil
+        end
       end
     end
     
