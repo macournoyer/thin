@@ -1,7 +1,7 @@
 --- !ruby/object:Gem::Specification 
 name: thin
 version: !ruby/object:Gem::Version 
-  version: 1.1.0
+  version: 1.2.2
 platform: ruby
 authors: 
 - Marc-Andre Cournoyer
@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2009-02-23 00:00:00 -05:00
+date: 2009-05-21 00:00:00 -04:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -20,7 +20,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.9.1
+        version: 1.0.0
     version: 
 - !ruby/object:Gem::Dependency 
   name: eventmachine
@@ -30,7 +30,7 @@ dependencies:
     requirements: 
     - - ">="
       - !ruby/object:Gem::Version 
-        version: 0.12.4
+        version: 0.12.6
     version: 
 - !ruby/object:Gem::Dependency 
   name: daemons
@@ -60,6 +60,9 @@ files:
 - benchmark/runner
 - bin/thin
 - example/adapter.rb
+- example/async_app.ru
+- example/async_chat.ru
+- example/async_tailer.ru
 - example/config.ru
 - example/monit_sockets
 - example/monit_unixsock
@@ -179,8 +182,6 @@ files:
 - spec/rails_app/script/process/spawner
 - spec/rails_app/script/runner
 - spec/rails_app/script/server
-- spec/rails_app/tmp
-- spec/rails_app/tmp/pids
 - spec/request
 - spec/request/mongrel_spec.rb
 - spec/request/parser_spec.rb
