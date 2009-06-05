@@ -189,10 +189,11 @@ class Thin < Atchoum::Website
     ul do
       li { a 'Heroku', :href => 'http://heroku.com/' }
       li { a 'HostingRails', :href => 'http://www.hostingrails.com/mongrel_and_thin_hosting' }
+      li { a 'Mobile Defense', :href => 'https://www.mobiledefense.com' }
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
-      li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/tag/thin' }
       li { a "Gitorious", :href => 'http://gitorious.org/' }
+      li { a "Kevin Williams Blog", :href => 'http://www.almostserio.us/articles/tag/thin' }
       li { a "Dinooz", :href => 'http://www.nicomoayudarte.com/' }
       li { a "Mobile Dyne Systems", :href => 'http://www.mobiledyne.com/' }
       li { a "feelfree.homelinux.com", :href => 'http://feelfree.homelinux.com' }
