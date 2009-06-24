@@ -126,7 +126,7 @@ module Thin
     end
 
     def close_request_response
-      @request.async_close.succeed
+      @request.async_close.succeed if @request.async_close
       @request.close  rescue nil
       @response.close rescue nil
     end
