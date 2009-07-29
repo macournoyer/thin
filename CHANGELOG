@@ -1,3 +1,6 @@
+== 1.2.3
+ * Fix uninitialized constant ActionController::Dispatcher error with Rails 1.2.3 [Chris Anderton] [#103 state:resolved]
+
 == 1.2.2 I Find Your Lack of Sauce Disturbing release
  * Fix force kill under 1.9 [Alexey Chebotar]
  * Fix regression when --only option is used w/ --socket.
