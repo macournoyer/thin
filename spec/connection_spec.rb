@@ -40,9 +40,10 @@ describe Connection do
     @connection.process
   end
   
-  it "should return HTTP_X_FORWARDED_FOR as remote_address" do
+  it "should not return HTTP_X_FORWARDED_FOR as remote_address" do
     @connection.request.env['HTTP_X_FORWARDED_FOR'] = '1.2.3.4'
-    @connection.remote_address.should == '1.2.3.4'
+    @connection.stub!(:socket_address).and_return("127.0.0.1")
+    @connection.remote_address.should == "127.0.0.1"
   end
   
   it "should return nil on error retreiving remote_address" do

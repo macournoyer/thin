@@ -21,7 +21,6 @@ module Thin
     HTTP_VERSION      = 'HTTP_VERSION'.freeze
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
-    FORWARDED_FOR     = 'HTTP_X_FORWARDED_FOR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
     CONNECTION        = 'HTTP_CONNECTION'.freeze
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
@@ -121,10 +120,6 @@ module Thin
 
     def remote_address=(address)
       @env[REMOTE_ADDR] = address
-    end
-
-    def forwarded_for
-      @env[FORWARDED_FOR]
     end
 
     def threaded=(value)
