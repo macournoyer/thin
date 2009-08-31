@@ -10,7 +10,7 @@ module Thin
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = "Astroboy".freeze
+    CODENAME = "Flaming Astroboy".freeze
     
     RACK     = [1, 0].freeze # Rack protocol version
   end

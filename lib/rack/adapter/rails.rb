@@ -22,13 +22,19 @@ module Rack
         
         load_application
         
-        @rails_app = if ActionController.const_defined?(:Dispatcher) && ActionController::Dispatcher.instance_methods.include?(:call)
+        @rails_app = if rack_based?
           ActionController::Dispatcher.new
         else
           CgiApp.new
         end
         
         @file_app = Rack::File.new(::File.join(RAILS_ROOT, "public"))
+      end
+      
+      def rack_based?
+        ActionController.const_defined?(:Dispatcher) &&
+          (ActionController::Dispatcher.instance_methods.include?(:call)
+           || ActionController::Dispatcher.instance_methods.include?("call")
       end
       
       def load_application
