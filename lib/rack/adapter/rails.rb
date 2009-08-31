@@ -34,7 +34,7 @@ module Rack
       def rack_based?
         ActionController.const_defined?(:Dispatcher) &&
           (ActionController::Dispatcher.instance_methods.include?(:call)
-           || ActionController::Dispatcher.instance_methods.include?("call")
+           || ActionController::Dispatcher.instance_methods.include?("call"))
       end
       
       def load_application
