@@ -6,7 +6,6 @@ require 'stringio'
 require 'time'
 require 'forwardable'
 
-require 'rubygems'
 require 'openssl'
 require 'eventmachine'
 
