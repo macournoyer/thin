@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Thin command line interface script.
 # Run <tt>thin -h</tt> to get more usage.
-require File.dirname(__FILE__) + '/../lib/thin'
 
+require 'thin'
 Thin::Runner.new(ARGV).run!
