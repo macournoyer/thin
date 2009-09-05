@@ -23,6 +23,7 @@ else
   
   def spec_task(name, specs)
     Spec::Rake::SpecTask.new(name) do |t|
+      t.libs << 'lib'
       t.spec_opts = %w(-fs -c)
       t.spec_files = specs
     end

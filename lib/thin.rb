@@ -1,5 +1,3 @@
-$:.unshift File.expand_path(File.dirname(__FILE__))
-
 require 'fileutils'
 require 'timeout'
 require 'stringio'

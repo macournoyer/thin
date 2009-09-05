@@ -3,7 +3,9 @@
 # Takes the same arguments as the thin script.
 require 'rubygems'
 require 'ruby-prof'
-require File.dirname(__FILE__) + '/../lib/thin'
+
+$: << File.join(File.dirname(__FILE__), '..', 'lib')
+require 'thin'
 
 class Adapter
   def call(env)

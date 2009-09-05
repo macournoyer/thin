@@ -4,7 +4,9 @@ SUDO     = (WIN ? "" : "sudo")
 
 require 'rake'
 require 'rake/clean'
-require 'lib/thin'
+
+$: << File.join(File.dirname(__FILE__), 'lib')
+require 'thin'
 
 Dir['tasks/**/*.rake'].each { |rake| load rake }
 

@@ -6,7 +6,10 @@
 #
 #  ruby simple.rb [num of request] [print|graph] [concurrency levels]
 #
-require File.dirname(__FILE__) + '/../lib/thin'
+
+$: << File.join(File.dirname(__FILE__), '..', 'lib')
+require 'thin'
+
 require File.dirname(__FILE__) + '/benchmarker'
 require 'optparse'
 

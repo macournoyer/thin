@@ -1,7 +1,7 @@
 # Run with: ruby adapter.rb
 # Then browse to http://localhost:3000/test
 # and http://localhost:3000/files/adapter.rb
-require File.dirname(__FILE__) + '/../lib/thin'
+require 'thin'
 
 class SimpleAdapter
   def call(env)

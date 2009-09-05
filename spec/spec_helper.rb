@@ -1,5 +1,5 @@
 require 'rubygems'
-require File.dirname(__FILE__) + '/../lib/thin'
+require 'thin'
 require 'spec'
 require 'benchmark'
 require 'timeout'

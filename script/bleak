@@ -73,7 +73,9 @@ end
 
 require 'rubygems'
 require 'bleak_house'
-require File.dirname(__FILE__) + '/../lib/thin'
+
+$: << File.join(File.dirname(__FILE__), '..', 'lib')
+require 'thin'
 
 Thin::Connection.send :include, BleakInstruments::Connection
 Thin::Backends::TcpServer.send :include, BleakInstruments::Backend
