@@ -5,7 +5,7 @@ WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'i386-mswin32'
 
 task :clean => :clobber_package
 
-spec = Gem::Specification.new do |s|
+Thin::GemSpec = Gem::Specification.new do |s|
   s.name                  = Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = WIN ? Gem::Platform::CURRENT : Gem::Platform::RUBY
@@ -40,8 +40,8 @@ spec = Gem::Specification.new do |s|
   s.bindir                = "bin"
 end
 
-Rake::GemPackageTask.new(spec) do |p|
-  p.gem_spec = spec
+Rake::GemPackageTask.new(Thin::GemSpec) do |p|
+  p.gem_spec = Thin::GemSpec
 end
 
 task :tag_warn do
@@ -61,48 +61,22 @@ task :gem => :tag_warn
 namespace :gem do
   desc "Update the gemspec for GitHub's gem server"
   task :github do
-    File.open("thin.gemspec", 'w') { |f| f << YAML.dump(spec) }
-  end
-  
-  desc 'Upload gem to code.macournoyer.com'
-  task :upload => :gem do
-    upload "pkg/#{spec.full_name}.gem", 'gems'
-    system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
+    File.open("thin.gemspec", 'w') { |f| f << YAML.dump(Thin::GemSpec) }
   end
   
   namespace :upload do
     desc 'Upload the precompiled win32 gem to code.macournoyer.com'
     task :win do
-      upload "pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
+      upload "pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
       system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
     end    
 
     desc 'Upload gems (ruby & win32) to rubyforge.org'
     task :rubyforge => :gem do
       sh 'rubyforge login'
-      sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
-      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}.gem"
-      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{spec.full_name}-#{WIN_SUFFIX}.gem"
+      sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
+      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
+      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem"
     end
   end
-  
-  desc 'Download the Windows gem from Kevin repo'
-  task 'download:win' => 'pkg' do
-    cd 'pkg' do
-      `wget http://rubygems.bantamtech.com/ruby18/gems/#{spec.full_name}-#{WIN_SUFFIX}.gem`
-    end
-  end
-end
-
-task :install => [:clobber, :compile, :package] do
-  sh "#{SUDO} #{gem} install pkg/#{spec.full_name}.gem"
-end
-
-task :uninstall => :clean do
-  sh "#{SUDO} #{gem} uninstall -v #{Thin::VERSION::STRING} -x #{Thin::NAME}"
-end
-
-
-def gem
-  RUBY_1_9 ? 'gem19' : 'gem'
 end
