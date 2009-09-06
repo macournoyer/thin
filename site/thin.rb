@@ -189,6 +189,8 @@ class Thin < Atchoum::Website
     ul do
       li { a 'Heroku', :href => 'http://heroku.com/' }
       li { a 'HostingRails', :href => 'http://www.hostingrails.com/mongrel_and_thin_hosting' }
+      li { a "Audiofarm.org", :href => 'http://audiofarm.org'}
+      li { a "What The Movie", :href => 'http://whatthemovie.com/'}
       li { a 'Mobile Defense', :href => 'https://www.mobiledefense.com' }
       li { a 'RefactorMyCode.com', :href => 'http://refactormycode.com/' }
       li { a "Standout Jobs", :href => 'http://standoutjobs.com/'}
