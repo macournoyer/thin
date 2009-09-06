@@ -1,7 +1,7 @@
 --- !ruby/object:Gem::Specification 
 name: thin
 version: !ruby/object:Gem::Version 
-  version: 1.2.2
+  version: 1.2.4
 platform: ruby
 authors: 
 - Marc-Andre Cournoyer
@@ -9,7 +9,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2009-05-21 00:00:00 -04:00
+date: 2009-09-06 00:00:00 -04:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -101,7 +101,7 @@ files:
 - lib/thin/statuses.rb
 - lib/thin/version.rb
 - lib/thin.rb
-- lib/thin_parser.bundle
+- lib/thin_parser.so
 - spec/backends
 - spec/backends/swiftiply_client_spec.rb
 - spec/backends/tcp_server_spec.rb
@@ -204,7 +204,6 @@ files:
 - tasks/announce.rake
 - tasks/deploy.rake
 - tasks/email.erb
-- tasks/ext.rake
 - tasks/gem.rake
 - tasks/rdoc.rake
 - tasks/site.rake
