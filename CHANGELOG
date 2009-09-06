@@ -1,4 +1,4 @@
-== 1.2.3
+== 1.2.4 Flaming Astroboy
  * Fix a few issues in thin to make it a better "gem citizen" [josh]
  * Fix test for rack based Rails in adapter under Ruby >= 1.8.7 [#109 state:resolved]
  * Fix Remote address spoofing vulnerability in Connection#remote_address [Alexey Borzenkov]
