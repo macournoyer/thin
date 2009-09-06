@@ -14,7 +14,13 @@ Dir['tasks/**/*.rake'].each { |rake| load rake }
 
 task :default => :spec
 
-Rake::ExtensionTask.new('thin_parser', Thin::GemSpec)
+Rake::ExtensionTask.new('thin_parser', Thin::GemSpec) do |ext|
+  ext.cross_compile = true                # enable cross compilation (requires cross compile toolchain)
+  ext.cross_platform = 'i386-mswin32'     # forces the Windows platform instead of the default one
+                                          # configure options only for cross compile
+end
+
+CLEAN.include %w(**/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM)
 
 desc "Compile the Ragel state machines"
 task :ragel do
@@ -25,3 +31,6 @@ task :ragel do
     raise "Failed to compile Ragel state machine" unless File.exist? target
   end
 end
+
+desc "Release version #{Thin::VERSION::STRING} gems to rubyforge"
+task :release => [:clean, :cross, :native, :gem, :tag, "gem:upload"]

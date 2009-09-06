@@ -1,7 +1,7 @@
 require 'rake/gempackagetask'
 require 'yaml'
 
-WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'i386-mswin32'
+WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'x86-mswin32'
 
 task :clean => :clobber_package
 
@@ -64,19 +64,11 @@ namespace :gem do
     File.open("thin.gemspec", 'w') { |f| f << YAML.dump(Thin::GemSpec) }
   end
   
-  namespace :upload do
-    desc 'Upload the precompiled win32 gem to code.macournoyer.com'
-    task :win do
-      upload "pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem", 'gems'
-      system 'ssh macournoyer@code.macournoyer.com "cd code.macournoyer.com && gem generate_index"'
-    end    
-
-    desc 'Upload gems (ruby & win32) to rubyforge.org'
-    task :rubyforge => :gem do
-      sh 'rubyforge login'
-      sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
-      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
-      sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem"
-    end
+  desc 'Upload gems (ruby & win32) to rubyforge.org'
+  task :upload => :gem do
+    sh 'rubyforge login'
+    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
+    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
+    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem"
   end
 end
