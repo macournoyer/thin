@@ -32,9 +32,7 @@ module Rack
       end
       
       def rack_based?
-        ActionController.const_defined?(:Dispatcher) &&
-          (ActionController::Dispatcher.instance_methods.include?(:call) ||
-           ActionController::Dispatcher.instance_methods.include?("call"))
+        Rails::VERSION::MAJOR >= 2 && Rails::VERSION::MINOR >= 2 && Rails::VERSION::TINY >= 3
       end
       
       def load_application
