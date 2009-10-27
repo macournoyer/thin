@@ -49,7 +49,7 @@ module Thin
       @parser   = Thin::HttpParser.new
       @data     = ''
       @nparsed  = 0
-      @body     = StringIO.new
+      @body     = StringIO.new ''.encode(Encoding::ASCII_8BIT)
       @env      = {
         SERVER_SOFTWARE   => SERVER,
         SERVER_NAME       => LOCALHOST,
