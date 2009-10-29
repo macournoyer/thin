@@ -42,4 +42,8 @@ describe Request, 'processing' do
     big_headers = "X-Test: X\r\n" * (1024 * (80 + 32))
     proc { R("GET / HTTP/1.1\r\n#{big_headers}\r\n") }.should raise_error(InvalidRequest)
   end
+  
+  it "should set body external encoding to ASCII_8BIT" do
+    Request.new.body.external_encoding.should == Encoding::ASCII_8BIT
+  end
 end
