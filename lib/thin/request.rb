@@ -13,7 +13,11 @@ module Thin
     MAX_BODY          = 1024 * (80 + 32)
     BODY_TMPFILE      = 'thin-body'.freeze
     MAX_HEADER        = 1024 * (80 + 32)
-
+    
+    INITIAL_BODY      = ''
+    # Force external_encoding of request's body to ASCII_8BIT
+    INITIAL_BODY.encode(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode)
+    
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
     SERVER_NAME       = 'SERVER_NAME'.freeze
@@ -49,7 +53,7 @@ module Thin
       @parser   = Thin::HttpParser.new
       @data     = ''
       @nparsed  = 0
-      @body     = StringIO.new ''.encode(Encoding::ASCII_8BIT)
+      @body     = StringIO.new(INITIAL_BODY.dup)
       @env      = {
         SERVER_SOFTWARE   => SERVER,
         SERVER_NAME       => LOCALHOST,
