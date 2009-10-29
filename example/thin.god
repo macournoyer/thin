@@ -6,7 +6,7 @@
 # each thin configuration file found in /etc/thin.
 # In order to get it working on Ubuntu, I had to make a change to god as noted at
 # the following blog:
-# http://blog.alexgirard.com/2007/10/25/ruby-one-line-to-save-god/
+# http://blog.alexgirard.com/ruby-one-line-to-save-god/
 #
 require 'yaml'
 
