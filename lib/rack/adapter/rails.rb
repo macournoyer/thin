@@ -32,7 +32,8 @@ module Rack
       end
       
       def rack_based?
-        Rails::VERSION::MAJOR >= 2 && Rails::VERSION::MINOR >= 2 && Rails::VERSION::TINY >= 3
+        rails_version = ::Rails::VERSION
+        rails_version::MAJOR >= 2 && rails_version::MINOR >= 2 && rails_version::TINY >= 3
       end
       
       def load_application
