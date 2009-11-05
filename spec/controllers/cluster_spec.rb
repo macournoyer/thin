@@ -233,3 +233,35 @@ describe Cluster, "with Swiftiply" do
       { :address => '0.0.0.0', :port => 3000, :daemonize => true, :log => "thin.#{number}.log", :timeout => 10, :pid => "thin.#{number}.pid", :chdir => "/rails_app", :swiftiply => true }
     end
 end
+
+describe Cluster, "rolling restart" do
+  before do
+    @cluster = Cluster.new(:chdir => '/rails_app',
+                           :address => '0.0.0.0',
+                           :port => 3000, 
+                           :servers => 2,
+                           :timeout => 10,
+                           :log => 'thin.log',
+                           :pid => 'thin.pid',
+                           :onebyone => true,
+                           :wait => 30
+                          )
+  end
+  
+  it "should restart servers one by one" do
+    Command.should_receive(:run).with(:stop, options_for_port(3000))
+    Command.should_receive(:run).with(:start, options_for_port(3000))
+    @cluster.should_receive(:wait_until_server_started).with(3000)
+    
+    Command.should_receive(:run).with(:stop, options_for_port(3001))
+    Command.should_receive(:run).with(:start, options_for_port(3001))
+    @cluster.should_receive(:wait_until_server_started).with(3001)
+    
+    @cluster.restart
+  end
+  
+  private
+    def options_for_port(port)
+      { :daemonize => true, :log => "thin.#{port}.log", :timeout => 10, :address => "0.0.0.0", :port => port, :pid => "thin.#{port}.pid", :chdir => "/rails_app" }
+    end
+end

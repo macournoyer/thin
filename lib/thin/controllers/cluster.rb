@@ -1,6 +1,9 @@
 require 'socket'
 
 module Thin
+  # An exception class to handle the event that server didn't start on time
+  class RestartTimeout < RuntimeError; end
+  
   module Controllers
     # Control a set of servers.
     # * Generate start and stop commands and run them.
@@ -12,7 +15,7 @@ module Thin
       CLUSTER_OPTIONS = [:servers, :only, :onebyone, :wait]
       
       # Maximum wait time for the server to be restarted
-      MAXIMUM_WAIT_TIME = 30    # seconds
+      DEFAULT_WAIT_TIME = 30    # seconds
       
       # Create a new cluster of servers launched using +options+.
       def initialize(options)
@@ -31,9 +34,6 @@ module Thin
       def onebyone;   @options[:onebyone] end
       def wait;       @options[:wait]     end
       
-      # An exception class to handle the event that server didn't start on time
-      class ServerNotStartedInTimeError < RuntimeError; end
-
       def swiftiply?
         @options.has_key?(:swiftiply)
       end
@@ -79,22 +79,33 @@ module Thin
         end
       end
       
+      def test_socket(number)
+        if socket
+          UNIXSocket.new(socket_for(number))
+        else
+          TCPSocket.new(address, number)
+        end
+      rescue
+        nil
+      end
+      
       # Make sure the server is running before moving on to the next one.
       def wait_until_server_started(number)
-        tries = 0
         log "Waiting for server to start ..."
         STDOUT.flush # Need this to make sure user got the message
         
+        tries = 0
         loop do
-          test_socket = (socket ? UNIXSocket.new(socket_for(number)) : TCPSocket.new("127.0.0.1", number)) rescue nil
-          if test_socket
+          if test_socket = test_socket(number)
             test_socket.close
             break
           elsif tries < wait
             sleep 1
             tries += 1
           else
-            raise ServerNotStartedInTimeError, "The server didn't start in time. Please look at server's log file for more information, or set the value of 'wait' in your config file to be higher (defaults: 30)."
+            raise RestartTimeout, "The server didn't start in time. Please look at server's log file " +
+                                  "for more information, or set the value of 'wait' in your config " +
+                                  "file to be higher (defaults: 30)."
           end
         end
       end
