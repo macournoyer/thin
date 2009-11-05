@@ -1,4 +1,5 @@
 == 1.2.5 This Is Not A Web Server
+ * Add rolling restart support (--onebyone option) [sikachu]
  * Force external_encoding of request's body to ASCII_8BIT [jeremyz]
  * Ensure Rack base API is used in Rails adapter only if version >= 2.3.2 [#111 state:resolved]
 
