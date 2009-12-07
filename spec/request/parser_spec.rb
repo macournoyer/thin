@@ -209,7 +209,35 @@ EOS
       parser     = HttpParser.new
       req        = {}
       nread      = parser.execute(req, req_str, 0)
-      req.should be_has_key('HTTP_HOS_T')
+      req.should have_key('HTTP_HOS_T')
     }
+  end
+  
+  it "should parse PATH_INFO with semicolon" do
+    qs = "QUERY_STRING"
+    pi = "PATH_INFO"
+    {
+      "/1;a=b?c=d&e=f" => { qs => "c=d&e=f", pi => "/1;a=b" },
+      "/1?c=d&e=f" => { qs => "c=d&e=f", pi => "/1" },
+      "/1;a=b" => { qs => "", pi => "/1;a=b" },
+      "/1;a=b?" => { qs => "", pi => "/1;a=b" },
+      "/1?a=b;c=d&e=f" => { qs => "a=b;c=d&e=f", pi => "/1" },
+      "*" => { qs => "", pi => "" },
+    }.each do |uri, expect|
+      parser     = HttpParser.new
+      env        = {}
+      nread      = parser.execute(env, "GET #{uri} HTTP/1.1\r\nHost: www.example.com\r\n\r\n", 0)
+
+      env[pi].should == expect[pi]
+      env[qs].should == expect[qs]
+      env["REQUEST_URI"].should == uri
+
+      next if uri == "*"
+      
+      # Validate w/ Ruby's URI.parse
+      uri = URI.parse("http://example.com#{uri}")
+      env[qs].should == uri.query.to_s
+      env[pi].should == uri.path
+    end
   end
 end

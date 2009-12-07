@@ -207,6 +207,9 @@ static void header_done(void *data, const char *at, size_t length)
   if (rb_hash_aref(req, global_query_string) == Qnil) {
     rb_hash_aset(req, global_query_string, global_empty);
   }
+  if (rb_hash_aref(req, global_path_info) == Qnil) {
+    rb_hash_aset(req, global_path_info, global_empty);
+  }
   
   /* set some constants */
   rb_hash_aset(req, global_server_protocol, global_server_protocol_value);

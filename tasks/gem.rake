@@ -1,8 +1,6 @@
 require 'rake/gempackagetask'
 require 'yaml'
 
-WIN_SUFFIX = ENV['WIN_SUFFIX'] || 'x86-mswin32'
-
 task :clean => :clobber_package
 
 Thin::GemSpec = Gem::Specification.new do |s|
@@ -59,16 +57,10 @@ end
 task :gem => :tag_warn
 
 namespace :gem do
-  desc "Update the gemspec for GitHub's gem server"
-  task :github do
-    File.open("thin.gemspec", 'w') { |f| f << YAML.dump(Thin::GemSpec) }
-  end
-  
-  desc 'Upload gems (ruby & win32) to rubyforge.org'
-  task :upload => :gem do
-    sh 'rubyforge login'
-    sh "rubyforge add_release thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
-    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}.gem"
-    sh "rubyforge add_file thin thin #{Thin::VERSION::STRING} pkg/#{Thin::GemSpec.full_name}-#{WIN_SUFFIX}.gem"
+  desc 'Upload gems to gemcutter.org'
+  task :push => :gem do
+    Dir["pkg/#{Thin::GemSpec.full_name}*.gem"].each do |file|
+      puts "gem push #{file}"
+    end
   end
 end
