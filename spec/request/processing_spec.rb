@@ -44,6 +44,7 @@ describe Request, 'processing' do
   end
   
   it "should set body external encoding to ASCII_8BIT" do
+    pending("Ruby 1.9 compatible implementations only") unless StringIO.instance_methods.include? :external_encoding
     Request.new.body.external_encoding.should == Encoding::ASCII_8BIT
   end
 end
