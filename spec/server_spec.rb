@@ -12,6 +12,10 @@ describe Server do
   end
 
   it "should set lower maximum_connections size when too large" do
+    # root users under Linux will not have a limitation on maximum
+    # connections, so we cannot really run this test under that
+    # condition.
+    pending("only for non-root users") if Process.euid == 0
     @server.maximum_connections = 100_000
     @server.config
     @server.maximum_connections.should < 100_000
