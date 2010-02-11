@@ -47,10 +47,7 @@ module Thin
       
       write_pid_file
       
-      trap('HUP')  { restart }
-      trap('TERM') { log ">> Received TERM signal (PID: #{$$})"; exit }
-      trap('QUIT') { log ">> Received QUIT signal (PID: #{$$})"; exit }
-      
+      trap('HUP') { restart }
       at_exit do
         log ">> Exiting!"
         remove_pid_file

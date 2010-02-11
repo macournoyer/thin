@@ -1,6 +1,5 @@
-== 1.2.6
+== 1.2.6 ???
  * Auto-detect and load config.ru files on start. Makes Rails 3 work.
- * Fix Thin not obeying to QUIT / TERM signal under Ruby 1.9 [Nate Wiger] [#123 state:resolved]
 
 == 1.2.5 This Is Not A Web Server
  * Add rolling restart support (--onebyone option) [sikachu]
