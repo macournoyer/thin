@@ -8,6 +8,7 @@ module Rack
   # NOTE: If a framework has a file that is not unique, make sure to place
   # it at the end.
   ADAPTERS = [
+    [:rack,    'config.ru'],
     [:rails,   'config/environment.rb'],
     [:ramaze,  'start.rb'],
     [:halcyon, 'runner.ru'],
@@ -32,6 +33,11 @@ module Rack
     # Loads an adapter identified by +name+ using +options+ hash.
     def self.for(name, options={})
       case name.to_sym
+      when :rack
+        ENV['RACK_ENV'] = options[:environment]
+        rackup_code = File.read("config.ru")
+        return eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, "config.ru")
+        
       when :rails
         return Rails.new(options.merge(:root => options[:chdir]))
       
