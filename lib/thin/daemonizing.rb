@@ -36,10 +36,14 @@ module Thin
     def daemonize
       raise PlatformNotSupported, 'Daemonizing is not supported on Windows'     if Thin.win?
       raise ArgumentError,        'You must specify a pid_file to daemonize' unless @pid_file
-
+      
       remove_stale_pid_file
       
       pwd = Dir.pwd # Current directory is changed during daemonization, so store it
+      
+      # HACK we need to create the directory before daemonization to prevent a bug under 1.9
+      #      ignoring all signals when the directory is created after daemonization.
+      FileUtils.mkdir_p File.dirname(@pid_file)
       
       Daemonize.daemonize(File.expand_path(@log_file), name)
       
@@ -47,7 +51,6 @@ module Thin
       
       write_pid_file
       
-      trap('HUP') { restart }
       at_exit do
         log ">> Exiting!"
         remove_pid_file
@@ -153,7 +156,6 @@ module Thin
     
       def write_pid_file
         log ">> Writing PID to #{@pid_file}"
-        FileUtils.mkdir_p File.dirname(@pid_file)
         open(@pid_file,"w") { |f| f.write(Process.pid) }
         File.chmod(0644, @pid_file)
       end

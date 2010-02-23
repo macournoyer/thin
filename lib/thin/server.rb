@@ -208,11 +208,12 @@ module Thin
     protected
       # Register signals:
       # * INT calls +stop+ to shutdown gracefully.
-      # * TERM calls <tt>stop!</tt> to force shutdown.    
+      # * TERM calls <tt>stop!</tt> to force shutdown.
       def setup_signals
         trap('QUIT') { stop }  unless Thin.win?
         trap('INT')  { stop! }
         trap('TERM') { stop! }
+        trap('HUP')  { restart }
       end
       
       def select_backend(host, port, options)
