@@ -1,4 +1,4 @@
-== 1.2.6 ???
+== 1.2.6 Crazy Delicious
  * Auto-detect and load config.ru files on start. Makes Rails 3 work.
  * Fix signals being ignored under 1.9 when daemonized.
 
