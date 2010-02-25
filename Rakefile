@@ -36,4 +36,4 @@ task :ragel do
 end
 
 desc "Release version #{Thin::VERSION::STRING} gems to rubyforge"
-task :release => [:clean, :cross, :native, :gem, :tag, "gem:upload"]
+task :release => [:clean, :cross, :native, :gem, :tag, "gem:push"]

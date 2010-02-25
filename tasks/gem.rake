@@ -58,9 +58,9 @@ task :gem => :tag_warn
 
 namespace :gem do
   desc 'Upload gems to gemcutter.org'
-  task :push => :gem do
+  task :push do
     Dir["pkg/#{Thin::GemSpec.full_name}*.gem"].each do |file|
-      puts "gem push #{file}"
+      sh "gem push #{file}"
     end
   end
 end
