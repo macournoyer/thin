@@ -172,8 +172,7 @@ module Thin
             Kernel.load(@options[:rackup])
             Object.const_get(File.basename(@options[:rackup], '.rb').capitalize.to_sym)
           when /\.ru$/
-            rackup_code = File.read(@options[:rackup])
-            eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, @options[:rackup])
+            Rack::Adapter.load(@options[:rackup])
           else
             raise "Invalid rackup file.  please specify either a .ru or .rb file"
           end

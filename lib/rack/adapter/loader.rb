@@ -30,13 +30,19 @@ module Rack
       raise AdapterNotFound, "No adapter found for #{dir}"
     end
     
+    # Load a Rack application from a Rack config file (.ru).
+    def self.load(config)
+      rackup_code = ::File.read(config)
+      eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config)
+    end
+    
     # Loads an adapter identified by +name+ using +options+ hash.
     def self.for(name, options={})
+      ENV['RACK_ENV'] = options[:environment]
+      
       case name.to_sym
       when :rack
-        ENV['RACK_ENV'] = options[:environment]
-        rackup_code = File.read("config.ru")
-        return eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, "config.ru")
+        return load(::File.join(options[:chdir], "config.ru"))
         
       when :rails
         return Rails.new(options.merge(:root => options[:chdir]))
