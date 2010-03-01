@@ -23,7 +23,7 @@ Rake::ExtensionTask.new('thin_parser', Thin::GemSpec) do |ext|
   ext.cross_platform = %w( i386-mswin32 x86-mingw32 )
 end
 
-CLEAN.include %w(**/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM)
+CLEAN.include %w(**/*.{o,bundle,jar,so,obj,pdb,lib,def,exp,log} ext/*/Makefile ext/*/conftest.dSYM lib/1.{8,9}})
 
 desc "Compile the Ragel state machines"
 task :ragel do
@@ -35,5 +35,10 @@ task :ragel do
   end
 end
 
+desc "Build gem packages"
+task :gems do
+  sh "rake clean gem && rake cross native gem RUBY_CC_VERSION=1.8.6:1.9.1"
+end
+
 desc "Release version #{Thin::VERSION::STRING} gems to rubyforge"
-task :release => [:clean, :cross, :native, :gem, :tag, "gem:push"]
+task :release => [:tag, "gem:push"]

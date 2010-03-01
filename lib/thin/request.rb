@@ -1,4 +1,3 @@
-require "#{Thin::ROOT}/thin_parser"
 require 'tempfile'
 
 module Thin

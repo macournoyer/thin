@@ -1,4 +1,5 @@
 == 1.2.7 No Hup
+ * Support multiple Ruby version (fat binaries under windows)
  * Do not trap unsupported HUP signal on Windows
 
 == 1.2.6 Crazy Delicious

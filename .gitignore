@@ -8,7 +8,7 @@ ext/thin_parser/*mswin32*
 ext/thin_parser/vc60.pdb
 ext/thin_parser/*.so
 lib/*.bundle
-lib/*.so
+lib/*/**.so
 log
 spec/rails_app/log
 doc/rdoc/*

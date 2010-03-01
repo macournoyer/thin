@@ -39,6 +39,16 @@ require "#{Thin::ROOT}/thin/version"
 require "#{Thin::ROOT}/thin/statuses"
 require "#{Thin::ROOT}/rack/adapter/loader"
 
+# support multiple Ruby version (fat binaries under windows)
+begin
+  require "#{Thin::ROOT}/thin_parser"
+rescue LoadError
+  if RUBY_PLATFORM =~ /mingw|mswin/ then
+    RUBY_VERSION =~ /(\d+.\d+)/
+    require "#{Thin::ROOT}/#{$1}/thin_parser"
+  end
+end
+
 module Rack
   module Adapter
     autoload :Rails, "#{Thin::ROOT}/rack/adapter/rails"
