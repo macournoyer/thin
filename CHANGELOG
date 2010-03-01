@@ -1,3 +1,6 @@
+== 1.2.7 No Hup
+ * Do not trap unsupported HUP signal on Windows
+
 == 1.2.6 Crazy Delicious
  * Make work with Rails 3 out-of-the-box.
  * Auto-detect and load config.ru files on start. Makes Rails 3 work.
