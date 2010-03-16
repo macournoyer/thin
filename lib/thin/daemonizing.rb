@@ -83,12 +83,13 @@ module Thin
     
     # Restart the server.
     def restart
-      raise ArgumentError, "Can't restart, no 'on_restart' proc specified" unless @on_restart
-      log '>> Restarting ...'
-      stop
-      remove_pid_file
-      @on_restart.call
-      exit!
+      if @on_restart
+        log '>> Restarting ...'
+        stop
+        remove_pid_file
+        @on_restart.call
+        exit!
+      end
     end
     
     module ClassMethods

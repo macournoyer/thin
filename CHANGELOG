@@ -1,3 +1,6 @@
+== 1.2.8 Does It Offend You, Yeah?
+ * Ignore SIGHUP when no restart block is given
+
 == 1.2.7 No Hup
  * Support multiple Ruby version (fat binaries under windows)
  * Do not trap unsupported HUP signal on Windows
