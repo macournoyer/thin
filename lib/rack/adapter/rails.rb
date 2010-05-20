@@ -22,18 +22,13 @@ module Rack
         
         load_application
         
-        @rails_app = if rack_based?
+        @rails_app = if self.class.rack_based?
           ActionController::Dispatcher.new
         else
           CgiApp.new
         end
         
         @file_app = Rack::File.new(::File.join(RAILS_ROOT, "public"))
-      end
-      
-      def rack_based?
-        rails_version = ::Rails::VERSION
-        rails_version::MAJOR >= 2 && rails_version::MINOR >= 2 && rails_version::TINY >= 3
       end
       
       def load_application
@@ -72,6 +67,14 @@ module Rack
         
         # No static file, let Rails handle it
         @rails_app.call(env)
+      end
+      
+      def self.rack_based?
+        rails_version = ::Rails::VERSION
+        return false if rails_version::MAJOR < 2
+        return false if rails_version::MAJOR == 2 && rails_version::MINOR < 2
+        return false if rails_version::MAJOR == 2 && rails_version::MINOR == 2 && rails_version::TINY < 3
+        true # >= 2.2.3
       end
     
       protected
