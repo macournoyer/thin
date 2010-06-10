@@ -5,6 +5,8 @@ module Process
   # Returns +true+ the process identied by +pid+ is running.
   def running?(pid)
     Process.getpgid(pid) != -1
+  rescue Errno::EPERM
+    true
   rescue Errno::ESRCH
     false
   end
