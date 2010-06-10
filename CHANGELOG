@@ -1,4 +1,8 @@
 == 1.2.8 Does It Offend You, Yeah?
+ * Catch Errno::EPERM in Process.running? [Tony Kemp]
+   On some systems (e.g. OpenBSD) you receive an EPERM exception if
+   you try to Process.getpgid on a process you do not own (even if you
+   are root). But it does mean that the process exists, so return true.
  * Fix Rails version check that select which Rack adapter to use. Was using CGI adapter in Rails 3.
  * Ignore SIGHUP when no restart block is given
 
