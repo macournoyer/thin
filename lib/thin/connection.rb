@@ -29,7 +29,7 @@ module Thin
     # Calling the application in a threaded allowing
     # concurrent processing of requests.
     attr_writer :threaded
-
+    
     # Get the connection ready to process a request.
     def post_init
       @request  = Request.new

@@ -82,6 +82,9 @@ module Thin
     # Allow using threads in the backend.
     def_delegators :backend, :threaded?, :threaded=
     
+    # Allow using SSL in the backend.
+    def_delegators :backend, :ssl?, :ssl=, :ssl_options=
+    
     # Address and port on which the server is listening for connections.
     def_delegators :backend, :host, :port
     

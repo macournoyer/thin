@@ -27,6 +27,10 @@ module Thin
       attr_writer :threaded
       def threaded?; @threaded end
       
+      # Allow using SSL in the backend.
+      attr_writer :ssl, :ssl_options
+      def ssl?; @ssl end
+      
       # Number of persistent connections currently opened
       attr_accessor :persistent_connection_count
       
@@ -125,6 +129,10 @@ module Thin
           connection.app                     = @server.app
           connection.comm_inactivity_timeout = @timeout
           connection.threaded                = @threaded
+          
+          if @ssl
+            connection.start_tls(@ssl_options)
+          end
 
           # We control the number of persistent connections by keeping
           # a count of the total one allowed yet.
