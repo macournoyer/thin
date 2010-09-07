@@ -42,7 +42,9 @@ module Thin
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
         :require              => [],
-        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME
+        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME,
+        :ssl_key_file         => 'private.key',
+        :ssl_cert_file        => 'cert.pem'
       }
       
       parse!
@@ -70,7 +72,14 @@ module Thin
                                        "Rack adapter")                                  { |file| @options[:rackup] = file }
         opts.on("-c", "--chdir DIR", "Change to dir before starting")                   { |dir| @options[:chdir] = File.expand_path(dir) }
         opts.on(      "--stats PATH", "Mount the Stats adapter under PATH")             { |path| @options[:stats] = path }
-        
+
+        opts.separator ""
+        opts.separator "SSL options:"
+
+        opts.on(      "--ssl", "Enables SSL")                                           { @options[:ssl] = true }
+        opts.on(      "--ssl-key-file PATH", "Path to private key")                     { |path| @options[:ssl_key_file] = path }
+        opts.on(      "--ssl-cert-file PATH", "Path to certificate")                    { |path| @options[:ssl_cert_file] = path }
+
         opts.separator ""
         opts.separator "Adapter options:"
         opts.on("-e", "--environment ENV", "Framework environment " +                       
