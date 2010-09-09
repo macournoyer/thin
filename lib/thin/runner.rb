@@ -79,6 +79,7 @@ module Thin
         opts.on(      "--ssl", "Enables SSL")                                           { @options[:ssl] = true }
         opts.on(      "--ssl-key-file PATH", "Path to private key")                     { |path| @options[:ssl_key_file] = path }
         opts.on(      "--ssl-cert-file PATH", "Path to certificate")                    { |path| @options[:ssl_cert_file] = path }
+        opts.on(      "--ssl-verify", "Enables SSL certificate verification")           { @options[:ssl_verify] = true }
 
         opts.separator ""
         opts.separator "Adapter options:"
