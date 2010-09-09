@@ -46,6 +46,7 @@ module Thin
       # HACK we need to create the directory before daemonization to prevent a bug under 1.9
       #      ignoring all signals when the directory is created after daemonization.
       FileUtils.mkdir_p File.dirname(@pid_file)
+      FileUtils.mkdir_p File.dirname(@log_file)
       
       Daemonize.daemonize(File.expand_path(@log_file), name)
       
