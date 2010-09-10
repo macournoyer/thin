@@ -42,9 +42,7 @@ module Thin
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
         :require              => [],
-        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME,
-        :ssl_key_file         => 'private.key',
-        :ssl_cert_file        => 'cert.pem'
+        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME
       }
       
       parse!
