@@ -101,7 +101,6 @@ files:
 - lib/thin/statuses.rb
 - lib/thin/version.rb
 - lib/thin.rb
-- lib/thin_parser.so
 - spec/backends
 - spec/backends/swiftiply_client_spec.rb
 - spec/backends/tcp_server_spec.rb
@@ -146,8 +145,6 @@ files:
 - spec/rails_app/config/initializers/inflections.rb
 - spec/rails_app/config/initializers/mime_types.rb
 - spec/rails_app/config/routes.rb
-- spec/rails_app/log
-- spec/rails_app/log/mongrel_debug
 - spec/rails_app/public
 - spec/rails_app/public/404.html
 - spec/rails_app/public/422.html
