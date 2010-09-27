@@ -1,4 +1,5 @@
 == 1.2.8 Does It Offend You, Yeah?
+ * Fix gemspec to work w/ Bundler [smparkes]
  * Add SSL support [tmm1]
  * Catch Errno::EPERM in Process.running? [Tony Kemp]
    On some systems (e.g. OpenBSD) you receive an EPERM exception if
