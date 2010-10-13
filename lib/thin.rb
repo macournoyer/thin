@@ -46,6 +46,8 @@ rescue LoadError
   if RUBY_PLATFORM =~ /mingw|mswin/ then
     RUBY_VERSION =~ /(\d+.\d+)/
     require "#{Thin::ROOT}/#{$1}/thin_parser"
+  elsif RUBY_PLATFORM =~ /java/ then
+    require 'java/jruby_thin'
   end
 end
 
