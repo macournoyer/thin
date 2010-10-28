@@ -15,7 +15,7 @@
   unsafe = (CTL | " " | "#" | "%" | sorta_safe);
   national = any -- (alpha | digit | reserved | extra | safe | unsafe);
   unreserved = (alpha | digit | safe | extra | national);
-  escape = ("%" xdigit xdigit);
+  escape = ("%" "u"? xdigit xdigit);
   uchar = (unreserved | escape | sorta_safe);
   pchar = (uchar | ":" | "@" | "&" | "=" | "+");
   tspecials = ("(" | ")" | "<" | ">" | "@" | "," | ";" | ":" | "\\" | "\"" | "/" | "[" | "]" | "?" | "=" | "{" | "}" | " " | "\t");

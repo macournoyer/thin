@@ -240,4 +240,15 @@ EOS
       env[pi].should == uri.path
     end
   end
+  
+  it "should parse IE7 badly encoded URL" do
+    body = <<-EOS.chomp
+GET /H%uFFFDhnchenbrustfilet HTTP/1.1
+Host: localhost:3000
+
+EOS
+    request = R(body, true)
+
+    request.env['REQUEST_URI'].should == "/H%uFFFDhnchenbrustfilet"
+  end
 end
