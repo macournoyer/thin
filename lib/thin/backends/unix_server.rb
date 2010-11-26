@@ -14,10 +14,15 @@ module Thin
       # Connect the server
       def connect
         at_exit { remove_socket_file } # In case it crashes
-        EventMachine.start_unix_domain_server(@socket, UnixConnection, &method(:initialize_connection))
-        # HACK EventMachine.start_unix_domain_server doesn't return the connection signature
-        #      so we have to go in the internal stuff to find it.
+        old_umask = File.umask(opt[:umask] || 0)
+        begin
+          EventMachine.start_unix_domain_server(@socket, UnixConnection, &method(:initialize_connection))
+          # HACK EventMachine.start_unix_domain_server doesn't return the connection signature
+          #      so we have to go in the internal stuff to find it.
         @signature = EventMachine.instance_eval{@acceptors.keys.first}
+        ensure
+          File.umask(old_umask)
+        end
       end
       
       # Stops the server
