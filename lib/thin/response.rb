@@ -7,6 +7,8 @@ module Thin
     SERVER         = 'Server'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
 
+    PERSISTENT_STATUSES  = [100, 101].freeze
+
     # Status code
     attr_accessor :status
 
@@ -93,9 +95,10 @@ module Thin
     end
 
     # Persistent connection must be requested as keep-alive
-    # from the server and have a Content-Length.
+    # from the server and have a Content-Length, or the response
+    # status must require that the connection remain open.
     def persistent?
-      @persistent && @headers.has_key?(CONTENT_LENGTH)
+      (@persistent && @headers.has_key?(CONTENT_LENGTH)) || PERSISTENT_STATUSES.include?(@status)
     end
   end
 end

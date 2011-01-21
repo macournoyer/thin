@@ -80,6 +80,17 @@ describe Response do
     @response.should_not be_persistent
   end
   
+  it "should be persistent when the status code implies it should stay open" do
+    @response = Response.new
+    @response.status = 100
+    # "There are no required headers for this class of status code" -- HTTP spec 10.1
+    @response.body = ''
+
+    # Specifying it as persistent in the code is NOT required
+    # @response.persistent!
+    @response.should be_persistent
+  end
+  
   it "should be persistent when specified" do
     @response.persistent!
     @response.should be_persistent
