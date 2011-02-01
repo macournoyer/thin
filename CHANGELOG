@@ -1,4 +1,14 @@
 == 1.2.8 Does It Offend You, Yeah?
+ * Allow the connection to remain open for 1xx statuses [timshadel]
+
+     Both the 100 and 101 status codes require that the connection to the
+     server remain open. The 100 status code is used to tell the client that
+     the server is still receiving its request, and will continue to read
+     request input on the connection. The 101 status code is used to upgrade
+     the existing connection to another protocol, and specifically is NOT
+     used to upgrade a separate connection. Therefore, the connection must
+     remain open after this response in order to facilitate that.
+   
  * Accept IE7 badly encoded URL (eg.: %uEEEE)
  * Fix gemspec to work w/ Bundler [smparkes]
  * Add SSL support [tmm1]
