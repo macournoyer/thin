@@ -67,7 +67,14 @@ module Thin
       # callback is no longer referenced, so be tidy!
       @request.async_callback = method(:post_process)
       
-      @request.env["rack.url_scheme"] = "https" if backend.ssl?
+      if backend.ssl?
+        @request.env["rack.url_scheme"] = "https"
+        
+        cert = get_peer_cert
+        if cert
+          @request.env['rack.peer_cert'] = cert
+        end
+      end
 
       # When we're under a non-async framework like rails, we can still spawn
       # off async responses using the callback info, so there's little point
