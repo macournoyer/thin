@@ -70,8 +70,7 @@ module Thin
       if backend.ssl?
         @request.env["rack.url_scheme"] = "https"
         
-        cert = get_peer_cert
-        if cert
+        if cert = get_peer_cert
           @request.env['rack.peer_cert'] = cert
         end
       end

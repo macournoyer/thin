@@ -24,7 +24,8 @@
       --ssl-key-file PATH      Path to private key
       --ssl-cert-file PATH     Path to certificate
       --ssl-verify             Enables SSL certificate verification
-
+  * Expose peer SSL certificate in env (rack.peer_cert) [fd]
+  
 == 1.2.7 No Hup
  * Support multiple Ruby version (fat binaries under windows)
  * Do not trap unsupported HUP signal on Windows
