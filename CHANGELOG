@@ -18,6 +18,12 @@
    are root). But it does mean that the process exists, so return true.
  * Fix Rails version check that select which Rack adapter to use. Was using CGI adapter in Rails 3.
  * Ignore SIGHUP when no restart block is given
+ * Add SSL options to thin command line tool [goldmann]
+
+      --ssl                    Enables SSL
+      --ssl-key-file PATH      Path to private key
+      --ssl-cert-file PATH     Path to certificate
+      --ssl-verify             Enables SSL certificate verification
 
 == 1.2.7 No Hup
  * Support multiple Ruby version (fat binaries under windows)
