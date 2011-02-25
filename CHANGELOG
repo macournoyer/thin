@@ -1,4 +1,4 @@
-== 1.2.8 Does It Offend You, Yeah?
+== 1.2.8 Black Keys
  * Allow the connection to remain open for 1xx statuses [timshadel]
 
      Both the 100 and 101 status codes require that the connection to the
