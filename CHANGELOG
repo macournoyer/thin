@@ -25,6 +25,7 @@
       --ssl-cert-file PATH     Path to certificate
       --ssl-verify             Enables SSL certificate verification
   * Expose peer SSL certificate in env (rack.peer_cert) [fd]
+  * Adjusting unix socket permissions to be more open [mbj]
   
 == 1.2.7 No Hup
  * Support multiple Ruby version (fat binaries under windows)
