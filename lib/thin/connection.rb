@@ -67,7 +67,7 @@ module Thin
       # callback is no longer referenced, so be tidy!
       @request.async_callback = method(:post_process)
       
-      if backend.ssl?
+      if @backend.ssl?
         @request.env["rack.url_scheme"] = "https"
         
         if cert = get_peer_cert
