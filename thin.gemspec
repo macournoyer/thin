@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.description = "A thin and fast web server."
   s.authors = ['Marc-Andre Cournoyer']
 
-  s.date = 2011-03-14 12:35:00 +02:00
+  s.date = %q{2010-10-25 12:35:00}
 
   s.rubyforge_project = "thin"
 
