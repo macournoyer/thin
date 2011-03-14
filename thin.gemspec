@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |s|
   s.name = "thin"
-  s.version = '1.2.8'
+  s.version = '1.2.8.1'
   s.platform = Gem::Platform::RUBY
   s.summary = "A thin and fast web server."
   s.email = "macournoyer@gmail.com"
