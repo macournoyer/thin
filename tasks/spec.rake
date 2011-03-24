@@ -1,5 +1,6 @@
 CLEAN.include %w(coverage tmp log)
 
+gem "rspec", "~> 1.2.9"
 require 'spec/rake/spectask'
 
 PERF_SPECS = FileList['spec/perf/*_spec.rb']
