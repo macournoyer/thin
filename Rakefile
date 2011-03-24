@@ -7,7 +7,7 @@ require 'rake/clean'
 require 'rake/extensiontask' # from rake-compiler gem
 
 $: << File.join(File.dirname(__FILE__), 'lib')
-require 'thin'
+require 'thin/version'
 
 # Load tasks in tasks/
 Dir['tasks/**/*.rake'].each { |rake| load rake }
