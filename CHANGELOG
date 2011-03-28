@@ -1,3 +1,6 @@
+== 1.2.11 Bat-Shit Crazy
+ * Fix pure Ruby gem to not include binary.
+
 == 1.2.10 I'm dumb
  * I really am (bad release fix)
 
