@@ -25,7 +25,7 @@ Thin::GemSpec = Gem::Specification.new do |s|
   end
 
   s.files                 = %w(COPYING CHANGELOG README Rakefile) +
-                            Dir.glob("{benchmark,bin,doc,example,lib,spec,tasks}/**/*") + 
+                            Dir.glob("{benchmark,bin,doc,example,lib,spec,tasks}/**/*") - Dir.glob("lib/thin_parser.*") + 
                             Dir.glob("ext/**/*.{h,c,rb,rl}")
   
   if WIN
