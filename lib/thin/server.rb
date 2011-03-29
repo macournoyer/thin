@@ -214,7 +214,7 @@ module Thin
       # * TERM calls <tt>stop!</tt> to force shutdown.
       def setup_signals
         trap('INT')  { stop! }
-        trap('TERM') { stop! }
+        trap('TERM') { stop }
         unless Thin.win?
           trap('QUIT') { stop }
           trap('HUP')  { restart }
