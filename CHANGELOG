@@ -1,3 +1,14 @@
+== 1.2.12 ???
+ * Shut down gracefully when receiving SIGTERM [ddollar]
+     
+     Processes are allowed a chance to shut down gracefully when receiving
+     SIGTERM (http://en.wikipedia.org/wiki/SIGTERM).
+     
+     On Heroku, when shutting down a process, we send a SIGTERM followed 10
+     seconds later with a SIGKILL, similar to the behavior of the init daemon
+     on most Unix systems. This patch will allow Heroku apps to shut down
+     gracefully when they need to be terminated / moved.
+
 == 1.2.11 Bat-Shit Crazy
  * Fix pure Ruby gem to not include binary.
 
