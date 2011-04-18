@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 # Require mongrel so we can test that Thin parser don't clash w/ Mongrel parser.
 begin

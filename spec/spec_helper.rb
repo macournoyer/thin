@@ -153,13 +153,19 @@ module Helpers
       wait_for_socket(address, port)
     else
       # If we can't ping the address fallback to just wait for the server to run
-      sleep 1 until @server.running?
+      sleep 0.01 until @server.running?
     end
   end
   
   def stop_server
     @server.stop!
     @thread.kill
+    
+    100.times do
+      break unless EM.reactor_running?
+      sleep 0.01
+    end
+
     raise "Reactor still running, wtf?" if EventMachine.reactor_running?
   end
   

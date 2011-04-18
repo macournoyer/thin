@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 include Controllers
 
 describe Cluster, "with host and port" do
