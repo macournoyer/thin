@@ -118,7 +118,7 @@ module Thin
         opts.on("-f", "--force", "Force the execution of the command")                  { @options[:force] = true }
         opts.on(      "--max-conns NUM", "Maximum number of open file descriptors " +
                                          "(default: #{@options[:max_conns]})",
-                                         "Might require sudo to set higher then 1024")  { |num| @options[:max_conns] = num.to_i } unless Thin.win?
+                                         "Might require sudo to set higher than 1024")  { |num| @options[:max_conns] = num.to_i } unless Thin.win?
         opts.on(      "--max-persistent-conns NUM",
                                        "Maximum number of persistent connections",
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
