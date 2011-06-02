@@ -39,11 +39,12 @@ require "#{Thin::ROOT}/thin/version"
 require "#{Thin::ROOT}/thin/statuses"
 require "#{Thin::ROOT}/rack/adapter/loader"
 
-if Thin.win?
-  # Select proper binary under Windows
+begin
+  # Select proper binary
   major_ruby_version = RUBY_VERSION[/^(\d+\.\d+)/]
   require "#{Thin::ROOT}/#{major_ruby_version}/thin_parser"
-else
+rescue LoadError
+  # Installed from source
   require "#{Thin::ROOT}/thin_parser"
 end
 
