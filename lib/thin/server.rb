@@ -210,8 +210,9 @@ module Thin
     
     protected
       # Register signals:
-      # * INT calls +stop+ to shutdown gracefully.
-      # * TERM calls <tt>stop!</tt> to force shutdown.
+      # * TERM & QUIT calls +stop+ to shutdown gracefully.
+      # * INT calls <tt>stop!</tt> to force shutdown.
+      # * HUP calls <tt>restart</tt> to ... surprise, restart!
       def setup_signals
         trap('INT')  { stop! }
         trap('TERM') { stop }
