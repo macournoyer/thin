@@ -39,6 +39,12 @@ describe Logging do
     Logging.silent = true
     Logging.log "hi"
   end
+
+  it "should print errors to STDERR" do
+    error = mock(:error, :backtrace => Array("PC LOAD LETTER"))
+    STDERR.should_receive(:print).with(/PC LOAD LETTER/)
+    @object.log_error(error)
+  end
   
   after do
     Logging.silent = true
