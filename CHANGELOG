@@ -1,4 +1,5 @@
 == 1.2.12 ???
+ * Log errors to STDERR [textgoeshere]
  * Shut down gracefully when receiving SIGTERM [ddollar]
      
      Processes are allowed a chance to shut down gracefully when receiving
