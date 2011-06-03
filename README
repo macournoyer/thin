@@ -26,9 +26,6 @@ Or from source:
  cd thin
  rake install
 
-To compile from source on Windows, see:
-http://shadedcode.blogspot.com/2011/05/installing-thin-rubygem-on-windows.html
-
 === Usage
 A +thin+ script offers an easy way to start your Rails application:
 
