@@ -224,6 +224,14 @@ module Thin
              bytes += p.respond_to?(:bytesize) ? p.bytesize : p.size
            end
            headers[CONTENT_LENGTH] = bytes.to_s
+        else
+          bytes, nbody = 0, []
+          body.each do |p|
+            bytes += p.respond_to?(:bytesize) ? p.bytesize : p.size
+            nbody << p
+          end
+          headers[CONTENT_LENGTH] = bytes.to_s
+          result[2] = nbody
         end
       end
   end
