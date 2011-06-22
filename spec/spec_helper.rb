@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'thin'
+gem "rspec", "~> 1.2.9"
 require 'spec'
 require 'benchmark'
 require 'timeout'

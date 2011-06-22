@@ -5,10 +5,6 @@ module Thin
   # This class is instanciated by EventMachine on each new connection
   # that is opened.
   class Connection < EventMachine::Connection
-    CONTENT_LENGTH    = 'Content-Length'.freeze
-    TRANSFER_ENCODING = 'Transfer-Encoding'.freeze
-    CHUNKED_REGEXP    = /\bchunked\b/i.freeze
-
     include Logging
     
     # This is a template async response. N.B. Can't use string for body on 1.9
@@ -97,9 +93,6 @@ module Thin
       # Status code -1 indicates that we're going to respond later (async).
       return if result.first == AsyncResponse.first
 
-      # Set the Content-Length header if possible
-      set_content_length(result) if need_content_length?(result)
-      
       @response.status, @response.headers, @response.body = *result
 
       log "!! Rack application returned nil body. Probably you wanted it to be an empty string?" if @response.body.nil?
@@ -195,36 +188,9 @@ module Thin
     end
 
     protected
-
       # Returns IP address of peer as a string.
       def socket_address
         Socket.unpack_sockaddr_in(get_peername)[1]
-      end
-
-    private
-      def need_content_length?(result)
-        status, headers, body = result
-        return false if status == -1
-        return false if headers.has_key?(CONTENT_LENGTH)
-        return false if (100..199).include?(status) || status == 204 || status == 304
-        return false if headers.has_key?(TRANSFER_ENCODING) && headers[TRANSFER_ENCODING] =~ CHUNKED_REGEXP
-        return false unless body.kind_of?(String) || body.kind_of?(Array)
-        true
-      end
-
-      def set_content_length(result)
-        headers, body = result[1..2]
-        case body
-        when String
-          # See http://redmine.ruby-lang.org/issues/show/203
-          headers[CONTENT_LENGTH] = (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
-        when Array
-           bytes = 0
-           body.each do |p|
-             bytes += p.respond_to?(:bytesize) ? p.bytesize : p.size
-           end
-           headers[CONTENT_LENGTH] = bytes.to_s
-        end
       end
   end
 end

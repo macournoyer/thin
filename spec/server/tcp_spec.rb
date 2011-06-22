@@ -20,16 +20,6 @@ describe Server, 'on TCP socket' do
     body.should include('this')
   end
   
-  it "should add the Content-Length to the response when not present" do
-    status, headers, body = parse_response(send_data("GET / HTTP/1.0\r\nConnection: close\r\n\r\n"))
-    headers.should have_key('Content-Length')
-  end
-  
-  it 'should set the Content-Length to equal the body size in bytes' do
-    status, headers, body = parse_response(send_data("GET / HTTP/1.0\r\nConnection: close\r\n\r\n"))
-    headers['Content-Length'].should == (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s
-  end
-  
   it 'should return empty string on incomplete headers' do
     send_data("GET /?this HTTP/1.1\r\nHost:").should be_empty
   end

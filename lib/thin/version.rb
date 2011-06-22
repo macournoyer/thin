@@ -5,12 +5,12 @@ module Thin
   
   module VERSION #:nodoc:
     MAJOR    = 1
-    MINOR    = 2
-    TINY     = 11
+    MINOR    = 3
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = "Bat-Shit Crazy".freeze
+    CODENAME = "Double Espresso".freeze
     
     RACK     = [1, 0].freeze # Rack protocol version
   end

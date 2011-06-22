@@ -1,4 +1,6 @@
-== 1.2.12 ???
+== 1.3.0 Double Espresso
+ * BREAKING CHANGE: Remove automatic Content-Length setting.
+   It is now the responsibility of the app (or a middleware) to set the Content-Length.
  * Log errors to STDERR [textgoeshere]
  * Shut down gracefully when receiving SIGTERM [ddollar]
      
