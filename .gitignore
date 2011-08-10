@@ -17,4 +17,4 @@ pkg/*
 nbproject/*
 .DS_Store
 daemon_test.log
-
+Gemfile.lock
