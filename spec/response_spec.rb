@@ -66,6 +66,19 @@ describe Response do
     @response.each { |l| out << l }
     out.should include("\r\n\r\n<html></html>")
   end
+
+  it 'should throw :streamfile body' do
+    @response.body = Struct.new(:to_path).new('foobar')
+    
+    out = ''
+    streamed = true
+    catch :streamfile do
+      @response.each { |l| out << l }
+      streamed = false
+    end
+    streamed.should be_true
+    out.should include("\r\n\r\n")
+  end
     
   it "should not be persistent by default" do
     @response.should_not be_persistent
