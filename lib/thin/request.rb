@@ -25,6 +25,8 @@ module Thin
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
+    TRANSFER_ENCODING = 'HTTP_TRANSFER_ENCODING'.freeze
+    CHUNKED           = /\bchunked\b/i.freeze
     CONNECTION        = 'HTTP_CONNECTION'.freeze
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
     CLOSE_REGEXP      = /\bclose\b/i.freeze
@@ -52,6 +54,7 @@ module Thin
       @parser   = Thin::HttpParser.new
       @data     = ''
       @nparsed  = 0
+      @chunked  = false
       @body     = StringIO.new(INITIAL_BODY.dup)
       @env      = {
         SERVER_SOFTWARE   => SERVER,
@@ -74,17 +77,21 @@ module Thin
     # Returns +true+ if the parsing is complete.
     def parse(data)
       if @parser.finished?  # Header finished, can only be some more body
-        body << data
+        append_body(data)
       else                  # Parse more header using the super parser
         @data << data
         raise InvalidRequest, 'Header longer than allowed' if @data.size > MAX_HEADER
 
         @nparsed = @parser.execute(@env, @data, @nparsed)
-
-        # Transfert to a tempfile if body is very big
-        move_body_to_tempfile if @parser.finished? && content_length > MAX_BODY
+        if @parser.finished?
+          @chunked = @env[TRANSFER_ENCODING] =~ CHUNKED
+          if @chunked
+            # Switch around to buffer the body
+            @remaining = @body.string
+            @body.string = INITIAL_BODY.dup
+          end
+        end
       end
-
 
       if finished?   # Check if header and body are complete
         @data = nil
@@ -97,20 +104,29 @@ module Thin
 
     # +true+ if headers and body are finished parsing
     def finished?
-      @parser.finished? && @body.size >= content_length
+      @parser.finished? && content_length && @body.size >= content_length
     end
 
     # Expected size of the body
     def content_length
-      @env[CONTENT_LENGTH].to_i
+      @content_length ||= begin
+        if @env[TRANSFER_ENCODING] =~ CHUNKED
+          nil
+        else
+          @env[CONTENT_LENGTH].to_i
+        end
+      end
     end
 
     # Returns +true+ if the client expect the connection to be persistent.
     def persistent?
+      if not content_length
+        false
+
       # Clients and servers SHOULD NOT assume that a persistent connection
       # is maintained for HTTP versions less than 1.1 unless it is explicitly
       # signaled. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html)
-      if @env[HTTP_VERSION] == HTTP_1_0
+      elsif @env[HTTP_VERSION] == HTTP_1_0
         @env[CONNECTION] =~ KEEP_ALIVE_REGEXP
 
       # HTTP/1.1 client intends to maintain a persistent connection unless
@@ -144,13 +160,39 @@ module Thin
     end
 
     private
+
+      def append_body(data)
+        move_body_to_tempfile if @body.length + data.length > MAX_BODY
+        if @chunked
+          remaining = @remaining
+          remaining << data
+          while remaining =~ /\A((?:\r\n)?[0-9a-f]+\r\n)/i
+            header = $1
+            length = header.to_i(16)
+            if length == 0
+              @content_length = @body.length
+              break
+            elsif remaining.length - header.length >= length
+              remaining.slice!(0, header.length)
+              @body << remaining.slice!(0, length)
+            else
+              break
+            end
+          end
+        else
+          @body << data
+        end
+      end
+
       def move_body_to_tempfile
-        current_body = @body
-        current_body.rewind
-        @body = Tempfile.new(BODY_TMPFILE)
-        @body.binmode
-        @body << current_body.read
-        @env[RACK_INPUT] = @body
+        unless Tempfile === @body
+          current_body = @body
+          current_body.rewind
+          @body = Tempfile.new(BODY_TMPFILE)
+          @body.binmode
+          @body << current_body.read
+          @env[RACK_INPUT] = @body
+        end
       end
   end
 end

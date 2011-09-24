@@ -47,4 +47,16 @@ describe Request, 'processing' do
     pending("Ruby 1.9 compatible implementations only") unless StringIO.instance_methods.include? :external_encoding
     Request.new.body.external_encoding.should == Encoding::ASCII_8BIT
   end
+
+  it "should accept chunked transfer encoding for input stream" do
+    chunk_sizes = [42, 8192, 1, 0]
+    request = Request.new
+    request.parse("PUT /postit HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n")
+    chunk_sizes.each do |size|
+      request.parse("#{size.to_s(16)}\r\n#{'X' * size}\r\n")
+    end
+
+    request.body.size.should == chunk_sizes.inject(0) { |sum, i| sum + i }
+    request.should be_finished
+  end
 end
