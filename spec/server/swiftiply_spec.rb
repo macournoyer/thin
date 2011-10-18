@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 if SWIFTIPLY_PATH.empty?
   warn "Ignoring Server on Swiftiply specs, gem install swiftiply to run"

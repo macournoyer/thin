@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe Server, "HTTP pipelining" do
   before do
@@ -35,7 +35,7 @@ describe Server, "HTTP pipelining" do
     socket.close
     
     wait_for_requests_to_complete!
-    
+
     response.should include('/first-1', '/second-2')
   end
   

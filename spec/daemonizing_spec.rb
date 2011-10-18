@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require 'spec_helper'
 
 class TestServer
   include Logging # Daemonizable should include this?
@@ -87,8 +87,10 @@ describe 'Daemonizing' do
     
     @pid = @server.pid
   
-    silence_stream STDOUT do
-      TestServer.kill(@server.pid_file, 1)
+    timeout(10) do
+      silence_stream STDOUT do
+        TestServer.kill(@server.pid_file, 1)
+      end
     end
   
     File.exist?(@server.pid_file).should be_false
@@ -104,8 +106,10 @@ describe 'Daemonizing' do
     
     @pid = @server.pid
   
-    silence_stream STDOUT do
-      TestServer.kill(@server.pid_file, 0)
+    timeout(10) do
+      silence_stream STDOUT do
+        TestServer.kill(@server.pid_file, 0)
+      end
     end
   
     File.exist?(@server.pid_file).should be_false
