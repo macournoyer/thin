@@ -3,7 +3,7 @@ include Controllers
 
 describe Service do
   before(:all) do
-    silence_stream(STDERR) do
+    silence_warnings do
       Service::INITD_PATH          = 'tmp/sandbox' + Service::INITD_PATH
       Service::DEFAULT_CONFIG_PATH = 'tmp/sandbox' + Service::DEFAULT_CONFIG_PATH
     end

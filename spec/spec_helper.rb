@@ -135,6 +135,13 @@ module Helpers
     stream.reopen(old_stream)
   end
   
+  def silence_warnings
+    old_verbose, $VERBOSE = $VERBOSE, nil
+    yield
+  ensure
+    $VERBOSE = old_verbose
+  end
+  
   # Create and parse a request
   def R(raw, convert_line_feed=false)
     raw.gsub!("\n", "\r\n") if convert_line_feed
