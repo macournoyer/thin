@@ -1,0 +1,27 @@
+have_library: checking for main() in -lc... -------------------- no
+
+"i386-mingw32-gcc -o conftest -I. -I/Users/ma/.rake-compiler/ruby/ruby-1.8.6-p398/lib/ruby/1.8/i386-mingw32 -I../../../../ext/thin_parser   -g -O2  conftest.c  -L. -L/Users/ma/.rake-compiler/ruby/ruby-1.8.6-p398/lib -L.      -lmsvcrt-ruby18-static -lc  -lshell32 -lwsock32  "
+/usr/local/i386-mingw32-4.3.0/lib/gcc/i386-mingw32/4.3.0/../../../../i386-mingw32/bin/ld: cannot find -lc
+collect2: ld returned 1 exit status
+checked program was:
+/* begin */
+1: #include <windows.h>
+2: #include <winsock.h>
+3: 
+4: /*top*/
+5: int main() { return 0; }
+6: int t() { void ((*volatile p)()); p = (void ((*)()))main; return 0; }
+/* end */
+
+"i386-mingw32-gcc -o conftest -I. -I/Users/ma/.rake-compiler/ruby/ruby-1.8.6-p398/lib/ruby/1.8/i386-mingw32 -I../../../../ext/thin_parser   -g -O2  conftest.c  -L. -L/Users/ma/.rake-compiler/ruby/ruby-1.8.6-p398/lib -L.      -lmsvcrt-ruby18-static -lc  -lshell32 -lwsock32  "
+/usr/local/i386-mingw32-4.3.0/lib/gcc/i386-mingw32/4.3.0/../../../../i386-mingw32/bin/ld: cannot find -lc
+collect2: ld returned 1 exit status
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { main(); return 0; }
+/* end */
+
+--------------------
+

@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-valgrind  --tool=memcheck --leak-check=yes --show-reachable=no --num-callers=15 --track-fds=yes ruby bin/thin $@
