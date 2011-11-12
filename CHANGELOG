@@ -1,4 +1,6 @@
 == 1.3.0 Double Espresso
+ * BREAKING CHANGE: Thin no longer ships with fat Windows binaries.
+   From now on, to install on Windows, install https://github.com/oneclick/rubyinstaller/wiki/Development-Kit.
  * BREAKING CHANGE: Remove automatic Content-Length setting.
    It is now the responsibility of the app (or a middleware) to set the Content-Length.
  * Log errors to STDERR [textgoeshere]
