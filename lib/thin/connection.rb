@@ -1,8 +1,8 @@
 require "http/parser"
 require "eventmachine"
 
-require_relative "request"
-require_relative "response"
+require "thin/request"
+require "thin/response"
 
 module Thin
   class Connection < EM::Connection
