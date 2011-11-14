@@ -4,7 +4,7 @@ require "thin/version"
 
 Gem::Specification.new do |s|
   s.name        = "thin"
-  s.version     = Thin::VERSION
+  s.version     = Thin::VERSION::STRING
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Marc-Andre Cournoyer"]
   s.email       = ["thin@macournoyer.com"]
@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_dependency "eventmachine", "~> 1.0.0"
   s.add_dependency "http_parser.rb", "~> 0.5.3"
   s.add_dependency "preforker", "~> 0.1.1"
-  s.add_dependency "kgio", "~> 2.6.0"
+  s.add_dependency "rack", "~> 1.3.5"
 end
