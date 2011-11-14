@@ -1,3 +1,6 @@
+== 1.3.1 Triple Espresso
+ * Fix service not working pre 1.9.
+
 == 1.3.0 Double Espresso
  * BREAKING CHANGE: Thin no longer ships with fat Windows binaries.
    From now on, to install on Windows, install https://github.com/oneclick/rubyinstaller/wiki/Development-Kit.

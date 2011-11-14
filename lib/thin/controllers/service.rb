@@ -5,7 +5,7 @@ module Thin
     # System service controller to launch all servers which
     # config files are in a directory.
     class Service < Controller
-      INITD_PATH          = Dir.exist?('/etc/rc.d') ? '/etc/rc.d/thin' : '/etc/init.d/thin'
+      INITD_PATH          = File.directory?('/etc/rc.d') ? '/etc/rc.d/thin' : '/etc/init.d/thin'
       DEFAULT_CONFIG_PATH = '/etc/thin'
       TEMPLATE            = File.dirname(__FILE__) + '/service.sh.erb'
     
