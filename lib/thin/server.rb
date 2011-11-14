@@ -2,8 +2,8 @@ require "preforker"
 require "eventmachine"
 require "kgio"
 
-require_relative "acceptor"
-require_relative "connection"
+require "thin/connection"
+require "thin/system"
 
 module Thin
   class Server
@@ -15,33 +15,31 @@ module Thin
       @port = port
     end
     
-    def start(workers=3)
+    def start(workers=nil)
       socket = Kgio::TCPServer.new(@address, @port)
       socket.listen(50)
 
-      # Preforker.new(:timeout => 5, :workers => workers, :app_name => "Thin") do |master|
-      #   EM.run do
-      #     EM.add_periodic_timer(4) do
-      #       EM.stop_event_loop unless master.wants_me_alive?
-      #     end
-      #     
-      #     EM.watch(socket, Acceptor) { |c| c.server = self }
-      #   end
-      # end.start
+      trap("EXIT") { socket.close }
       
-      3.times do
-        fork do
-          EM.run do
-            EM.watch(socket, Acceptor) { |c| c.server = self }
-          end
-        end
+      if workers.nil?
+        workers = System.processor_count
+        puts "Detected #{workers} processors"
       end
       
-      Process.waitall
-      
-      # EM.run do
-      #   EM.start_server(@address, @port, Connection) { |c| c.server = self }
-      # end
+      puts "Starting #{workers} workers ..."
+      Preforker.new(:timeout => 5, :workers => workers, :app_name => "Thin") do |master|
+        EM.run do
+          EM.add_periodic_timer(4) do
+            EM.stop_event_loop unless master.wants_me_alive?
+          end
+          
+          EM.attach_server(socket, Connection) { |c| c.server = self }
+        end
+      end.start
+    end
+    
+    def self.start(*args)
+      new(*args).start
     end
   end
 end

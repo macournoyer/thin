@@ -1,5 +1,4 @@
-# require "http/parser"
-require "thin_parser"
+require "http/parser"
 require "eventmachine"
 
 require_relative "request"
@@ -12,30 +11,15 @@ module Thin
     ## EM callbacks
     
     def post_init
-      # @parser = Http::Parser.new(self)
-      @parser = Thin::HttpParser.new
-      @body = StringIO.new('')
-      @env = {
-        'rack.input' => @body
-      }
-      @data = ''
-      @nparsed = 0
+      @parser = Http::Parser.new(self)
     end
     
     def receive_data(data)
-      # @parser << data
-      
-      if @parser.finished?
-        @body << data
-      else
-        @data << data
-        @nparsed = @parser.execute(@env, @data, @nparsed)
-      end
-      
-      if @parser.finished? && @body.size >= @env["CONTENT_LENGTH"].to_i
-        @data = nil
-        on_message_complete
-      end
+      @parser << data
+    end
+    
+    def unbind
+      @request.close if @request
     end
     
     ## Parser callbacks
@@ -53,15 +37,15 @@ module Thin
     end
     
     def on_message_complete
-      # p @request.to_env
       response = Response.new
-      response.status, response.headers, response.body = @server.app.call(@env)
-      # response.status, response.headers, response.body = [200, {"Content-Type" => "text/plain"}, ["hi!"]]
+      response.status, response.headers, response.body = @server.app.call(@request.env)
+      
+      # We're done with the request, not need to keep that in memory.
+      @request.close
       @request = nil
       
-      response.headers["Connection"] = "close"
-      response.headers["Server"] = "Thin 2.0.0"
-      
+      # Complete and send the response.
+      response.finish
       response.each { |chunk| send_data chunk }
       
       close_connection_after_writing

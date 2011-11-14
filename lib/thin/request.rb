@@ -2,25 +2,29 @@ require "stringio"
 
 module Thin
   class Request
-    attr_reader :headers, :body
+    attr_reader :env, :body
     
     def initialize
-      @headers = nil
-      @body = ''
+      @body = StringIO.new('')
+      @env = {
+        'rack.input' => @body
+      }
     end
     
     def headers=(headers)
-      # Convert to Rack headers
-      @headers = headers.inject({}) { |h, (k, v)| h[k.upcase.tr("-", "_")] = v; h }
+      headers.each_pair do |k, v|
+        # Convert to Rack headers
+        @env[k.upcase.tr("-", "_")] = v
+      end
     end
     
-    def <<(chunk)
-      # TODO move to file if too big
-      @body << chunk
+    def <<(data)
+      # TODO move to tempfile if too big
+      @body << data
     end
     
-    def to_env
-      { "rack.input" => StringIO.new(@body) }.update(headers)
+    def close
+      # TODO close tempfile if some
     end
   end
 end

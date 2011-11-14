@@ -19,7 +19,8 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
   
-  s.add_dependency "eventmachine", "~> 0.12.10"
+  s.add_dependency "eventmachine", "~> 1.0.0"
   s.add_dependency "http_parser.rb", "~> 0.5.3"
   s.add_dependency "preforker", "~> 0.1.1"
+  s.add_dependency "kgio", "~> 2.6.0"
 end
