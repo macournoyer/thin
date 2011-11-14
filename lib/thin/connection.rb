@@ -8,6 +8,7 @@ module Thin
   class Connection < EM::Connection
     attr_accessor :server
     
+    
     ## EM callbacks
     
     def post_init
@@ -21,6 +22,7 @@ module Thin
     def unbind
       @request.close if @request
     end
+    
     
     ## Parser callbacks
     
