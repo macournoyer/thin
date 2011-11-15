@@ -30,7 +30,7 @@ class IntegrationTestCase < Test::Unit::TestCase
   def setup
     root = File.expand_path('../..', __FILE__)
     silence_stream(STDOUT) do
-      @pid = spawn "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} -w1 config.ru"
+      @pid = spawn "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} -w1 #{root}/test/integration/config.ru"
     end
 
     tries = 0
