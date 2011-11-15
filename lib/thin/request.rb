@@ -4,8 +4,12 @@ module Thin
   class Request
     attr_reader :env, :body
     
+    INITIAL_BODY      = ''
+    # Force external_encoding of request's body to ASCII_8BIT
+    INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!)
+    
     def initialize
-      @body = StringIO.new('')
+      @body = StringIO.new(INITIAL_BODY)
       @env = {
         'rack.input' => @body,
         'rack.errors' => $stderr,
@@ -15,7 +19,7 @@ module Thin
         'rack.multiprocess' => true,
         'rack.run_once' => false,
         
-        'SCRIPT_NAME' => '/'
+        'SCRIPT_NAME' => ''
       }
     end
     
@@ -28,6 +32,10 @@ module Thin
           @env["HTTP_" + k.upcase.tr("-", "_")] = v
         end
       end
+      
+      host, port = @env["HTTP_HOST"].split(":") if @env.key?("HTTP_HOST")
+      @env['SERVER_NAME'] = host || "localhost"
+      @env['SERVER_PORT'] = port || "80"
     end
     
     def method=(method)
