@@ -27,10 +27,10 @@ module Thin
       
       if workers.nil?
         workers = System.processor_count
-        puts "Detected #{workers} processors"
+        puts "Detected #{workers} processor(s)"
       end
       
-      puts "Starting #{workers} workers ..."
+      puts "Starting #{workers} worker(s) ..."
       Preforker.new(:workers => workers,
                     :app_name => "Thin",
                     :timeout => @worker_timeout,
@@ -43,11 +43,7 @@ module Thin
           
           EM.attach_server(socket, Connection) { |c| c.server = self }
         end
-      end.start
-    end
-    
-    def self.start(*args)
-      new(*args).start
+      end.run
     end
   end
 end

@@ -8,7 +8,7 @@ module Thin
 
     CODENAME = "The Wire Burner".freeze
 
-    RACK     = [1, 0].freeze # Rack protocol version
+    RACK     = [1, 1].freeze # Rack protocol version
   end
   
   NAME    = 'thin'.freeze

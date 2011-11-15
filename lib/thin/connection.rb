@@ -7,7 +7,7 @@ require "thin/response"
 module Thin
   class Connection < EM::Connection
     attr_accessor :server
-    
+    attr_reader :request
     
     ## EM callbacks
     
@@ -31,6 +31,10 @@ module Thin
     end
     
     def on_headers_complete(headers)
+      @request.method = @parser.http_method
+      @request.path = @parser.request_path
+      @request.fragment = @parser.fragment
+      @request.query_string = @parser.query_string
       @request.headers = headers
     end
     
@@ -42,9 +46,8 @@ module Thin
       response = Response.new
       response.status, response.headers, response.body = @server.app.call(@request.env)
       
-      # We're done with the request, not need to keep that in memory.
+      # We're done with the request
       @request.close
-      @request = nil
       
       # Complete and send the response.
       response.finish

@@ -1,8 +1,4 @@
 #!/usr/bin/env ruby
-# Thin command line interface script.
 
-require "thin"
-require "rack"
-
-app, options = Rack::Builder.parse_file(ARGV.first || "config.ru")
-Thin::Server.start(app)
+require "thin/runner"
+Thin::Runner.start

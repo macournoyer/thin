@@ -4,7 +4,7 @@ module Thin
     
     def finish
       @headers["Connection"] = "close"
-      @headers["Server"] = Thin::NAME
+      @headers["Server"] = Thin::SERVER
     end
     
     def head
