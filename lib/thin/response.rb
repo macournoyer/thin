@@ -4,7 +4,7 @@ module Thin
     # Store HTTP header name-value pairs direcly to a string
     # and allow duplicated entries on some names.
     class Headers
-      HEADER_FORMAT = "%s: %s\r\n".freeze
+      HEADER_FORMAT      = "%s: %s\r\n".freeze
       ALLOWED_DUPLICATES = %w(Set-Cookie Set-Cookie2 Warning WWW-Authenticate).freeze
 
       def initialize
