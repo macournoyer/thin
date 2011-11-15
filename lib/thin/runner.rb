@@ -60,6 +60,10 @@ module Thin
           opts.on("-P", "--pid FILE", "file to store PID (default: thin.pid)") { |f|
             options[:pid] = ::File.expand_path(f)
           }
+          
+          opts.on("-T", "--timeout SEC", "Number of seconds before a workers is killed if inactive (default: 30)") { |sec|
+            options[:timeout] = sec.to_i
+          }
 
           opts.separator ""
           opts.separator "Common options:"

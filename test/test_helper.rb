@@ -3,6 +3,7 @@ require "thin"
 require "test/unit"
 require "mocha"
 require "net/http"
+require "timeout"
 
 class Test::Unit::TestCase
   # Silences any stream for the duration of the block.
@@ -27,12 +28,15 @@ end
 class IntegrationTestCase < Test::Unit::TestCase
   PORT = 8181
   
-  def setup
+  def thin(options={})
+    options[:workers] ||= 1
     root = File.expand_path('../..', __FILE__)
+    options_output = options.map { |k, v| "--#{k}=#{v}" }.join(" ")
+    command = "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} #{options_output} #{root}/test/integration/config.ru"
     silence_stream(STDOUT) do
-      @pid = spawn "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} -w1 #{root}/test/integration/config.ru"
+      @pid = spawn command
     end
-
+    
     tries = 0
     until (get("/") rescue nil)
       sleep 0.1
@@ -43,14 +47,14 @@ class IntegrationTestCase < Test::Unit::TestCase
   
   def teardown
     if @pid
-      Process.kill "INT", @pid
+      Process.kill "QUIT", @pid
       Process.wait @pid rescue Errno::ECHILD
       @pid = nil
     end
   end
   
   def get(path)
-    @response = Net::HTTP.get_response(URI.parse("http://localhost:#{PORT}" + path))
+    @response = Timeout.timeout(3) { Net::HTTP.get_response(URI.parse("http://localhost:#{PORT}" + path)) }
   end
   
   def assert_status(status)

@@ -1,20 +1,20 @@
 require "preforker"
 require "eventmachine"
-require 'socket'
+require "socket"
 
 require "thin/connection"
 require "thin/system"
 
 module Thin
   class Server
-    attr_accessor :app, :address, :port, :backlog, :worker_timeout, :pid_path, :log_path, :use_epoll, :maximum_connections
+    attr_accessor :app, :address, :port, :backlog, :timeout, :pid_path, :log_path, :use_epoll, :maximum_connections
     
     def initialize(app, address="0.0.0.0", port=3000)
       @app = app
       @address = address
       @port = port
       @backlog = 1024
-      @worker_timeout = 5
+      @timeout = 30
       @pid_path = "./thin.pid"
       @log_path = "./thin.log"
       @use_epoll = true
@@ -22,24 +22,28 @@ module Thin
     end
     
     def start(workers=nil)
+      # Starts and configure the server socket.
       socket = TCPServer.new(@address, @port)
       socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
       socket.listen(@backlog)
-
+      
       trap("EXIT") { socket.close }
       
+      # One worker per processor
       workers = System.processor_count if workers.nil?
       
+      # Configure EventMachine
       EM.epoll if @use_epoll
       @maximum_connections = EM.set_descriptor_table_size(@maximum_connections)
       puts "Maximum connections set to #{@maximum_connections} per worker"
       
+      # Prefork!
       puts "Starting #{workers} worker(s) ..."
       prefork = Preforker.new(
                   :workers => workers,
                   :app_name => "Thin",
-                  :timeout => @worker_timeout,
+                  :timeout => @timeout,
                   :pid_path => pid_path,
                   :logger => Logger.new(@log_path)
                 ) do |master|
