@@ -36,11 +36,13 @@ module Thin
       puts "Maximum connections set to #{@maximum_connections} per worker"
       
       puts "Starting #{workers} worker(s) ..."
-      prefork = Preforker.new(:workers => workers,
-                    :app_name => "Thin",
-                    :timeout => @worker_timeout,
-                    :pid_path => pid_path,
-                    :logger => Logger.new(@log_path)) do |master|
+      prefork = Preforker.new(
+                  :workers => workers,
+                  :app_name => "Thin",
+                  :timeout => @worker_timeout,
+                  :pid_path => pid_path,
+                  :logger => Logger.new(@log_path)
+                ) do |master|
         
         EM.run do
           EM.add_periodic_timer(4) do
