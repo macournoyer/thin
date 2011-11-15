@@ -30,7 +30,7 @@ class IntegrationTestCase < Test::Unit::TestCase
   def setup
     root = File.expand_path('../..', __FILE__)
     silence_stream(STDOUT) do
-      @pid = spawn "ruby -I#{root}/lib #{root}/bin/thin config.ru -p#{PORT} -w1"
+      @pid = spawn "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} -w1 config.ru"
     end
 
     tries = 0
@@ -42,8 +42,11 @@ class IntegrationTestCase < Test::Unit::TestCase
   end
   
   def teardown
-    Process.kill "INT", @pid
-    Process.wait @pid rescue Errno::ECHILD
+    if @pid
+      Process.kill "INT", @pid
+      Process.wait @pid rescue Errno::ECHILD
+      @pid = nil
+    end
   end
   
   def get(path)
