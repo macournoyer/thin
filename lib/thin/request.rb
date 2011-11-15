@@ -4,7 +4,7 @@ module Thin
   class Request
     attr_reader :env, :body
     
-    INITIAL_BODY      = ''
+    INITIAL_BODY = ''
     # Force external_encoding of request's body to ASCII_8BIT
     INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!)
     
