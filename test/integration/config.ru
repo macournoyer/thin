@@ -16,6 +16,11 @@ class App
         response.write "\n" + request.body.read
       end.finish
       
+    when "/eval"
+      Rack::Response.new do |response|
+        response.write eval(request["code"]).to_s
+      end.finish
+      
     when "/crash"
       raise "ouch"
       
