@@ -1,17 +1,36 @@
 class App
   def call(env)
     request = Rack::Request.new(env)
+    
     case request.path_info
     when "/"
-      [200, {"Content-Type" => "text/plain", "Content-Length" => "2"}, ["ok"]]
+      Rack::Response.new do |response|
+        response.write "ok"
+      end.finish
+      
+    when "/env"
+      Rack::Response.new do |response|
+        env.each_pair do |key, value|
+          response.write "#{key}: #{value}\n"
+        end
+        response.write "\n" + request.body.read
+      end.finish
+      
     when "/crash"
       raise "ouch"
+      
     when "/exit"
       exit!
+      
     when "/sleep"
       sleep request["sec"].to_f
+      
     else
-      [404, {"Content-Type" => "text/plain"}, ["Not found"]]
+      Rack::Response.new do |response|
+        response.status = 404
+        response.write "ok"
+      end.finish
+      
     end
   end
 end

@@ -8,6 +8,7 @@ class ConnectionTest < Test::Unit::TestCase
     
     @connection.stubs(:send_data)
     @connection.stubs(:close_connection_after_writing)
+    @connection.stubs(:socket_address).returns("127.0.0.1")
   end
   
   def app

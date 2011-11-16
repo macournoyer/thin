@@ -23,11 +23,19 @@ module Thin
       @request.close if @request
     end
     
+    # Returns IP address of peer as a string.
+    def socket_address
+      Socket.unpack_sockaddr_in(get_peername)[1]
+    rescue Exception => e
+      $stderr.puts "Can't get socket address: #{e}"
+      nil
+    end
     
     ## Parser callbacks
     
     def on_message_begin
       @request = Request.new
+      @request.remote_address = socket_address
     end
     
     def on_headers_complete(headers)
@@ -43,7 +51,10 @@ module Thin
     end
     
     def on_message_complete
+      @request.finish
       response = Response.new
+      
+      # Call the Rack application
       response.status, response.headers, response.body = @server.app.call(@request.env)
       
       # We're done with the request

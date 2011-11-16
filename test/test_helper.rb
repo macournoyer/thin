@@ -47,7 +47,7 @@ class IntegrationTestCase < Test::Unit::TestCase
   
   def teardown
     if @pid
-      Process.kill "QUIT", @pid
+      Process.kill "TERM", @pid
       Process.wait @pid rescue Errno::ECHILD
       @pid = nil
     end
@@ -57,12 +57,30 @@ class IntegrationTestCase < Test::Unit::TestCase
     @response = Timeout.timeout(3) { Net::HTTP.get_response(URI.parse("http://localhost:#{PORT}" + path)) }
   end
   
+  def post(path, params={})
+    Timeout.timeout(3) do
+      uri = URI.parse("http://localhost:#{PORT}" + path)
+      http = Net::HTTP.new(uri.host, uri.port)
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.set_form_data(params)
+
+      @response = http.request(request)
+    end
+  end
+  
   def assert_status(status)
     assert_equal status, @response.code.to_i
   end
   
   def assert_response_equals(string)
     assert_equal string, @response.body
+  end
+  
+  def assert_response_includes(*strings)
+    strings.each do |string|
+      assert @response.body.include?(string), "expected response to include #{string}, but got: #{@response.body}"
+    end
   end
   
   def assert_header(key, value)

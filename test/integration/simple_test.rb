@@ -8,6 +8,6 @@ class SimpleTest < IntegrationTestCase
     
     assert_status 200
     assert_response_equals "ok"
-    assert_header "Content-Type", "text/plain"
+    assert_header "Content-Type", "text/html"
   end
 end

@@ -24,13 +24,16 @@ class RequestTest < Test::Unit::TestCase
     assert ! @request.env.key?("CONNECTION")
   end
   
-  def test_do_not_prefix_content_length
+  def test_do_not_prefix_content_type_and_length
     @request.headers = {
-      "Content-Type" => "text/html"
+      "Content-Type" => "text/html",
+      "Content-Length" => "1"
     }
     
     assert ! @request.env.key?("HTTP_CONTENT_TYPE")
+    assert ! @request.env.key?("HTTP_CONTENT_LENGTH")
     assert_equal "text/html", @request.env["CONTENT_TYPE"]
+    assert_equal "1", @request.env["CONTENT_LENGTH"]
   end
   
   def test_extracts_server_name_and_port_from_host
