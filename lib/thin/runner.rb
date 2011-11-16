@@ -76,7 +76,7 @@ module Thin
           end
 
           opts.on_tail("--version", "Show version") do
-            puts Thin::VERSION::SERVER
+            puts Thin::SERVER
             exit
           end
         end
