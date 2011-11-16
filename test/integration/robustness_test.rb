@@ -6,17 +6,17 @@ class RobustnessTest < IntegrationTestCase
     
     100.times do
       begin
-        socket = TCPSocket.new("localhost", PORT)
-        socket.write("GET / HTTP/1.1\r\n")
-        socket.write("Host: localhost\r\n")
-        socket.write("Connection: close\r\n")
-        10000.times do
-          socket.write("X-Foo: #{'x' * 100}\r\n")
-          socket.flush
+        socket do |s|
+          s.write("GET / HTTP/1.1\r\n")
+          s.write("Host: localhost\r\n")
+          s.write("Connection: close\r\n")
+          10000.times do
+            s.write("X-Foo: #{'x' * 100}\r\n")
+            s.flush
+          end
+          s.write("\r\n")
+          s.read
         end
-        socket.write("\r\n")
-        socket.read
-        socket.close
       rescue Errno::EPIPE, Errno::ECONNRESET
         # Ignore.
       end
@@ -26,8 +26,10 @@ class RobustnessTest < IntegrationTestCase
   def test_incomplete_request
     thin :timeout => 1
     
-    request "GET /?this HTTP/1.1\r\nHost:"
-    
-    assert_status 200
+    socket do |s|
+      s.write "GET /?this HTTP/1.1\r\n"
+      s.write "Host:"
+      assert_equal "", s.read
+    end
   end
 end

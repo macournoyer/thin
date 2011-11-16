@@ -1,3 +1,6 @@
+require "bundler/setup"
+Bundler.require(:default, :test)
+
 $:.unshift File.expand_path("../../lib", __FILE__)
 require "thin"
 require "test/unit"
@@ -6,6 +9,8 @@ require "net/http"
 require "timeout"
 
 class Test::Unit::TestCase
+  include Mocha::API # fix mocha API not being included in minitest
+  
   # Silences any stream for the duration of the block.
   #
   #   silence_stream(STDOUT) do
@@ -32,7 +37,7 @@ class IntegrationTestCase < Test::Unit::TestCase
     options[:workers] ||= 1
     root = File.expand_path('../..', __FILE__)
     options_output = options.map { |k, v| "--#{k}=#{v}" }.join(" ")
-    command = "ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} #{options_output} #{root}/test/integration/config.ru"
+    command = "bundle exec ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} #{options_output} #{root}/test/integration/config.ru"
     silence_stream(STDOUT) do
       @pid = spawn command
     end
@@ -51,6 +56,7 @@ class IntegrationTestCase < Test::Unit::TestCase
       Process.wait @pid rescue Errno::ECHILD
       @pid = nil
     end
+    @response = nil
   end
   
   def get(path)
@@ -69,10 +75,9 @@ class IntegrationTestCase < Test::Unit::TestCase
     end
   end
   
-  def request(data)
+  def socket
     socket = TCPSocket.new("localhost", PORT)
-    socket.write data
-    socket.read
+    yield socket
   ensure
     socket.close rescue nil
   end

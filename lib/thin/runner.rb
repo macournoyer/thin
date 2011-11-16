@@ -1,4 +1,6 @@
 require "rack"
+# Ensure we don't use the Thin handler in Rack
+require File.expand_path('../../rack/handler/thin', __FILE__)
 
 module Thin
   class Runner < Rack::Server
@@ -94,6 +96,10 @@ module Thin
     
     def opt_parser
       Options.new
+    end
+    
+    def server
+      @_server ||= Rack::Handler::Thin
     end
   end
 end
