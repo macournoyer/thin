@@ -3,8 +3,9 @@ module Thin
     MAJOR    = 2
     MINOR    = 0
     TINY     = 0
+    PRE      = "pre"
 
-    STRING   = [MAJOR, MINOR, TINY].join('.')
+    STRING   = [MAJOR, MINOR, TINY, PRE].compact.join('.')
 
     CODENAME = "The Wire Burner".freeze
 
