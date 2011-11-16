@@ -17,6 +17,9 @@ module Thin
     
     def receive_data(data)
       @parser << data
+    rescue HTTP::Parser::Error => e
+      $stderr.puts "Parse error: #{e}"
+      close_connection
     end
     
     def unbind
@@ -65,6 +68,9 @@ module Thin
       response.each { |chunk| send_data chunk }
       
       close_connection_after_writing
+    rescue Exception => e
+      $stderr.puts "Error processing request: #{e}"
+      close_connection
     end
   end
 end

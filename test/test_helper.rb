@@ -69,6 +69,14 @@ class IntegrationTestCase < Test::Unit::TestCase
     end
   end
   
+  def request(data)
+    socket = TCPSocket.new("localhost", PORT)
+    socket.write data
+    socket.read
+  ensure
+    socket.close rescue nil
+  end
+  
   def assert_status(status)
     assert_equal status, @response.code.to_i
   end

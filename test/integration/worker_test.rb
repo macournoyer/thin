@@ -9,6 +9,12 @@ class WorkerTest < IntegrationTestCase
     assert_status 500
   end
   
+  def test_crash_in_production
+    thin :env => "production"
+    
+    assert_raise(EOFError) { get "/crash" }
+  end
+  
   def test_restart_worker_on_exit
     thin :workers => 1
     

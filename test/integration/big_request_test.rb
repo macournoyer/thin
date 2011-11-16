@@ -6,10 +6,18 @@ class BigRequestTest < IntegrationTestCase
   end
   
   def test_big_body_is_stored_in_tempfile
-    post "/eval?code=request.body.class", :big => "X" * (1024 * (80 + 32) + 1)
+    post "/eval?code=request.body.class", :big => "X" * (Thin::Request::MAX_BODY + 1)
     
     assert_status 200
     assert_response_equals "Tempfile"
+  end
+  
+  def test_big_body_is_read_from_tempfile
+    size = Thin::Request::MAX_BODY + 1
+    post "/eval?code=request.body.read", :big => "X" * size
+    
+    assert_status 200
+    assert_equal size + "big=".size, @response.body.size
   end
   
   def test_small_body_is_not_stored_in_tempfile
