@@ -9,6 +9,13 @@ class ResponseTest < Test::Unit::TestCase
     @response.finish
   end
   
+  def test_initialize_with_values
+    @response = Thin::Response.new(201, {"Content-Type" => "text/plain"}, ["hi"])
+    assert_equal 201, @response.status
+    assert_match "Content-Type: text/plain", @response.headers.to_s
+    assert_equal ["hi"], @response.body
+  end
+  
   def test_output_headers
     assert_match "Content-Type: text/html", @response.headers.to_s
     assert_match "Content-Length: 0", @response.headers.to_s

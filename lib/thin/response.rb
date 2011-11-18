@@ -52,9 +52,12 @@ module Thin
     # Headers key-value hash
     attr_reader   :headers
     
-    def initialize
+    def initialize(status=200, headers=nil, body=nil)
       @headers = Headers.new
-      @status = 200
+      @status = status
+      @body = body
+      
+      self.headers = headers if headers
     end
     
     if System.ruby_18?
@@ -117,6 +120,13 @@ module Thin
       else
         @body.each { |chunk| yield chunk }
       end
+    end
+    
+    def self.error(message, status=500)
+      new status,
+          { "Content-Type" => "text/plain",
+            "Content-Length" => Rack::Utils.bytesize(message).to_s },
+          [message]
     end
   end
 end

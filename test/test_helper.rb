@@ -36,11 +36,14 @@ class IntegrationTestCase < Test::Unit::TestCase
   def thin(options={})
     options[:workers] ||= 1
     root = File.expand_path('../..', __FILE__)
-    options_output = options.map { |k, v| "--#{k}=#{v}" }.join(" ")
-    command = "bundle exec ruby -I#{root}/lib #{root}/bin/thin -p#{PORT} #{options_output} #{root}/test/integration/config.ru"
-    silence_stream(STDOUT) do
-      @pid = spawn command
-    end
+    options_output = options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ")
+    pid_file = "#{root}/test.pid"
+    command = "bundle exec ruby -I#{root}/lib #{root}/bin/thin " +
+                                                      "-p#{PORT} " +
+                                                      "-P#{pid_file} " +
+                                                      options_output + " " +
+                                                      "#{root}/test/integration/config.ru"
+    launcher_pid = silence_stream($stdout) { spawn command }
     
     tries = 0
     until (get("/") rescue nil)
@@ -48,6 +51,10 @@ class IntegrationTestCase < Test::Unit::TestCase
       tries += 1
       raise "Failed to start server" if tries > 20
     end
+    
+    @pid = File.read(pid_file).to_i
+    
+    launcher_pid
   end
   
   def teardown
@@ -76,6 +83,7 @@ class IntegrationTestCase < Test::Unit::TestCase
   end
   
   def socket
+    @response = nil
     socket = TCPSocket.new("localhost", PORT)
     yield socket
   ensure

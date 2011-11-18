@@ -21,7 +21,7 @@ class App
         response.write eval(request["code"]).to_s
       end.finish
       
-    when "/crash"
+    when "/raise"
       raise "ouch"
       
     when "/exit"

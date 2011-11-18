@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
 
+require "thin"
 require "thin/runner"
-Thin::Runner.start
+
+Thin::Runner.run(ARGV)

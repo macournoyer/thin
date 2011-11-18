@@ -2,7 +2,7 @@ require 'test_helper'
 
 class RobustnessTest < IntegrationTestCase
   def test_should_not_crash_when_header_too_large
-    thin
+    thin :log => "/dev/null"
     
     100.times do
       begin

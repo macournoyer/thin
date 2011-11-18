@@ -1,10 +1,9 @@
+require "optparse"
 require "rack"
-# Ensure we don't use the Thin handler in Rack
-require File.expand_path('../../rack/handler/thin', __FILE__)
 
 module Thin
-  class Runner < Rack::Server
-    class Options
+  class Runner
+    class OptionsParser
       def parse!(args)
         options = {}
         opt_parser = OptionParser.new("", 24, '  ') do |opts|
@@ -20,51 +19,55 @@ module Thin
           }
 
           opts.on("-d", "--debug", "set debugging flags (set $DEBUG to true)") {
-            options[:debug] = true
+            $DEBUG = true
           }
           opts.on("-w", "--warn", "turn warnings on for your script") {
-            options[:warn] = true
+            $-w = true
           }
 
           opts.on("-I", "--include PATH",
                   "specify $LOAD_PATH (may be used more than once)") { |path|
-            options[:include] = path.split(":")
+            $LOAD_PATH.unshift *path.split(":")
           }
 
           opts.on("-r", "--require LIBRARY",
                   "require the library, before executing your script") { |library|
-            options[:require] = library
+            require library
           }
 
           opts.separator ""
           opts.separator "Thin options:"
-
+          
           opts.on("-o", "--host HOST", "listen on HOST (default: 0.0.0.0)") { |host|
-            options[:Host] = host
-          }
-
-          opts.on("-p", "--port PORT", "use PORT (default: 9292)") { |port|
-            options[:Port] = port
+            options[:host] = host
           }
           
-          opts.on("-w", "--workers WORKERS", "number of workers to start (default: number of processor)") { |workers|
-            options[:workers] = workers.to_i
+          opts.on("-p", "--port PORT", "use PORT (default: 9292)") { |port|
+            options[:port] = port
           }
-
+          
           opts.on("-E", "--env ENVIRONMENT", "use ENVIRONMENT for defaults (default: development)") { |e|
             options[:environment] = e
           }
-
+          
           opts.on("-D", "--daemonize", "run daemonized in the background") { |d|
             options[:daemonize] = d ? true : false
           }
-
+          
           opts.on("-P", "--pid FILE", "file to store PID (default: thin.pid)") { |f|
             options[:pid] = ::File.expand_path(f)
           }
           
-          opts.on("-T", "--timeout SEC", "Number of seconds before a workers is killed if inactive (default: 30)") { |sec|
-            options[:timeout] = sec.to_i
+          opts.on("-l", "--log FILE", "file to log to (default: stdout)") { |f|
+            options[:log] = ::File.expand_path(f)
+          }
+          
+          opts.on("-W", "--workers NUMBER", "starts NUMBER of workers (default: number of processors)") { |n|
+            options[:workers] = n.to_i
+          }
+          
+          opts.on("-t", "--timeout SECONDS", "number of SECONDS before a worker times out (default: 30)") { |n|
+            options[:timeout] = n.to_i
           }
 
           opts.separator ""
@@ -87,19 +90,73 @@ module Thin
           warn e.message
           abort opt_parser.to_s
         end
-        
-        options[:server] = "thin"
+      
         options[:config] = args.last if args.last
+      
         options
       end
     end
     
-    def opt_parser
-      Options.new
+    def default_options
+      {
+        :environment => ENV['RACK_ENV'] || "development",
+        :pid         => nil,
+        :port        => 9292,
+        :host        => "0.0.0.0",
+        :config      => "config.ru"
+      }
     end
     
-    def server
-      @_server ||= Rack::Handler::Thin
+    def run(args)
+      # Configure app
+      options = default_options
+      
+      parser = OptionsParser.new
+      options.update parser.parse!(args)
+      
+      app, in_file_options = Rack::Builder.parse_file(options[:config], parser)
+      options.update in_file_options
+      
+      ENV["RACK_ENV"] = options[:environment]
+      options[:config] = ::File.expand_path(options[:config])
+      
+      app = build_app(app, options[:environment])
+      
+      # Start server
+      server = Server.new(app, options[:host], options[:port])
+      server.pid_path = options[:pid] if options[:pid]
+      server.log_path = options[:log] if options[:log]
+      server.workers = options[:workers] if options[:workers]
+      server.timeout = options[:timeout] if options[:timeout]
+      
+      server.start(options[:daemonize])
     end
+    
+    def self.run(args)
+      new.run(args)
+    end
+    
+    private
+      def build_app(inner_app, environment)
+        Rack::Builder.new do
+          case environment
+          when "development"
+            use Rack::ContentLength
+            use Rack::Chunked
+            use Rack::CommonLogger
+            use Rack::ShowExceptions
+            use Rack::Lint
+
+          when "deployment"
+            use Rack::ContentLength
+            use Rack::Chunked
+            use Rack::CommonLogger
+
+          end
+
+          run inner_app
+        end
+      end
+      
   end
 end

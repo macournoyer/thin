@@ -9,6 +9,16 @@ module Thin
     attr_accessor :server
     attr_reader :request
     
+    def send_response(response)
+      response.finish
+      response.each { |chunk| send_data chunk }
+      
+      close_connection_after_writing
+    rescue Exception => e
+      $stderr.puts "Error sending response: #{e}"
+      close_connection
+    end
+    
     ## EM callbacks
     
     def post_init
@@ -19,7 +29,7 @@ module Thin
       @parser << data
     rescue HTTP::Parser::Error => e
       $stderr.puts "Parse error: #{e}"
-      close_connection
+      send_response Response.error("Bad Request", 400)
     end
     
     def unbind
@@ -55,22 +65,19 @@ module Thin
     
     def on_message_complete
       @request.finish
-      response = Response.new
       
       # Call the Rack application
-      response.status, response.headers, response.body = @server.app.call(@request.env)
+      response = Response.new(*@server.app.call(@request.env))
       
       # We're done with the request
       @request.close
       
       # Complete and send the response.
-      response.finish
-      response.each { |chunk| send_data chunk }
+      send_response response
       
-      close_connection_after_writing
     rescue Exception => e
       $stderr.puts "Error processing request: #{e}"
-      close_connection
+      send_response Response.error("Internal Server Error", 500)
     end
   end
 end

@@ -2,26 +2,35 @@ require "preforker"
 require "eventmachine"
 require "socket"
 
-require "thin/connection"
 require "thin/system"
+require "thin/connection"
 
 module Thin
   class Server
-    attr_accessor :app, :address, :port, :backlog, :timeout, :pid_path, :log_path, :use_epoll, :maximum_connections
+    attr_accessor :app, :address, :port, :backlog, :workers, :timeout, :pid_path, :log_path, :use_epoll, :maximum_connections
     
     def initialize(app, address="0.0.0.0", port=3000)
       @app = app
       @address = address
       @port = port
       @backlog = 1024
+      @workers = nil
       @timeout = 30
       @pid_path = "./thin.pid"
-      @log_path = "./thin.log"
+      @log_path = nil
       @use_epoll = true
       @maximum_connections = 1024
     end
     
-    def start(workers=nil)
+    def start(daemonize=false)
+      # One worker per processor
+      @workers = System.processor_count unless @workers
+      
+      # Configure EventMachine
+      EM.epoll if @use_epoll
+      @maximum_connections = EM.set_descriptor_table_size(@maximum_connections)
+      puts "Maximum connections set to #{@maximum_connections} per worker"
+      
       # Starts and configure the server socket.
       socket = TCPServer.new(@address, @port)
       socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
@@ -30,23 +39,17 @@ module Thin
       
       trap("EXIT") { socket.close }
       
-      # One worker per processor
-      workers = System.processor_count if workers.nil?
-      
-      # Configure EventMachine
-      EM.epoll if @use_epoll
-      @maximum_connections = EM.set_descriptor_table_size(@maximum_connections)
-      puts "Maximum connections set to #{@maximum_connections} per worker"
-      
       # Prefork!
-      puts "Starting #{workers} worker(s) ..."
-      prefork = Preforker.new(
-                  :workers => workers,
-                  :app_name => "Thin",
-                  :timeout => @timeout,
-                  :pid_path => pid_path,
-                  :logger => Logger.new(@log_path)
-                ) do |master|
+      puts "Starting #{@workers} worker(s) ..."
+      @prefork = Preforker.new(
+                   :workers => @workers,
+                   :app_name => "Thin",
+                   :timeout => @timeout,
+                   :pid_path => pid_path,
+                   :stderr_path => @log_path,
+                   :stdout_path => @log_path,
+                   :logger => Logger.new(@log_path || $stdout)
+                 ) do |master|
         
         EM.run do
           EM.add_periodic_timer(4) do
@@ -58,7 +61,16 @@ module Thin
       end
       
       puts "Listening on #{@address}:#{@port}, CTRL+C to stop"
-      prefork.run
+      if daemonize
+        @prefork.start
+      else
+        @prefork.run
+      end
     end
+    
+    def stop
+      @prefork.quit if @prefork
+    end
+    alias :shutdown :stop
   end
 end

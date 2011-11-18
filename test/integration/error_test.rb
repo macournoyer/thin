@@ -1,0 +1,42 @@
+require 'test_helper'
+
+class ErrorTest < IntegrationTestCase
+  def test_raise
+    thin :log => "/dev/null"
+    
+    get "/raise"
+    
+    assert_status 500
+  end
+  
+  def test_raise_without_middlewares
+    thin :env => "none", :log => "/dev/null"
+    
+    get "/raise"
+    
+    assert_status 500
+  end
+  
+  def test_logs_errors
+    log_file = "test.log"
+    File.delete log_file if File.exist?(log_file)
+    thin :env => "none", :log => log_file
+    
+    get "/raise"
+    assert_match "Error processing request: ouch", File.read(log_file)
+    
+  ensure
+    File.delete log_file
+  end
+  
+  def test_parse_error
+    thin :log => "/dev/null"
+    
+    socket do |s|
+      s.write "!!!WTH??YO111!\r\n"
+      s.flush
+      
+      assert_match "HTTP/1.1 400 Bad Request", s.read
+    end
+  end
+end

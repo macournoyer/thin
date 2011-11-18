@@ -1,0 +1,9 @@
+- listen on UNIX sockets
+- Keep-alive
+- Config
+- Async
+- Pipelining
+- Transfer-Encoding: chunked
+- Backward compat w/ v1 (CLI & some APIs)
+- USR1 signal for log rotation
+- Zero downtime restart via USR2
