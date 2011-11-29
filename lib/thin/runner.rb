@@ -62,7 +62,8 @@ module Thin
             options[:log] = ::File.expand_path(f)
           }
           
-          opts.on("-W", "--workers NUMBER", "starts NUMBER of workers (default: number of processors)") { |n|
+          opts.on("-W", "--workers NUMBER", "starts NUMBER of workers (default: number of processors)",
+                                            "0 to run in a single process") { |n|
             options[:workers] = n.to_i
           }
           

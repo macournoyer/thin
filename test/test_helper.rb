@@ -28,6 +28,23 @@ class Test::Unit::TestCase
   ensure
     stream.reopen(old_stream)
   end
+  
+  def silence_streams
+    silence_stream($stdout) { silence_stream($stderr) { yield } }
+  end
+  
+  def capture_streams
+    out = StringIO.new
+    silence_streams do
+      $stdout = out
+      $stderr = out
+      yield
+      out.read
+    end
+  ensure
+    $stdout = STDOUT
+    $stderr = STDERR
+  end
 end
 
 class IntegrationTestCase < Test::Unit::TestCase
@@ -52,7 +69,7 @@ class IntegrationTestCase < Test::Unit::TestCase
       raise "Failed to start server" if tries > 20
     end
     
-    @pid = File.read(pid_file).to_i
+    @pid = File.read(pid_file).to_i if File.exist?(pid_file)
     
     launcher_pid
   end
@@ -88,6 +105,16 @@ class IntegrationTestCase < Test::Unit::TestCase
     yield socket
   ensure
     socket.close rescue nil
+  end
+  
+  def with_log_file
+    log_file = "test.log"
+    File.delete log_file if File.exist?(log_file)
+    
+    yield log_file
+    
+  ensure
+    File.delete log_file if File.exist?(log_file)
   end
   
   def assert_status(status)

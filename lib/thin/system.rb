@@ -4,6 +4,10 @@ module Thin
       RUBY_PLATFORM =~ /mswin|mingw/
     end
 
+    def self.java?
+      RUBY_PLATFORM =~ /java/
+    end
+
     def self.linux?
       RUBY_PLATFORM =~ /linux/
     end
@@ -33,6 +37,13 @@ module Thin
         warn "Unknown architecture ( #{architecture} ) assuming one processor."
         1
       end
+    end
+    
+    def self.supports_fork?
+      fork { exit }
+      true
+    rescue NotImplementedError
+      false
     end
   end
 end

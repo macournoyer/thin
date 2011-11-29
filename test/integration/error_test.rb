@@ -18,15 +18,12 @@ class ErrorTest < IntegrationTestCase
   end
   
   def test_logs_errors
-    log_file = "test.log"
-    File.delete log_file if File.exist?(log_file)
-    thin :env => "none", :log => log_file
-    
-    get "/raise"
-    assert_match "Error processing request: ouch", File.read(log_file)
-    
-  ensure
-    File.delete log_file
+    with_log_file do |log_file|
+      thin :env => "none", :log => log_file
+      
+      get "/raise"
+      assert_match "Error processing request: ouch", File.read(log_file)
+    end
   end
   
   def test_parse_error
