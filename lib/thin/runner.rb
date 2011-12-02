@@ -63,7 +63,7 @@ module Thin
           }
           
           opts.on("-W", "--workers NUMBER", "starts NUMBER of workers (default: number of processors)",
-                                            "0 to run in a single process") { |n|
+                                            "0 to run with limited features in a single process") { |n|
             options[:workers] = n.to_i
           }
           
@@ -101,7 +101,6 @@ module Thin
     def default_options
       {
         :environment => ENV['RACK_ENV'] || "development",
-        :pid         => nil,
         :port        => 9292,
         :host        => "0.0.0.0",
         :config      => "config.ru"
@@ -110,7 +109,7 @@ module Thin
     
     def run(args)
       # Configure app
-      options = default_options
+      options = default_options.dup
       
       parser = OptionsParser.new
       options.update parser.parse!(args)
