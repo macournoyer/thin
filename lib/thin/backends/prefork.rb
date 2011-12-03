@@ -18,7 +18,7 @@ module Thin
         
         @prefork = Preforker.new(
                      :app_name => @server.to_s,
-                     :workers => @server.workers,
+                     :workers => @server.worker_processes,
                      :timeout => @server.timeout,
                      :pid_path => @server.pid_path,
                      :stderr_path => @server.log_path,

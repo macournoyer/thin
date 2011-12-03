@@ -16,7 +16,7 @@ module Thin
     end
     
     def listen(address, options={})
-      raise ArgumentError, "listen: #{address.inspect} is not a valid address" unless address.is_a?(String) || address.is_a?(Integer)
+      Listener.parse(address) # validates the address
       @options[:listeners] << [address, options]
     end
     
@@ -32,16 +32,24 @@ module Thin
       set :pid_path, path, String
     end
     
-    def working_directory(path)
-      set :working_directory, path, String
-    end
-    
     def use_epoll(value)
       set :use_epoll, value, TrueClass, FalseClass
     end
     
+    def before_fork(&block)
+      @options[:before_fork] = block
+    end
+    
+    def after_fork(&block)
+      @options[:after_fork] = block
+    end
+    
     def apply(server)
-      # TODO: apply config to server object
+      [:worker_processes, :worker_connections, :timeout, :log_path, :pid_path, :use_epoll].each do |name|
+        server.send "#{name}=", @options[name] if @options.has_key?(name)
+      end
+      @options[:listeners].each { |address, options| server.listen address, options }
+      server
     end
     
     def self.load(file)

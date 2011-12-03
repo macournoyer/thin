@@ -73,7 +73,7 @@ module Thin
             options[:timeout] = n.to_i
           }
 
-          opts.on("-c", "--config FILE", "Thin configuration file") { |file|
+          opts.on("-c", "--config FILE", "Thin configuration file.") { |file|
             options[:thin_config] = file
           }
 
@@ -114,12 +114,12 @@ module Thin
     end
     
     def run(args)
-      # Configure app
       options = default_options.dup
       
       parser = OptionsParser.new
       options.update parser.parse!(args)
       
+      # Build the Rack app
       app, in_file_options = Rack::Builder.parse_file(options[:config], parser)
       options.update in_file_options
       
@@ -128,13 +128,24 @@ module Thin
       
       app = build_app(app, options[:environment])
       
-      # Start server
-      server = Server.new(app, options[:host], options[:port])
+      # Configure the server
+      server = Server.new(app)
+      
+      if options[:thin_config]
+        Configurator.load(options[:thin_config]).apply(server)
+      end
+      
+      # If no listeners yet, use the one from the options
+      if !options.has_key?(:thin_config) || server.listeners.empty?
+        server.listen [options[:host], options[:port]].compact.join(":")
+      end
+      
       server.pid_path = options[:pid] if options[:pid]
       server.log_path = options[:log] if options[:log]
-      server.workers = options[:workers] if options[:workers]
+      server.worker_processes = options[:workers] if options[:workers]
       server.timeout = options[:timeout] if options[:timeout]
       
+      # Start the server
       server.start(options[:daemonize])
     end
     
