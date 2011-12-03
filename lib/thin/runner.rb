@@ -1,6 +1,8 @@
 require "optparse"
 require "rack"
 
+require "thin/configurator"
+
 module Thin
   class Runner
     class OptionsParser
@@ -69,6 +71,10 @@ module Thin
           
           opts.on("-t", "--timeout SECONDS", "number of SECONDS before a worker times out (default: 30)") { |n|
             options[:timeout] = n.to_i
+          }
+
+          opts.on("-c", "--config FILE", "Thin configuration file") { |file|
+            options[:thin_config] = file
           }
 
           opts.separator ""

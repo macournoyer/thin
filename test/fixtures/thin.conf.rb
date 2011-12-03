@@ -1,0 +1,3 @@
+worker_processes 4
+
+worker_connections 1024
