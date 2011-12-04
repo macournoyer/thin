@@ -1,3 +1,4 @@
+- Preload app?
 - listen on UNIX sockets
 - Keep-alive
 - Config

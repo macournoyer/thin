@@ -25,6 +25,11 @@ class ConfiguratorTest < Test::Unit::TestCase
     assert_equal 2, @config.options[:listeners].size
   end
   
+  def test_before_fork
+    @config.before_fork { :ok }
+    assert_equal :ok, @config.options[:before_fork].call(:server)
+  end
+  
   def test_load_from_file
     Thin::Configurator.load(File.expand_path("../../fixtures/thin.conf.rb", __FILE__))
   end

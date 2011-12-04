@@ -8,6 +8,8 @@ module Thin
       def start(daemonize)
         raise NotImplementedError, "Daemonization not supported in single process mode" if daemonize
         
+        @pid_manager = Preforker::PidManager.new(@server.pid_path)
+        
         $0 = @server.to_s
         
         # Install signals
@@ -19,6 +21,7 @@ module Thin
       end
       
       def stop
+        @pid_manager.unlink
         EM.stop_event_loop
       end
     end

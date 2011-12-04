@@ -49,17 +49,21 @@ end
 
 class IntegrationTestCase < Test::Unit::TestCase
   PORT = 8181
+  LOG_FILE = "test.log"
   
   def thin(options={})
-    options[:workers] ||= 1
     root = File.expand_path('../..', __FILE__)
-    options_output = options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ")
-    pid_file = "#{root}/test.pid"
-    command = "bundle exec ruby -I#{root}/lib #{root}/bin/thin " +
-                                                      "-p#{PORT} " +
-                                                      "-P#{pid_file} " +
-                                                      options_output + " " +
-                                                      "#{root}/test/integration/config.ru"
+    pid_file = "test.pid"
+    options = { :workers => 1, :port => PORT, :pid => pid_file, :log => LOG_FILE }.merge(options)
+    
+    raise "Server already started in process #" + File.read(pid_file) if File.exist?(pid_file)
+    
+    File.delete LOG_FILE if File.exist?(LOG_FILE)
+    
+    command = "bundle exec ruby -I#{root}/lib " + 
+                "#{root}/bin/thin " +
+                  options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
+                  "#{root}/test/integration/config.ru"
     launcher_pid = silence_stream($stdout) { spawn command }
     
     tries = 0
@@ -69,7 +73,7 @@ class IntegrationTestCase < Test::Unit::TestCase
       raise "Failed to start server" if tries > 20
     end
     
-    @pid = File.read(pid_file).to_i if File.exist?(pid_file)
+    @pid = File.read(pid_file).to_i
     
     launcher_pid
   end
@@ -77,10 +81,16 @@ class IntegrationTestCase < Test::Unit::TestCase
   def teardown
     if @pid
       Process.kill "TERM", @pid
-      Process.wait @pid rescue Errno::ECHILD
+      begin
+        Process.wait @pid
+      rescue Errno::ECHILD
+        # Process is not a child. We ping until process dies.
+        sleep 0.1 while Process.kill 0, @pid rescue false
+      end
       @pid = nil
     end
     @response = nil
+    File.delete LOG_FILE if File.exist?(LOG_FILE)
   end
   
   def get(path)
@@ -107,16 +117,6 @@ class IntegrationTestCase < Test::Unit::TestCase
     socket.close rescue nil
   end
   
-  def with_log_file
-    log_file = "test.log"
-    File.delete log_file if File.exist?(log_file)
-    
-    yield log_file
-    
-  ensure
-    File.delete log_file if File.exist?(log_file)
-  end
-  
   def assert_status(status)
     assert_equal status, @response.code.to_i
   end
@@ -133,5 +133,9 @@ class IntegrationTestCase < Test::Unit::TestCase
   
   def assert_header(key, value)
     assert_equal value, @response[key]
+  end
+  
+  def read_log
+    File.read(LOG_FILE)
   end
 end

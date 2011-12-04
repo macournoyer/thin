@@ -40,7 +40,7 @@ module Thin
           opts.separator ""
           opts.separator "Thin options:"
           
-          opts.on("-o", "--host HOST", "listen on HOST (default: 0.0.0.0)") { |host|
+          opts.on("-o", "--host HOST", "bind to HOST") { |host|
             options[:host] = host
           }
           
@@ -108,7 +108,6 @@ module Thin
       {
         :environment => ENV['RACK_ENV'] || "development",
         :port        => 9292,
-        :host        => "0.0.0.0",
         :config      => "config.ru"
       }
     end

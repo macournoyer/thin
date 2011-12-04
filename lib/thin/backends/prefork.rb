@@ -11,10 +11,7 @@ module Thin
       end
       
       def start(daemonize)
-        if File.file?(@server.pid_path)
-          raise PidFileExist, "#{@server.pid_path} already exists. Thin is already running or the file is stale. " +
-                              "Stop the process or delete #{@server.pid_path}."
-        end
+        @server.before_fork.call(@server) if @server.before_fork
         
         @prefork = Preforker.new(
                      :app_name => @server.to_s,
@@ -25,12 +22,14 @@ module Thin
                      :stdout_path => @server.log_path,
                      :logger => Logger.new(@server.log_path || $stdout)
                    ) do |master|
-
+          
           EM.run do
             EM.add_periodic_timer(4) do
               EM.stop_event_loop unless master.wants_me_alive?
             end
-
+            
+            @server.after_fork.call(@server, master) if @server.after_fork
+            
             yield
           end
         end

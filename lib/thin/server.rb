@@ -35,21 +35,26 @@ module Thin
     # Default: none, outputs to stdout
     attr_accessor :log_path
     
-    # Set to +true+ to use epoll when available.
-    # Default: true
+    # Set to +true+ to use epoll event model.
     attr_accessor :use_epoll
+    
+    # Set to +true+ to use kqueue event model.
+    attr_accessor :use_kqueue
     
     # Set the backend handling the connections to the clients.
     attr_writer :backend
     
     attr_reader :listeners
     
+    attr_accessor :before_fork
+    
+    attr_accessor :after_fork
+    
     def initialize(app)
       @app = app
       @timeout = 30
       @pid_path = "./thin.pid"
       @log_path = nil
-      @use_epoll = true
       @worker_connections = 1024
       
       if System.supports_fork?
@@ -76,7 +81,6 @@ module Thin
     
     def listen(address, options={})
       listener = Listener.parse(address)
-      listener.reuse_address = true
       listener.tcp_no_delay = true
       listener.listen(options[:backlog] || 1024)
       @listeners << listener
@@ -88,7 +92,8 @@ module Thin
       trap("EXIT") { stop }
       
       # Configure EventMachine
-      EM.epoll if @use_epoll
+      EM.epoll = @use_epoll unless @use_epoll.nil?
+      EM.kqueue = @use_kqueue unless @use_kqueue.nil?
       @worker_connections = EM.set_descriptor_table_size(@worker_connections)
       
       @listeners.each do |listener|

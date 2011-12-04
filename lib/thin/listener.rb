@@ -2,21 +2,23 @@ require "socket"
 
 module Thin
   class Listener
-    attr_reader :address
+    attr_reader :host
     
     attr_reader :port
     
-    def initialize(address, port)
-      @address = address
+    def initialize(host, port)
+      @host = host
       @port = port
     end
     
     def socket
-      @socket ||= TCPServer.new(*[address, port].compact)
-    end
-    
-    def reuse_address=(value)
-      socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, value)
+      return @socket if @socket
+      
+      @socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+      @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
+      @socket.bind(Socket.pack_sockaddr_in(port, host || ""))
+      
+      @socket
     end
     
     def tcp_no_delay=(value)
@@ -32,7 +34,7 @@ module Thin
     end
     
     def to_s
-      (@address || "*") + ":#{@port}"
+      (@host || "*") + ":#{@port}"
     end
     
     def self.parse(address)

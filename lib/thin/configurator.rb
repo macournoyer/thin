@@ -36,6 +36,10 @@ module Thin
       set :use_epoll, value, TrueClass, FalseClass
     end
     
+    def use_kqueue(value)
+      set :use_kqueue, value, TrueClass, FalseClass
+    end
+    
     def before_fork(&block)
       @options[:before_fork] = block
     end
@@ -45,7 +49,10 @@ module Thin
     end
     
     def apply(server)
-      [:worker_processes, :worker_connections, :timeout, :log_path, :pid_path, :use_epoll].each do |name|
+      [:worker_processes, :worker_connections, :timeout,
+       :log_path, :pid_path,
+       :use_epoll, :use_kqueue,
+       :before_fork, :after_fork].each do |name|
         server.send "#{name}=", @options[name] if @options.has_key?(name)
       end
       @options[:listeners].each { |address, options| server.listen address, options }
