@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'thin/protocols/http'
 
-class ConnectionTest < Test::Unit::TestCase
+class HttpTest < Test::Unit::TestCase
   def setup
     @connection = Thin::Protocols::Http.new(nil)
     @connection.server = self

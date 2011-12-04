@@ -1,8 +1,8 @@
 require 'test_helper'
-require "thin/protocols/http/request"
+require "thin/protocols/http"
 require "rack"
 
-class RequestTest < Test::Unit::TestCase
+class HttpRequestTest < Test::Unit::TestCase
   def setup
     @request = Thin::Protocols::Http::Request.new
   end

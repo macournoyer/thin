@@ -1,7 +1,7 @@
 require 'test_helper'
-require 'thin/protocols/http/response'
+require 'thin/protocols/http'
 
-class ResponseTest < Test::Unit::TestCase
+class HttpResponseTest < Test::Unit::TestCase
   def setup
     @response = Thin::Protocols::Http::Response.new
     @response.headers['Content-Type'] = 'text/html'

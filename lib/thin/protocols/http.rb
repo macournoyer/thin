@@ -3,6 +3,7 @@ require "http/parser"
 module Thin
   module Protocols
     class Http < EM::Connection
+      # Ensure Http class is defined before requiring those.
       require "thin/protocols/http/request"
       require "thin/protocols/http/response"
       
