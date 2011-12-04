@@ -14,8 +14,8 @@ log_path "./thin.log"
 pid_path "./thin.pid"
 
 # Listeners
-listen 3000, :backlog => 128
-listen "*:8080"
+listen 3000, :backlog => 128, :tcp_no_delay => true
+listen "*:8080", :protocol => :http
 listen "0.0.0.0:8081"
 
 # Callbacks

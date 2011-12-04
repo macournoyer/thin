@@ -2,7 +2,6 @@ require "eventmachine"
 
 require "thin/system"
 require "thin/listener"
-require "thin/connection"
 require "thin/backends/prefork"
 require "thin/backends/single_process"
 
@@ -81,8 +80,10 @@ module Thin
     
     def listen(address, options={})
       listener = Listener.parse(address)
-      listener.tcp_no_delay = true
-      listener.listen(options[:backlog] || 1024)
+      options = { :tcp_no_delay => true, :backlog => 1024, :protocol => :http }.merge(options)
+      listener.protocol = options[:protocol]
+      listener.tcp_no_delay = options[:tcp_no_delay]
+      listener.listen(options[:backlog])
       @listeners << listener
     end
     
@@ -103,7 +104,7 @@ module Thin
       
       backend.start(daemonize) do
         @listeners.each do |listener|
-          EM.attach_server(listener.socket, Connection) { |c| c.server = self }
+          EM.attach_server(listener.socket, listener.protocol_class) { |c| c.server = self }
         end
         @started = true
       end

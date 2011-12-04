@@ -6,6 +6,8 @@ module Thin
     
     attr_reader :port
     
+    attr_accessor :protocol_class
+    
     def initialize(host, port)
       @host = host
       @port = port
@@ -25,6 +27,19 @@ module Thin
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, value)
     end
     
+    def protocol=(name_or_class)
+      if name_or_class.is_a?(Class)
+        @protocol_class = name_or_class
+      else
+        require "thin/protocols/#{name_or_class}"
+        @protocol_class = Thin::Protocols.const_get(name_or_class.to_s.capitalize)
+      end
+    end
+    
+    def protocol
+      @protocol_class.name.split(":").last.downcase
+    end
+    
     def listen(backlog)
       socket.listen(backlog)
     end
@@ -34,7 +49,7 @@ module Thin
     end
     
     def to_s
-      (@host || "*") + ":#{@port}"
+      (@host || "*") + ":#{@port}/#{protocol}"
     end
     
     def self.parse(address)
