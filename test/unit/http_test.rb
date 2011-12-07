@@ -50,4 +50,10 @@ EOS
     assert_equal "yo=dude", @connection.request.env["QUERY_STRING"]
     assert_equal "localhost:3000", @connection.request.env["HTTP_HOST"]
   end
+  
+  def test_async_response_do_not_send_response
+    @connection.expects(:send_response).never
+    
+    @connection.process(Thin::Protocols::Http::AsyncResponse)
+  end
 end

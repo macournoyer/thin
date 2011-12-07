@@ -48,8 +48,7 @@ module Thin
         RACK_MULTITHREAD  = 'rack.multithread'.freeze
         RACK_MULTIPROCESS = 'rack.multiprocess'.freeze
         RACK_RUN_ONCE     = 'rack.run_once'.freeze
-        # ASYNC_CALLBACK    = 'async.callback'.freeze
-        # ASYNC_CLOSE       = 'async.close'.freeze
+        ASYNC_CALLBACK    = 'async.callback'.freeze
 
         # CGI-like request environment variables
         attr_reader :env
@@ -127,6 +126,10 @@ module Thin
           move_body_to_tempfile if content_length > MAX_BODY
 
           @body
+        end
+
+        def async_callback=(callback)
+          @env[ASYNC_CALLBACK] = callback
         end
 
         # Called when we're done processing the request.

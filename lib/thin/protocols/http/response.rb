@@ -124,7 +124,7 @@ module Thin
           end
         end
 
-        def self.error(message, status=500)
+        def self.error(status=500, message=Rack::Utils::HTTP_STATUS_CODES[status])
           new status,
               { "Content-Type" => "text/plain",
                 "Content-Length" => Rack::Utils.bytesize(message).to_s },

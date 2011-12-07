@@ -1,3 +1,5 @@
+require "thin/async"
+
 class App
   def call(env)
     request = Rack::Request.new(env)
@@ -29,6 +31,16 @@ class App
       
     when "/sleep"
       sleep request["sec"].to_f
+      
+    when "/async"
+      Thin::AsyncResponse.new(env) do |response|
+        response << "1\n"
+        # Will be sent to the browse 1 sec after.
+        EM.add_timer(0.1) do
+          response << "2\n"
+          response.done # close the connection
+        end
+      end.finish
       
     else
       Rack::Response.new do |response|

@@ -1,9 +1,9 @@
 x listen on UNIX sockets
 x Config
-- Async
+x Async
 - Preload app?
 - Keep-alive
 - Pipelining
 - Transfer-Encoding: chunked
-- Rotate lofs on USR1 signal
+- Rotate logs on USR1 signal
 - Zero downtime restart on USR2 signal

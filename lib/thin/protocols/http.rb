@@ -6,37 +6,53 @@ module Thin
       # Ensure Http class is defined before requiring those.
       require "thin/protocols/http/request"
       require "thin/protocols/http/response"
+      
+      # This is a template async response.
+      AsyncResponse = [-1, {}, []].freeze
 
       attr_accessor :server
       attr_accessor :listener
       
-      attr_reader :request
+      attr_reader :request, :response
 
-      def send_response(response)
+      def send_response(response, close_after=true)
         response.finish
         response.each { |chunk| send_data chunk }
 
-        close_connection_after_writing
+        if close_after
+          response.close
+          close_connection_after_writing
+        end
+        true
       rescue Exception => e
         $stderr.puts "Error sending response: #{e}"
         close_connection
+        false
       end
 
-      ## EM callbacks
+      # == EM callbacks
 
+      # Get the connection ready to process a request.
       def post_init
         @parser = HTTP::Parser.new(self)
       end
 
+      # Called when data is received from the client.
       def receive_data(data)
         @parser << data
       rescue HTTP::Parser::Error => e
         $stderr.puts "Parse error: #{e}"
-        send_response Response.error("Bad Request", 400)
+        send_response Response.error(400) # Bad Request
       end
 
+      # Called when the connection is unbinded from the socket
+      # and can no longer be used to process requests.
       def unbind
         @request.close if @request
+        if @response
+          @response.body.fail if @response.body.respond_to?(:fail)
+          @response.close
+        end
       end
 
       # Returns IP address of peer as a string.
@@ -48,10 +64,10 @@ module Thin
         end
       rescue Exception => e
         $stderr.puts "Can't get socket address: #{e}"
-        nil
+        ""
       end
 
-      ## Parser callbacks
+      # == Parser callbacks
 
       def on_message_begin
         @request = Request.new
@@ -73,18 +89,67 @@ module Thin
       def on_message_complete
         @request.finish
 
+        if response = call_app
+          process(response)
+        end
+      end
+
+      # == Request processing
+
+      def call_app
+        # Connection may be closed unless the App#call response was a [-1, ...]
+        # It should be noted that connection objects will linger until this 
+        # callback is no longer referenced, so be tidy!
+        @request.async_callback = method(:process)
+
         # Call the Rack application
-        response = Response.new(*@server.app.call(@request.env))
+        response = AsyncResponse
+        catch(:async) do
+          response = @server.app.call(@request.env)
+        end
 
         # We're done with the request
         @request.close
 
-        # Complete and send the response.
-        send_response response
+        response
 
-      rescue Exception => e
+      rescue Exception
+        handle_error
+        nil # Signals to post_process that the request could not be processed
+      end
+
+      def process(response)
+        @response = Response.new(*response)
+
+        # Status code -1 indicates that we're going to respond later (async).
+        return if @response.status == AsyncResponse.first
+
+        # Send the response.
+        return unless send_response @response, false
+
+        # If the body is being deferred, then terminate afterward.
+        if @response.body.respond_to?(:callback) && @response.body.respond_to?(:errback)
+          @response.body.callback(&method(:reset))
+          @response.body.errback(&method(:reset))
+        else
+          reset
+        end
+
+        @response.close
+
+      rescue Exception
+        handle_error
+      end
+      
+      def handle_error(e=$!)
         $stderr.puts "Error processing request: #{e}"
-        send_response Response.error("Internal Server Error", 500)
+        $stderr.print "#{e}\n\t" + e.backtrace.join("\n\t") if $DEBUG
+        send_response Response.error(500) # Internal Server Error
+      end
+
+      # Resets the connection
+      def reset
+        close_connection_after_writing rescue nil
       end
     end
   end

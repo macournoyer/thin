@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SingleProcessTest < IntegrationTestCase
   def test_stop_with_int_signal
-    thin do
+    thin :env => "none" do
       worker_processes 0
     end
 
