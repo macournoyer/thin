@@ -1,9 +1,6 @@
 require "preforker"
 
 module Thin
-  # Raised when the pid file already exist starting as a daemon.
-  class PidFileExist < RuntimeError; end
-
   module Backends
     class Prefork
       def initialize(server)
@@ -39,10 +36,8 @@ module Thin
         else
           @prefork.run
         end
-      end
 
-      def stop
-        @prefork.quit if @prefork
+        at_exit { @server.stop }
       end
     end
   end

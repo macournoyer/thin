@@ -1,10 +1,9 @@
-- Preload app?
-- listen on UNIX sockets
-- Keep-alive
-- Config
+x listen on UNIX sockets
+x Config
 - Async
+- Preload app?
+- Keep-alive
 - Pipelining
 - Transfer-Encoding: chunked
-- Backward compat w/ v1 (CLI & some APIs)
-- USR1 signal for log rotation
-- Zero downtime restart via USR2
+- Rotate lofs on USR1 signal
+- Zero downtime restart on USR2 signal

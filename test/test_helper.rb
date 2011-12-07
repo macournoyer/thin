@@ -67,6 +67,7 @@ end
 
 class IntegrationTestCase < Test::Unit::TestCase
   PORT = 8181
+  UNIX_SOCKET = "/tmp/thin-test.sock"
   LOG_FILE = "test.log"
   PID_FILE = "test.pid"
 
@@ -75,8 +76,12 @@ class IntegrationTestCase < Test::Unit::TestCase
   # @param configuration Block of configuration to pass to the configurator.
   def thin(runner_options={}, &configuration)
     raise "Server already started in process #" + File.read(PID_FILE) if File.exist?(PID_FILE)
-    
+
+    # Cleanup
     File.delete LOG_FILE if File.exist?(LOG_FILE)
+    File.delete UNIX_SOCKET if File.exist?(UNIX_SOCKET)
+
+    root = File.expand_path('../..', __FILE__)
 
     # Generate a config file from the configuration block
     config_file = "test.conf.rb"
@@ -90,7 +95,6 @@ class IntegrationTestCase < Test::Unit::TestCase
     runner_options = { :config => config_file, :port => PORT, :log => LOG_FILE, :pid => PID_FILE }.merge(runner_options)
 
     # Launch the server from the shell
-    root = File.expand_path('../..', __FILE__)
     command = "bundle exec ruby -I#{root}/lib " +
                 "#{root}/bin/thin " +
                   runner_options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
@@ -98,13 +102,12 @@ class IntegrationTestCase < Test::Unit::TestCase
     launcher_pid = silence_stream($stdout) { spawn command }
 
     tries = 0
+    wait = 5 #sec
     until running?
       sleep 0.1
       tries += 1
-      raise "Failed to start server" if tries > 20
+      raise "Failed to start server under #{wait} sec" if tries > wait/0.1
     end
-
-    File.delete(config_file)
 
     @pid = File.read(PID_FILE).to_i
 
@@ -113,7 +116,7 @@ class IntegrationTestCase < Test::Unit::TestCase
 
   def teardown
     if @pid
-      Process.kill "TERM", @pid
+      Process.kill "INT", @pid
       begin
         Process.wait @pid
       rescue Errno::ECHILD
@@ -122,11 +125,12 @@ class IntegrationTestCase < Test::Unit::TestCase
       end
       @pid = nil
     end
+    raise "Didn't delete PID file." if File.exist?(PID_FILE)
     @response = nil
-    File.delete LOG_FILE if File.exist?(LOG_FILE)
   end
   
   def running?
+    return true if File.exist?(UNIX_SOCKET)
     get("/")
     true
   rescue Errno::ECONNREFUSED
@@ -135,8 +139,8 @@ class IntegrationTestCase < Test::Unit::TestCase
     true
   end
 
-  def get(path)
-    @response = Timeout.timeout(3) { Net::HTTP.get_response(URI.parse("http://localhost:#{PORT}" + path)) }
+  def get(path, host="localhost")
+    @response = Timeout.timeout(3) { Net::HTTP.get_response(URI.parse("http://#{host}:#{PORT}" + path)) }
   end
 
   def post(path, params={})
@@ -154,6 +158,14 @@ class IntegrationTestCase < Test::Unit::TestCase
   def socket
     @response = nil
     socket = TCPSocket.new("localhost", PORT)
+    yield socket
+  ensure
+    socket.close rescue nil
+  end
+
+  def unix_socket
+    @response = nil
+    socket = UNIXSocket.new(UNIX_SOCKET)
     yield socket
   ensure
     socket.close rescue nil

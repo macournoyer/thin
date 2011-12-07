@@ -13,16 +13,15 @@ module Thin
         $0 = @server.to_s
 
         # Install signals
-        trap("INT", "EXIT")
+        %w( INT TERM ).each { |signal| trap(signal, "EXIT") }
+        at_exit do
+          @server.stop
+          @pid_manager.unlink
+        end
 
         EM.run do
           yield
         end
-      end
-
-      def stop
-        @pid_manager.unlink
-        EM.stop_event_loop
       end
     end
   end

@@ -6,3 +6,4 @@ Gemfile.lock
 pkg/*
 tmp
 .yardoc
+test.conf.rb

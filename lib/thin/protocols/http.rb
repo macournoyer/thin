@@ -8,6 +8,8 @@ module Thin
       require "thin/protocols/http/response"
 
       attr_accessor :server
+      attr_accessor :listener
+      
       attr_reader :request
 
       def send_response(response)
@@ -39,7 +41,11 @@ module Thin
 
       # Returns IP address of peer as a string.
       def socket_address
-        Socket.unpack_sockaddr_in(get_peername)[1]
+        if listener.unix?
+          ""
+        else
+          Socket.unpack_sockaddr_in(get_peername)[1]
+        end
       rescue Exception => e
         $stderr.puts "Can't get socket address: #{e}"
         nil

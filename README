@@ -40,7 +40,7 @@ the +rackup+ script.:
  cd to/your/rails/app
  thin
  
-See example directory for more samples and run 'thin -h' for usage.
+See examples/thin.conf.rb for a sample configuration file.
 
 === License
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.

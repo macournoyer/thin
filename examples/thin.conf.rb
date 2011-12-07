@@ -16,11 +16,11 @@ pid_path "./thin.pid"
 # Listeners
 listen 3000, :backlog => 128, :tcp_no_delay => true
 listen "0.0.0.0:8080", :protocol => :http
+listen "[::]:8080" # IPv6
+listen "/tmp/thin.sock"
 
 # Custom protocol
 class Echo < EventMachine::Connection
-  attr_accessor :server
-
   def receive_data(data)
     send_data data
     close_connection_after_writing

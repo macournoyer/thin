@@ -134,15 +134,25 @@ module Thin
     # @example
     #   listen 3000 # port number
     #   listen "0.0.0.0:8008", :backlog => 80
+    #   listen "[::]:8008", :ipv6_only => true
+    #   listen "/tmp/thin.sock"
     # @param address [String, Integer] address to listen on. Can be a port number of host:port.
     # @option options [Boolean] :tcp_no_delay (true) Disables the Nagle algorithm for send coalescing.
-    # @option options [Integer] :backlog (1024) maximum number of clients in the listening backlog.
-    # @option options [Symbol, Class] :protocol (:http) protocol name or class to use to process connections.
+    # @option options [Boolean] :ipv6_only (false) do not listen on IPv4 interface.
+    # @option options [Integer] :backlog (1024) Maximum number of clients in the listening backlog.
+    # @option options [Symbol, String, Class] :protocol (:http) Protocol name or class to use to process connections.
     def listen(address, options={})
       listener = Listener.parse(address)
-      options = { :tcp_no_delay => true, :backlog => 1024, :protocol => :http }.merge(options)
+      options = {
+        # Default valyes
+        :protocol => :http,
+        :tcp_no_delay => true,
+        :ipv6_only => false,
+        :backlog => 1024,
+      }.merge(options)
       listener.protocol = options[:protocol]
       listener.tcp_no_delay = options[:tcp_no_delay]
+      listener.ipv6_only = options[:ipv6_only]
       listener.listen(options[:backlog])
       @listeners << listener
     end
@@ -151,8 +161,6 @@ module Thin
     # @param daemonize Daemonize the process after starting.
     def start(daemonize=false)
       puts "Starting #{to_s} ..."
-
-      trap("EXIT") { stop }
 
       # Configure EventMachine
       EM.epoll = @use_epoll unless @use_epoll.nil?
@@ -166,28 +174,21 @@ module Thin
 
       backend.start(daemonize) do
         @listeners.each do |listener|
-          EM.attach_server(listener.socket, listener.protocol_class) { |c| c.server = self }
+          EM.attach_server(listener.socket, listener.protocol_class) do |c|
+            c.server = self if c.respond_to?(:server=)
+            c.listener = listener if c.respond_to?(:listener=)
+          end
         end
-        @started = true
       end
     rescue
-      @listeners.each { |listener| listener.close }
+      stop
       raise
-    end
-
-    # Returns +true+ if the server has been started.
-    def started?
-      @started
     end
 
     # Stops the server and close all listeners.
     def stop
-      if started?
-        puts "Stopping ..."
-        backend.stop
-        @listeners.each { |listener| listener.close }
-        @started = false
-      end
+      puts "Stopping ..."
+      @listeners.each { |listener| listener.close }
     end
     alias :shutdown :stop
 
