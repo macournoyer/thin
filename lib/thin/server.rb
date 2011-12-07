@@ -6,8 +6,56 @@ require "thin/backends/prefork"
 require "thin/backends/single_process"
 
 module Thin
+  # The uterly famous Thin server.
+  #
+  # == Listening
+  # Create and start a new server listenting on port 3000 and forwarding all requests to +app+.
+  #
+  #   server = Thin::Server.new(app)
+  #   server.listen 3000
+  #   server.start
+  #
+  # == Using a custom protocol
+  # You can implement your own protocol handler that will parse and process requests. This is simply done by
+  # implementing a typical EventMachine +Connection+ class or module.
+  #   
+  #   class Echo < EventMachine::Connection
+  #     attr_accessor :server
+  #     
+  #     def receive_data(data)
+  #       send_data data
+  #       close_connection_after_writing
+  #     end
+  #   end
+  #   
+  #   server = Thin::Server.new
+  #   server.listen 3000, :protocol => Echo
+  #   server.start
+  #
+  # == Preforking and workers
+  # If fork(2) is available on your system, Thin will try to start workers to process requests.
+  # By default the number of workers will be based on the number of processors on your system.
+  # Configure this using the +worker_processes+ attribute.
+  # However, if fork(2) or if +worker_processes+ if equal to +0+, Thin will run in a single process
+  # with limited features.
+  #
+  # == Single process mode
+  # In this mode, Thin features will be limited:
+  # - no log files
+  # - no signal handling (only exits on INT).
+  #
+  # This mode is only intended as a fallback for systems with no fork(2) system call.
+  #
+  # You can force this mode by setting +worker_processes+ to +0+.
+  #
+  # == Controlling with signals
+  # - *WINCH*: Gracefully kill all workers but keep master alive
+  # - *TTIN*: Increase number of workers
+  # - *TTOU*: Decrease number of workers
+  # - *QUIT*: Kill workers and master in a graceful way
+  # - *TERM*, *INT*: Kill workers and master immediately
   class Server
-    # Application (Rack adapter) called with the request that produces the response.
+    # Application called with the request that produces the response.
     attr_accessor :app
     
     # A tag that will show in the process listing
@@ -43,13 +91,17 @@ module Thin
     # Set the backend handling the connections to the clients.
     attr_writer :backend
     
-    attr_reader :listeners
+    # Listeners currently registered on this server.
+    # @see Thin::Listener
+    attr_accessor :listeners
     
+    # Object that is +call+ed before forking a worker process inside the master process.
     attr_accessor :before_fork
     
+    # Object that is +call+ed after forking a worker process inside the worker process.
     attr_accessor :after_fork
     
-    def initialize(app)
+    def initialize(app=nil)
       @app = app
       @timeout = 30
       @pid_path = "./thin.pid"
@@ -78,6 +130,14 @@ module Thin
       end
     end
     
+    # Listen for incoming connections on +address+.
+    # @example
+    #   listen 3000 # port number
+    #   listen "0.0.0.0:8008", :backlog => 80
+    # @param address [String, Integer] address to listen on. Can be a port number of host:port.
+    # @option options [Boolean] :tcp_no_delay (true) Disables the Nagle algorithm for send coalescing.
+    # @option options [Integer] :backlog (1024) maximum number of clients in the listening backlog.
+    # @option options [Symbol, Class] :protocol (:http) protocol name or class to use to process connections.
     def listen(address, options={})
       listener = Listener.parse(address)
       options = { :tcp_no_delay => true, :backlog => 1024, :protocol => :http }.merge(options)
@@ -87,6 +147,8 @@ module Thin
       @listeners << listener
     end
     
+    # Starts the server and open a listening socket for each +listeners+.
+    # @param daemonize Daemonize the process after starting.
     def start(daemonize=false)
       puts "Starting #{to_s} ..."
       
@@ -98,7 +160,7 @@ module Thin
       @worker_connections = EM.set_descriptor_table_size(@worker_connections)
       
       @listeners.each do |listener|
-        puts "Listening on #{listener}"
+        puts "Listening with #{listener}"
       end
       puts "CTRL+C to stop"
       
@@ -113,10 +175,12 @@ module Thin
       raise
     end
     
+    # Returns +true+ if the server has been started.
     def started?
       @started
     end
     
+    # Stops the server and close all listeners.
     def stop
       if started?
         puts "Stopping ..."
@@ -127,10 +191,12 @@ module Thin
     end
     alias :shutdown :stop
     
+    # Returns +true+ if the server will fork workers or +false+ if it will run in a single process.
     def prefork?
       @worker_processes > 0
     end
     
+    # Procline of the process when the server is running.
     def to_s
       "Thin" + (@tag ? " [#{@tag}]" : "")
     end

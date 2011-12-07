@@ -37,7 +37,7 @@ module Thin
     end
     
     def protocol
-      @protocol_class.name.split(":").last.downcase
+      @protocol_class.name.split(":").last
     end
     
     def listen(backlog)
@@ -49,7 +49,7 @@ module Thin
     end
     
     def to_s
-      (@host || "*") + ":#{@port}/#{protocol}"
+      protocol + " on " + (@host || "*") + ":#{@port}"
     end
     
     def self.parse(address)

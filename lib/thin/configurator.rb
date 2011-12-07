@@ -7,23 +7,31 @@ module Thin
       @options[:listeners] ||= []
     end
     
+    # {include:Thin::Server#worker_processes}
+    # @see Thin::Server#worker_processes
     def worker_processes(number)
       set :worker_processes, number, Integer
     end
     
+    # {include:Thin::Server#worker_connections}
+    # @see Thin::Server#worker_connections
     def worker_connections(number)
       set :worker_connections, number, Integer
     end
     
+    # {include:Thin::Server#listen}
+    # @see Thin::Server#listen
     def listen(address, options={})
       Listener.parse(address) # validates the address
       @options[:listeners] << [address, options]
     end
     
+    # @see Thin::Server#timeout
     def timeout(seconds)
       set :timeout, seconds, Integer
     end
     
+    # @see Thin::Server#log_path
     def log_path(path)
       set :log_path, path, String
     end
@@ -48,6 +56,8 @@ module Thin
       @options[:after_fork] = block
     end
     
+    # Apply this configuration to the +server+ instance.
+    # @param [Thin::Server] server
     def apply(server)
       [:worker_processes, :worker_connections, :timeout,
        :log_path, :pid_path,
@@ -59,6 +69,7 @@ module Thin
       server
     end
     
+    # Read and eval a configuration file and returns the resulting Configurator instance.
     def self.load(file)
       config = new
       config.instance_eval(File.read(file), file)

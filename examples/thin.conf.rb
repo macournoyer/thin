@@ -15,8 +15,18 @@ pid_path "./thin.pid"
 
 # Listeners
 listen 3000, :backlog => 128, :tcp_no_delay => true
-listen "*:8080", :protocol => :http
-listen "0.0.0.0:8081"
+listen "0.0.0.0:8080", :protocol => :http
+
+# Custom protocol
+class Echo < EventMachine::Connection
+  attr_accessor :server
+  
+  def receive_data(data)
+    send_data data
+    close_connection_after_writing
+  end
+end
+listen 3001, :protocol => Echo
 
 # Callbacks
 before_fork do |server|
