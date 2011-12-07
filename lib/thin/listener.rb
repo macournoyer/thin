@@ -28,11 +28,16 @@ module Thin
     end
 
     def protocol=(name_or_class)
-      if name_or_class.is_a?(Class)
+      case name_or_class
+      when Class
         @protocol_class = name_or_class
-      else
+      when String
+        @protocol_class = Object.const_get(name_or_class)
+      when Symbol
         require "thin/protocols/#{name_or_class}"
         @protocol_class = Thin::Protocols.const_get(name_or_class.to_s.capitalize)
+      else
+        raise ArgumentError, "invalid protocol, use a Class, String or Symbol."
       end
     end
 

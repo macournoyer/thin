@@ -80,7 +80,11 @@ class IntegrationTestCase < Test::Unit::TestCase
 
     # Generate a config file from the configuration block
     config_file = "test.conf.rb"
-    ConfigWriter.new(&configuration).write(config_file)
+    config = ConfigWriter.new do
+      worker_processes 1
+    end
+    config.instance_eval(&configuration) if configuration
+    config.write(config_file)
 
     # Command line options
     runner_options = { :config => config_file, :port => PORT, :log => LOG_FILE, :pid => PID_FILE }.merge(runner_options)
@@ -94,7 +98,7 @@ class IntegrationTestCase < Test::Unit::TestCase
     launcher_pid = silence_stream($stdout) { spawn command }
 
     tries = 0
-    until (get("/") rescue nil)
+    until running?
       sleep 0.1
       tries += 1
       raise "Failed to start server" if tries > 20
@@ -120,6 +124,15 @@ class IntegrationTestCase < Test::Unit::TestCase
     end
     @response = nil
     File.delete LOG_FILE if File.exist?(LOG_FILE)
+  end
+  
+  def running?
+    get("/")
+    true
+  rescue Errno::ECONNREFUSED
+    false
+  rescue
+    true
   end
 
   def get(path)
