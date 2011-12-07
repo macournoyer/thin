@@ -2,7 +2,9 @@ require 'test_helper'
 
 class SingleProcessTest < IntegrationTestCase
   def test_stop_with_int_signal
-    thin :workers => 0
+    thin do
+      worker_processes 0
+    end
 
     Process.kill "INT", @pid
     _, status = Process.wait2 @pid

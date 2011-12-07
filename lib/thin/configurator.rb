@@ -2,9 +2,11 @@ module Thin
   class Configurator
     attr_reader :options
 
-    def initialize(defaults={})
+    def initialize(defaults={}, &block)
       @options = defaults.dup
       @options[:listeners] ||= []
+      
+      instance_eval(&block) if block
     end
 
     # {include:Thin::Server#worker_processes}

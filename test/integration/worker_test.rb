@@ -2,7 +2,9 @@ require 'test_helper'
 
 class WorkerTest < IntegrationTestCase
   def test_restart_worker_on_exit
-    thin :workers => 1
+    thin do
+      worker_processes 1
+    end
 
     assert_raise(EOFError) { get "/exit" }
     get "/"
@@ -11,7 +13,9 @@ class WorkerTest < IntegrationTestCase
   end
 
   def test_timeout
-    thin :timeout => 1
+    thin do
+      timeout 1
+    end
 
     assert_raise(EOFError) { get "/sleep?sec=2" }
   end

@@ -47,23 +47,50 @@ class Test::Unit::TestCase
   end
 end
 
+class ConfigWriter < BasicObject
+  def initialize(&block)
+    @lines = []
+    instance_eval(&block) if block
+  end
+
+  def method_missing(name, *args)
+    @lines << name.to_s + " " + args.map { |arg| arg.inspect }.join(", ")
+  end
+
+  def write(file)
+    ::File.open(file, "w") do |f|
+      f << "# Generated during tests by ConfigWriter in test_helper.rb\n"
+      f << @lines.join("\n")
+    end
+  end
+end
+
 class IntegrationTestCase < Test::Unit::TestCase
   PORT = 8181
   LOG_FILE = "test.log"
+  PID_FILE = "test.pid"
 
-  def thin(options={})
-    root = File.expand_path('../..', __FILE__)
-    pid_file = "test.pid"
-    options = { :workers => 1, :port => PORT, :pid => pid_file, :log => LOG_FILE }.merge(options)
-
-    raise "Server already started in process #" + File.read(pid_file) if File.exist?(pid_file)
-
+  # Start a new thin server from the command line utility mimicing real world usage.
+  # @param runner_options Options to pass to the command line utility.
+  # @param configuration Block of configuration to pass to the configurator.
+  def thin(runner_options={}, &configuration)
+    raise "Server already started in process #" + File.read(PID_FILE) if File.exist?(PID_FILE)
+    
     File.delete LOG_FILE if File.exist?(LOG_FILE)
 
+    # Generate a config file from the configuration block
+    config_file = "test.conf.rb"
+    ConfigWriter.new(&configuration).write(config_file)
+
+    # Command line options
+    runner_options = { :config => config_file, :port => PORT, :log => LOG_FILE, :pid => PID_FILE }.merge(runner_options)
+
+    # Launch the server from the shell
+    root = File.expand_path('../..', __FILE__)
     command = "bundle exec ruby -I#{root}/lib " +
                 "#{root}/bin/thin " +
-                  options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
-                  "#{root}/test/integration/config.ru"
+                  runner_options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
+                  File.expand_path("../integration/config.ru", __FILE__)
     launcher_pid = silence_stream($stdout) { spawn command }
 
     tries = 0
@@ -73,7 +100,9 @@ class IntegrationTestCase < Test::Unit::TestCase
       raise "Failed to start server" if tries > 20
     end
 
-    @pid = File.read(pid_file).to_i
+    File.delete(config_file)
+
+    @pid = File.read(PID_FILE).to_i
 
     launcher_pid
   end

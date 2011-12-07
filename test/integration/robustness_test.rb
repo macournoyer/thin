@@ -24,7 +24,9 @@ class RobustnessTest < IntegrationTestCase
   end
 
   def test_incomplete_request
-    thin :timeout => 1
+    thin do
+      timeout 1
+    end
 
     socket do |s|
       s.write "GET /?this HTTP/1.1\r\n"

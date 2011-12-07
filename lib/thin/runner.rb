@@ -4,6 +4,7 @@ require "rack"
 require "thin/configurator"
 
 module Thin
+  # Command line runner. Mimic Rack's +rackup+.
   class Runner
     class OptionsParser
       def parse!(args)
@@ -62,15 +63,6 @@ module Thin
 
           opts.on("-l", "--log FILE", "file to log to (default: stdout)") { |f|
             options[:log] = ::File.expand_path(f)
-          }
-
-          opts.on("-W", "--workers NUMBER", "starts NUMBER of workers (default: number of processors)",
-                                            "0 to run with limited features in a single process") { |n|
-            options[:workers] = n.to_i
-          }
-
-          opts.on("-t", "--timeout SECONDS", "number of SECONDS before a worker times out (default: 30)") { |n|
-            options[:timeout] = n.to_i
           }
 
           opts.on("-c", "--config FILE", "Thin configuration file.") { |file|
