@@ -3,9 +3,9 @@ require 'test_helper'
 class EnvTest < IntegrationTestCase
   def test_get
     thin
-    
+
     get '/env?hi=there'
-    
+
     assert_status 200
     assert_response_includes "REMOTE_ADDR: 127.0.0.1"
     assert_response_includes "SERVER_SOFTWARE: thin"
@@ -20,12 +20,12 @@ class EnvTest < IntegrationTestCase
     assert_response_includes "rack.multiprocess: true"
     assert_response_includes "rack.run_once: false"
   end
-  
+
   def test_post
     thin
-    
+
     post '/env', :hi => "there"
-    
+
     assert_status 200
     assert_response_includes "REMOTE_ADDR: 127.0.0.1"
     assert_response_includes "SERVER_SOFTWARE: thin"

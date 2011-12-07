@@ -40,11 +40,11 @@ module Thin
             @out.join
           end
         end
-    
+
         CONNECTION     = 'Connection'.freeze
         CLOSE          = 'close'.freeze
         SERVER         = 'Server'.freeze
-    
+
         # Status code
         attr_accessor :status
 
@@ -53,15 +53,15 @@ module Thin
 
         # Headers key-value hash
         attr_reader   :headers
-    
+
         def initialize(status=200, headers=nil, body=nil)
           @headers = Headers.new
           @status = status
           @body = body
-      
+
           self.headers = headers if headers
         end
-    
+
         if System.ruby_18?
 
           # Ruby 1.8 implementation.
@@ -93,20 +93,20 @@ module Thin
           end
 
         end
-    
+
         # Finish preparing the response.
         def finish
           @headers[CONNECTION] = CLOSE
           @headers[SERVER] = Thin::SERVER
         end
-    
+
         # Top header of the response,
         # containing the status code and response headers.
         def head
           status_message = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
           "HTTP/1.1 #{@status} #{status_message}\r\n#{@headers.to_s}\r\n"
         end
-    
+
         # Close any resource used by the response
         def close
           @body.close if @body.respond_to?(:close)
@@ -123,7 +123,7 @@ module Thin
             @body.each { |chunk| yield chunk }
           end
         end
-    
+
         def self.error(message, status=500)
           new status,
               { "Content-Type" => "text/plain",

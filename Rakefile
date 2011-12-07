@@ -21,3 +21,8 @@ desc "Run all tests"
 task :test => ["test:unit", "test:integration"]
 
 task :default => :test
+
+
+task :rm_space do
+  sh %{find . -name "*.rb" -print0 | xargs -0 sed -i '' -E "s/[[:space:]]*$//"}
+end

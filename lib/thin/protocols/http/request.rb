@@ -10,11 +10,11 @@ module Thin
         # and into a tempfile for reading.
         MAX_BODY          = 1024 * (80 + 32)
         BODY_TMPFILE      = 'thin-body'.freeze
-    
+
         INITIAL_BODY = ''
         # Force external_encoding of request's body to ASCII_8BIT
         INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!)
-    
+
         # Freeze some HTTP header names & values
         SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
         SERVER_NAME       = 'SERVER_NAME'.freeze
@@ -39,7 +39,7 @@ module Thin
         EMPTY             = ''.freeze
         KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
         CLOSE_REGEXP      = /\bclose\b/i.freeze
-    
+
         # Freeze some Rack header names
         RACK_INPUT        = 'rack.input'.freeze
         RACK_VERSION      = 'rack.version'.freeze
@@ -50,13 +50,13 @@ module Thin
         RACK_RUN_ONCE     = 'rack.run_once'.freeze
         # ASYNC_CALLBACK    = 'async.callback'.freeze
         # ASYNC_CLOSE       = 'async.close'.freeze
-    
+
         # CGI-like request environment variables
         attr_reader :env
-    
+
         # Request body
         attr_reader :body
-    
+
         def initialize
           @body = StringIO.new(INITIAL_BODY)
           @env = {
@@ -76,7 +76,7 @@ module Thin
             RACK_RUN_ONCE     => false
           }
         end
-    
+
         def headers=(headers)
           # TODO benchmark & optimize
           headers.each_pair do |k, v|
@@ -89,51 +89,51 @@ module Thin
               @env["HTTP_" + k.upcase.tr("-", "_")] = v
             end
           end
-      
+
           host, port = @env[HTTP_HOST].split(":") if @env.key?(HTTP_HOST)
           @env[SERVER_NAME] = host || LOCALHOST
           @env[SERVER_PORT] = port || DEFAULT_PORT
         end
-    
+
         # Expected size of the body
         def content_length
           @env[CONTENT_LENGTH].to_i
         end
-    
+
         def remote_address=(address)
           @env[REMOTE_ADDR] = address
         end
-    
+
         def method=(method)
           @env[REQUEST_METHOD] = method
         end
-    
+
         def path=(path)
           @env[PATH_INFO] = path
         end
-    
+
         def query_string=(string)
           @env[QUERY_STRING] = string
         end
-    
+
         def fragment=(string)
           @env[FRAGMENT] = string
         end
-    
+
         def <<(data)
           @body << data
-      
+
           # Transfert to a tempfile if body is very big.
           move_body_to_tempfile if content_length > MAX_BODY
-      
+
           @body
         end
-    
+
         # Called when we're done processing the request.
         def finish
           @body.rewind
         end
-    
+
         # Close any resource used by the request
         def close
           @body.delete if @body.class == Tempfile

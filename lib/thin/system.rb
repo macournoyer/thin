@@ -15,7 +15,7 @@ module Thin
     def self.ruby_18?
       RUBY_VERSION =~ /^1\.8/
     end
-    
+
     # Source: https://github.com/grosser/parallel/blob/master/lib/parallel.rb#L65-84
     def self.processor_count
       architecture = RbConfig::CONFIG['host_os']
@@ -38,7 +38,7 @@ module Thin
         1
       end
     end
-    
+
     def self.supports_fork?
       fork { exit }
       true
