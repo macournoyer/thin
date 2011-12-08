@@ -144,7 +144,7 @@ module Thin
     def listen(address, options={})
       listener = Listener.parse(address)
       options = {
-        # Default valyes
+        # Default values
         :protocol => :http,
         :tcp_no_delay => true,
         :ipv6_only => false,

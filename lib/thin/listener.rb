@@ -85,7 +85,7 @@ module Thin
 
     def to_s
       protocol + " on " + (unix? ? @socket_file :
-                                   (@host || "*") + ":#{@port}")
+                                   "#{@host}:#{@port}")
     end
 
     def self.parse(address)
