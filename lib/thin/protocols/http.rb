@@ -14,7 +14,11 @@ module Thin
 
       def send_response(response, close_after=true)
         response.finish
-        response.each { |chunk| send_data chunk }
+        response.each do |chunk|
+          print chunk if $DEBUG
+          send_data chunk
+        end
+        puts if $DEBUG
 
         if close_after
           response.close
@@ -36,6 +40,7 @@ module Thin
 
       # Called when data is received from the client.
       def receive_data(data)
+        puts data if $DEBUG
         @parser << data
       rescue HTTP::Parser::Error => e
         $stderr.puts "Parse error: #{e}"
