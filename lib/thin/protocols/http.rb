@@ -7,9 +7,6 @@ module Thin
       require "thin/protocols/http/request"
       require "thin/protocols/http/response"
       
-      # This is a template async response.
-      AsyncResponse = [-1, {}, []].freeze
-
       attr_accessor :server
       attr_accessor :listener
       
@@ -49,10 +46,7 @@ module Thin
       # and can no longer be used to process requests.
       def unbind
         @request.close if @request
-        if @response
-          @response.body.fail if @response.body.respond_to?(:fail)
-          @response.close
-        end
+        @response.close if @response
       end
 
       # Returns IP address of peer as a string.
@@ -103,7 +97,7 @@ module Thin
         @request.async_callback = method(:process)
 
         # Call the Rack application
-        response = AsyncResponse
+        response = Response::ASYNC
         catch(:async) do
           response = @server.app.call(@request.env)
         end
@@ -121,21 +115,18 @@ module Thin
       def process(response)
         @response = Response.new(*response)
 
-        # Status code -1 indicates that we're going to respond later (async).
-        return if @response.status == AsyncResponse.first
+        # We're going to respond later (async).
+        return if @response.async?
 
         # Send the response.
         return unless send_response @response, false
 
         # If the body is being deferred, then terminate afterward.
-        if @response.body.respond_to?(:callback) && @response.body.respond_to?(:errback)
-          @response.body.callback(&method(:reset))
-          @response.body.errback(&method(:reset))
+        if @response.callback?
+          @response.callback = method(:reset)
         else
           reset
         end
-
-        @response.close
 
       rescue Exception
         handle_error

@@ -3,6 +3,9 @@ module Thin
     class Http
       # A response sent to the client.
       class Response
+        # Template async response.
+        ASYNC = [-1, {}, []].freeze
+        
         # Store HTTP header name-value pairs direcly to a string
         # and allow duplicated entries on some names.
         class Headers
@@ -109,6 +112,7 @@ module Thin
 
         # Close any resource used by the response
         def close
+          @body.fail if @body.respond_to?(:fail)
           @body.close if @body.respond_to?(:close)
         end
 
@@ -122,6 +126,19 @@ module Thin
           else
             @body.each { |chunk| yield chunk }
           end
+        end
+
+        def async?
+          @status == ASYNC.first
+        end
+
+        def callback?
+          @body.respond_to?(:callback) && @body.respond_to?(:errback)
+        end
+        
+        def callback=(proc)
+          @body.callback(&proc)
+          @body.errback(&proc)
         end
 
         def self.error(status=500, message=Rack::Utils::HTTP_STATUS_CODES[status])

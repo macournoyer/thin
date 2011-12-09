@@ -54,6 +54,6 @@ EOS
   def test_async_response_do_not_send_response
     @connection.expects(:send_response).never
     
-    @connection.process(Thin::Protocols::Http::AsyncResponse)
+    @connection.process(Thin::Protocols::Http::Response::ASYNC)
   end
 end

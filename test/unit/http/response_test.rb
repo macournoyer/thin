@@ -83,4 +83,8 @@ class HttpResponseTest < Test::Unit::TestCase
   def test_close
     @response.close
   end
+  
+  def test_async
+    assert Thin::Protocols::Http::Response.new(*Thin::Protocols::Http::Response::ASYNC).async?
+  end
 end
