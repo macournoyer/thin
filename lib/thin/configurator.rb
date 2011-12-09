@@ -24,36 +24,53 @@ module Thin
     # {include:Thin::Server#listen}
     # @see Thin::Server#listen
     def listen(address, options={})
-      Listener.parse(address) # validates the address
-      @options[:listeners] << [address, options]
+      @options[:listeners] << Listener.new(address, options)
     end
 
+    # {include:Thin::Server#preload_app}
+    # @see Thin::Server#preload_app
+    def preload_app(value)
+      set :preload_app, value, TrueClass, FalseClass
+    end
+
+    # {include:Thin::Server#timeout}
     # @see Thin::Server#timeout
     def timeout(seconds)
       set :timeout, seconds, Integer
     end
 
+    # {include:Thin::Server#log_path}
     # @see Thin::Server#log_path
     def log_path(path)
       set :log_path, path, String
     end
 
+    # {include:Thin::Server#pid_path}
+    # @see Thin::Server#pid_path
     def pid_path(path)
       set :pid_path, path, String
     end
 
+    # {include:Thin::Server#use_epoll}
+    # @see Thin::Server#use_epoll
     def use_epoll(value)
       set :use_epoll, value, TrueClass, FalseClass
     end
 
+    # {include:Thin::Server#use_kqueue}
+    # @see Thin::Server#use_kqueue
     def use_kqueue(value)
       set :use_kqueue, value, TrueClass, FalseClass
     end
 
+    # {include:Thin::Server#before_fork}
+    # @see Thin::Server#before_fork
     def before_fork(&block)
       @options[:before_fork] = block
     end
 
+    # {include:Thin::Server#after_fork}
+    # @see Thin::Server#after_fork
     def after_fork(&block)
       @options[:after_fork] = block
     end
@@ -61,13 +78,7 @@ module Thin
     # Apply this configuration to the +server+ instance.
     # @param [Thin::Server] server
     def apply(server)
-      [:worker_processes, :worker_connections, :timeout,
-       :log_path, :pid_path,
-       :use_epoll, :use_kqueue,
-       :before_fork, :after_fork].each do |name|
-        server.send "#{name}=", @options[name] if @options.has_key?(name)
-      end
-      @options[:listeners].each { |address, options| server.listen address, options }
+      @options.each_pair { |name, value| server.send "#{name}=", value }
       server
     end
 

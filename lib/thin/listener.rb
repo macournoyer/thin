@@ -15,10 +15,39 @@ module Thin
     # Ruby class of the EventMachine::Connection class used to process connections.
     attr_accessor :protocol_class
 
-    def initialize(host, port, socket_file=nil)
-      @host = host
-      @port = port
-      @socket_file = socket_file
+    def initialize(address, options={})
+      case address
+      when Integer
+        @host = ""
+        @port = address
+      when /\A(\/.*)\z/, /\Aunix:(.*)\z/ # /file.sock or unix:file.sock
+        @socket_file = $1
+      when /\A(?:\*:)?(\d+)\z/ # *:port or "port"
+        @host = ""
+        @port = $1.to_i
+      when /\A((?:\d{1,3}\.){3}\d{1,3}):(\d+)\z/ # 0.0.0.0:port
+        @host = $1
+        @port = $2.to_i
+      when /\A\[([a-fA-F0-9:]+)\]:(\d+)\z/ # IPV6 address: [::]:port
+        @host = $1
+        @port = $2.to_i
+      else
+        raise ArgumentError, "Invalid address #{address.inspect}. " +
+                             "Accepted formats are: 3000, *:3000, 0.0.0.0:3000, [::]:3000, /file.sock or unix:file.sock"
+      end
+      
+      options = {
+        # Default values
+        :protocol => :http,
+        :tcp_no_delay => true,
+        :ipv6_only => false,
+        :backlog => 1024,
+      }.merge(options)
+      
+      @backlog = options[:backlog]
+      self.protocol = options[:protocol]
+      self.tcp_no_delay = options[:tcp_no_delay]
+      self.ipv6_only = options[:ipv6_only]
     end
 
     # Creates the socket and binds it to the address.
@@ -27,11 +56,6 @@ module Thin
 
       @socket = Socket.new(socket_family, Socket::SOCK_STREAM, 0)
       @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
-
-      packed_address = unix? ? Socket.pack_sockaddr_un(@socket_file) : # UNIX domain
-                               Socket.pack_sockaddr_in(@port, @host) # IPv4/6
-      delete_socket_file!
-      @socket.bind(packed_address)
 
       @socket
     end
@@ -74,8 +98,13 @@ module Thin
       @protocol_class.name.split(":").last
     end
 
-    def listen(backlog)
-      socket.listen(backlog)
+    def listen
+      delete_socket_file!
+
+      socket.bind unix? ? Socket.pack_sockaddr_un(@socket_file) : # UNIX domain
+                          Socket.pack_sockaddr_in(@port, @host) # IPv4/6
+
+      socket.listen(@backlog)
     end
 
     def close
@@ -86,24 +115,6 @@ module Thin
     def to_s
       protocol + " on " + (unix? ? @socket_file :
                                    "#{@host}:#{@port}")
-    end
-
-    def self.parse(address)
-      case address
-      when Integer
-        new "", address
-      when /\A(\/.*)\z/, /\Aunix:(.*)\z/ # /file.sock or unix:file.sock
-        new nil, nil, $1
-      when /\A(?:\*:)?(\d+)\z/ # *:port or "port"
-        new "", $1.to_i
-      when /\A((?:\d{1,3}\.){3}\d{1,3}):(\d+)\z/ # 0.0.0.0:port
-        new $1, $2.to_i
-      when /\A\[([a-fA-F0-9:]+)\]:(\d+)\z/ # IPV6 address: [::]:port
-        new $1, $2.to_i
-      else
-        raise ArgumentError, "Invalid address #{address.inspect}. " +
-                             "Accepted formats are: 3000, *:3000, 0.0.0.0:3000, [::]:3000, /file.sock or unix:file.sock"
-      end
     end
     
     private

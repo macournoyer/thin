@@ -35,7 +35,7 @@ class ConfiguratorTest < Test::Unit::TestCase
   end
 
   def test_apply
-    server = Thin::Server.new(proc {})
+    server = Thin::Server.new {}
     @config.worker_processes 10000
     @config.apply(server)
     assert_equal 10000, server.worker_processes

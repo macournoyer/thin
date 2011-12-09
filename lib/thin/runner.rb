@@ -110,17 +110,20 @@ module Thin
       parser = OptionsParser.new
       options.update parser.parse!(args)
 
-      # Build the Rack app
-      app, in_file_options = Rack::Builder.parse_file(options[:config], parser)
-      options.update in_file_options
+      # Parse in file options like rackup
+      shebang = File.open("config.ru") { |f| f.readline }
+      if shebang[/^#\\(.*)/]
+        options.update parser.parse! $1.split(/\s+/)
+      end
 
       ENV["RACK_ENV"] = options[:environment]
       options[:config] = ::File.expand_path(options[:config])
 
-      app = build_app(app, options[:environment])
-
       # Configure the server
-      server = Server.new(app)
+      server = Server.new do
+        # This is passed as a block so it can be loaded inside workers if preload_app disabled.
+        build_app(options[:config], options[:environment])
+      end
 
       if options[:thin_config]
         Configurator.load(options[:thin_config]).apply(server)
@@ -145,7 +148,9 @@ module Thin
     end
 
     private
-      def build_app(inner_app, environment)
+      def build_app(config, environment)
+        inner_app = Rack::Builder.parse_file(config).first
+        
         Rack::Builder.new do
           case environment
           when "development"
@@ -163,7 +168,7 @@ module Thin
           end
 
           run inner_app
-        end
+        end.to_app
       end
 
   end

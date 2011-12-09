@@ -56,7 +56,11 @@ module Thin
   # - *TERM*, *INT*: Kill workers and master immediately
   class Server
     # Application called with the request that produces the response.
-    attr_accessor :app
+    attr_reader :app
+    
+    # Set to +true+ to load the app before forking to workers.
+    # Default: false
+    attr_accessor :preload_app
 
     # A tag that will show in the process listing
     attr_accessor :tag
@@ -101,8 +105,14 @@ module Thin
     # Object that is +call+ed after forking a worker process inside the worker process.
     attr_accessor :after_fork
 
-    def initialize(app=nil)
-      @app = app
+    # Creates a new server that will forward requests to the app returned when +call+ing the +app_loader+ block.
+    # When +preload_app+ is set to +true+, +app_loader+ will be called before forking.
+    # When +preload_app+ is set to +false+, +app_loader+ will be called after forking.
+    def initialize(&app_loader)
+      @app_loader = app_loader || raise(ArgumentError, "app_loader block required")
+      
+      # Set defaults
+      @preload_app = false
       @timeout = 30
       @pid_path = "./thin.pid"
       @log_path = nil
@@ -129,7 +139,7 @@ module Thin
         end
       end
     end
-
+    
     # Listen for incoming connections on +address+.
     # @example
     #   listen 3000 # port number
@@ -142,19 +152,7 @@ module Thin
     # @option options [Integer] :backlog (1024) Maximum number of clients in the listening backlog.
     # @option options [Symbol, String, Class] :protocol (:http) Protocol name or class to use to process connections.
     def listen(address, options={})
-      listener = Listener.parse(address)
-      options = {
-        # Default values
-        :protocol => :http,
-        :tcp_no_delay => true,
-        :ipv6_only => false,
-        :backlog => 1024,
-      }.merge(options)
-      listener.protocol = options[:protocol]
-      listener.tcp_no_delay = options[:tcp_no_delay]
-      listener.ipv6_only = options[:ipv6_only]
-      listener.listen(options[:backlog])
-      @listeners << listener
+      @listeners << Listener.new(address, options)
     end
 
     # Starts the server and open a listening socket for each +listeners+.
@@ -167,12 +165,19 @@ module Thin
       EM.kqueue = @use_kqueue unless @use_kqueue.nil?
       @worker_connections = EM.set_descriptor_table_size(@worker_connections)
 
+      # Preload the app in the master process.
+      @app = @app_loader.call if @preload_app
+
       @listeners.each do |listener|
         puts "Listening with #{listener}"
+        listener.listen
       end
       puts "CTRL+C to stop"
 
       backend.start(daemonize) do
+        # Load the app in the worker process if it was not preloaded.
+        @app = @app_loader.call unless @preload_app
+
         @listeners.each do |listener|
           EM.attach_server(listener.socket, listener.protocol_class) do |c|
             c.server = self if c.respond_to?(:server=)
