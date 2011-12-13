@@ -1,0 +1,3 @@
+# manuals
+thin(1)         thin.1.ronn
+thin-conf(5)    thin-conf.5.ronn

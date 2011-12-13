@@ -2,6 +2,7 @@ require 'bundler'
 Bundler::GemHelper.install_tasks
 
 require 'rake/testtask'
+require "thin/version"
 
 namespace :test do
   Rake::TestTask.new(:unit) do |t|
@@ -22,6 +23,11 @@ task :test => ["test:unit", "test:integration"]
 
 task :default => :test
 
+task :man do
+  ENV['RONN_MANUAL']  = "Thin Manual"
+  ENV['RONN_ORGANIZATION'] = "Thin #{Thin::VERSION::STRING}"
+  sh "ronn -w -s toc -r5 man/*.ronn"
+end
 
 task :rm_space do
   sh %{find . -name "*.rb" -print0 | xargs -0 sed -i '' -E "s/[[:space:]]*$//"}

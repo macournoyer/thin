@@ -1,0 +1,105 @@
+thin(1) -- high performance Ruby server
+=======================================
+
+## SYNOPSIS
+
+`thin` [options] [<config.ru>]<br>
+`thin` `-c` <thin.conf.rb> [<config.ru>]
+
+## DESCRIPTION
+
+Thin is a high performance Ruby server. Thin is generally used as an app server for serving [Rack applications](http://rack.rubyforge.org/doc/SPEC.html) behind full blown HTTP servers such as [nginx](http://nginx.org).
+
+Since version 2, Thin can serve any protocol defined with EventMachine.
+
+## FILES
+
+The `thin` command will load the Rack application defined in the `config.ru` file.
+
+## OPTIONS
+
+These options control the Ruby environment and are the same as the `ruby` and `rackup` commands.
+
+  * `-e`, `--eval` <LINE>:
+    Evaluate a LINE of Ruby code.
+
+  * `-d`, `--debug`:
+    Set debugging flags (set $DEBUG to true). This is also output the request and response to stdout.
+
+  * `-w`, `--warn`:
+    Turn warnings on for your script.
+
+  * `-I`, `--include` <PATH>:
+    Add a path to the $LOAD_PATH. May be used more than once.
+
+  * `-r`, `--require` <LIBRARY>:
+    Require the library, before executing your script. May be used more than once.
+
+These options control the Thin server.
+
+  * `-o`, `--host` <HOST>:
+    Bind to HOST. Leave blank to bind to any address. Use *[...]* to specify IPv6 addresses.
+
+  * `-p`, `--PORT` <PORT>:
+    Bind to PORT.
+
+  * `-E`, `--env` <ENVIRONMENT>:
+    Use the Rack ENVIRONMENT.
+    
+    *deployment*:
+      will load the *ContentLength*, *Chunked* and *CommonLogger* middlewares.<br>
+    *development*:
+      will load the sames middlewares as *deployment* with the addition of *ShowExceptions* and *Lint*.
+    
+    Any other environment will not load any middleware. This option will also set the *RACK_ENV* environment variable.
+
+  * `-D`, `--daemonize`:
+    Run daemonized in the background.
+
+  * `-P`, `--pid` <FILE>:
+    File to store the process ID in.
+
+  * `-l`, `--log` <FILE>:
+    File to redirect stdout and stderr to.
+
+  * `-c`, `--config` <FILE>:
+    Configure the Thin server by evaling this configuration file. See thin-conf(5) for the format of that file.
+
+## SIGNALS
+
+Thin master process can handle the following signals.
+
+  * `WINCH`:
+    Gracefully kill all workers but keep master alive
+
+  * `TTIN`:
+    Increase number of workers
+
+  * `TTOU`:
+    Decrease number of workers
+
+  * `QUIT`:
+    Kill workers and master in a graceful way
+
+  * `TERM`, `INT`:
+    Kill workers and master immediately
+
+## MODES
+
+By default Thin is a preforking server like Nginx and Unicorn. On systems where fork(2) is not supported, Thin will fallback to running in a single process. While running in this mode, a number of features are not supported.
+
+Here is the list of features that do **NOT** work when running in single process mode.
+
+  * Signals, except `TERM` and `INT`.
+  * Run daemonized in the background (`-D` option).
+  * Log file (`-l` option).
+
+Single process mode can also be forced by setting the number of worker processes to *0*.
+
+## COPYRIGHT
+
+Thin is Copyright (C) 2011 Marc-Andre Cournoyer <http://macournoyer.com/>
+
+## SEE ALSO
+
+thin-conf(5), [Rack spec](http://rack.rubyforge.org/doc/SPEC.html)
