@@ -14,7 +14,9 @@ Since version 2, Thin can serve any protocol defined with EventMachine.
 
 ## FILES
 
-The `thin` command will load the Rack application defined in the `config.ru` file.
+The `thin` command will load the Rack application defined in a rackup config file. The default behaviour is to look for a file named `config.ru` that lives at the root of the application if the argument is omitted. This file is evaluated in the context of a [Rack::Builder](http://rack.rubyforge.org/doc/Rack/Builder.html) class.
+
+The `thin` command can also take a server configuration file with the `-c` option. See thin-conf(5) for the format of this file.
 
 ## OPTIONS
 

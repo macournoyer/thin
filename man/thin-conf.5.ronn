@@ -1,0 +1,104 @@
+thin-conf(5) -- Configuration file for the Thin Ruby server
+===========================================================
+
+## SYNOPSIS
+
+A file used to configure a Thin server. This file is to be passed to the `-c` option of thin(1).
+
+## SYNTAX
+
+A Thin configuration file is evaluated as Ruby code, in a context which makes available
+a number of methods used to configure the server.
+
+## WORKER PROCESSES (#worker_processes)
+
+Number of child worker processes.
+Setting this to 0 will result in running in a single process with limited features.
+
+    worker_processes 4
+
+Default: number of processors available or 0 if fork(2) is not available.
+
+## WORKER CONNECTIONS (#worker_connections)
+
+Maximum number of file descriptors that a worker may open. This includes socket and file descriptors.
+
+    worker_processes 1024
+
+Default: 1024.
+
+## LISTEN (#listen)
+
+Listen for incoming connections on a given address.
+
+    listen 3000
+    listen "0.0.0.0:8008", :backlog => 80
+    
+    # IPv6 address
+    listen "[::]:8008", :ipv6_only => true
+    
+    # Unix domain sockets
+    listen "/tmp/thin.sock"
+
+### OPTIONS
+
+  * `tcp_no_delay`:
+    Disables the Nagle algorithm for send coalescing. Default: `true`.
+
+  * `ipv6_only`:
+    do not listen on IPv4 interface. Default: `false`.
+
+  * `backlog`:
+    Maximum number of clients in the listening backlog. Default: `1024`
+
+  * `protocol`:
+    Protocol name or class to use to process connections. Default: `:http`
+
+## PRELOAD APP (#preload_app)
+
+Set to `true` to load the app before forking to workers. Default: `false`. If the Ruby interpreter garbage collector doesn't support copy on write, set this option to false which will prevent loading your application in the master process. If the interpreter does support copy on write, setting this to `true` will help save memory.
+
+Default: `false`.
+
+## TIMEOUT (#timeout)
+
+Workers are killed if they don't check-in under this amount of seconds.
+
+## LOG PATH (#log_path)
+
+Path to the file in which standard output streams are redirected.
+
+    log_path "my_app.log"
+
+By default standard output streams are not redirected.
+
+## PID PATH (#pid_path)
+
+Path to the file in which the PID is saved.
+
+    pid_path "my_app.pid"
+
+Default: `./thin.pid`.
+
+## EVENT MODEL (#use_epoll, #use_kqueue)
+
+Force or disable an event model in EventMachine.
+
+    use_epoll false
+
+Epoll is used under Linux systems and Kqueue is used mainly under Mac OS X. Disabling will result in using select(2).
+
+## CALLBACKS (#before_fork, #after_fork)
+
+Blocks of Ruby code executed before or after forking a worker process. `before_fork` will be called inside the master process and `after_fork` will be called inside a worker process.
+
+    before_fork do |server|
+      # ...
+    end
+    
+    before_fork do |server, worker|
+      # ...
+    end
+
+The `server` argument is an instance of `Thin::Server` from which you get access to all the configuration. `worker` has `kill` method to exist gracefully.
+
