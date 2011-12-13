@@ -1,0 +1,55 @@
+// See doc on http://compass-style.org/reference/compass/
+
+// Here is where you can define your constants for your application and to configure the blueprint framework.
+// Feel free to delete these if you want keep the defaults:
+
+$blueprint-grid-columns: 24;
+$blueprint-grid-width: 30px;
+$blueprint-grid-margin: 10px;
+
+// If you change your grid column dimensions
+// you can make a new grid background image from the command line like this:
+// compass grid-img 30+10x16
+
+// Fonts
+$blueprint-font-family: Georgia, sans-serif;
+// $blueprint-fixed-font-family: "andale mono", "lucida console", monospace;
+$blueprint-font-size: 16px;
+
+// Colors
+// $font-color:     #333333;
+// $quiet-color:    lighten($font-color, 20%);
+// $loud-color:     darken($font-color, 13.33%);
+// $header-color:   darken($font-color, 6.67%);
+// $alt-text-color: #666666;
+// $blueprint-background-color: #eeeeee;
+// $blueprint-border-color: #ddd;
+// 
+// $link-color:         #06c;
+// $link-hover-color:   #09f;
+// $link-focus-color:   $link-hover-color;
+// $link-active-color:  lighten(adjust-hue($link-color, 75deg), 10%);
+// $link-visited-color: darken($link-color, 10%);
+// 
+// $feedback-border-color: #dddddd;
+// $success-color:         #264409;
+// $success-bg-color:      #e6efc2;
+// $success-border-color:  #c6d880;
+// $notice-color:          #514721;
+// $notice-bg-color:       #fff6bf;
+// $notice-border-color:   #ffd324;
+// $info-color:            #205791;
+// $info-bg-color:         #d5edf8;
+// $info-border-color:     #92cae4;
+// $error-color:           #8a1f11;
+// $error-bg-color:        #fbe3e4;
+// $error-border-color:    #fbc2c4;
+// 
+// $highlight-color:        yellow;
+// $added-color:             white;
+// $added-bg-color:        #006600;
+// $removed-color:           white;
+// $removed-bg-color:      #990000;
+// 
+// $blueprint-table-header-color: #c3d9ff;
+// $blueprint-table-stripe-color: #e5ecf9;

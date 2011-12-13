@@ -1,0 +1,20 @@
+require "sc"
+
+desc "Compile the site"
+task :compile do
+  Sc.compile
+end
+task :default => :compile
+
+desc "Delete compiled files"
+task :clean do
+  rm_rf "build"
+end
+
+desc "Deploy the site"
+task :deploy => :compile do
+  login = "login"
+  address = "mysite.com"
+  path = "." # On remote server
+  sh "rsync -va build/ #{login}@#{address}:#{path}/"
+end

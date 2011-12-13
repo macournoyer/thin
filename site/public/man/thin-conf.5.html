@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>thin-conf(5) - Configuration file for the Thin Ruby server</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+  <style type='text/css' media='all'>
+  /* style: toc */
+  .man-navigation {display:block !important;position:fixed;top:0;left:113ex;height:100%;width:100%;padding:48px 0 0 0;border-left:1px solid #dbdbdb;background:#eee}
+  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
+  .man-navigation a:hover {color:#111;text-decoration:underline}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
+    <a href="#SYNTAX">SYNTAX</a>
+    <a href="#WORKER-PROCESSES-worker_processes-">WORKER PROCESSES (#worker_processes)</a>
+    <a href="#WORKER-CONNECTIONS-worker_connections-">WORKER CONNECTIONS (#worker_connections)</a>
+    <a href="#LISTEN-listen-">LISTEN (#listen)</a>
+    <a href="#PRELOAD-APP-preload_app-">PRELOAD APP (#preload_app)</a>
+    <a href="#TIMEOUT-timeout-">TIMEOUT (#timeout)</a>
+    <a href="#LOG-PATH-log_path-">LOG PATH (#log_path)</a>
+    <a href="#PID-PATH-pid_path-">PID PATH (#pid_path)</a>
+    <a href="#EVENT-MODEL-use_epoll-use_kqueue-">EVENT MODEL (#use_epoll, #use_kqueue)</a>
+    <a href="#CALLBACKS-before_fork-after_fork-">CALLBACKS (#before_fork, #after_fork)</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>thin-conf(5)</li>
+    <li class='tc'>Thin Manual</li>
+    <li class='tr'>thin-conf(5)</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>thin-conf</code> - <span class="man-whatis">Configuration file for the Thin Ruby server</span>
+</p>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<p>A file used to configure a Thin server. This file is to be passed to the <code>-c</code> option of <a class="man-ref" href="thin.1.html">thin<span class="s">(1)</span></a>.</p>
+
+<h2 id="SYNTAX">SYNTAX</h2>
+
+<p>A Thin configuration file is evaluated as Ruby code, in a context which makes available
+a number of methods used to configure the server.</p>
+
+<h2 id="WORKER-PROCESSES-worker_processes-">WORKER PROCESSES (#worker_processes)</h2>
+
+<p>Number of child worker processes.
+Setting this to 0 will result in running in a single process with limited features.</p>
+
+<pre><code>worker_processes 4
+</code></pre>
+
+<p>Default: number of processors available or 0 if <span class="man-ref">fork<span class="s">(2)</span></span> is not available.</p>
+
+<h2 id="WORKER-CONNECTIONS-worker_connections-">WORKER CONNECTIONS (#worker_connections)</h2>
+
+<p>Maximum number of file descriptors that a worker may open. This includes socket and file descriptors.</p>
+
+<pre><code>worker_processes 1024
+</code></pre>
+
+<p>Default: 1024.</p>
+
+<h2 id="LISTEN-listen-">LISTEN (#listen)</h2>
+
+<p>Listen for incoming connections on a given address.</p>
+
+<pre><code>listen 3000
+listen "0.0.0.0:8008", :backlog =&gt; 80
+
+# IPv6 address
+listen "[::]:8008", :ipv6_only =&gt; true
+
+# Unix domain sockets
+listen "/tmp/thin.sock"
+</code></pre>
+
+<h3 id="OPTIONS">OPTIONS</h3>
+
+<dl>
+<dt><code>tcp_no_delay</code></dt><dd><p>Disables the Nagle algorithm for send coalescing. Default: <code>true</code>.</p></dd>
+<dt><code>ipv6_only</code></dt><dd><p>do not listen on IPv4 interface. Default: <code>false</code>.</p></dd>
+<dt class="flush"><code>backlog</code></dt><dd><p>Maximum number of clients in the listening backlog. Default: <code>1024</code></p></dd>
+<dt><code>protocol</code></dt><dd><p>Protocol name or class to use to process connections. Default: <code>:http</code></p></dd>
+</dl>
+
+
+<h2 id="PRELOAD-APP-preload_app-">PRELOAD APP (#preload_app)</h2>
+
+<p>Set to <code>true</code> to load the app before forking to workers. Default: <code>false</code>. If the Ruby interpreter garbage collector doesn't support copy on write, set this option to false which will prevent loading your application in the master process. If the interpreter does support copy on write, setting this to <code>true</code> will help save memory.</p>
+
+<p>Default: <code>false</code>.</p>
+
+<h2 id="TIMEOUT-timeout-">TIMEOUT (#timeout)</h2>
+
+<p>Workers are killed if they don't check-in under this amount of seconds.</p>
+
+<h2 id="LOG-PATH-log_path-">LOG PATH (#log_path)</h2>
+
+<p>Path to the file in which standard output streams are redirected.</p>
+
+<pre><code>log_path "my_app.log"
+</code></pre>
+
+<p>By default standard output streams are not redirected.</p>
+
+<h2 id="PID-PATH-pid_path-">PID PATH (#pid_path)</h2>
+
+<p>Path to the file in which the PID is saved.</p>
+
+<pre><code>pid_path "my_app.pid"
+</code></pre>
+
+<p>Default: <code>./thin.pid</code>.</p>
+
+<h2 id="EVENT-MODEL-use_epoll-use_kqueue-">EVENT MODEL (#use_epoll, #use_kqueue)</h2>
+
+<p>Force or disable an event model in EventMachine.</p>
+
+<pre><code>use_epoll false
+</code></pre>
+
+<p>Epoll is used under Linux systems and Kqueue is used mainly under Mac OS X. Disabling will result in using <span class="man-ref">select<span class="s">(2)</span></span>.</p>
+
+<h2 id="CALLBACKS-before_fork-after_fork-">CALLBACKS (#before_fork, #after_fork)</h2>
+
+<p>Blocks of Ruby code executed before or after forking a worker process. <code>before_fork</code> will be called inside the master process and <code>after_fork</code> will be called inside a worker process.</p>
+
+<pre><code>before_fork do |server|
+  # ...
+end
+
+before_fork do |server, worker|
+  # ...
+end
+</code></pre>
+
+<p>The <code>server</code> argument is an instance of <code>Thin::Server</code> from which you get access to all the configuration. <code>worker</code> has <code>kill</code> method to exist gracefully.</p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'>Thin 2.0.0.pre</li>
+    <li class='tc'>December 2011</li>
+    <li class='tr'>thin-conf(5)</li>
+  </ol>
+
+  </div>
+</body>
+</html>

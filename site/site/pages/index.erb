@@ -1,0 +1,10 @@
+<h2>Index</h2>
+
+<p>Oh pretty please! Edit me in <code>pages/index.erb</code>.</p>
+
+<h3>Pages</h3>
+<ul>
+<% site.pages.each do |page| %>
+  <li><%= link_to page.title, page %></li>
+<% end %>
+</ul>

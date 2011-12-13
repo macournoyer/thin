@@ -26,7 +26,8 @@ task :default => :test
 task :man do
   ENV['RONN_MANUAL']  = "Thin Manual"
   ENV['RONN_ORGANIZATION'] = "Thin #{Thin::VERSION::STRING}"
-  sh "ronn -w -s toc -r5 man/*.ronn"
+  sh "ronn -w -s toc -5 man/*.ronn"
+  mv FileList["man/*.html"], "site/public/man"
 end
 
 task :rm_space do
