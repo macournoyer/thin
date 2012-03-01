@@ -33,7 +33,7 @@ module Thin
       # Default options values
       @options = {
         :chdir                => Dir.pwd,
-        :environment          => 'development',
+        :environment          => ENV['RACK_ENV'] || 'development',
         :address              => '0.0.0.0',
         :port                 => Server::DEFAULT_PORT,
         :timeout              => Server::DEFAULT_TIMEOUT,
