@@ -53,7 +53,7 @@ configuration is set via the thin_* variables.".cleanup
   desc "Restart the app servers"
 
   remote_task :start_app, :roles => :app do
-    run thin("restart -s #{thin_servers}")
+    run thin("restart -O -s #{thin_servers}")
   end
 
   desc "Stop the app servers"
