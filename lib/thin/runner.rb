@@ -1,39 +1,39 @@
 require 'optparse'
 require 'yaml'
 
-module Thin  
+module Thin
   # CLI runner.
   # Parse options and send command to the correct Controller.
   class Runner
     COMMANDS            = %w(start stop restart config)
     LINUX_ONLY_COMMANDS = %w(install)
-    
+
     # Commands that wont load options from the config file
     CONFIGLESS_COMMANDS = %w(config install)
-    
+
     # Parsed options
     attr_accessor :options
-    
+
     # Name of the command to be runned.
     attr_accessor :command
-    
+
     # Arguments to be passed to the command.
     attr_accessor :arguments
-    
+
     # Return all available commands
     def self.commands
       commands  = COMMANDS
       commands += LINUX_ONLY_COMMANDS if Thin.linux?
       commands
     end
-    
+
     def initialize(argv)
       @argv = argv
-      
+
       # Default options values
       @options = {
         :chdir                => Dir.pwd,
-        :environment          => 'development',
+        :environment          => ENV['RACK_ENV'] || 'development',
         :address              => '0.0.0.0',
         :port                 => Server::DEFAULT_PORT,
         :timeout              => Server::DEFAULT_TIMEOUT,
@@ -44,10 +44,10 @@ module Thin
         :require              => [],
         :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME
       }
-      
+
       parse!
     end
-    
+
     def parser
       # NOTE: If you add an option here make sure the key in the +options+ hash is the
       # same as the name of the command line option.
@@ -81,26 +81,26 @@ module Thin
 
         opts.separator ""
         opts.separator "Adapter options:"
-        opts.on("-e", "--environment ENV", "Framework environment " +                       
+        opts.on("-e", "--environment ENV", "Framework environment " +
                                            "(default: #{@options[:environment]})")      { |env| @options[:environment] = env }
         opts.on(      "--prefix PATH", "Mount the app under PATH (start with /)")       { |path| @options[:prefix] = path }
-        
+
         unless Thin.win? # Daemonizing not supported on Windows
           opts.separator ""
           opts.separator "Daemon options:"
-                                                                                      
+
           opts.on("-d", "--daemonize", "Run daemonized in the background")              { @options[:daemonize] = true }
-          opts.on("-l", "--log FILE", "File to redirect output " +                      
+          opts.on("-l", "--log FILE", "File to redirect output " +
                                       "(default: #{@options[:log]})")                   { |file| @options[:log] = file }
-          opts.on("-P", "--pid FILE", "File to store PID " +                            
+          opts.on("-P", "--pid FILE", "File to store PID " +
                                       "(default: #{@options[:pid]})")                   { |file| @options[:pid] = file }
           opts.on("-u", "--user NAME", "User to run daemon as (use with -g)")           { |user| @options[:user] = user }
           opts.on("-g", "--group NAME", "Group to run daemon as (use with -u)")         { |group| @options[:group] = group }
           opts.on(      "--tag NAME", "Additional text to display in process listing")  { |tag| @options[:tag] = tag }
-                                                                                      
+
           opts.separator ""
-          opts.separator "Cluster options:"                                             
-                                                                                      
+          opts.separator "Cluster options:"
+
           opts.on("-s", "--servers NUM", "Number of servers to start")                  { |num| @options[:servers] = num.to_i }
           opts.on("-o", "--only NUM", "Send command to only one server of the cluster") { |only| @options[:only] = only.to_i }
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
@@ -108,12 +108,12 @@ module Thin
           opts.on("-O", "--onebyone", "Restart the cluster one by one (only works with restart command)") { @options[:onebyone] = true }
           opts.on("-w", "--wait NUM", "Maximum wait time for server to be started in seconds (use with -O)") { |time| @options[:wait] = time.to_i }
         end
-        
+
         opts.separator ""
         opts.separator "Tuning options:"
-        
+
         opts.on("-b", "--backend CLASS", "Backend to use, full classname")              { |name| @options[:backend] = name }
-        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +            
+        opts.on("-t", "--timeout SEC", "Request or command timeout in sec " +
                                        "(default: #{@options[:timeout]})")              { |sec| @options[:timeout] = sec.to_i }
         opts.on("-f", "--force", "Force the execution of the command")                  { @options[:force] = true }
         opts.on(      "--max-conns NUM", "Maximum number of open file descriptors " +
@@ -125,7 +125,7 @@ module Thin
         opts.on(      "--threaded", "Call the Rack application in threads " +
                                     "[experimental]")                                   { @options[:threaded] = true }
         opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
-        
+
         opts.separator ""
         opts.separator "Common options:"
 
@@ -136,14 +136,14 @@ module Thin
         opts.on_tail('-v', '--version', "Show version")                                 { puts Thin::SERVER; exit }
       end
     end
-    
+
     # Parse the options.
     def parse!
       parser.parse! @argv
       @command   = @argv.shift
       @arguments = @argv
     end
-        
+
     # Parse the current shell arguments and run the command.
     # Exits on error.
     def run!
@@ -152,34 +152,34 @@ module Thin
       elsif @command.nil?
         puts "Command required"
         puts @parser
-        exit 1  
+        exit 1
       else
         abort "Unknown command: #{@command}. Use one of #{self.class.commands.join(', ')}"
       end
     end
-    
+
     # Send the command to the controller: single instance or cluster.
     def run_command
       load_options_from_config_file! unless CONFIGLESS_COMMANDS.include?(@command)
-      
+
       # PROGRAM_NAME is relative to the current directory, so make sure
       # we store and expand it before changing directory.
       Command.script = File.expand_path($PROGRAM_NAME)
-      
+
       # Change the current directory ASAP so that all relative paths are
       # relative to this one.
       Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
-      
+
       @options[:require].each { |r| ruby_require r }
       Logging.debug = @options[:debug]
       Logging.trace = @options[:trace]
-      
+
       controller = case
       when cluster? then Controllers::Cluster.new(@options)
       when service? then Controllers::Service.new(@options)
       else               Controllers::Controller.new(@options)
       end
-      
+
       if controller.respond_to?(@command)
         begin
           controller.send(@command, *@arguments)
@@ -190,24 +190,24 @@ module Thin
         abort "Invalid options for command: #{@command}"
       end
     end
-    
+
     # +true+ if we're controlling a cluster.
     def cluster?
       @options[:only] || @options[:servers] || @options[:config]
     end
-    
+
     # +true+ if we're acting a as system service.
     def service?
       @options.has_key?(:all) || @command == 'install'
     end
-    
+
     private
       def load_options_from_config_file!
         if file = @options.delete(:config)
           YAML.load_file(file).each { |key, value| @options[key.to_sym] = value }
         end
       end
-      
+
       def ruby_require(file)
         if File.extname(file) == '.ru'
           warn 'WARNING: Use the -R option to load a Rack config file'
