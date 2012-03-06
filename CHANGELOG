@@ -1,3 +1,6 @@
+== 1.3.2 Low-bar Squat
+ * Remove mack and halcyon Rack adapters from automatic detection.
+
 == 1.3.1 Triple Espresso
  * Fix service not working pre 1.9.
 

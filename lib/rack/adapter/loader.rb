@@ -11,10 +11,7 @@ module Rack
     [:rack,    'config.ru'],
     [:rails,   'config/environment.rb'],
     [:ramaze,  'start.rb'],
-    [:halcyon, 'runner.ru'],
     [:merb,    'config/init.rb'],
-    [:mack,    'config/app_config/default.yml'],
-    [:mack,    'config/configatron/default.rb'],
     [:file,    nil]
   ]
   
@@ -65,19 +62,6 @@ module Rack
         Merb::BootLoader.run
         
         return Merb::Rack::Application.new
-        
-      when :halcyon
-        require 'halcyon'
-        
-        $:.unshift(Halcyon.root/'lib')
-        
-        return Halcyon::Runner.new
-        
-      when :mack
-        ENV["MACK_ENV"] = options[:environment]
-        load(::File.join(options[:chdir], "Rakefile"))
-        require 'mack'
-        return Mack::Utils::Server.build_app
         
       when :file
         return Rack::File.new(options[:chdir])
