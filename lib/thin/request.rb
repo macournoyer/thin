@@ -110,8 +110,10 @@ module Thin
       @env[REQUEST_URI] = @parser.request_url
       @env[SCRIPT_NAME] = ''
 
-      @env[HTTP_HOST] = 'localhost:9292' # TODO
-      @env[SERVER_PORT] = '9292' # TODO
+      host = headers.delete('Host')
+      @env[HTTP_HOST] = host if host
+      @env[SERVER_PORT] = host.to_s.split(':', 2)[1] || '80'
+
       @env[RACK_URL_SCHEME] = 'http' # TODO
 
 =begin
