@@ -17,21 +17,15 @@ Thin::GemSpec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '>= 1.0.0'
-  s.add_dependency        'eventmachine', '>= 0.12.6'
+  s.add_dependency        'rack',           '>= 1.0.0'
+  s.add_dependency        'eventmachine',   '>= 0.12.6'
+  s.add_dependency        'http_parser.rb', '>= 0.5.3'
   unless WIN
-    s.add_dependency      'daemons',      '>= 1.0.9'
+    s.add_dependency      'daemons',        '>= 1.0.9'
   end
 
   s.files                 = %w(CHANGELOG README Rakefile) +
-                            Dir.glob("{benchmark,bin,doc,example,lib,spec,tasks}/**/*") - Dir.glob("lib/thin_parser.*") + 
-                            Dir.glob("ext/**/*.{h,c,rb,rl}")
-  
-  if WIN
-    s.files              += FileList["lib/*/thin_parser.*"].to_a
-  else
-    s.extensions          = FileList["ext/**/extconf.rb"].to_a
-  end
+                            Dir.glob("{benchmark,bin,doc,example,lib,spec,tasks}/**/*")
   
   s.require_path          = "lib"
   s.bindir                = "bin"

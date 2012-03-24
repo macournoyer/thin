@@ -8,7 +8,6 @@ task :stats do
   end
   lib     = line_count['lib/**/*.rb']
   comment = comment_count['lib/**/*.rb']
-  ext     = line_count['ext/**/*.{c,h}'] 
   spec    = line_count['spec/**/*.rb']
   
   comment_ratio = '%1.2f' % (comment.to_f / lib.to_f)
@@ -19,7 +18,6 @@ task :stats do
   puts '|======================|'
   puts "| lib             #{lib.to_s.ljust(5)}|"
   puts "| lib comments    #{comment.to_s.ljust(5)}|"
-  puts "| ext             #{ext.to_s.ljust(5)}|"
   puts "| spec            #{spec.to_s.ljust(5)}|"
   puts '| ratios:              |'
   puts "|   lib/comment   #{comment_ratio.to_s.ljust(5)}|"

@@ -7,6 +7,9 @@ require 'timeout'
 require 'fileutils'
 require 'net/http'
 require 'socket'
+require 'thread'
+
+Thread.abort_on_exception = true
 
 include Thin
 

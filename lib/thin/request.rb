@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'http_parser'
 
 module Thin
   # Raised when an incoming request is not valid
@@ -49,7 +50,12 @@ module Thin
     attr_reader :body
 
     def initialize
-      @parser   = Thin::HttpParser.new
+      @parser   = HTTP::RequestParser.new
+      @parser.on_headers_complete = method(:on_headers_complete)
+      @parser.on_body = method(:on_body)
+      @parser.on_message_begin = method(:on_message_begin)
+      @parser.on_message_complete = method(:on_message_complete)
+
       @data     = ''
       @nparsed  = 0
       @body     = StringIO.new(INITIAL_BODY.dup)
@@ -69,35 +75,51 @@ module Thin
       }
     end
 
+    protected
+
+    def on_headers_complete(headers)
+      # TODO: adjust the keys there
+      headers.each_pair do |key, value|
+        @env["HTTP_#{key.upcase}"] = value
+      end
+      # TODO: http_version ?? method ? query_string ?
+
+      content_length = headers['Content-Length'].to_i
+
+      # Transfert to a tempfile if body is very big
+      move_body_to_tempfile if content_length > MAX_BODY
+    end
+
+    def on_body(*a)
+      p [:body, *a]
+    end
+
+    def on_message_begin
+      @finished = false
+      @data = ''
+    end
+
+    def on_message_complete
+      @finished = true
+      @data = nil
+      @body.rewind
+    end
+
+    public
+
     # Parse a chunk of data into the request environment
     # Raises a +InvalidRequest+ if invalid.
     # Returns +true+ if the parsing is complete.
     def parse(data)
-      if @parser.finished?  # Header finished, can only be some more body
-        body << data
-      else                  # Parse more header using the super parser
-        @data << data
-        raise InvalidRequest, 'Header longer than allowed' if @data.size > MAX_HEADER
-
-        @nparsed = @parser.execute(@env, @data, @nparsed)
-
-        # Transfert to a tempfile if body is very big
-        move_body_to_tempfile if @parser.finished? && content_length > MAX_BODY
-      end
-
-
-      if finished?   # Check if header and body are complete
-        @data = nil
-        @body.rewind
-        true         # Request is fully parsed
-      else
-        false        # Not finished, need more data
-      end
+      @parser << data
+      # TODO: re-raise with Thin's own error
+      # TODO: raise InvalidRequest, 'Header longer than allowed' if @data.size > MAX_HEADER
+      @finished
     end
 
     # +true+ if headers and body are finished parsing
     def finished?
-      @parser.finished? && @body.size >= content_length
+      @finished
     end
 
     # Expected size of the body
@@ -128,12 +150,12 @@ module Thin
     def threaded=(value)
       @env[RACK_MULTITHREAD] = value
     end
-    
+
     def async_callback=(callback)
       @env[ASYNC_CALLBACK] = callback
       @env[ASYNC_CLOSE] = EventMachine::DefaultDeferrable.new
     end
-    
+
     def async_close
       @async_close ||= @env[ASYNC_CLOSE]
     end
