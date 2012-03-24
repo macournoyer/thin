@@ -1,12 +1,14 @@
-source "http://rubygems.org"
+source :rubygems
 
-gem "eventmachine"
+gem 'eventmachine', '>= 0.12.6'
+gem 'rack',         '>= 1.0.0'
+gem 'daemons',      '>= 1.0.9'
 
 group :development do
-  gem "rake-compiler"
+  gem 'rake-compiler'
 end
 
 group :test do
-  gem "rake" # for travis-ci.org
-  gem "rspec", "~> 1.2.9"
+  gem 'rake' # for travis-ci.org
+  gem 'rspec', '~> 1.2.9'
 end
