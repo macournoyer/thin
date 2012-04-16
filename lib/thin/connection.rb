@@ -190,7 +190,8 @@ module Thin
     protected
       # Returns IP address of peer as a string.
       def socket_address
-        Socket.unpack_sockaddr_in(get_peername)[1] if get_peername
+        peer = get_peername
+        Socket.unpack_sockaddr_in(peer)[1] if peer
       end
   end
 end
