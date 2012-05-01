@@ -22,27 +22,25 @@ Installation
 ============
 For the latest stable version:
 
-`
-sudo gem install thin
-`
+` sudo gem install thin `
 
 Or from source:
 
-`
+```
 git clone git://github.com/macournoyer/thin.git
 cd thin
 rake install
-`
+```
 
 
 Usage
 =====
 A +thin+ script offers an easy way to start your Rails application:
 
-`
+```
 cd to/your/rails/app
 thin start
-`
+```
 
 But Thin is also usable with a Rack config file.
 You need to setup a config.ru file and pass it to the thin script:
@@ -63,9 +61,7 @@ end
 run app
 ```
 
-`
- thin start -R config.ru
-`
+` thin start -R config.ru `
 
 See example directory for more samples and run 'thin -h' for usage.
 
