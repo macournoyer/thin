@@ -36,7 +36,6 @@ end
 require "thin/version"
 require "thin/statuses"
 require "rack/adapter/loader"
-require "thin_parser"
 
 module Rack
   module Adapter
