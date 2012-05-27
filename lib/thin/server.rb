@@ -208,6 +208,11 @@ module Thin
       @backend.running?
     end
     
+    # deamonizing kills our HUP signal, so we set them again
+    def after_daemonize
+      setup_signals
+    end
+
     protected
       # Register signals:
       # * TERM & QUIT calls +stop+ to shutdown gracefully.
