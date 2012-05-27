@@ -101,10 +101,15 @@ module Thin
       @response.persistent! if @request.persistent?
 
       # Send the response
-      @response.each do |chunk|
-        trace { chunk }
-        send_data chunk
+      sendfile = true
+      catch :streamfile do # this is full of spaghetti
+        @response.each do |chunk|
+          trace { chunk }
+          send_data chunk
+        end
+        sendfile = false
       end
+      send_file_data @response.body.to_path if sendfile
 
     rescue Exception
       handle_error

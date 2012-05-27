@@ -84,6 +84,8 @@ module Thin
       yield head
       if @body.is_a?(String)
         yield @body
+      elsif @body.respond_to?(:to_path)
+        throw :streamfile
       else
         @body.each { |chunk| yield chunk }
       end
