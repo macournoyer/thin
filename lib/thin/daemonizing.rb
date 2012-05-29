@@ -53,6 +53,8 @@ module Thin
       Dir.chdir(pwd)
       
       write_pid_file
+
+      self.after_daemonize if self.respond_to? :after_daemonize
       
       at_exit do
         log ">> Exiting!"
