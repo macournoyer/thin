@@ -21,7 +21,7 @@ module Thin
   # Handle stuff like:
   # * storing the PID in a file
   # * redirecting output to the log file
-  # * changing processs privileges
+  # * changing process privileges
   # * killing the process gracefully
   module Daemonizable
     attr_accessor :pid_file, :log_file
