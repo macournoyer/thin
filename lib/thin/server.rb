@@ -224,6 +224,7 @@ module Thin
         unless Thin.win?
           trap('QUIT') { stop }
           trap('HUP')  { restart }
+          trap('USR1') { Daemonize.redirect_io(File.expand_path(log_file)) if pid }
         end
       end
       
