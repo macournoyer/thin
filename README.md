@@ -5,7 +5,7 @@ Tiny, fast & funny HTTP server
 
 Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:
 
-  * the Mongrel parser: the root of Mongrel speed and security
+  * The Mongrel parser: the root of Mongrel speed and security
   * Event Machine: a network I/O library with extremely high scalability, performance and stability
   * Rack: a minimal interface between webservers and Ruby frameworks
 
@@ -14,7 +14,7 @@ bundled in an easy to use gem for your own pleasure.
 
     Site:  http://code.macournoyer.com/thin/
     Group: http://groups.google.com/group/thin-ruby/topics
-    Bugs:  http://thin.lighthouseapp.com/projects/7212-thin
+    Bugs:  http://github.com/macournoyer/thin/issues
     Code:  http://github.com/macournoyer/thin
     IRC:   #thin on freenode
 
@@ -22,7 +22,7 @@ Installation
 ============
 For the latest stable version:
 
-` sudo gem install thin `
+`gem install thin`
 
 Or from source:
 
@@ -35,10 +35,10 @@ rake install
 
 Usage
 =====
-A +thin+ script offers an easy way to start your Rails application:
+A +thin+ script offers an easy way to start your Rack application:
 
 ```
-cd to/your/rails/app
+cd to/your/app
 thin start
 ```
 
@@ -79,5 +79,5 @@ either the terms of the GPL.
 Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
 
 Get help at http://groups.google.com/group/thin-ruby/
-Report bugs at http://thin.lighthouseapp.com/projects/7212-thin
-and major security issues directly to a team member (see COMMITTERS)
+Report bugs at https://github.com/macournoyer/thin/issues
+and major security issues directly to me macournoyer@gmail.com.

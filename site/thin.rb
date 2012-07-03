@@ -17,7 +17,7 @@ class Thin < Atchoum::Website
           li { a 'usage', :href => "#{ROOT}/usage/" }
           li { a 'doc', :href => "#{ROOT}/doc/" }
           li { a 'code', :href => "http://github.com/macournoyer/thin/" }
-          li { a 'bugs', :href => "http://thin.lighthouseapp.com/projects/7212-thin/" }
+          li { a 'bugs', :href => "http://github.com/macournoyer/thin/issues" }
           li { a 'users', :href => "#{ROOT}/users/" }
           li { a 'community', :href => "http://groups.google.com/group/thin-ruby/" }
         end
