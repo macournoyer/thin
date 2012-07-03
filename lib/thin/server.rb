@@ -187,6 +187,12 @@ module Thin
       @backend.stop!
     end
     
+    def reopen_log
+      file = File.expand_path(log_file)
+      log ">> Reopening log file: #{file}"
+      Daemonize.redirect_io(file)
+    end
+    
     # == Configure the server
     # The process might need to have superuser privilege to configure
     # server with optimal options.
@@ -218,13 +224,14 @@ module Thin
       # * TERM & QUIT calls +stop+ to shutdown gracefully.
       # * INT calls <tt>stop!</tt> to force shutdown.
       # * HUP calls <tt>restart</tt> to ... surprise, restart!
+      # * USR1 reopen log files.
       def setup_signals
         trap('INT')  { stop! }
         trap('TERM') { stop }
         unless Thin.win?
           trap('QUIT') { stop }
           trap('HUP')  { restart }
-          trap('USR1') { Daemonize.redirect_io(File.expand_path(log_file)) if pid }
+          trap('USR1') { reopen_log }
         end
       end
       
