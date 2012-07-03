@@ -187,7 +187,10 @@ module Thin
       @backend.stop!
     end
     
+    # == Reopen log file.
+    # Reopen the log file and redirect STDOUT and STDERR to it.
     def reopen_log
+      return unless log_file
       file = File.expand_path(log_file)
       log ">> Reopening log file: #{file}"
       Daemonize.redirect_io(file)

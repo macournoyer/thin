@@ -1,3 +1,6 @@
+== 1.4.1 Chromeo Fix
+ * Fix error when sending USR1 signal and no log file is supplied.
+
 == 1.4.0 Chromeo
  * kill -USR1 $PID for log rotation [catwell].
  * Fix HUP signal being reseted after deamonization [atotic].
