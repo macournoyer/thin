@@ -1,5 +1,4 @@
 require 'rake'
-require 'rake/clean'
 load 'thin.gemspec'
 
 # Load tasks in tasks/
@@ -15,6 +14,10 @@ end
 desc "Push gem packages"
 task :push => :build do
   sh "gem push thin-*.gem"
+end
+
+task :install => :build do
+  sh "gem install thin-*.gem"
 end
 
 desc "Release version #{Thin::VERSION::STRING}"
