@@ -1,4 +1,4 @@
-== 1.4.0
+== 1.4.0 Chromeo
  * kill -USR1 $PID for log rotation [catwell].
  * Fix HUP signal being reseted after deamonization [atotic].
  * Fix error with nil addresses in Connection#socket_address.
