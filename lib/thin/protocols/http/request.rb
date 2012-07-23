@@ -131,6 +131,10 @@ module Thin
         def async_callback=(callback)
           @env[ASYNC_CALLBACK] = callback
         end
+        
+        def support_encoding_chunked?
+          @end[HTTP_VERSION] == HTTP_1_0
+        end
 
         # Called when we're done processing the request.
         def finish

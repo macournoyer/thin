@@ -22,5 +22,5 @@ Gem::Specification.new do |s|
   s.add_dependency "eventmachine-le", "~> 1.1.0"
   s.add_dependency "http_parser.rb", "~> 0.5.3"
   s.add_dependency "preforker", "~> 0.1.1"
-  s.add_dependency "rack", "~> 1.3.5"
+  s.add_dependency "rack", "~> 1.4"
 end

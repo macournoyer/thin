@@ -131,6 +131,14 @@ module Thin
         def async?
           @status == ASYNC.first
         end
+        
+        def file?
+          @body.respond_to?(:to_path)
+        end
+        
+        def filename
+          @body.to_path
+        end
 
         def callback?
           @body.respond_to?(:callback) && @body.respond_to?(:errback)

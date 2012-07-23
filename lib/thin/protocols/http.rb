@@ -12,25 +12,6 @@ module Thin
       
       attr_reader :request, :response
 
-      def send_response(response, close_after=true)
-        response.finish
-        response.each do |chunk|
-          print chunk if $DEBUG
-          send_data chunk
-        end
-        puts if $DEBUG
-
-        if close_after
-          response.close
-          close_connection_after_writing
-        end
-        true
-      rescue Exception => e
-        $stderr.puts "Error sending response: #{e}"
-        close_connection
-        false
-      end
-
       # == EM callbacks
 
       # Get the connection ready to process a request.
@@ -135,6 +116,40 @@ module Thin
 
       rescue Exception
         handle_error
+      end
+      
+      def send_response(response, close_after=true)
+        response.finish
+        
+        # Sending a file is done with EM streaming
+        if response.file?
+          # Use HTTP 1.1 style chunked-encoding to send the file if supported
+          if @request.support_encoding_chunked?
+            response.headers['Transfer-Encoding'] = 'chunked'
+            deferrable = stream_file_data response.filename, :http_chunks => true
+          else
+            deferrable = stream_file_data response.filename
+          end
+          deferrable.callback(&method(:reset))
+          deferrable.errback(&method(:reset))
+          return false
+        end
+        
+        response.each do |chunk|
+          print chunk if $DEBUG
+          send_data chunk
+        end
+        puts if $DEBUG
+
+        if close_after
+          response.close
+          close_connection_after_writing
+        end
+        true
+      rescue Exception => e
+        $stderr.puts "Error sending response: #{e}"
+        close_connection
+        false
       end
       
       def handle_error(e=$!)

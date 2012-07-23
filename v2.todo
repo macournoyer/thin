@@ -1,7 +1,9 @@
+x prefork
 x listen on UNIX sockets
 x Config
 x Async
 x Preload app
+x Fast file serving with streaming
 - Keep-alive
 - Pipelining
 - Transfer-Encoding: chunked
