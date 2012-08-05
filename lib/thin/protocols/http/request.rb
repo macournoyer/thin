@@ -29,7 +29,6 @@ module Thin
         CONTENT_TYPE_L    = 'Content-Type'.freeze
         CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
         CONTENT_LENGTH_L  = 'Content-Length'.freeze
-        CONNECTION        = 'HTTP_CONNECTION'.freeze
         SCRIPT_NAME       = 'SCRIPT_NAME'.freeze
         QUERY_STRING      = 'QUERY_STRING'.freeze
         PATH_INFO         = 'PATH_INFO'.freeze
@@ -74,6 +73,7 @@ module Thin
             RACK_MULTIPROCESS => true,
             RACK_RUN_ONCE     => false
           }
+          @keep_alive = false
         end
 
         def headers=(headers)
@@ -107,6 +107,10 @@ module Thin
           @env[REQUEST_METHOD] = method
         end
 
+        def http_version=(string)
+          @env[HTTP_VERSION] = string
+        end
+
         def path=(path)
           @env[PATH_INFO] = path
         end
@@ -117,6 +121,15 @@ module Thin
 
         def fragment=(string)
           @env[FRAGMENT] = string
+        end
+        
+        def keep_alive=(bool)
+          @keep_alive = bool
+        end
+        
+        # Returns +true+ if the client expect the connection to be kept alive.
+        def keep_alive?
+          @keep_alive
         end
 
         def <<(data)
@@ -133,7 +146,7 @@ module Thin
         end
         
         def support_encoding_chunked?
-          @end[HTTP_VERSION] == HTTP_1_0
+          @env[HTTP_VERSION] != HTTP_1_0
         end
 
         # Called when we're done processing the request.

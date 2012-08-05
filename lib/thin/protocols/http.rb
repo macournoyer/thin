@@ -2,8 +2,14 @@ require "http/parser"
 
 module Thin
   module Protocols
+    # EventMachine HTTP protocol.
+    # Supports:
+    # * Rack specifications v1.1: http://rack.rubyforge.org/doc/SPEC.html
+    # * Asynchronous responses, via the <tt>env['async.callback']</tt> or <tt>throw :async</tt>.
+    # * Keep-alive.
+    # * File streaming.
     class Http < EM::Connection
-      # Ensure Http class is defined before requiring those.
+      # Http class has to be defined before requiring those.
       require "thin/protocols/http/request"
       require "thin/protocols/http/response"
       
@@ -11,6 +17,7 @@ module Thin
       attr_accessor :listener
       
       attr_reader :request, :response
+
 
       # == EM callbacks
 
@@ -47,6 +54,7 @@ module Thin
         ""
       end
 
+
       # == Parser callbacks
 
       def on_message_begin
@@ -55,10 +63,12 @@ module Thin
       end
 
       def on_headers_complete(headers)
+        @request.http_version = @parser.http_version
         @request.method = @parser.http_method
         @request.path = @parser.request_path
         @request.fragment = @parser.fragment
         @request.query_string = @parser.query_string
+        @request.keep_alive = @parser.keep_alive?
         @request.headers = headers
       end
 
@@ -73,6 +83,7 @@ module Thin
           process(response)
         end
       end
+
 
       # == Request processing
 
@@ -95,7 +106,7 @@ module Thin
 
       rescue Exception
         handle_error
-        nil # Signals to post_process that the request could not be processed
+        nil # Signals that the request could not be processed
       end
 
       def process(response)
@@ -103,53 +114,66 @@ module Thin
 
         # We're going to respond later (async).
         return if @response.async?
+        
+        # If the body is being deferred, then terminate afterward.
+        @response.callback = method(:reset) if @response.callback?
 
         # Send the response.
-        return unless send_response @response, false
-
-        # If the body is being deferred, then terminate afterward.
-        if @response.callback?
-          @response.callback = method(:reset)
-        else
-          reset
-        end
+        send_response
 
       rescue Exception
         handle_error
       end
       
-      def send_response(response, close_after=true)
-        response.finish
+      def send_response(response=@response)
+        @response = response
         
-        # Sending a file is done with EM streaming
-        if response.file?
-          # Use HTTP 1.1 style chunked-encoding to send the file if supported
-          if @request.support_encoding_chunked?
-            response.headers['Transfer-Encoding'] = 'chunked'
-            deferrable = stream_file_data response.filename, :http_chunks => true
-          else
-            deferrable = stream_file_data response.filename
-          end
-          deferrable.callback(&method(:reset))
-          deferrable.errback(&method(:reset))
-          return false
+        # Keep connection alive if requested by the client
+        @response.keep_alive! if @request && @request.keep_alive?
+        
+        @response.finish
+        
+        if @response.file?
+          send_file
+          return
         end
         
-        response.each do |chunk|
+        @response.each do |chunk|
           print chunk if $DEBUG
           send_data chunk
         end
         puts if $DEBUG
-
-        if close_after
-          response.close
-          close_connection_after_writing
-        end
-        true
+        
+        reset
+        
       rescue Exception => e
+        # In case there's an error sending, we don't bother sending an error code
+        # which might cause another error.
         $stderr.puts "Error sending response: #{e}"
         close_connection
-        false
+      end
+      
+      # Sending a file using EM streaming and HTTP 1.1 style chunked-encoding if
+      # supported by client.
+      def send_file
+        # Use HTTP 1.1 style chunked-encoding to send the file if supported
+        if @request.support_encoding_chunked?
+          @response.headers['Transfer-Encoding'] = 'chunked'
+          send_data @response.head
+          deferrable = stream_file_data @response.filename, :http_chunks => true
+        else
+          send_data @response.head
+          deferrable = stream_file_data @response.filename
+        end
+        
+        deferrable.callback(&method(:reset))
+        deferrable.errback(&method(:reset))
+        
+        if $DEBUG
+          puts @response.head
+          puts "<Serving file #{@response.filename} with streaming ...>"
+          puts
+        end
       end
       
       def handle_error(e=$!)
@@ -157,10 +181,27 @@ module Thin
         $stderr.print "#{e}\n\t" + e.backtrace.join("\n\t") if $DEBUG
         send_response Response.error(500) # Internal Server Error
       end
-
-      # Resets the connection
+      
+      # Reset the connection and prepare for another request if keep-alive is
+      # requested.
+      # Else, closes the connection.
       def reset
-        close_connection_after_writing rescue nil
+        if @response && @response.keep_alive?
+          # Prepare the connection for another request if the client
+          # requested a persistent connection (keep-alive).
+          post_init
+        else
+          close_connection_after_writing
+        end
+        
+        if @request
+          @request.close
+          @request = nil
+        end
+        if @response
+          @response.close
+          @response = nil
+        end
       end
     end
   end

@@ -46,7 +46,11 @@ module Thin
 
         CONNECTION     = 'Connection'.freeze
         CLOSE          = 'close'.freeze
+        KEEP_ALIVE     = 'keep-alive'.freeze
         SERVER         = 'Server'.freeze
+        CONTENT_LENGTH = 'Content-Length'.freeze
+        
+        KEEP_ALIVE_STATUSES = [100, 101].freeze
 
         # Status code
         attr_accessor :status
@@ -60,6 +64,7 @@ module Thin
         def initialize(status=200, headers=nil, body=nil)
           @headers = Headers.new
           @status = status
+          @keep_alive = false
           @body = body
 
           self.headers = headers if headers
@@ -99,7 +104,7 @@ module Thin
 
         # Finish preparing the response.
         def finish
-          @headers[CONNECTION] = CLOSE
+          @headers[CONNECTION] = keep_alive? ? KEEP_ALIVE : CLOSE
           @headers[SERVER] = Thin::SERVER
         end
 
@@ -126,6 +131,18 @@ module Thin
           else
             @body.each { |chunk| yield chunk }
           end
+        end
+        
+        # Tell the client the connection should stay open
+        def keep_alive!
+          @keep_alive = true
+        end
+
+        # Persistent connection must be requested as keep-alive
+        # from the server and have a Content-Length, or the response
+        # status must require that the connection remain open.
+        def keep_alive?
+          (@keep_alive && @headers.has_key?(CONTENT_LENGTH)) || KEEP_ALIVE_STATUSES.include?(@status)
         end
 
         def async?

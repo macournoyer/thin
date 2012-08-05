@@ -4,4 +4,6 @@ class App
   end
 end
 
+use Rack::Static, :urls => ["/README", "/big.avi"]
+
 run App.new
