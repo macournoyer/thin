@@ -180,6 +180,7 @@ module Thin
 
         @listeners.each do |listener|
           EM.attach_server(listener.socket, listener.protocol_class) do |c|
+            c.comm_inactivity_timeout = @timeout
             c.server = self if c.respond_to?(:server=)
             c.listener = listener if c.respond_to?(:listener=)
           end

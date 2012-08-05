@@ -23,6 +23,7 @@ module Thin
         HTTP_HOST         = 'HTTP_HOST'.freeze
         LOCALHOST         = 'localhost'.freeze
         HTTP_VERSION      = 'HTTP_VERSION'.freeze
+        SERVER_PROTOCOL   = 'SERVER_PROTOCOL'.freeze
         HTTP_1_0          = 'HTTP/1.0'.freeze
         REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
         CONTENT_TYPE      = 'CONTENT_TYPE'.freeze
@@ -109,6 +110,7 @@ module Thin
 
         def http_version=(string)
           @env[HTTP_VERSION] = string
+          @env[SERVER_PROTOCOL] = string
         end
 
         def path=(path)

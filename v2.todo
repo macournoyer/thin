@@ -4,12 +4,14 @@ x Config
 x Async
 x Preload app
 x Fast file serving with streaming
-- Keep-alive
+x Keep-alive
 - Pipelining?
 - Transfer-Encoding: chunked
+- Use Logger
 - Rotate logs on USR1 signal
 - Zero downtime restart on USR2 signal
 - Threading
 - Rails streaming
 - Change user:group after bind
 - Wait for app ready before binding: support https://devcenter.heroku.com/articles/labs-preboot/
+- SSL

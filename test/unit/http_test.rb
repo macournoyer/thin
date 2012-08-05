@@ -36,24 +36,55 @@ EOS
     @connection.receive_data(request)
   end
 
-  def test_parse_request
+  def test_parse_get_request
     request = <<-EOS
 GET /path?yo=dude HTTP/1.1
 Host: localhost:3000
+X-Special: awesome
 
 EOS
 
+    @connection.expects(:process)
     @connection.receive_data(request)
+    
+    env = @connection.request.env
+    
+    assert_equal "GET", env["REQUEST_METHOD"]
+    assert_equal "/path", env["PATH_INFO"]
+    assert_equal "HTTP/1.1", env["SERVER_PROTOCOL"]
+    assert_equal "HTTP/1.1", env["HTTP_VERSION"]
+    assert_equal "yo=dude", env["QUERY_STRING"]
+    assert_equal "localhost:3000", env["HTTP_HOST"]
+    assert_equal "awesome", env["HTTP_X_SPECIAL"]
+    
+    # rack. values
+    assert_respond_to env["rack.input"], :read
+    assert_equal "http", env["rack.url_scheme"]
+  end
+  
+  def test_parse_post_request
+    request = <<-EOS
+POST /path HTTP/1.1
+Host: localhost:3000
+Content-Type: text/plain
+Content-Length: 2
 
-    assert_equal "GET", @connection.request.env["REQUEST_METHOD"]
-    assert_equal "/path", @connection.request.env["PATH_INFO"]
-    assert_equal "yo=dude", @connection.request.env["QUERY_STRING"]
-    assert_equal "localhost:3000", @connection.request.env["HTTP_HOST"]
+hi
+EOS
+
+    @connection.expects(:process)
+    @connection.receive_data(request)
+    
+    env = @connection.request.env
+    
+    assert_equal "POST", env["REQUEST_METHOD"]
+    assert_equal "/path", env["PATH_INFO"]
+    assert_equal "hi", env["rack.input"].read
   end
   
   def test_async_response_do_not_send_response
     @connection.expects(:send_response).never
     
-    @connection.process(Thin::Protocols::Http::Response::ASYNC)
+    @connection.process_response(Thin::Protocols::Http::Response::ASYNC)
   end
 end

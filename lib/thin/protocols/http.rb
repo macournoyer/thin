@@ -1,3 +1,4 @@
+require "rack"
 require "http/parser"
 
 module Thin
@@ -42,28 +43,16 @@ module Thin
         @response.close if @response
       end
 
-      # Returns IP address of peer as a string.
-      def socket_address
-        if listener.unix?
-          ""
-        else
-          Socket.unpack_sockaddr_in(get_peername)[1]
-        end
-      rescue Exception => e
-        $stderr.puts "Can't get socket address: #{e}"
-        ""
-      end
-
 
       # == Parser callbacks
 
       def on_message_begin
         @request = Request.new
-        @request.remote_address = socket_address
       end
 
       def on_headers_complete(headers)
-        @request.http_version = @parser.http_version
+        @request.remote_address = socket_address
+        @request.http_version = "HTTP/%d.%d" % @parser.http_version
         @request.method = @parser.http_method
         @request.path = @parser.request_path
         @request.fragment = @parser.fragment
@@ -78,23 +67,31 @@ module Thin
 
       def on_message_complete
         @request.finish
-
-        if response = call_app
-          process(response)
-        end
+        process
       end
 
 
       # == Request processing
+      
+      # Starts the processing of the current request in <tt>@request</tt>.
+      def process
+        if response = call_app
+          process_response(response)
+        end
+      end
 
+      # Calls the Rack app in <tt>server.app</tt>.
+      # Returns a Rack response: <tt>[status, {headers}, [body]]</tt>
+      # or +nil+ if there was an error.
+      # The app can return [-1, ...] or throw :async to short-circuit request processing.
       def call_app
         # Connection may be closed unless the App#call response was a [-1, ...]
         # It should be noted that connection objects will linger until this 
         # callback is no longer referenced, so be tidy!
-        @request.async_callback = method(:process)
+        @request.async_callback = method(:process_response)
 
         # Call the Rack application
-        response = Response::ASYNC
+        response = Response::ASYNC # `throw :async` will result in this response
         catch(:async) do
           response = @server.app.call(@request.env)
         end
@@ -109,7 +106,10 @@ module Thin
         nil # Signals that the request could not be processed
       end
 
-      def process(response)
+      # Process the response returns by +call_app+.
+      def process_response(response)
+        return unless response
+        
         @response = Response.new(*response)
 
         # We're going to respond later (async).
@@ -125,6 +125,7 @@ module Thin
         handle_error
       end
       
+      # Send the HTTP response back to the client.
       def send_response(response=@response)
         @response = response
         
@@ -147,8 +148,9 @@ module Thin
         reset
         
       rescue Exception => e
-        # In case there's an error sending, we don't bother sending an error code
-        # which might cause another error.
+        # In case there's an error sending the response, we give up and just
+        # close the connection to prevent recursion and consuming too much
+        # resources.
         $stderr.puts "Error sending response: #{e}"
         close_connection
       end
@@ -176,6 +178,19 @@ module Thin
         end
       end
       
+      # Returns IP address of peer as a string.
+      def socket_address
+        if listener.unix?
+          ""
+        else
+          Socket.unpack_sockaddr_in(get_peername)[1]
+        end
+      rescue Exception => e
+        $stderr.puts "Can't get socket address: #{e}"
+        ""
+      end
+      
+      # Output the error to stderr and sends back a 500 error.
       def handle_error(e=$!)
         $stderr.puts "Error processing request: #{e}"
         $stderr.print "#{e}\n\t" + e.backtrace.join("\n\t") if $DEBUG
