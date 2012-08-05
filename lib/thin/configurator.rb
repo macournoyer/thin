@@ -63,6 +63,18 @@ module Thin
       set :use_kqueue, value, TrueClass, FalseClass
     end
 
+    # {include:Thin::Server#threaded}
+    # @see Thin::Server#threaded
+    def threaded(value)
+      set :threaded, value, TrueClass, FalseClass
+    end
+
+    # {include:Thin::Server#thread_pool_size}
+    # @see Thin::Server#thread_pool_size
+    def thread_pool_size(value)
+      set :thread_pool_size, value, Integer
+    end
+
     # {include:Thin::Server#before_fork}
     # @see Thin::Server#before_fork
     def before_fork(&block)

@@ -12,11 +12,15 @@ class HttpTest < Test::Unit::TestCase
     @connection.stubs(:socket_address).returns("127.0.0.1")
   end
 
+  #### Server methods
   def app
     proc do |env|
       [200, {"Content-Type" => "text/plain"}, ["ok"]]
     end
   end
+  def threaded?; false end
+  def prefork?; false end
+  ####
 
   def teardown
     @connection.unbind

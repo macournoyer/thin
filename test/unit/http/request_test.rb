@@ -52,6 +52,8 @@ class HttpRequestTest < Test::Unit::TestCase
   end
 
   def test_validate_through_rack_lint
+    @request.multithread = false
+    @request.multiprocess = false
     @request.method = "GET"
     @request.path = "/info"
     @request.fragment = "hello"

@@ -74,6 +74,14 @@ module Thin
     # Default: 1024
     attr_accessor :worker_connections
 
+    # Set to +true+ to call +app+ in a thread.
+    # Default: false
+    attr_accessor :threaded
+
+    # Size of the pool of threads used to call the +app+.
+    # Default: 20
+    attr_accessor :thread_pool_size
+
     # Workers are killed if they don't check-in under +timeout+ seconds.
     # Default: 30
     attr_accessor :timeout
@@ -117,6 +125,8 @@ module Thin
       @pid_path = "./thin.pid"
       @log_path = nil
       @worker_connections = 1024
+      @threaded = false
+      @thread_pool_size = 20
 
       if System.supports_fork?
         # One worker per processor
@@ -164,6 +174,7 @@ module Thin
       EM.epoll = @use_epoll unless @use_epoll.nil?
       EM.kqueue = @use_kqueue unless @use_kqueue.nil?
       @worker_connections = EM.set_descriptor_table_size(@worker_connections)
+      EM.threadpool_size = @thread_pool_size
 
       # Preload the app in the master process.
       @app = @app_loader.call if @preload_app
@@ -201,6 +212,10 @@ module Thin
     # Returns +true+ if the server will fork workers or +false+ if it will run in a single process.
     def prefork?
       @worker_processes > 0
+    end
+    
+    def threaded?
+      @threaded
     end
 
     # Procline of the process when the server is running.

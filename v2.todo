@@ -10,7 +10,7 @@ x Keep-alive
 - Use Logger
 - Rotate logs on USR1 signal
 - Zero downtime restart on USR2 signal
-- Threading
+x Threading
 - Rails streaming
 - Change user:group after bind
 - Wait for app ready before binding: support https://devcenter.heroku.com/articles/labs-preboot/

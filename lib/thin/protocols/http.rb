@@ -9,6 +9,7 @@ module Thin
     # * Asynchronous responses, via the <tt>env['async.callback']</tt> or <tt>throw :async</tt>.
     # * Keep-alive.
     # * File streaming.
+    # * Calling the Rack app from pooled threads.
     class Http < EM::Connection
       # Http class has to be defined before requiring those.
       require "thin/protocols/http/request"
@@ -51,6 +52,8 @@ module Thin
       end
 
       def on_headers_complete(headers)
+        @request.multithread = server.threaded?
+        @request.multiprocess = server.prefork?
         @request.remote_address = socket_address
         @request.http_version = "HTTP/%d.%d" % @parser.http_version
         @request.method = @parser.http_method
@@ -75,8 +78,12 @@ module Thin
       
       # Starts the processing of the current request in <tt>@request</tt>.
       def process
-        if response = call_app
-          process_response(response)
+        if server.threaded?
+          EM.defer(method(:call_app), method(:process_response))
+        else
+          if response = call_app
+            process_response(response)
+          end
         end
       end
 
@@ -124,6 +131,9 @@ module Thin
       rescue Exception
         handle_error
       end
+      
+      
+      # == Support methods
       
       # Send the HTTP response back to the client.
       def send_response(response=@response)

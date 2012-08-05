@@ -70,8 +70,6 @@ module Thin
             RACK_VERSION      => VERSION::RACK,
             RACK_ERRORS       => $stderr,
 
-            RACK_MULTITHREAD  => false,
-            RACK_MULTIPROCESS => true,
             RACK_RUN_ONCE     => false
           }
           @keep_alive = false
@@ -127,6 +125,14 @@ module Thin
         
         def keep_alive=(bool)
           @keep_alive = bool
+        end
+        
+        def multithread=(bool)
+          @env[RACK_MULTITHREAD] = bool
+        end
+        
+        def multiprocess=(bool)
+          @env[RACK_MULTIPROCESS] = bool
         end
         
         # Returns +true+ if the client expect the connection to be kept alive.
