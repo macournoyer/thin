@@ -36,17 +36,21 @@ module Thin
                              "Accepted formats are: 3000, *:3000, 0.0.0.0:3000, [::]:3000, /file.sock or unix:file.sock"
       end
       
+      # Default values
       options = {
-        # Default values
         :protocol => :http,
+        
+        # Same defaults as Unicorn
         :tcp_no_delay => true,
+        :tcp_no_push => false,
         :ipv6_only => false,
-        :backlog => 1024,
+        :backlog => 1024
       }.merge(options)
       
       @backlog = options[:backlog]
       self.protocol = options[:protocol]
-      self.tcp_no_delay = options[:tcp_no_delay]
+      self.tcp_no_delay = options[:tcp_nodelay] || options[:tcp_no_delay]
+      self.tcp_no_push = options[:tcp_nopush] || options[:tcp_no_push]
       self.ipv6_only = options[:ipv6_only]
     end
 
@@ -78,6 +82,15 @@ module Thin
 
     def tcp_no_delay=(value)
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, value) unless unix?
+    end
+
+    def tcp_no_push=(value)
+      # Taken from Unicorn
+      if defined?(TCP_CORK) # Linux
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_CORK, value)
+      elsif defined?(TCP_NOPUSH) # TCP_NOPUSH is untested (FreeBSD)
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NOPUSH, value)
+      end
     end
 
     def protocol=(name_or_class)
