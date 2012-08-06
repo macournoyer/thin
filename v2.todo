@@ -6,7 +6,7 @@ x Preload app
 x Fast file serving with streaming
 x Keep-alive
 - Pipelining?
-- Transfer-Encoding: chunked
+x Transfer-Encoding: chunked
 - Use Logger
 - Rotate logs on USR1 signal
 - Zero downtime restart on USR2 signal
