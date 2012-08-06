@@ -116,7 +116,9 @@ module Thin
     # Creates a new server that will forward requests to the app returned when +call+ing the +app_loader+ block.
     # When +preload_app+ is set to +true+, +app_loader+ will be called before forking.
     # When +preload_app+ is set to +false+, +app_loader+ will be called after forking.
-    def initialize(&app_loader)
+    # +host+, +port+ and +app+ supported for backward compatibility with Rack adapter.
+    def initialize(host=nil, port=nil, app=nil, &app_loader)
+      app_loader = proc { app } if app
       @app_loader = app_loader || raise(ArgumentError, "app_loader block required")
       
       # Set defaults
@@ -137,6 +139,8 @@ module Thin
       end
 
       @listeners = []
+      
+      listen "#{host}:#{port}" if host && port
     end
 
     # Backend handling connections to the clients.

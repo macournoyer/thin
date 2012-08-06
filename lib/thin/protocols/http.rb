@@ -197,11 +197,13 @@ module Thin
       def send_response(response=@response)
         @response = response
         
-        # Keep connection alive if requested by the client.
-        @response.keep_alive! if @request && @request.keep_alive?
-        
+        if @request
+          # Keep connection alive if requested by the client.
+          @response.keep_alive! if @request.keep_alive?
+          @response.http_version = @request.http_version
+        end
+      
         # Prepare the response for sending.
-        @response.http_version = @request.http_version
         @response.finish
         
         if @response.file?
