@@ -110,6 +110,10 @@ module Thin
           @env[HTTP_VERSION] = string
           @env[SERVER_PROTOCOL] = string
         end
+        
+        def http_version
+          @env[HTTP_VERSION]
+        end
 
         def path=(path)
           @env[PATH_INFO] = path

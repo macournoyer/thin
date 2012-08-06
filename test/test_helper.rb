@@ -97,7 +97,7 @@ class IntegrationTestCase < Test::Unit::TestCase
     # Launch the server from the shell
     command = "bundle exec ruby -I#{root}/lib " +
                 "#{root}/bin/thin " +
-                  runner_options.map { |k, v| "--#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
+                  runner_options.map { |k, v| (k.size > 1 ? "-" : "") + "-#{k}" + (TrueClass === v ? "" : "=#{v}") }.join(" ") + " " +
                   File.expand_path("../integration/config.ru", __FILE__)
     launcher_pid = silence_stream($stdout) { spawn command }
 

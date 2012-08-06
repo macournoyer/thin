@@ -21,7 +21,7 @@ class ErrorTest < IntegrationTestCase
     thin :env => "none"
 
     get "/raise"
-    assert_match "Error processing request: ouch", read_log
+    assert_match "[ERROR] ouch", read_log
   end
 
   def test_parse_error

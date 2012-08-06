@@ -59,13 +59,16 @@ module Thin
         attr_accessor :body
 
         # Headers key-value hash
-        attr_reader   :headers
+        attr_reader :headers
+        
+        attr_reader :http_version
 
         def initialize(status=200, headers=nil, body=nil)
           @headers = Headers.new
           @status = status
           @keep_alive = false
           @body = body
+          @http_version = "HTTP/1.1"
 
           self.headers = headers if headers
         end
@@ -112,7 +115,7 @@ module Thin
         # containing the status code and response headers.
         def head
           status_message = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
-          "HTTP/1.1 #{@status} #{status_message}\r\n#{@headers.to_s}\r\n"
+          "#{@http_version} #{@status} #{status_message}\r\n#{@headers.to_s}\r\n"
         end
 
         # Close any resource used by the response
@@ -156,14 +159,19 @@ module Thin
         def filename
           @body.to_path
         end
-
-        def callback?
-          @body.respond_to?(:callback) && @body.respond_to?(:errback)
+        
+        def body_callback=(proc)
+          @body.callback(&proc) if @body.respond_to?(:callback)
+          @body.errback(&proc) if @body.respond_to?(:errback)
         end
         
-        def callback=(proc)
-          @body.callback(&proc)
-          @body.errback(&proc)
+        def chunked_encoding!
+          @headers['Transfer-Encoding'] = 'chunked'
+        end
+        
+        def http_version=(string)
+          return unless string && string == "HTTP/1.1" || string == "HTTP/1.0"
+          @http_version = string
         end
 
         def self.error(status=500, message=Rack::Utils::HTTP_STATUS_CODES[status])

@@ -34,10 +34,9 @@ class App
       
     when "/async"
       Thin::AsyncResponse.new(env) do |response|
-        response << "1\n"
-        # Will be sent to the browse 1 sec after.
-        EM.add_timer(0.1) do
-          response << "2\n"
+        response << "one\n"
+        EM.next_tick do
+          response << "two\n"
           response.done # close the connection
         end
       end.finish
