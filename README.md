@@ -54,9 +54,8 @@ Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
 Credits
 =======
 The parser was stolen from Mongrel http://mongrel.rubyforge.org by Zed Shaw.
-Mongrel Web Server (Mongrel) is copyrighted free software by Zed A. Shaw
-<zedshaw at zedshaw dot com> You can redistribute it and/or modify it under
-either the terms of the GPL.
+Mongrel is copyright 2007 Zed A. Shaw and contributors. It is licensed under
+the Ruby license and the GPL2.
 
 Thin is copyright Marc-Andre Cournoyer <macournoyer@gmail.com>
 
