@@ -15,15 +15,16 @@ running an EventMachine event loop.
 Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server
 bundled in an easy to use gem for your own pleasure.
 
-Site:  http://code.macournoyer.com/thin/
-Group: http://groups.google.com/group/thin-ruby/topics
-Bugs:  http://github.com/macournoyer/thin/issues
-Code:  http://github.com/macournoyer/thin
-IRC:   #thin on freenode
+**Site:**  http://code.macournoyer.com/thin/  
+**Group:** http://groups.google.com/group/thin-ruby/topics  
+**Bugs:**  http://github.com/macournoyer/thin/issues  
+**Code:**  http://github.com/macournoyer/thin  
+**IRC:**   #thin on freenode  
 
 ## Features
 
  * Prefork model with an EventMachine loop running in each worker.
+ * Optional single process mode for non-UNIX systems and simpler deployments.
  * Optional threaded mode using a pool of threads.
  * Easy asynchronous streaming response support with chunked encoding.
  * Fast file serving with automatic streaming for large files.
@@ -44,8 +45,8 @@ Or from source:
     $ rake install
 
 ## Usage
-The +thin+ script offers an easy way to start your Rack based application and acts just like
-the +rackup+ script.:
+The `thin` script offers an easy way to start your Rack based application and acts just like
+the `rackup` script.:
 
     $ cd to/your/rack/app
     $ thin
