@@ -29,15 +29,6 @@ listen "0.0.0.0:8080"
 listen "[::]:8081" # IPv6
 listen "/tmp/thin.sock" # UNIX domain socket
 
-# Custom protocol
-class Echo < EventMachine::Connection
-  def receive_data(data)
-    send_data data
-    close_connection_after_writing
-  end
-end
-listen 3001, :protocol => Echo
-
 # Callbacks
 before_fork do |server|
   puts "Preparing to fork a new worker ..."

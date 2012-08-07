@@ -1,9 +1,9 @@
 require 'test_helper'
-require 'thin/protocols/http'
+require 'thin/response'
 
-class HttpResponseTest < Test::Unit::TestCase
+class ResponseTest < Test::Unit::TestCase
   def setup
-    @response = Thin::Protocols::Http::Response.new
+    @response = Thin::Response.new
     @response.headers['Content-Type'] = 'text/html'
     @response.headers['Content-Length'] = '0'
     @response.body = ''
@@ -11,7 +11,7 @@ class HttpResponseTest < Test::Unit::TestCase
   end
 
   def test_initialize_with_values
-    @response = Thin::Protocols::Http::Response.new(201, {"Content-Type" => "text/plain"}, ["hi"])
+    @response = Thin::Response.new(201, {"Content-Type" => "text/plain"}, ["hi"])
     assert_equal 201, @response.status
     assert_match "Content-Type: text/plain", @response.headers.to_s
     assert_equal ["hi"], @response.body
@@ -85,6 +85,6 @@ class HttpResponseTest < Test::Unit::TestCase
   end
   
   def test_async
-    assert Thin::Protocols::Http::Response.new(*Thin::Protocols::Http::Response::ASYNC).async?
+    assert Thin::Response.new(*Thin::Response::ASYNC).async?
   end
 end

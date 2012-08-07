@@ -51,9 +51,6 @@ Listen for incoming connections on a given address.
   * `backlog`:
     Maximum number of clients in the listening backlog. Default: `1024`
 
-  * `protocol`:
-    Protocol name or class to use to process connections. Default: `:http`
-
 ## PRELOAD APP (#preload_app)
 
 Set to `true` to load the app before forking to workers. Default: `false`. If the Ruby interpreter garbage collector doesn't support copy on write, set this option to false which will prevent loading your application in the master process. If the interpreter does support copy on write, setting this to `true` will help save memory.

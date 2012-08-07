@@ -2,6 +2,7 @@ require "eventmachine"
 
 require "thin/system"
 require "thin/listener"
+require "thin/connection"
 require "thin/backends/prefork"
 require "thin/backends/single_process"
 
@@ -13,23 +14,6 @@ module Thin
   #
   #   server = Thin::Server.new(app)
   #   server.listen 3000
-  #   server.start
-  #
-  # == Using a custom protocol
-  # You can implement your own protocol handler that will parse and process requests. This is simply done by
-  # implementing a typical EventMachine +Connection+ class or module.
-  #
-  #   class Echo < EventMachine::Connection
-  #     attr_accessor :server
-  #
-  #     def receive_data(data)
-  #       send_data data
-  #       close_connection_after_writing
-  #     end
-  #   end
-  #
-  #   server = Thin::Server.new
-  #   server.listen 3000, :protocol => Echo
   #   server.start
   #
   # == Preforking and workers
@@ -171,7 +155,6 @@ module Thin
     # @option options [Boolean] :tcp_no_delay (true) Disables the Nagle algorithm for send coalescing.
     # @option options [Boolean] :ipv6_only (false) do not listen on IPv4 interface.
     # @option options [Integer] :backlog (1024) Maximum number of clients in the listening backlog.
-    # @option options [Symbol, String, Class] :protocol (:http) Protocol name or class to use to process connections.
     def listen(address, options={})
       @listeners << Listener.new(address, options)
     end
@@ -201,7 +184,7 @@ module Thin
         @app = @app_loader.call unless @preload_app
 
         @listeners.each do |listener|
-          EM.attach_server(listener.socket, listener.protocol_class) do |connection|
+          EM.attach_server(listener.socket, Connection) do |connection|
             connection.comm_inactivity_timeout = @timeout
             connection.server = self
             connection.listener = listener

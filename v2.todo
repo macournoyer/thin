@@ -14,8 +14,8 @@ x Transfer-Encoding: chunked
 x Threading
 - Change user:group after bind
 - SSL
-- Drop custom protocol?
 - Graceful stop
+- Daemonizing
 
 Optimizations:
 - Stock 200 OK response (store in frozen const)

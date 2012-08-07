@@ -1,5 +1,5 @@
 require 'test_helper'
-require "thin/protocols/http"
+require "thin/request"
 
 class BigRequestTest < IntegrationTestCase
   def setup
@@ -7,14 +7,14 @@ class BigRequestTest < IntegrationTestCase
   end
 
   def test_big_body_is_stored_in_tempfile
-    post "/eval?code=request.body.class", :big => "X" * (Thin::Protocols::Http::Request::MAX_BODY + 1)
+    post "/eval?code=request.body.class", :big => "X" * (Thin::Request::MAX_BODY + 1)
 
     assert_status 200
     assert_response_equals "Tempfile"
   end
 
   def test_big_body_is_read_from_tempfile
-    size = Thin::Protocols::Http::Request::MAX_BODY + 1
+    size = Thin::Request::MAX_BODY + 1
     post "/eval?code=request.body.read", :big => "X" * size
 
     assert_status 200

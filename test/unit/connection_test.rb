@@ -1,9 +1,9 @@
 require 'test_helper'
-require 'thin/protocols/http'
+require 'thin/connection'
 
-class HttpTest < Test::Unit::TestCase
+class ConnectionTest < Test::Unit::TestCase
   def setup
-    @connection = Thin::Protocols::Http.new(nil)
+    @connection = Thin::Connection.new(nil)
     @connection.server = self
     @connection.post_init
 
@@ -89,6 +89,6 @@ EOS
   def test_async_response_do_not_send_response
     @connection.expects(:send_response).never
     
-    @connection.process_response(Thin::Protocols::Http::Response::ASYNC)
+    @connection.process_response(Thin::Response::ASYNC)
   end
 end

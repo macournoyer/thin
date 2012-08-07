@@ -10,8 +10,6 @@ thin(1) -- high performance Ruby server
 
 Thin is a high performance Ruby server. Thin is generally used as an app server for serving [Rack applications](http://rack.rubyforge.org/doc/SPEC.html) behind full blown HTTP servers such as [nginx](http://nginx.org).
 
-Since version 2, Thin can serve any protocol defined with EventMachine.
-
 ## FILES
 
 The `thin` command will load the Rack application defined in a rackup config file. The default behaviour is to look for a file named `config.ru` that lives at the root of the application if the argument is omitted. This file is evaluated in the context of a [Rack::Builder](http://rack.rubyforge.org/doc/Rack/Builder.html) class.

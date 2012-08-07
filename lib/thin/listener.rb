@@ -12,9 +12,6 @@ module Thin
     # UNIX domain socket the socket will bind to.
     attr_reader :socket_file
 
-    # Ruby class of the EventMachine::Connection class used to process connections.
-    attr_accessor :protocol_class
-
     def initialize(address, options={})
       case address
       when Integer
@@ -38,8 +35,6 @@ module Thin
       
       # Default values
       options = {
-        :protocol => :http,
-        
         # Same defaults as Unicorn
         :tcp_no_delay => true,
         :tcp_no_push => false,
@@ -48,7 +43,6 @@ module Thin
       }.merge(options)
       
       @backlog = options[:backlog]
-      self.protocol = options[:protocol]
       self.tcp_no_delay = options[:tcp_nodelay] || options[:tcp_no_delay]
       self.tcp_no_push = options[:tcp_nopush] || options[:tcp_no_push]
       self.ipv6_only = options[:ipv6_only]
@@ -93,24 +87,6 @@ module Thin
       end
     end
 
-    def protocol=(name_or_class)
-      case name_or_class
-      when Class
-        @protocol_class = name_or_class
-      when String
-        @protocol_class = Object.const_get(name_or_class)
-      when Symbol
-        require "thin/protocols/#{name_or_class}"
-        @protocol_class = Thin::Protocols.const_get(name_or_class.to_s.capitalize)
-      else
-        raise ArgumentError, "invalid protocol, use a Class, String or Symbol."
-      end
-    end
-
-    def protocol
-      @protocol_class.name.split(":").last
-    end
-
     def listen
       delete_socket_file!
 
@@ -126,8 +102,7 @@ module Thin
     end
 
     def to_s
-      protocol + " on " + (unix? ? @socket_file :
-                                   "#{@host}:#{@port}")
+      unix? ? @socket_file : "#{@host}:#{@port}"
     end
     
     private
