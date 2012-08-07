@@ -23,7 +23,7 @@ Default: number of processors available or 0 if fork(2) is not available.
 
 Maximum number of file descriptors that a worker may open. This includes socket and file descriptors.
 
-    worker_processes 1024
+    worker_connections 1024
 
 Default: 1024.
 
@@ -45,8 +45,12 @@ Listen for incoming connections on a given address.
   * `tcp_no_delay`:
     Disables the Nagle algorithm for send coalescing. Default: `true`.
 
+  * `tcp_no_push`:
+    Allows the use of the socket options TCP_NOPUSH on FreeBSD or TCP_CORK on Linux.
+    Setting this option causes Thin to attempt to send it's HTTP response headers in one packet on Linux and FreeBSD 4.x. Default: `false`.
+
   * `ipv6_only`:
-    do not listen on IPv4 interface. Default: `false`.
+    Do not listen on IPv4 interface. Default: `false`.
 
   * `backlog`:
     Maximum number of clients in the listening backlog. Default: `1024`
@@ -59,7 +63,23 @@ Default: `false`.
 
 ## TIMEOUT (#timeout)
 
-Workers are killed if they don't check-in under this amount of seconds.
+Number of seconds before an inactive connection is closed.
+Workers are also killed if they don't check-in under this amount of seconds.
+
+## KEEP-ALIVE REQUESTS (#keep_alive_requests)
+
+Maximum number of concurrent requests which can be made over a keep-alive connection.
+
+Default: `100`.
+
+## THREADED MODE (#threaded, #thread_pool_size)
+
+Use threads to process the requests. The Rack app will be called inside a thread. Threads are pooled, you can control the minimum size of that pool using the `thread_pool_size` option.
+
+    threaded true
+    thread_pool_size 20
+
+Defaults: `threaded`: `false`, `thread_pool_size`: `20`.
 
 ## LOG PATH (#log_path)
 

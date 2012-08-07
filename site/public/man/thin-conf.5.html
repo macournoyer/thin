@@ -67,6 +67,8 @@
     <a href="#LISTEN-listen-">LISTEN (#listen)</a>
     <a href="#PRELOAD-APP-preload_app-">PRELOAD APP (#preload_app)</a>
     <a href="#TIMEOUT-timeout-">TIMEOUT (#timeout)</a>
+    <a href="#KEEP-ALIVE-REQUESTS-keep_alive_requests-">KEEP-ALIVE REQUESTS (#keep_alive_requests)</a>
+    <a href="#THREADED-MODE-threaded-thread_pool_size-">THREADED MODE (#threaded, #thread_pool_size)</a>
     <a href="#LOG-PATH-log_path-">LOG PATH (#log_path)</a>
     <a href="#PID-PATH-pid_path-">PID PATH (#pid_path)</a>
     <a href="#EVENT-MODEL-use_epoll-use_kqueue-">EVENT MODEL (#use_epoll, #use_kqueue)</a>
@@ -107,7 +109,7 @@ Setting this to 0 will result in running in a single process with limited featur
 
 <p>Maximum number of file descriptors that a worker may open. This includes socket and file descriptors.</p>
 
-<pre><code>worker_processes 1024
+<pre><code>worker_connections 1024
 </code></pre>
 
 <p>Default: 1024.</p>
@@ -130,9 +132,10 @@ listen "/tmp/thin.sock"
 
 <dl>
 <dt><code>tcp_no_delay</code></dt><dd><p>Disables the Nagle algorithm for send coalescing. Default: <code>true</code>.</p></dd>
-<dt><code>ipv6_only</code></dt><dd><p>do not listen on IPv4 interface. Default: <code>false</code>.</p></dd>
+<dt><code>tcp_no_push</code></dt><dd><p>Allows the use of the socket options TCP_NOPUSH on FreeBSD or TCP_CORK on Linux.
+Setting this option causes Thin to attempt to send it's HTTP response headers in one packet on Linux and FreeBSD 4.x. Default: <code>false</code>.</p></dd>
+<dt><code>ipv6_only</code></dt><dd><p>Do not listen on IPv4 interface. Default: <code>false</code>.</p></dd>
 <dt class="flush"><code>backlog</code></dt><dd><p>Maximum number of clients in the listening backlog. Default: <code>1024</code></p></dd>
-<dt><code>protocol</code></dt><dd><p>Protocol name or class to use to process connections. Default: <code>:http</code></p></dd>
 </dl>
 
 
@@ -144,7 +147,24 @@ listen "/tmp/thin.sock"
 
 <h2 id="TIMEOUT-timeout-">TIMEOUT (#timeout)</h2>
 
-<p>Workers are killed if they don't check-in under this amount of seconds.</p>
+<p>Number of seconds before an inactive connection is closed.
+Workers are also killed if they don't check-in under this amount of seconds.</p>
+
+<h2 id="KEEP-ALIVE-REQUESTS-keep_alive_requests-">KEEP-ALIVE REQUESTS (#keep_alive_requests)</h2>
+
+<p>Maximum number of concurrent requests which can be made over a keep-alive connection.</p>
+
+<p>Default: <code>100</code>.</p>
+
+<h2 id="THREADED-MODE-threaded-thread_pool_size-">THREADED MODE (#threaded, #thread_pool_size)</h2>
+
+<p>Use threads to process the requests. The Rack app will be called inside a thread. Threads are pooled, you can control the minimum size of that pool using the <code>thread_pool_size</code> option.</p>
+
+<pre><code>threaded true
+thread_pool_size 20
+</code></pre>
+
+<p>Defaults: threaded: <code>false</code>, thread_pool_size: <code>20</code>.</p>
 
 <h2 id="LOG-PATH-log_path-">LOG PATH (#log_path)</h2>
 
@@ -191,7 +211,7 @@ end
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'>Thin 2.0.0.pre</li>
-    <li class='tc'>December 2011</li>
+    <li class='tc'>August 2012</li>
     <li class='tr'>thin-conf(5)</li>
   </ol>
 

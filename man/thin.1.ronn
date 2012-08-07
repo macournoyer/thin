@@ -98,7 +98,7 @@ Single process mode can also be forced by setting the number of worker processes
 
 ## COPYRIGHT
 
-Thin is Copyright (C) 2011 Marc-Andre Cournoyer <http://macournoyer.com/>
+Thin is Copyright (C) 2012 Marc-Andre Cournoyer <http://macournoyer.com/>
 
 ## SEE ALSO
 
