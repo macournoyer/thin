@@ -17,7 +17,7 @@ Setting this to 0 will result in running in a single process with limited featur
 
     worker_processes 4
 
-Default: number of processors available or 0 if fork(2) is not available.
+Default: number of processors available, or `1` in development, or `0` if `fork(2)` is not available.
 
 ## WORKER CONNECTIONS (#worker_connections)
 

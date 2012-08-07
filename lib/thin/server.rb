@@ -51,7 +51,7 @@ module Thin
 
     # Number of child worker processes.
     # Setting this to 0 will result in running in a single process with limited features.
-    # Default: number of processors available or 0 if +fork+ is not available.
+    # Default: number of processors available, or 1 in development, or 0 if +fork+ is not available.
     attr_accessor :worker_processes
 
     # Maximum number of file descriptors that the worker may open.
@@ -122,8 +122,13 @@ module Thin
       @connections = 0 # Number of active connections
 
       if System.supports_fork?
-        # One worker per processor
-        @worker_processes = System.processor_count
+        if ENV["RACK_ENV"] == "development"
+          # Default to one worker in development.
+          @worker_processes = 1
+        else
+          # One worker per processor in production.
+          @worker_processes = System.processor_count
+        end
       else
         # No workers, runs in a single process.
         @worker_processes = 0

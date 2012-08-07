@@ -111,7 +111,7 @@ module Thin
       options.update parser.parse!(args)
 
       # Parse in file options like rackup
-      shebang = File.open("config.ru") { |f| f.readline }
+      shebang = File.open(options[:config]) { |f| f.readline }
       if shebang[/^#\\(.*)/]
         options.update parser.parse! $1.split(/\s+/)
       end

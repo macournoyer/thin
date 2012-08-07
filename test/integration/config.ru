@@ -44,11 +44,14 @@ class App
     else
       Rack::Response.new do |response|
         response.status = 404
-        response.write "ok"
+        response.write "not found"
       end.finish
       
     end
   end
 end
+
+use Rack::Static, :urls => ["/small.txt", "/big.txt"],
+                  :root => File.expand_path("../../fixtures", __FILE__)
 
 run App.new

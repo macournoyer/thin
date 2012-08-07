@@ -238,14 +238,14 @@ module Thin
         send_chunk @response.head
         deferrable = stream_file_data @response.filename
       end
-    
-      deferrable.callback(&method(:reset))
-      deferrable.errback(&method(:reset))
-    
+      
       if $DEBUG
         puts "<Serving file #{@response.filename} with streaming ...>"
         puts
       end
+    
+      deferrable.callback(&method(:reset))
+      deferrable.errback(&method(:reset))
     end
   
     def send_chunk(data)
