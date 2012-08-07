@@ -5,13 +5,17 @@ x Async
 x Preload app
 x Fast file serving with streaming
 x Keep-alive
+x Limit # of keep-alive requests
 - Pipelining?
 x Transfer-Encoding: chunked
 - Use Logger
 - Rotate logs on USR1 signal
 - Zero downtime restart on USR2 signal
 x Threading
-- Rails streaming
 - Change user:group after bind
-- Wait for app ready before binding: support https://devcenter.heroku.com/articles/labs-preboot/
 - SSL
+- Drop custom protocol?
+- Graceful stop
+
+Optimizations:
+- Stock 200 OK response (store in frozen const)

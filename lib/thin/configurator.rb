@@ -39,6 +39,12 @@ module Thin
       set :timeout, seconds, Integer
     end
 
+    # {include:Thin::Server#timeout}
+    # @see Thin::Server#timeout
+    def keep_alive_requests(seconds)
+      set :max_keep_alive_requests, seconds, Integer
+    end
+
     # {include:Thin::Server#log_path}
     # @see Thin::Server#log_path
     def log_path(path)

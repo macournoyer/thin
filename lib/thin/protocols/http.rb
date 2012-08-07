@@ -18,9 +18,16 @@ module Thin
       
       attr_accessor :server
       attr_accessor :listener
+      attr_accessor :can_keep_alive
       
+      # For tests
       attr_reader :request, :response
 
+
+      def on_close(&block)
+        @on_close = block
+      end
+      
 
       # == EM callback methods
 
@@ -41,14 +48,8 @@ module Thin
       # Called when the connection is unbinded from the socket
       # and can no longer be used to process requests.
       def unbind
-        if @request
-          @request.close
-          @request = nil
-        end
-        if @response
-          @response.close
-          @response = nil
-        end
+        close_request_and_response
+        @on_close.call if @on_close
       end
 
 
@@ -187,7 +188,7 @@ module Thin
           close_connection_after_writing
         end
         
-        unbind
+        close_request_and_response
       end
       
       
@@ -199,7 +200,7 @@ module Thin
         
         if @request
           # Keep connection alive if requested by the client.
-          @response.keep_alive! if @request.keep_alive?
+          @response.keep_alive! if @can_keep_alive && @request.keep_alive?
           @response.http_version = @request.http_version
         end
       
@@ -256,6 +257,17 @@ module Thin
       
       private
         # == Support methods
+        
+        def close_request_and_response
+          if @request
+            @request.close
+            @request = nil
+          end
+          if @response
+            @response.close
+            @response = nil
+          end
+        end
       
         # Returns IP address of peer as a string.
         def socket_address

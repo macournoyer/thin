@@ -85,6 +85,10 @@ module Thin
     # Workers are killed if they don't check-in under +timeout+ seconds.
     # Default: 30
     attr_accessor :timeout
+    
+    # Maximum number of concurrent requests which can be made over a keep-alive connection.
+    # Default: 100
+    attr_accessor :max_keep_alive_requests
 
     # Path to the file in which the PID is saved.
     # Default: ./thin.pid
@@ -129,6 +133,9 @@ module Thin
       @worker_connections = 1024
       @threaded = false
       @thread_pool_size = 20
+      @max_keep_alive_requests = 100
+      @keep_alive_requests = 0
+      @connections = 0 # Number of active connections
 
       if System.supports_fork?
         # One worker per processor
@@ -194,10 +201,26 @@ module Thin
         @app = @app_loader.call unless @preload_app
 
         @listeners.each do |listener|
-          EM.attach_server(listener.socket, listener.protocol_class) do |c|
-            c.comm_inactivity_timeout = @timeout
-            c.server = self if c.respond_to?(:server=)
-            c.listener = listener if c.respond_to?(:listener=)
+          EM.attach_server(listener.socket, listener.protocol_class) do |connection|
+            connection.comm_inactivity_timeout = @timeout
+            connection.server = self
+            connection.listener = listener
+            
+            # We control the number of keep-alive connections to prevent easy DDoS attacks.
+            if @keep_alive_requests < @max_keep_alive_requests
+              connection.can_keep_alive = true
+              @keep_alive_requests += 1
+            else
+              connection.can_keep_alive = false
+            end
+            
+            @connections += 1
+            
+            # Decrement counters on close
+            connection.on_close do
+              @keep_alive_requests -= 1 if connection.can_keep_alive
+              @connections -= 1
+            end
           end
         end
       end
