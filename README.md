@@ -1,6 +1,6 @@
 ---
 
-## This is alpha software. Things might break, people will cry and it will be your fault.
+# This is alpha software. Things might break, people will cry and it will be your fault.
 ### When reporting issues, make sure to mention you're using Thin v2.
 
 ---
@@ -33,28 +33,28 @@ IRC:   #thin on freenode
 ## Installation
 For this pre-release of version 2.0:
 
-  $ gem install thin --pre
+    $ gem install thin --pre
 
 Or from source:
 
-  $ git clone git://github.com/macournoyer/thin.git
-  $ git checkout v2
-  $ cd thin
-  $ bundle install
-  $ rake install
+    $ git clone git://github.com/macournoyer/thin.git
+    $ git checkout v2
+    $ cd thin
+    $ bundle install
+    $ rake install
 
 ## Usage
 The +thin+ script offers an easy way to start your Rack based application and acts just like
 the +rackup+ script.:
 
-  $ cd to/your/rack/app
-  $ thin
+    $ cd to/your/rack/app
+    $ thin
 
 To use with Rails, add thin to your Gemfile and use Rails server command:
 
-  $ echo "gem 'thin'" >> Gemfile
-  $ bundle install
-  $ rails server thin
+    $ echo "gem 'thin'" >> Gemfile
+    $ bundle install
+    $ rails server thin
 
 See examples/thin.conf.rb for a sample configuration file.
 
