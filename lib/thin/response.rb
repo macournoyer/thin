@@ -49,8 +49,13 @@ module Thin
     KEEP_ALIVE     = 'keep-alive'.freeze
     SERVER         = 'Server'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
+    TERM = "\r\n".freeze
     
     KEEP_ALIVE_STATUSES = [100, 101].freeze
+    
+    STOCK_HTTP_10_OK_HEAD = "HTTP/1.0 200 OK\r\n".freeze
+    STOCK_HTTP_11_OK_HEAD = "HTTP/1.1 200 OK\r\n".freeze
+    
 
     # Status code
     attr_accessor :status
@@ -114,8 +119,18 @@ module Thin
     # Top header of the response,
     # containing the status code and response headers.
     def head
-      status_message = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
-      "#{@http_version} #{@status} #{status_message}\r\n#{@headers.to_s}\r\n"
+      # Optimize for most common case, 200 OK.
+      if @status == 200
+        if http_10?
+          head = STOCK_HTTP_10_OK_HEAD
+        else
+          head = STOCK_HTTP_11_OK_HEAD
+        end
+      else
+        status_message = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
+        head = "#{@http_version} #{@status} #{status_message}#{TERM}"
+      end
+      head + @headers.to_s + TERM
     end
 
     # Close any resource used by the response
@@ -170,8 +185,16 @@ module Thin
     end
     
     def http_version=(string)
-      return unless string && string == "HTTP/1.1" || string == "HTTP/1.0"
+      return unless string
       @http_version = string
+    end
+    
+    def http_10?
+      @http_version[7] == ?0
+    end
+
+    def http_11?
+      @http_version[7] == ?1
     end
 
     def self.error(status=500, message=Rack::Utils::HTTP_STATUS_CODES[status])
