@@ -13,6 +13,10 @@ module Thin
     attr_reader :socket_file
 
     def initialize(address, options={})
+      @host = nil
+      @port = nil
+      @socket_file = nil
+      
       case address
       when Integer
         @host = ""
