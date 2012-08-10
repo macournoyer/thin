@@ -156,11 +156,10 @@ module Thin
       @keep_alive = true
     end
 
-    # Persistent connection must be requested as keep-alive
-    # from the server and have a Content-Length, or the response
-    # status must require that the connection remain open.
+    # Persistent connection must be requested as keep-alive from the server
+    # or the response status must require that the connection remain open.
     def keep_alive?
-      (@keep_alive && @headers.has_key?(CONTENT_LENGTH)) || KEEP_ALIVE_STATUSES.include?(@status)
+      @keep_alive || KEEP_ALIVE_STATUSES.include?(@status)
     end
 
     def async?
