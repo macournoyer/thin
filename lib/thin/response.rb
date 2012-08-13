@@ -49,6 +49,8 @@ module Thin
     KEEP_ALIVE     = 'keep-alive'.freeze
     SERVER         = 'Server'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
+    TRANSFER_ENCODING = 'Transfer-Encoding'.freeze
+    CHUNKED = 'chunked'.freeze
     TERM = "\r\n".freeze
     
     KEEP_ALIVE_STATUSES = [100, 101].freeze
@@ -156,11 +158,11 @@ module Thin
       @keep_alive = true
     end
 
-    # Persistent connection must be requested as keep-alive
-    # from the server and have a Content-Length, or the response
-    # status must require that the connection remain open.
+    # Keep-alive requests must be requested as keep-alive and MUST have a self-defined message length.
+    # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1.2.1.
     def keep_alive?
-      (@keep_alive && @headers.has_key?(CONTENT_LENGTH)) || KEEP_ALIVE_STATUSES.include?(@status)
+      (@keep_alive && (@headers.has_key?(CONTENT_LENGTH) || chunked_encoding?)) ||
+      KEEP_ALIVE_STATUSES.include?(@status)
     end
 
     def async?
@@ -181,7 +183,11 @@ module Thin
     end
     
     def chunked_encoding!
-      @headers['Transfer-Encoding'] = 'chunked'
+      @headers[TRANSFER_ENCODING] = CHUNKED
+    end
+    
+    def chunked_encoding?
+      @headers[TRANSFER_ENCODING] == CHUNKED
     end
     
     def http_version=(string)
