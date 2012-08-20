@@ -72,6 +72,9 @@ module Thin
       target_gid = Etc.getgrnam(group).gid
 
       if uid != target_uid || gid != target_gid
+        # Change PID file ownership
+        File.chown(target_uid, target_gid, @pid_file)
+
         # Change process ownership
         Process.initgroups(user, target_gid)
         Process::GID.change_privilege(target_gid)
