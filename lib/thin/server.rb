@@ -55,7 +55,7 @@ module Thin
     DEFAULT_HOST                           = '0.0.0.0'
     DEFAULT_PORT                           = 3000
     DEFAULT_MAXIMUM_CONNECTIONS            = 1024
-    DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS = 512
+    DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS = 100
         
     # Application (Rack adapter) called with the request that produces the response.
     attr_accessor :app
