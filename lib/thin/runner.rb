@@ -130,6 +130,7 @@ module Thin
         opts.separator "Common options:"
 
         opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:require] << file }
+        opts.on_tail("-q", "--quiet", "Silence all logging")                            { @options[:quiet] = true }
         opts.on_tail("-D", "--debug", "Set debugging on")                               { @options[:debug] = true }
         opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { @options[:trace] = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
@@ -173,6 +174,7 @@ module Thin
       @options[:require].each { |r| ruby_require r }
       Logging.debug = @options[:debug]
       Logging.trace = @options[:trace]
+      Logging.silent = @options[:quiet]
 
       controller = case
       when cluster? then Controllers::Cluster.new(@options)
