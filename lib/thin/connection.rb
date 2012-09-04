@@ -125,7 +125,7 @@ module Thin
       log_error
 
       send_data "HTTP/1.0 400 Bad Request\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\nBad Request!\r\n"
-      close_connection_after_writing
+      close_connection_after_writing
     end
 
     def close_request_response
