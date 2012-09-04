@@ -124,7 +124,7 @@ module Thin
       log "!! Unexpected error while processing request: #{$!.message}"
       log_error
 
-      send_data "HTTP/1.0 400  Bad Request\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\nBad Request!\r\n"
+      send_data "HTTP/1.0 400 Bad Request\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\nBad Request!\r\n"
       close_connection_after_writing
     end
 
