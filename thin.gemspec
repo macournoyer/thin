@@ -5,14 +5,14 @@ require "thin/version"
 
 # Describe your gem and declare its dependencies:
 Thin::GemSpec = Gem::Specification.new do |s|
-  s.name                  = Thin::NAME
+  s.name                  = "friendlyfashion-" + Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = Thin.win? ? Gem::Platform::CURRENT : Gem::Platform::RUBY
   s.summary               = 
   s.description           = "A thin and fast web server"
-  s.author                = "Marc-Andre Cournoyer"
-  s.email                 = 'macournoyer@gmail.com'
-  s.homepage              = 'http://code.macournoyer.com/thin/'
+  s.authors               = ["Laurynas Butkus", "Tomas Didziokas", "Justas Janauskas", "Edvinas Bartkus"]
+  s.email                 = ["laurynas.butkus@gmail.com", "tomas.did@gmail.com", "jjanauskas@gmail.com", "edvinas.bartkus@gmail.com"]
+  s.homepage              = 'https://github.com/friendlyfashion/thin'
   s.rubyforge_project     = 'thin'
   s.license               = 'Ruby'
   s.executables           = %w( thin )
