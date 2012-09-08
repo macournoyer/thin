@@ -34,6 +34,7 @@ module Thin
 
     # Called when data is received from the client.
     def receive_data(data)
+      @idle = false
       trace { data }
       process if @request.parse(data)
     rescue InvalidRequest => e
@@ -142,6 +143,8 @@ module Thin
         close_request_response
       else
         close_request_response
+        # Connection become idle but it's still open
+        @idle = true
         # Prepare the connection for another request if the client
         # supports HTTP pipelining (persistent connection).
         post_init
@@ -170,6 +173,12 @@ module Thin
     # and ready to be reused for another request.
     def persistent?
       @can_persist && @response.persistent?
+    end
+
+    # Return +true+ if the connection is open but is not
+    # processing any user requests
+    def idle?
+      @idle
     end
 
     # +true+ if <tt>app.call</tt> will be called inside a thread.

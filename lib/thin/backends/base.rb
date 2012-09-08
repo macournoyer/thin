@@ -71,6 +71,8 @@ module Thin
         
         # Do not accept anymore connection
         disconnect
+        # Close idle persistent connections
+        @connections.each { |connection| connection.close_connection if connection.idle? }
         stop! if @connections.empty?
       end
       
