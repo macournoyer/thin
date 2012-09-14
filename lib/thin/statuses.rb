@@ -2,9 +2,9 @@ module Thin
   # Stolen from Rack::Utils
   # Every standard HTTP code mapped to the appropriate message.
   # Generated with:
-  #   curl -s http://www.iana.org/assignments/http-status-codes | \
-  #     ruby -ane 'm = /^(\d{3}) +(\S[^\[(]+)/.match($_) and
-  #                puts "      #{m[1]}  => \x27#{m[2].strip}x27,"'
+  #   curl -s http://www.iana.org/assignments/http-status-codes/http-status-codes.txt              |
+  #     ruby -pe '$_.sub!(/^ +(\d{3}) +(\S.*?\S)\s+[\[(].*$/, %[\\1 => "\\2",]) or $_.replace("")' |
+  #     grep -v '"Reserved'
   HTTP_STATUS_CODES = {
     100  => 'Continue',
     101  => 'Switching Protocols',
