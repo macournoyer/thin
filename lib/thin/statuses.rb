@@ -1,5 +1,4 @@
 module Thin
-  # Stolen from Rack::Utils
   # Every standard HTTP code mapped to the appropriate message.
   # Generated with:
   #   curl -s http://www.iana.org/assignments/http-status-codes/http-status-codes.txt              |
@@ -17,6 +16,7 @@ module Thin
     205  => 'Reset Content',
     206  => 'Partial Content',
     207  => 'Multi-Status',
+    208  => 'Already Reported',
     226  => 'IM Used',
     300  => 'Multiple Choices',
     301  => 'Moved Permanently',
@@ -24,8 +24,8 @@ module Thin
     303  => 'See Other',
     304  => 'Not Modified',
     305  => 'Use Proxy',
-    306  => 'Reserved',
     307  => 'Temporary Redirect',
+    308  => 'Permanent Redirect',
     400  => 'Bad Request',
     401  => 'Unauthorized',
     402  => 'Payment Required',
@@ -49,6 +49,9 @@ module Thin
     423  => 'Locked',
     424  => 'Failed Dependency',
     426  => 'Upgrade Required',
+    428  => 'Precondition Required',
+    429  => 'Too Many Requests',
+    431  => 'Request Header Fields Too Large',
     500  => 'Internal Server Error',
     501  => 'Not Implemented',
     502  => 'Bad Gateway',
@@ -57,6 +60,8 @@ module Thin
     505  => 'HTTP Version Not Supported',
     506  => 'Variant Also Negotiates',
     507  => 'Insufficient Storage',
+    508  => 'Loop Detected',
     510  => 'Not Extended',
+    511  => 'Network Authentication Required',
   }
 end
