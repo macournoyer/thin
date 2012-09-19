@@ -73,13 +73,22 @@ describe Response do
   
   it "should not be persistent when no Content-Length" do
     @response = Response.new
-    @response.headers['Content-Type'] = 'text/html'
+    @response.headers = {'Content-Type' => 'text/html'}
     @response.body = ''
     
     @response.persistent!
     @response.should_not be_persistent
   end
-  
+
+  it "should ignore Content-Length case" do
+    @response = Response.new
+    @response.headers = {'Content-Type' => 'text/html', 'content-length' => '0'}
+    @response.body = ''
+
+    @response.persistent!
+    @response.should be_persistent
+  end
+
   it "should be persistent when the status code implies it should stay open" do
     @response = Response.new
     @response.status = 100

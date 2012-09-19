@@ -3,7 +3,7 @@ module Thin
   # and allow duplicated entries on some names.
   class Headers
     HEADER_FORMAT      = "%s: %s\r\n".freeze
-    ALLOWED_DUPLICATES = %w(Set-Cookie Set-Cookie2 Warning WWW-Authenticate).freeze
+    ALLOWED_DUPLICATES = %w(set-cookie set-cookie2 warning www-authenticate).freeze
     
     def initialize
       @sent = {}
@@ -14,8 +14,8 @@ module Thin
     # Ignore if already sent and no duplicates are allowed
     # for this +key+.
     def []=(key, value)
-      if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key)
-        @sent[key] = true
+      if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key.downcase)
+        @sent[key.downcase] = true
         value = case value
                 when Time
                   value.httpdate
@@ -29,7 +29,7 @@ module Thin
     end
     
     def has_key?(key)
-      @sent[key]
+      @sent[key.downcase]
     end
     
     def to_s
