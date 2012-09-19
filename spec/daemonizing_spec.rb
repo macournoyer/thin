@@ -178,6 +178,12 @@ describe 'Daemonizing' do
     File.exist?(@server.pid_file).should be_true
   end
   
+  it "should raise if no pid file" do
+    proc do
+      TestServer.kill("donotexist", 0)
+    end.should raise_error(PidFileNotFound)
+  end
+  
   it "should should delete pid file if stale" do
     # Create a file w/ a PID that does not exist
     File.open(@server.pid_file, 'w') { |f| f << 999999999 }

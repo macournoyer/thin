@@ -16,6 +16,7 @@ end
 module Thin
   # Raised when the pid file already exist starting as a daemon.
   class PidFileExist < RuntimeError; end
+  class PidFileNotFound < RuntimeError; end
   
   # Module included in classes that can be turned into a daemon.
   # Handle stuff like:
@@ -127,7 +128,7 @@ module Thin
             sleep 0.1 while Process.running?(pid)
           end
         else
-          Logging.log "Can't stop process, no PID found in #{pid_file}"
+          raise PidFileNotFound, "Can't stop process, no PID found in #{pid_file}"
         end
       rescue Timeout::Error
         Logging.log "Timeout!"
