@@ -61,7 +61,7 @@ module Thin
       @request.multithread = server.threaded?
       @request.multiprocess = server.prefork?
       @request.remote_address = socket_address
-      @request.http_version = "HTTP/%d.%d" % @parser.http_version
+      @request.http_version = "HTTP/#{@parser.http_version[0]}.#{@parser.http_version[1]}"
       @request.method = @parser.http_method
       @request.path = @parser.request_path
       @request.fragment = @parser.fragment
@@ -269,14 +269,18 @@ module Thin
   
       # Returns IP address of peer as a string.
       def socket_address
-        if listener.unix?
+        # We cache the value to optimize for persistent connection (keep-alive).
+        # This can't change if the connection is persistent.
+        @socket_address ||= begin
+          if listener.unix?
+            ""
+          else
+            Socket.unpack_sockaddr_in(get_peername)[1]
+          end
+        rescue Exception => e
+          $stderr.puts "Can't get socket address: #{e}"
           ""
-        else
-          Socket.unpack_sockaddr_in(get_peername)[1]
         end
-      rescue Exception => e
-        $stderr.puts "Can't get socket address: #{e}"
-        ""
       end
   
       # Output the error to stderr and sends back a 500 error.

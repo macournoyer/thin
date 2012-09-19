@@ -35,6 +35,11 @@ module Thin
     FRAGMENT          = 'FRAGMENT'.freeze
     HTTP              = 'http'.freeze
     EMPTY             = ''.freeze
+    HTTP_PREFIX       = 'HTTP_'.freeze
+    DASH              = '-'.freeze
+    UNDERSCORE        = '_'.freeze
+    COLON             = ':'.freeze
+    
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
     CLOSE_REGEXP      = /\bclose\b/i.freeze
 
@@ -82,11 +87,11 @@ module Thin
         elsif k == CONTENT_LENGTH_L
           @env[CONTENT_LENGTH] = v
         else
-          @env["HTTP_" + k.upcase.tr("-", "_")] = v
+          @env[HTTP_PREFIX + k.upcase.tr(DASH, UNDERSCORE)] = v
         end
       end
 
-      host, port = @env[HTTP_HOST].split(":") if @env.key?(HTTP_HOST)
+      host, port = @env[HTTP_HOST].to_s.split(COLON, 2)
       @env[SERVER_NAME] = host || LOCALHOST
       @env[SERVER_PORT] = port || DEFAULT_PORT
     end

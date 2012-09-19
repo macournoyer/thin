@@ -5,44 +5,6 @@ module Thin
   class Response
     # Template async response.
     ASYNC = [-1, {}, []].freeze
-    
-    # Store HTTP header name-value pairs direcly to a string
-    # and allow duplicated entries on some names.
-    class Headers
-      HEADER_FORMAT      = "%s: %s\r\n".freeze
-      ALLOWED_DUPLICATES = %w(Set-Cookie Set-Cookie2 Warning WWW-Authenticate).freeze
-
-      def initialize
-        @sent = {}
-        @out = []
-      end
-
-      # Add <tt>key: value</tt> pair to the headers.
-      # Ignore if already sent and no duplicates are allowed
-      # for this +key+.
-      def []=(key, value)
-        if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key)
-          @sent[key] = true
-          value = case value
-                  when Time
-                    value.httpdate
-                  when NilClass
-                    return
-                  else
-                    value.to_s
-                  end
-          @out << HEADER_FORMAT % [key, value]
-        end
-      end
-
-      def has_key?(key)
-        @sent[key]
-      end
-
-      def to_s
-        @out.join
-      end
-    end
 
     CONNECTION     = 'Connection'.freeze
     CLOSE          = 'close'.freeze
@@ -52,6 +14,7 @@ module Thin
     TRANSFER_ENCODING = 'Transfer-Encoding'.freeze
     CHUNKED = 'chunked'.freeze
     TERM = "\r\n".freeze
+    COLON             = ':'.freeze
     
     KEEP_ALIVE_STATUSES = [100, 101].freeze
     
@@ -66,50 +29,16 @@ module Thin
     attr_accessor :body
 
     # Headers key-value hash
-    attr_reader :headers
+    attr_accessor :headers
     
     attr_reader :http_version
 
-    def initialize(status=200, headers=nil, body=nil)
-      @headers = Headers.new
+    def initialize(status=200, headers={}, body=[])
       @status = status
-      @keep_alive = false
+      @headers = headers
       @body = body
+      @keep_alive = false
       @http_version = "HTTP/1.1"
-
-      self.headers = headers if headers
-    end
-
-    if System.ruby_18?
-
-      # Ruby 1.8 implementation.
-      # Respects Rack specs.
-      #
-      # See http://rack.rubyforge.org/doc/files/SPEC.html
-      def headers=(key_value_pairs)
-        key_value_pairs.each do |k, vs|
-          vs.each { |v| @headers[k] = v.chomp } if vs
-        end if key_value_pairs
-      end
-
-    else
-
-      # Ruby 1.9 doesn't have a String#each anymore.
-      # Rack spec doesn't take care of that yet, for now we just use
-      # +each+ but fallback to +each_line+ on strings.
-      # I wish we could remove that condition.
-      # To be reviewed when a new Rack spec comes out.
-      def headers=(key_value_pairs)
-        key_value_pairs.each do |k, vs|
-          next unless vs
-          if vs.is_a?(String)
-            vs.each_line { |v| @headers[k] = v.chomp }
-          else
-            vs.each { |v| @headers[k] = v.chomp }
-          end
-        end if key_value_pairs
-      end
-
     end
 
     # Finish preparing the response.
@@ -132,7 +61,14 @@ module Thin
         status_message = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
         head = "#{@http_version} #{@status} #{status_message}#{TERM}"
       end
-      head + @headers.to_s + TERM
+      
+      headers = ""
+      @headers.each_pair do |key, values|
+        next unless values
+        values.split("\n").each { |value| headers << "#{key}#{COLON} #{value}#{TERM}" }
+      end
+      
+      head + headers + TERM
     end
 
     # Close any resource used by the response
@@ -146,11 +82,7 @@ module Thin
     # define your own +each+ method on +body+.
     def each
       yield head
-      if @body.is_a?(String)
-        yield @body
-      else
-        @body.each { |chunk| yield chunk }
-      end
+      @body.each { |chunk| yield chunk }
     end
     
     # Tell the client the connection should stay open
