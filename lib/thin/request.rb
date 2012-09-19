@@ -74,7 +74,7 @@ module Thin
     # Returns +true+ if the parsing is complete.
     def parse(data)
       if @parser.finished?  # Header finished, can only be some more body
-        body << data
+        @body << data
       else                  # Parse more header using the super parser
         @data << data
         raise InvalidRequest, 'Header longer than allowed' if @data.size > MAX_HEADER
