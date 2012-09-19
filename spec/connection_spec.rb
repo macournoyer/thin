@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Connection do
   before do
+    EventMachine.stub(:send_data)
     @connection = Connection.new(mock('EM', :null_object => true))
     @connection.post_init
     @connection.backend = mock("backend", :ssl? => false)
@@ -15,27 +16,51 @@ describe Connection do
     @connection.receive_data('GET')
   end
 
-  it "should close connection on InvalidRequest error in receive_data" do
+  it "should make a valid response on bad request" do
     @connection.request.stub!(:parse).and_raise(InvalidRequest)
-    @connection.should_receive(:close_connection)
+    @connection.should_receive(:post_process).with(Response::BAD_REQUEST)
     @connection.receive_data('')
   end
-  
+
+  it "should close connection on InvalidRequest error in receive_data" do
+    @connection.request.stub!(:parse).and_raise(InvalidRequest)
+    @connection.response.stub!(:persistent?).and_return(false)
+    @connection.can_persist!
+    @connection.should_receive(:terminate_request)
+    @connection.receive_data('')
+  end
+
   it "should process when parsing complete" do
     @connection.request.should_receive(:parse).and_return(true)
     @connection.should_receive(:process)
     @connection.receive_data('GET')
   end
-  
+
   it "should process" do
     @connection.process
   end
-  
+
   it "should rescue error in process" do
     @connection.app.should_receive(:call).and_raise(StandardError)
+    @connection.response.stub!(:persistent?).and_return(false)
+    @connection.should_receive(:terminate_request)
     @connection.process
   end
-  
+
+  it "should make response on error" do
+    @connection.app.should_receive(:call).and_raise(StandardError)
+    @connection.should_receive(:post_process).with(Response::ERROR)
+    @connection.process
+  end
+
+  it "should not close persistent connection on error" do
+    @connection.app.should_receive(:call).and_raise(StandardError)
+    @connection.response.stub!(:persistent?).and_return(true)
+    @connection.can_persist!
+    @connection.should_receive(:teminate_request).never
+    @connection.process
+  end
+
   it "should rescue Timeout error in process" do
     @connection.app.should_receive(:call).and_raise(Timeout::Error.new("timeout error not rescued"))
     @connection.process

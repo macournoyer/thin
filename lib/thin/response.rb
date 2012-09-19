@@ -9,6 +9,11 @@ module Thin
 
     PERSISTENT_STATUSES  = [100, 101].freeze
 
+    #Error Responses
+    ERROR            = [500, {'Content-Type' => 'text/plain'}, ['Internal server error']].freeze
+    PERSISTENT_ERROR = [500, {'Content-Type' => 'text/plain', 'Connection' => 'keep-alive', 'Content-Length' => "21"}, ['Internal server error']].freeze
+    BAD_REQUEST      = [400, {'Content-Type' => 'text/plain'}, ['Bad Request']].freeze
+
     # Status code
     attr_accessor :status
 
