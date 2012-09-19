@@ -39,7 +39,9 @@ module Thin
     rescue InvalidRequest => e
       log "!! Invalid request"
       log_error e
-      close_connection
+
+      send_data "HTTP/1.0 400 Bad Request\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\nBad Request!\r\n"
+      close_connection_after_writing
     end
 
     # Called when all data was received and the request
@@ -123,7 +125,9 @@ module Thin
     def handle_error
       log "!! Unexpected error while processing request: #{$!.message}"
       log_error
-      close_connection rescue nil
+
+      send_data "HTTP/1.0 400 Bad Request\r\nConnection: close\r\nContent-Type: text/plain\r\n\r\nBad Request!\r\n"
+      close_connection_after_writing
     end
 
     def close_request_response
