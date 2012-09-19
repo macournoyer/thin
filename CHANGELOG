@@ -1,6 +1,7 @@
 == 1.5.0 Knife
  * Raise an error when no PID file.
  * Prevent duplicate response headers.
+ * Make proper response on exception [MasterLambaster].
 
 == 1.4.1 Chromeo Fix
  * Fix error when sending USR1 signal and no log file is supplied.
