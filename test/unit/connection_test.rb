@@ -86,6 +86,22 @@ EOS
     assert_equal "hi", env["rack.input"].read
   end
   
+  def test_parse_duplicate_headers
+    request = <<-EOS
+GET / HTTP/1.1
+Content-Type: text/plain
+Content-Type: charset=utf8
+
+EOS
+
+    @connection.expects(:process)
+    @connection.receive_data(request)
+
+    env = @connection.request.env
+
+    assert_equal "text/plain, charset=utf8", env["CONTENT_TYPE"]
+  end
+  
   def test_async_response_do_not_send_response
     @connection.expects(:send_response).never
     

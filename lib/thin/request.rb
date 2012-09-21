@@ -81,6 +81,8 @@ module Thin
     def headers=(headers)
       # TODO benchmark & optimize
       headers.each_pair do |k, v|
+        v = v.join(", ") if Array === v
+        
         # Convert to Rack headers
         if k == CONTENT_TYPE_L
           @env[CONTENT_TYPE] = v

@@ -7,6 +7,7 @@ x Fast file serving with streaming
 x Keep-alive
 x Limit # of keep-alive requests
 - Refactor constants into a single file for easy reuse
+- Automatically close idling pipeline connections on server stop
 - Pipelining?
 x Transfer-Encoding: chunked
 - Use Logger
