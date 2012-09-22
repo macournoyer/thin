@@ -1,4 +1,5 @@
 == 1.5.0 Knife
+ * Fix compilation under Ubuntu 12.04 with -Werror=format-security option.
  * Raise an error when no PID file.
  * Prevent duplicate response headers.
  * Make proper response on exception [MasterLambaster].
