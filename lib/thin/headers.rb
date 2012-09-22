@@ -14,8 +14,9 @@ module Thin
     # Ignore if already sent and no duplicates are allowed
     # for this +key+.
     def []=(key, value)
-      if !@sent.has_key?(key) || ALLOWED_DUPLICATES.include?(key.downcase)
-        @sent[key.downcase] = true
+      downcase_key = key.downcase
+      if !@sent.has_key?(downcase_key) || ALLOWED_DUPLICATES.include?(downcase_key)
+        @sent[downcase_key] = true
         value = case value
                 when Time
                   value.httpdate
