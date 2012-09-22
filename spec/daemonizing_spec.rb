@@ -155,12 +155,12 @@ describe 'Daemonizing' do
   end
   
   it "should ignore if no restart block specified" do
-    TestServer.restart(@server.pid_file)
+    @server.restart
   end
   
   it "should not restart when not running" do
     silence_stream STDOUT do
-      TestServer.restart(@server.pid_file)
+      @server.restart
     end
   end
   
