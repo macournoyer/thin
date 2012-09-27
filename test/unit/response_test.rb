@@ -6,6 +6,7 @@ class ResponseTest < Test::Unit::TestCase
     @response = Thin::Response.new
     @response.headers['Content-Type'] = 'text/html'
     @response.headers['Content-Length'] = '0'
+    @response.headers['x-thin'] = '2'
     @response.body = ''
     @response.finish
   end
@@ -63,8 +64,20 @@ class ResponseTest < Test::Unit::TestCase
   def test_close
     @response.close
   end
-  
+
   def test_async
     assert Thin::Response.new(*Thin::Response::ASYNC).async?
+  end
+
+  def test_no_duplicated_with_different_character_case
+    size = @response.headers.size
+    @response.headers['X-Thin'] = '2'
+    assert_equal size, @response.headers.size
+  end
+
+  def test_header_name_character_case
+    assert_match /x-thin: 2/i, @response.head
+    @response.headers['X-Thin'] = '2.1'
+    assert_match /x-thin: 2\.1/i, @response.head
   end
 end
