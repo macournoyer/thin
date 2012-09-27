@@ -25,9 +25,9 @@ module Thin
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     CONTENT_TYPE      = 'CONTENT_TYPE'.freeze
-    CONTENT_TYPE_L    = 'Content-Type'.freeze
+    CONTENT_TYPE_L    = 'Content-Type'.upcase.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
-    CONTENT_LENGTH_L  = 'Content-Length'.freeze
+    CONTENT_LENGTH_L  = 'Content-Length'.upcase.freeze
     SCRIPT_NAME       = 'SCRIPT_NAME'.freeze
     QUERY_STRING      = 'QUERY_STRING'.freeze
     PATH_INFO         = 'PATH_INFO'.freeze
@@ -82,14 +82,14 @@ module Thin
       # TODO benchmark & optimize
       headers.each_pair do |k, v|
         v = v.join(", ") if Array === v
-        
+        k = k.upcase
         # Convert to Rack headers
         if k == CONTENT_TYPE_L
           @env[CONTENT_TYPE] = v
         elsif k == CONTENT_LENGTH_L
           @env[CONTENT_LENGTH] = v
         else
-          @env[HTTP_PREFIX + k.upcase.tr(DASH, UNDERSCORE)] = v
+          @env[HTTP_PREFIX + k.tr(DASH, UNDERSCORE)] = v
         end
       end
 

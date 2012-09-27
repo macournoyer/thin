@@ -71,4 +71,13 @@ class RequestTest < Test::Unit::TestCase
 
     assert_nothing_raised { Rack::Lint.new(app).call(@request.env) }
   end
+
+  def test_case_insensetive_headers
+    @request.headers = {
+      "host" => "localhost:9292",
+      "content-type" => "text/plain",
+    }
+    assert_equal "localhost", @request.env["SERVER_NAME"]
+    assert_equal "text/plain", @request.env["CONTENT_TYPE"]
+  end
 end

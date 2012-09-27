@@ -35,7 +35,7 @@ module Thin
 
     def initialize(status=200, headers={}, body=[])
       @status = status
-      @headers = headers
+      @headers = Rack::Utils::HeaderHash.new(headers)
       @body = body
       @keep_alive = false
       @http_version = "HTTP/1.1"
