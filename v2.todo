@@ -17,7 +17,8 @@ x Threading
 - Change user:group after bind
 - SSL
 - Graceful stop
-- Daemonizing
+x Daemonizing
+- Add option to turn off async chunked encoding
 
 Optimizations:
 - Stock 200 OK response (store in frozen const)
