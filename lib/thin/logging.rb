@@ -25,7 +25,10 @@ module Thin
     
     # Log a message to the console
     def log(msg)
-      puts msg unless Logging.silent?
+      begin
+        puts msg unless Logging.silent?
+      rescue
+      end
     end
     module_function :log
     public :log
