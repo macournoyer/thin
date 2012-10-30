@@ -1,5 +1,6 @@
 == EDGE
  * Fix issue when running as another user/group without a PID file.
+ * Allow overriding Connection & Server response headers.
 
 == 1.5.0 Knife
  * Fix compilation under Ubuntu 12.04 with -Werror=format-security option.
