@@ -33,8 +33,8 @@ module Thin
     # to be sent in the response.
     def headers_output
       # Set default headers
-      @headers[CONNECTION] = persistent? ? KEEP_ALIVE : CLOSE
-      @headers[SERVER]     = Thin::SERVER
+      @headers[CONNECTION] = persistent? ? KEEP_ALIVE : CLOSE unless @headers.has_key?(CONNECTION)
+      @headers[SERVER]     = Thin::SERVER unless @headers.has_key?(SERVER)
 
       @headers.to_s
     end
