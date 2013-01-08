@@ -49,15 +49,15 @@ class Thin < Atchoum::Website
     p 'Thin is a Ruby web server that glues together 3 of the best Ruby libraries in web history:'
     ul do
       li do
-        text "the #{a 'Mongrel parser', :href => 'http://www.zedshaw.com/tips/ragel_state_charts.html'}"
-        text ", the root of #{a 'Mongrel', :href => 'http://mongrel.rubyforge.org/'} speed and security"
+        text "the #{a 'Mongrel parser', :href => 'http://www.zedshaw.com/essays/ragel_state_charts.html'}"
+        text ", the root of #{a 'Mongrel', :href => 'http://rubyforge.org/projects/mongrel/'} speed and security"
       end
       li do
         a "Event Machine", :href => 'http://rubyeventmachine.com/'
         text ", a network I/O library with extremely high scalability, performance and stability"
       end
       li do
-        a "Rack", :href => 'http://rack.rubyforge.org/'
+        a "Rack", :href => 'http://rack.github.com/'
         text ", a minimal interface between webservers and Ruby frameworks"
       end
     end
