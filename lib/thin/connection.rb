@@ -3,7 +3,6 @@ require "http/parser"
 
 require "thin/request"
 require "thin/response"
-require "thin/chunked_body"
 
 module Thin
   # EventMachine connection.
@@ -58,7 +57,6 @@ module Thin
     end
 
     def on_headers_complete(headers)
-      @request.multithread = server.threaded?
       @request.multiprocess = server.prefork?
       @request.remote_address = socket_address
       @request.http_version = "HTTP/#{@parser.http_version[0]}.#{@parser.http_version[1]}"
@@ -82,119 +80,30 @@ module Thin
 
     # == Request processing methods
   
-    # Starts the processing of the current request in <tt>@request</tt>.
-    def process
-      if server.threaded?
-        EM.defer(method(:call_app), method(:process_response))
-      else
-        if response = call_app
-          process_response(response)
-        end
-      end
-    end
-
     # Calls the Rack app in <tt>server.app</tt>.
     # Returns a Rack response: <tt>[status, {headers}, [body]]</tt>
+    # The app can return [-1, ...] to short-circuit request processing
     # or +nil+ if there was an error.
-    # The app can return [-1, ...] or throw :async to short-circuit request processing.
-    def call_app
-      # Connection may be closed unless the App#call response was a [-1, ...]
-      # It should be noted that connection objects will linger until this 
-      # callback is no longer referenced, so be tidy!
-      @request.async_callback = method(:process_async_response)
+    def process
+      @request.env['thin.connection'] = self
+      @request.env['thin.process'] = method(:send_response)
+      @request.env['thin.close'] = method(:reset)
 
       # Call the Rack application
-      response = Response::ASYNC # `throw :async` will result in this response
-      catch(:async) do
-        response = @server.app.call(@request.env)
-      end
-
-      response
+      send_response @server.app.call(@request.env)
 
     rescue Exception
       handle_error
       nil # Signals that the request could not be processed
     end
-  
-    def prepare_response(response)
-      return unless response
-    
-      Response.new(*response)
-    end
-
-    # Process the response returns by +call_app+.
-    def process_response(response)
-      @response = prepare_response(response)
-    
-      # We're going to respond later (async).
-      return if @response.async?
-    
-      # Close the resources used by the request as soon as possible.
-      @request.close
-    
-      # Send the response.
-      send_response_and_reset
-
-    rescue Exception
-      handle_error
-    end
-  
-    # Process the response sent asynchronously via <tt>body.call</tt>.
-    # The response will automatically be send using chunked encoding under
-    # HTTP 1.1 protocol.
-    def process_async_response(response)
-      @response = prepare_response(response)
-    
-      # Terminate the connection on callback from the response's body.
-      @response.body_callback = method(:terminate_async_response)
-    
-      # Use chunked encoding if available.
-      if @request.support_encoding_chunked?
-        @response.chunked_encoding!
-        @response.body = ChunkedBody.new(@response.body)
-      end
-    
-      # Send the response.
-      send_response
-    
-    rescue Exception
-      handle_error
-    end
-  
-    # Called after an asynchronous response is done sending the body.
-    def terminate_async_response
-      if @request.support_encoding_chunked?
-        # Send tail chunk. 0 length signals we're done w/ HTTP chunked encoding.
-        send_chunk ChunkedBody::TAIL
-      end
-    
-      reset
-    
-    rescue Exception
-      handle_error
-    end
-  
-    # Reset the connection and prepare for another request if keep-alive is
-    # requested.
-    # Else, closes the connection.
-    def reset
-      if @response && @response.keep_alive?
-        # Prepare the connection for another request if the client
-        # requested a persistent connection (keep-alive).
-        post_init
-      else
-        close_connection_after_writing
-      end
-    
-      close_request_and_response
-    end
-  
-  
-    # == Response sending methods
-  
+   
     # Send the HTTP response back to the client.
-    def send_response(response=@response)
-      @response = response
+    def send_response(response)
+      # We're going to respond later.
+      return if response.nil? || response.first == -1
+
+      @response = Response.new(*response)
+      deferred = @response.headers.delete('X-Thin-Deferred')
     
       if @request
         # Keep connection alive if requested by the client.
@@ -205,13 +114,10 @@ module Thin
       # Prepare the response for sending.
       @response.finish
     
-      if @response.file?
-        send_file
-        return
-      end
-    
-      @response.each(&method(:send_chunk))
+      @response.each(&method(:<<))
       puts if $DEBUG
+
+      reset unless deferred
     
     rescue Exception => e
       # In case there's an error sending the response, we give up and just
@@ -225,33 +131,32 @@ module Thin
       send_response(response)
       reset
     end
-  
-    # Sending a file using EM streaming and HTTP 1.1 style chunked-encoding if
-    # supported by the client.
-    def send_file
-      # Use HTTP 1.1 style chunked-encoding to send the file if supported
-      if @request.support_encoding_chunked?
-        @response.chunked_encoding!
-        send_chunk @response.head
-        deferrable = stream_file_data @response.filename, :http_chunks => true
-      else
-        send_chunk @response.head
-        deferrable = stream_file_data @response.filename
+
+    # Reset the connection and prepare for another request if keep-alive is
+    # requested.
+    # Else, closes the connection.
+    def reset
+      if onclose = @request.env['thin.onclose']
+        onclose.call
       end
-      
-      if $DEBUG
-        puts "<Serving file #{@response.filename} with streaming ...>"
-        puts
+
+      if @response && @response.keep_alive?
+        # Prepare the connection for another request if the client
+        # requested a persistent connection (keep-alive).
+        post_init
+      else
+        close_connection_after_writing
       end
     
-      deferrable.callback(&method(:reset))
-      deferrable.errback(&method(:reset))
+      close_request_and_response
     end
   
-    def send_chunk(data)
+    def <<(data)
       print data if $DEBUG
       send_data data
     end
+    alias write <<
+
   
     private
       # == Support methods

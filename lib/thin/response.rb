@@ -73,7 +73,6 @@ module Thin
 
     # Close any resource used by the response
     def close
-      @body.fail if @body.respond_to?(:fail)
       @body.close if @body.respond_to?(:close)
     end
 
