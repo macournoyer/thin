@@ -102,24 +102,29 @@ module Thin
       @response.persistent! if @request.persistent?
 
       # Send the response
-      @response.each do |chunk|
-        trace { chunk }
-        send_data chunk
+      responder = FastEnumerator.new(@response)
+      
+      tick_look = EM.tick_loop do
+        if chunk = responder.next
+          trace chunk
+          send_data chunk
+        else
+          :stop
+        end
+      end
+
+      if @response.body.respond_to?(:callback) && @response.body.respond_to?(:errback)
+        # If the body is being deferred, then terminate afterward.
+        @response.body.callback &method(:terminate_request)
+        @response.body.errback  &method(:terminate_request)
+      else
+        tick_look.on_stop method(:terminate_request)
       end
 
     rescue Exception
       handle_error
       # Close connection since we can't handle response gracefully
       close_connection
-    ensure
-      # If the body is being deferred, then terminate afterward.
-      if @response.body.respond_to?(:callback) && @response.body.respond_to?(:errback)
-        @response.body.callback { terminate_request }
-        @response.body.errback  { terminate_request }
-      else
-        # Don't terminate the response if we're going async.
-        terminate_request unless result && result.first == AsyncResponse.first
-      end
     end
 
     # Logs catched exception and closes the connection.

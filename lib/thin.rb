@@ -11,6 +11,7 @@ module Thin
   autoload :Command,            "thin/command"
   autoload :Connection,         "thin/connection"
   autoload :Daemonizable,       "thin/daemonizing"
+  autoload :FastEnumerator,     "thin/fast_enumerator"
   autoload :Logging,            "thin/logging"
   autoload :Headers,            "thin/headers"
   autoload :Request,            "thin/request"
