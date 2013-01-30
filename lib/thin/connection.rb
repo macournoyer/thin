@@ -3,6 +3,7 @@ require "http/parser"
 
 require "thin/request"
 require "thin/response"
+require "thin/fast_enumerator"
 
 module Thin
   # EventMachine connection.
@@ -103,7 +104,7 @@ module Thin
       return if response.nil? || response.first == -1
 
       @response = Response.new(*response)
-      deferred = @response.headers.delete('X-Thin-Deferred')
+      deferred = @response.headers.delete('X-Thin-Deferred') # Deferred close
     
       if @request
         # Keep connection alive if requested by the client.
@@ -114,10 +115,16 @@ module Thin
       # Prepare the response for sending.
       @response.finish
     
-      @response.each(&method(:<<))
-      puts if $DEBUG
-
-      reset unless deferred
+      # Sends a chunk on each loop tick.
+      responder = FastEnumerator.new(@response)
+      tick_loop = EM.tick_loop do
+        if chunk = responder.next
+          write chunk
+        else
+          :stop
+        end
+      end
+      tick_loop.on_stop method(:reset) unless deferred
     
     rescue Exception => e
       # In case there's an error sending the response, we give up and just
