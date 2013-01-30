@@ -15,7 +15,7 @@ module Thin
       end
 
       def next
-        nil unless @fiber.alive?
+        return nil unless @fiber.alive?
         @fiber.resume
       end
 
