@@ -1,6 +1,7 @@
 require "thin/middlewares/threaded"
 require "thin/middlewares/chunked"
 require "thin/middlewares/stream_file"
+require "thin/middlewares/streaming"
 
 class RackApp
   def call(env)
@@ -20,11 +21,11 @@ map '/threaded' do
 end
 
 map '/man' do
-  # use Thin::Middlewares::Chunked
   use Thin::Middlewares::StreamFile
   run Rack::File.new("site/public/man")
 end
 
+use Thin::Middlewares::Streaming
 use Rack::CommonLogger
 
 run RackApp.new

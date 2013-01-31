@@ -1,6 +1,25 @@
 module Thin
   module Middlewares
     class StreamFile
+      class FileStreamer
+        def initialize(connection, filename, chunked)
+          @connection = connection
+          @filename = filename
+          @chunked = chunked
+        end
+
+        def each
+          deferrable = @connection.stream_file_data @filename, :http_chunks => @chunked
+          
+          reset = @connection.method(:reset)
+          
+          deferrable.callback(&reset)
+          deferrable.errback(&reset)
+
+          yield "" # Fake returning a chunk of the body
+        end
+      end
+
       def initialize(app)
         @app = app
       end
@@ -11,16 +30,12 @@ module Thin
         if body.respond_to?(:to_path)
           chunked = chunked?(env)
 
-          send_file body.to_path,
-                    env['thin.connection'],
-                    chunked
-          
           if chunked
             headers.delete('Content-Length')
             headers['Transfer-Encoding'] = 'chunked'
           end
 
-          body = []
+          body = FileStreamer.new(env['thin.connection'], body.to_path, chunked)
           headers['X-Thin-Deferred'] = 'yes'
         end
 
@@ -29,15 +44,6 @@ module Thin
 
       def chunked?(env)
         env['HTTP_VERSION'] != 'HTTP/1.0'
-      end
-
-      def send_file(filename, connection, chunked)
-        deferrable = connection.stream_file_data filename, :http_chunks => chunked
-        
-        reset = connection.method(:reset)
-        
-        deferrable.callback(&reset)
-        deferrable.errback(&reset)
       end
     end
   end

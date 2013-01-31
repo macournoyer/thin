@@ -73,7 +73,8 @@ module Thin
         RACK_VERSION      => VERSION::RACK,
         RACK_ERRORS       => $stderr,
 
-        RACK_RUN_ONCE     => false
+        RACK_RUN_ONCE     => false,
+        RACK_MULTITHREAD  => false
       }
       @keep_alive = false
     end

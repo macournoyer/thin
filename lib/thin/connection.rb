@@ -3,7 +3,6 @@ require "http/parser"
 
 require "thin/request"
 require "thin/response"
-require "thin/fast_enumerator"
 
 module Thin
   # EventMachine connection.
@@ -115,16 +114,10 @@ module Thin
       # Prepare the response for sending.
       @response.finish
     
-      # Sends a chunk on each loop tick.
-      responder = FastEnumerator.new(@response)
-      tick_loop = EM.tick_loop do
-        if chunk = responder.next
-          write chunk
-        else
-          :stop
-        end
-      end
-      tick_loop.on_stop method(:reset) unless deferred
+      # Send it
+      @response.each &method(:write)
+
+      reset unless deferred
     
     rescue Exception => e
       # In case there's an error sending the response, we give up and just
@@ -158,11 +151,11 @@ module Thin
       close_request_and_response
     end
   
-    def <<(data)
+    def write(data)
       print data if $DEBUG
       send_data data
     end
-    alias write <<
+    alias << write
 
   
     private
