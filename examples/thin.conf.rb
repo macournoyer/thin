@@ -4,12 +4,6 @@ worker_connections 1024
 # use_epoll false
 # use_kqueue false
 
-# Threading
-# For slow apps, you can enable the use of threads.
-# If you're using this in Rails, make sure to call config.threadsafe!
-threaded true # Call the app in a thread.
-thread_pool_size 20
-
 # Worker options
 # worker_processes 0 # runs in a single process w/ limited features.
 worker_processes 4
@@ -37,3 +31,33 @@ end
 after_fork do |server|
   puts "Worker forked!"
 end
+
+# Thin middlewares - Enable and control the features of Thin.
+#
+# The following middlewares are Thin specific and need to be mounted at the
+# very top of the middleware stack.
+
+# Enable `async.callback` feature.
+use Thin::Async do
+  # Middlewares applied to async responses.
+  use Thin::Chunked
+end
+# Leagacy `throw :async` support.
+# use Thin::CatchAsync
+
+# For slow apps, you can enable the use of threads.
+# If you're using this in Rails, make sure to call config.threadsafe!
+# use Thin::Threaded, :pool_size => 20
+
+# Or optionally enable threads only on some paths.
+# map '/threaded' do
+#   use Thin::Threaded
+# end
+
+# Stream response body. This degrades performance.
+# Remove if you don't need or scope using `map`.
+use Thin::Streaming
+
+# Stream files. Use this if you're on Heroku.
+use Thin::StreamFile
+

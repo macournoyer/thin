@@ -1,10 +1,11 @@
 module Thin
   class Configurator
-    attr_reader :options
+    attr_reader :options, :builder
 
     def initialize(defaults={}, &block)
       @options = defaults.dup
       @options[:listeners] ||= []
+      @builder = Rack::Builder.new
       
       instance_eval(&block) if block
     end
@@ -91,6 +92,16 @@ module Thin
     # @see Thin::Server#after_fork
     def after_fork(&block)
       @options[:after_fork] = block
+    end
+    
+    # @see Rack::Builder#use
+    def use(*args, &block)
+      @builder.use(*args, &block)
+    end
+    
+    # @see Rack::Builder#map
+    def map(*args, &block)
+      @builder.map(*args, &block)
     end
 
     # Apply this configuration to the +server+ instance.

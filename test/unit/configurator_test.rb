@@ -2,6 +2,27 @@ require 'test_helper'
 require "thin/configurator"
 
 class ConfiguratorTest < Test::Unit::TestCase
+  class MockMiddleware
+    def initialize(app, response)
+      @app = app
+      @response = response
+    end
+
+    def call(env)
+      Rack::Response.new(@response).finish
+    end
+  end
+  
+  class MockApp
+    def initialize(response)
+      @response = response
+    end
+
+    def call(env)
+      Rack::Response.new(@response).finish
+    end
+  end
+
   def setup
     @config = Thin::Configurator.new
   end
@@ -28,6 +49,23 @@ class ConfiguratorTest < Test::Unit::TestCase
   def test_before_fork
     @config.before_fork { :ok }
     assert_equal :ok, @config.options[:before_fork].call(:server)
+  end
+
+  def test_use
+    @config.use MockMiddleware, "ok"
+    @config.builder.run(MockApp.new("app"))
+    assert_equal "ok", Rack::MockRequest.new(@config.builder).get("/").body
+  end
+
+  def test_map
+    @config.map '/ok' do
+      use MockMiddleware, "ok"
+    end
+    @config.builder.run(MockApp.new("app"))
+    request = Rack::MockRequest.new(@config.builder)
+
+    assert_equal "app", request.get("/").body
+    assert_equal "ok", request.get("/ok").body
   end
 
   def test_load_from_file
