@@ -42,7 +42,7 @@ use Thin::Async do
   # Middlewares applied to async responses.
   use Thin::Chunked
 end
-# Leagacy `throw :async` support.
+# Legacy `throw :async` support.
 # use Thin::CatchAsync
 
 # For slow apps, you can enable the use of threads.

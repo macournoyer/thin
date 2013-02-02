@@ -1,13 +1,6 @@
 require "http/parser"
 
 module Thin
-  # EventMachine connection.
-  # Supports:
-  # * Rack specifications v1.1: http://rack.rubyforge.org/doc/SPEC.html
-  # * Asynchronous responses with chunked encoding, via the <tt>env['async.callback']</tt> or <tt>throw :async</tt>.
-  # * Keep-alive.
-  # * File streaming.
-  # * Calling the Rack app from pooled threads.
   class Connection < EM::Connection
     attr_accessor :server
     attr_accessor :listener

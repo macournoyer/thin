@@ -1,4 +1,5 @@
 module Thin
+  # Legacy `throw :async` support.
   class CatchAsync
     # Template async response.
     MARKER = [-1, {}, []].freeze

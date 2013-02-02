@@ -104,9 +104,14 @@ module Thin
       @builder.map(*args, &block)
     end
 
+    def wrap_app(app)
+      @builder.run(server.app)
+      @builder.to_app
+    end
+
     # Apply this configuration to the +server+ instance.
     # @param [Thin::Server] server
-    def apply(server)
+    def apply_options(server)
       @options.each_pair { |name, value| server.send "#{name}=", value }
       server
     end

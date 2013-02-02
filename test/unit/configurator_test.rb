@@ -72,10 +72,10 @@ class ConfiguratorTest < Test::Unit::TestCase
     Thin::Configurator.load(File.expand_path("../../fixtures/thin.conf.rb", __FILE__))
   end
 
-  def test_apply
+  def test_apply_options
     server = Thin::Server.new {}
     @config.worker_processes 10000
-    @config.apply(server)
+    @config.apply_options(server)
     assert_equal 10000, server.worker_processes
   end
 end

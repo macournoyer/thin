@@ -116,15 +116,19 @@ module Thin
       ENV["RACK_ENV"] = options[:environment]
       options[:config] = ::File.expand_path(options[:config])
 
+      if options[:thin_config]
+        configurator = Configurator.load(options[:thin_config])
+      end
+
       # Configure the server
       server = Server.new do
         # This is passed as a block so it can be loaded inside workers if preload_app disabled.
-        build_app(options[:config], options[:environment])
+        app = build_app(options[:config], options[:environment])
+        app = configurator.wrap_app(app) if configurator
+        app
       end
 
-      if options[:thin_config]
-        Configurator.load(options[:thin_config]).apply(server)
-      end
+      configurator.apply_options(server) if configurator
 
       # If no listeners yet, use the one from the options
       if !options.has_key?(:thin_config) || server.listeners.empty?
