@@ -1,9 +1,6 @@
 require "rack"
 require "http/parser"
 
-require "thin/request"
-require "thin/response"
-
 module Thin
   # EventMachine connection.
   # Supports:

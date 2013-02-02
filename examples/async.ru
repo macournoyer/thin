@@ -1,7 +1,3 @@
-require "thin/async"
-require "thin/middlewares/async"
-require "thin/middlewares/chunked"
-
 class Async
   def call(env)
     response = Thin::AsyncResponse.new(env)
@@ -25,8 +21,8 @@ end
 
 use Rack::Chunked
 
-use Thin::Middlewares::Async do
-  use Thin::Middlewares::Chunked
+use Thin::Async do
+  use Thin::Chunked
   use Rack::CommonLogger
 end
 

@@ -1,11 +1,5 @@
 require "eventmachine"
 
-require "thin/system"
-require "thin/listener"
-require "thin/connection"
-require "thin/backends/prefork"
-require "thin/backends/single_process"
-
 module Thin
   # The uterly famous Thin server.
   #

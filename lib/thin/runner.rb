@@ -1,8 +1,6 @@
 require "optparse"
 require "rack"
 
-require "thin/configurator"
-
 module Thin
   # Command line runner. Mimic Rack's +rackup+.
   class Runner
