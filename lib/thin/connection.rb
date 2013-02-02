@@ -123,8 +123,7 @@ module Thin
 
     rescue Exception
       handle_error
-      # Close connection since we can't handle response gracefully
-      close_connection
+      terminate_request!
     end
 
     # Logs catched exception and closes the connection.
@@ -144,17 +143,21 @@ module Thin
     # Re-initializes response and request if client supports persistent
     # connection.
     def terminate_request
-      unless persistent?
-        close_connection_after_writing rescue nil
-        close_request_response
-      else
+      if persistent?
         close_request_response
         # Connection become idle but it's still open
         @idle = true
         # Prepare the connection for another request if the client
         # supports HTTP pipelining (persistent connection).
         post_init
+      else
+        terminate_request!
       end
+    end
+
+    def terminate_request!
+      close_connection_after_writing rescue nil
+      close_request_response
     end
 
     # Called when the connection is unbinded from the socket

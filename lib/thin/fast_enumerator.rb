@@ -23,8 +23,8 @@ module Thin
 
       # Slow Enumerator based version for Rubies w/ no fibers.
 
-      def initialize(args)
-        @enum = array.each
+      def initialize(array)
+        @enum = Enumerator.new(array)
       end
 
       def next
