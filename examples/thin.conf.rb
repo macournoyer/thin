@@ -40,6 +40,8 @@ end
 # Enable `async.callback` feature.
 use Thin::Async do
   # Middlewares applied to async responses.
+  # These middlewares will only run after the response has been produced by the app,
+  # thus any middleware modifying the `env` will be ignored.
   use Thin::Chunked
 end
 # Legacy `throw :async` support.
@@ -55,8 +57,8 @@ end
 # end
 
 # Stream response body. This degrades performance.
-# Remove if you don't need or scope using `map`.
-use Thin::Streaming
+# WARNING: you must disable Rack::Lock (config.threadsafe! in Rails) for this to work.
+# use Thin::Streamed
 
 # Stream files. Use this if you're on Heroku.
 use Thin::StreamFile
