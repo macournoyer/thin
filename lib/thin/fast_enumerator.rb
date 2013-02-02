@@ -23,8 +23,13 @@ module Thin
 
       # Slow Enumerator based version for Rubies w/o fibers.
 
-      def initialize(args)
-        @enum = array.each
+      # Ruby 1.8
+      unless defined?(Enumerator)
+        Enumerator = Enumerable::Enumerator
+      end
+
+      def initialize(array)
+        @enum = Enumerator.new(array)
       end
 
       def next
