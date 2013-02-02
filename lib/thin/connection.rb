@@ -1,4 +1,3 @@
-require "rack"
 require "http/parser"
 
 module Thin

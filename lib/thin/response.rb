@@ -1,5 +1,3 @@
-require "rack"
-
 module Thin
   # A response sent to the client.
   class Response

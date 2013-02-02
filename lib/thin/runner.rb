@@ -1,5 +1,4 @@
 require "optparse"
-require "rack"
 
 module Thin
   # Command line runner. Mimic Rack's +rackup+.

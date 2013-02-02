@@ -1,3 +1,6 @@
+require "eventmachine-le"
+require "rack"
+
 module Thin
   module Backends
     autoload :Prefork, "thin/backends/prefork"

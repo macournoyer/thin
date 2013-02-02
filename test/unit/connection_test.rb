@@ -103,8 +103,8 @@ EOS
   end
   
   def test_async_response_do_not_send_response
-    @connection.expects(:send_response).never
+    @connection.expects(:write).never
     
-    @connection.process_response(Thin::Response::ASYNC)
+    @connection.send_response([-1, {}, []])
   end
 end
