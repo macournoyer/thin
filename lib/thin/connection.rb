@@ -114,6 +114,7 @@ module Thin
       # resources.
       $stderr.puts "Error sending response: #{e}"
       close_connection
+      close_request_and_response
     end
   
     def send_response_and_reset(response=@response)
