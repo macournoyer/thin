@@ -38,7 +38,7 @@ module Thin
       attr_accessor :no_epoll
       
       def initialize
-        @connections                    = []
+        @connections                    = {}
         @timeout                        = Server::DEFAULT_TIMEOUT
         @persistent_connection_count    = 0
         @maximum_connections            = Server::DEFAULT_MAXIMUM_CONNECTIONS
@@ -72,7 +72,7 @@ module Thin
         # Do not accept anymore connection
         disconnect
         # Close idle persistent connections
-        @connections.each { |connection| connection.close_connection if connection.idle? }
+        @connections.each_value { |connection| connection.close_connection if connection.idle? }
         stop! if @connections.empty?
       end
       
@@ -82,7 +82,7 @@ module Thin
         @stopping = false
         
         EventMachine.stop if EventMachine.reactor_running?
-        @connections.each { |connection| connection.close_connection }
+        @connections.each_value { |connection| connection.close_connection }
         close
       end
       
@@ -110,7 +110,7 @@ module Thin
       # Called by a connection when it's unbinded.
       def connection_finished(connection)
         @persistent_connection_count -= 1 if connection.can_persist?
-        @connections.delete(connection)
+        @connections.delete(connection.__id__)
         
         # Finalize gracefull stop if there's no more active connection.
         stop! if @stopping && @connections.empty?
@@ -145,7 +145,7 @@ module Thin
             @persistent_connection_count += 1
           end
 
-          @connections << connection
+          @connections[connection.__id__] = connection
         end
       
     end
