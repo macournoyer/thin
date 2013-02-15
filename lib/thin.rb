@@ -7,9 +7,6 @@ module Thin
     autoload :SingleProcess, "thin/backends/single_process"
   end
 
-  autoload :Async, "thin/async"
-  autoload :CatchAsync, "thin/catch_async"
-  autoload :Chunked, "thin/chunked"
   autoload :Configurator, "thin/configurator"
   autoload :Connection, "thin/connection"
   autoload :FastEnumerator, "thin/fast_enumerator"
@@ -18,9 +15,14 @@ module Thin
   autoload :Response, "thin/response"
   autoload :Runner, "thin/runner"
   autoload :Server, "thin/server"
-  autoload :StreamFile, "thin/stream_file"
-  autoload :Streamed, "thin/streamed"
   autoload :System, "thin/system"
-  autoload :Threaded, "thin/threaded"
   autoload :Version, "thin/version"
+
+  # Middlewares
+  autoload :Async, "thin/middlewares/async"
+  autoload :CatchAsync, "thin/middlewares/catch_async"
+  autoload :Chunked, "thin/middlewares/chunked"
+  autoload :StreamFile, "thin/middlewares/stream_file"
+  autoload :Streamed, "thin/middlewares/streamed"
+  autoload :Threaded, "thin/middlewares/threaded"
 end

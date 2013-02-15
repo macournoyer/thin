@@ -30,13 +30,14 @@ module Thin
       @builder.run(proc { |env| response })
       status, headers, body = *@builder.call(env)
 
+      connection = env['thin.connection']
       headers['X-Thin-Defer'] = 'close'
-      close = env['thin.close']
 
-      body.callback(&reset) if body.respond_to?(:callback)
-      body.errback(&reset) if body.respond_to?(:errback)
+      close = proc { connection.close }
+      body.callback(&close) if body.respond_to?(:callback)
+      body.errback(&close) if body.respond_to?(:errback)
 
-      env['thin.send'].call [status, headers, body]
+      connection.call [status, headers, body]
     end
   end
 

@@ -69,10 +69,7 @@ module Thin
 
     # == Request processing methods
   
-    # Calls the Rack app in <tt>server.app</tt>.
-    # Returns a Rack response: <tt>[status, {headers}, [body]]</tt>
-    # The app can return [-1, ...] to short-circuit request processing
-    # or +nil+ if there was an error.
+    # Calls the Rack app in <tt>server.app</tt> and sends the response.
     def process
       @request.env['thin.connection'] = self
 
@@ -89,7 +86,7 @@ module Thin
       @response = Response.new(*response)
       defer = @response.headers.delete('X-Thin-Defer')
 
-      # Defer tge entire response. We're going to respond later.
+      # Defer the entire response. We're going to respond later.
       return if defer == 'response'
 
       if @request
@@ -122,6 +119,7 @@ module Thin
       close_connection
       close_request_and_response
     end
+    alias call send_response
 
     # Reset the connection and prepare for another request if keep-alive is
     # requested.
