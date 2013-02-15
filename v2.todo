@@ -18,7 +18,8 @@ x Threading
 - SSL
 - Graceful stop
 x Daemonizing
-- Add option to turn off async chunked encoding
+x Add option to turn off async chunked encoding
+- Deffered GC: https://github.com/defunkt/unicorn/blob/master/lib/unicorn/oob_gc.rb
 
 Optimizations:
 - Stock 200 OK response (store in frozen const)

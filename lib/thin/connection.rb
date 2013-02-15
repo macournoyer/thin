@@ -108,13 +108,11 @@ module Thin
 
       trigger 'send'
 
-      close if defer == 'close'
+      close unless defer == 'close'
     
     rescue Exception => e
-      # In case there's an error sending the response, we give up and just
-      # close the connection to prevent recursion and consuming too much
-      # resources.
-      $stderr.puts "Error sending response"
+      # In case there's an error sending the response, we give up trying to send a proper response.
+      $stderr.puts "Error sending response, closing connection."
       log_error
       close_connection
       close_request_and_response
