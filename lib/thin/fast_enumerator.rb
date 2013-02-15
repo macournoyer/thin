@@ -1,8 +1,7 @@
 require 'fiber' if defined?(Fiber)
 
 module Thin
-  # Turns out Enumerator#next is pretty slow and rolling our own w/ Fibers is a lot faster.
-  # Still not as fast as Enumerable#each(&block) but eh...
+  # Enumerator#next is pretty slow and rolling our own w/ Fibers is a lot faster.
   class FastEnumerator
     if defined?(Fiber)
       
@@ -21,7 +20,7 @@ module Thin
 
     else
 
-      # Slow Enumerator based version for Rubies w/o fibers.
+      # Slow Enumerator-based version for Rubies w/o Fibers.
 
       # Ruby 1.8
       unless defined?(Enumerator)

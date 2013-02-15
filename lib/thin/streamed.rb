@@ -22,7 +22,7 @@ module Thin
       end
       tick_loop.on_stop env['thin.close']
 
-      headers['X-Thin-Deferred'] = 'yes'
+      headers['X-Thin-Defer'] = 'body'
 
       [status, headers, body]
     end

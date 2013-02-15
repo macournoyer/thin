@@ -30,50 +30,16 @@ module Thin
       @builder.run(proc { |env| response })
       status, headers, body = *@builder.call(env)
 
-      connection = env['thin.connection']
-      reset = connection.method(:reset)
-      headers['X-Thin-Deferred'] = 'yes'
+      headers['X-Thin-Defer'] = 'close'
+      close = env['thin.close']
 
       body.callback(&reset) if body.respond_to?(:callback)
       body.errback(&reset) if body.respond_to?(:errback)
 
-      connection.send_response [status, headers, body]
+      env['thin.send'].call [status, headers, body]
     end
   end
 
-  unless defined?(DeferrableBody)
-    # Based on version from James Tucker <raggi@rubyforge.org>
-    class DeferrableBody
-      include EM::Deferrable
-
-      def initialize
-        @queue = []
-      end
-
-      def call(body)
-        @queue << body
-        schedule_dequeue
-      end
-
-      def each(&blk)
-        @body_callback = blk
-        schedule_dequeue
-      end
-  
-      private
-        def schedule_dequeue
-          return unless @body_callback
-          EM.next_tick do
-            next unless body = @queue.shift
-            body.each do |chunk|
-              @body_callback.call(chunk)
-            end
-            schedule_dequeue unless @queue.empty?
-          end
-        end
-    end
-  end
-  
   # Response whos body is sent asynchronously.
   # 
   # A nice wrapper around Thin's obscure async callback used to send response body asynchronously.
@@ -107,14 +73,43 @@ module Thin
   #
   class AsyncResponse
     include Rack::Response::Helpers
+
+    class DeferrableBody
+      include EM::Deferrable
+
+      def initialize
+        @queue = []
+      end
+
+      def call(body)
+        @queue << body
+        schedule_dequeue
+      end
+
+      def each(&blk)
+        @body_callback = blk
+        schedule_dequeue
+      end
     
-    Marker = [-1, {}, []].freeze
-    
+      private
+        def schedule_dequeue
+          return unless @body_callback
+          EM.next_tick do
+            next unless body = @queue.shift
+            body.each do |chunk|
+              @body_callback.call(chunk)
+            end
+            schedule_dequeue unless @queue.empty?
+          end
+        end
+    end
+
     attr_reader :headers, :callback
     attr_accessor :status
     
     def initialize(env, status=200, headers={})
       @callback = env['async.callback']
+      @closer = env['thin.close']
       @body = DeferrableBody.new
       @status = status
       @headers = headers
@@ -138,13 +133,13 @@ module Thin
     # Tell Thin the response is complete and the connection can be closed.
     def done(response=nil)
       send_headers(response)
-      EM.next_tick { @body.succeed }
+      EM.next_tick { @closer.close }
     end
     
     # Tell Thin the response is gonna be sent asynchronously.
     # The status code of -1 is the magic trick here.
     def finish
-      Marker
+      Response::ASYNC
     end
   end
 end

@@ -9,9 +9,9 @@ module Thin
     def call(env)
       env['rack.multithread'] = true
 
-      EM.defer(proc { @app.call(env) }, env['thin.process'])
+      EM.defer(proc { @app.call(env) }, env['thin.send'])
 
-      [-1, {}, []]
+      Response::ASYNC
     end
   end
 end

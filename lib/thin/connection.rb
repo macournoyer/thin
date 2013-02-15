@@ -28,7 +28,7 @@ module Thin
       @parser << data
     rescue HTTP::Parser::Error => e
       $stderr.puts "Parse error: #{e}"
-      send_response_and_reset Response.error(400) # Bad Request
+      send_response Response.error(400) # Bad Request
     end
 
     # Called when the connection is unbinded from the socket
@@ -75,8 +75,6 @@ module Thin
     # or +nil+ if there was an error.
     def process
       @request.env['thin.connection'] = self
-      @request.env['thin.process'] = method(:send_response)
-      @request.env['thin.close'] = method(:reset)
 
       # Call the Rack application
       send_response @server.app.call(@request.env)
@@ -88,12 +86,12 @@ module Thin
    
     # Send the HTTP response back to the client.
     def send_response(response)
-      # We're going to respond later.
-      return if response.nil? || response.first == -1
-
       @response = Response.new(*response)
-      deferred = @response.headers.delete('X-Thin-Deferred') # Deferred close
-    
+      defer = @response.headers.delete('X-Thin-Defer')
+
+      # Defer tge entire response. We're going to respond later.
+      return if defer == 'response'
+
       if @request
         # Keep connection alive if requested by the client.
         @response.keep_alive! if @can_keep_alive && @request.keep_alive?
@@ -102,33 +100,34 @@ module Thin
   
       # Prepare the response for sending.
       @response.finish
-    
-      # Send it
-      @response.each &method(:write)
 
-      reset unless deferred
+      # Send the head (status & headers)
+      write @response.head
+
+      trigger 'send' and return if defer == 'body'
+
+      # Send the body
+      @response.body.each { |chunk| write chunk }
+
+      trigger 'send'
+
+      close if defer == 'close'
     
     rescue Exception => e
       # In case there's an error sending the response, we give up and just
       # close the connection to prevent recursion and consuming too much
       # resources.
-      $stderr.puts "Error sending response: #{e}"
+      $stderr.puts "Error sending response"
+      log_error
       close_connection
       close_request_and_response
-    end
-  
-    def send_response_and_reset(response=@response)
-      send_response(response)
-      reset
     end
 
     # Reset the connection and prepare for another request if keep-alive is
     # requested.
     # Else, closes the connection.
-    def reset
-      if onclose = @request.env['thin.onclose']
-        onclose.call
-      end
+    def close
+      trigger 'close'
 
       if @response && @response.keep_alive?
         # Prepare the connection for another request if the client
@@ -149,7 +148,11 @@ module Thin
 
   
     private
-      # == Support methods
+      def trigger(event)
+        if callback = @request && @request.env["thin.on_#{event}"]
+          callback.call
+        end
+      end
     
       def close_request_and_response
         if @request
@@ -177,12 +180,16 @@ module Thin
           ""
         end
       end
+
+      def log_error(e=$!)
+        $stderr.puts "[ERROR] #{e}"
+        $stderr.puts "\t" + e.backtrace.join("\n\t")
+      end
   
       # Output the error to stderr and sends back a 500 error.
       def handle_error(e=$!)
-        $stderr.puts "[ERROR] #{e}"
-        $stderr.puts "\t" + e.backtrace.join("\n\t") if $DEBUG
-        send_response_and_reset Response.error(500) # Internal Server Error
+        log_error e
+        send_response Response.error(500) # Internal Server Error
       end
   end
 end

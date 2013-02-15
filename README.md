@@ -8,18 +8,14 @@
 # Thin
 Tiny, fast & funny Ruby server
 
-Thin is a high performance and customizable Ruby server. It's structured much like Nginx. A
-master process listen to incoming requests and dispatch to its worker processes, each one
-running an EventMachine event loop.
+Thin is a high performance and customizable Ruby server. It is an evented prefork server much like Nginx. A master process listen to incoming requests and dispatch to its worker processes, each one running an EventMachine loop.
 
-Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server
-bundled in an easy to use gem for your own pleasure.
+Which makes it, with all humility, the most secure, stable, fast and extensible Ruby web server bundled in an easy to use gem for your own pleasure.
 
 **Site:**  http://code.macournoyer.com/thin/  
 **Group:** http://groups.google.com/group/thin-ruby/topics  
 **Bugs:**  http://github.com/macournoyer/thin/issues  
 **Code:**  http://github.com/macournoyer/thin  
-**IRC:**   #thin on freenode  
 
 ## Features
 
