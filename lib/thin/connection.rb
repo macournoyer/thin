@@ -89,7 +89,7 @@ module Thin
       defer = @response.headers.delete('X-Thin-Defer')
 
       # Defer the entire response. We're going to respond later.
-      return if defer == 'response'
+      return if defer == 'yes'
 
       if @request
         # Keep connection alive if requested by the client.

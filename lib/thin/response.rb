@@ -2,7 +2,7 @@ module Thin
   # A response sent to the client.
   class Response
     # Template async response.
-    ASYNC = [-1, {}, []].freeze
+    ASYNC = [ 100, { 'X-Thin-Defer' => 'yes' }, [] ].freeze
 
     CONNECTION     = 'Connection'.freeze
     CLOSE          = 'close'.freeze

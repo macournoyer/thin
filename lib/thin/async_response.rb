@@ -33,7 +33,7 @@ module Thin
       @close = env['async.close'] || connection.method(:close)
 
       @status = status
-      @headers = headers
+      @headers = { 'X-Thin-Defer' => 'close' }.merge(headers)
       @body = Body.new
       @head_sent = false
 
@@ -61,7 +61,7 @@ module Thin
     end
 
     def finish
-      [100, {'X-Thin-Defer' => 'response'}, []]
+      Response::ASYNC
     end
   end
 end

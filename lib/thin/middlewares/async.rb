@@ -48,10 +48,7 @@ module Thin
     def async_call(response, env)
       status, headers, body = *@stack.call_with(env, response)
 
-      connection = env['thin.connection']
-      headers['X-Thin-Defer'] = 'close'
-
-      connection.call [status, headers, body]
+      env['thin.connection'].call [status, headers, body]
     end
   end
 end

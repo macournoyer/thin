@@ -25,7 +25,7 @@ module Thin
 
       headers['X-Thin-Defer'] = 'close'
 
-      [status, headers, body]
+      [status, headers, []]
     end
   end
 end
