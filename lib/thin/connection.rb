@@ -83,7 +83,9 @@ module Thin
    
     # Send the HTTP response back to the client.
     def send_response(response)
+      @response.close if @response
       @response = Response.new(*response)
+
       defer = @response.headers.delete('X-Thin-Defer')
 
       # Defer the entire response. We're going to respond later.
@@ -100,8 +102,6 @@ module Thin
 
       # Send the head (status & headers)
       write @response.head
-
-      trigger 'send' and return if defer == 'body'
 
       # Send the body
       @response.body.each { |chunk| write chunk }
@@ -145,6 +145,7 @@ module Thin
   
     private
       def trigger(event)
+        # TODO should support several callbacks
         if callback = @request && @request.env["thin.on_#{event}"]
           callback.call
         end

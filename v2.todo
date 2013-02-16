@@ -19,7 +19,9 @@ x Threading
 - Graceful stop
 x Daemonizing
 x Add option to turn off async chunked encoding
-- Deffered GC: https://github.com/defunkt/unicorn/blob/master/lib/unicorn/oob_gc.rb
+- Stats
+- Rails plugin for async response
 
 Optimizations:
 - Stock 200 OK response (store in frozen const)
+- Deffered GC: https://github.com/defunkt/unicorn/blob/master/lib/unicorn/oob_gc.rb

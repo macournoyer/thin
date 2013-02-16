@@ -7,6 +7,7 @@ module Thin
     autoload :SingleProcess, "thin/backends/single_process"
   end
 
+  autoload :AsyncResponse, "thin/async_response"
   autoload :Configurator, "thin/configurator"
   autoload :Connection, "thin/connection"
   autoload :FastEnumerator, "thin/fast_enumerator"

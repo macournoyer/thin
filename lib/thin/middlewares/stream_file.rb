@@ -16,14 +16,14 @@ module Thin
           headers['Transfer-Encoding'] = 'chunked'
         end
 
-        headers['X-Thin-Defer'] = 'body'
+        headers['X-Thin-Defer'] = 'close'
 
         env['thin.on_send'] = proc do
           send_file connection, body.to_path, chunked
         end
       end
 
-      [status, headers, body]
+      [status, headers, []]
     end
 
     def chunked?(env)

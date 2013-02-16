@@ -14,24 +14,19 @@ module Thin
         @body = body
       end
 
-      def each
-        term = TERM
+      def each(&block)
+        @callback = block
         @body.each do |chunk|
           size = Rack::Utils.bytesize(chunk)
           next if size == 0
 
           chunk = chunk.dup.force_encoding(Encoding::BINARY) if chunk.respond_to?(:force_encoding)
-          yield [size.to_s(16), term, chunk, term].join
-        end
-
-        if @body.respond_to?(:callback)
-          @body.callback { yield TAIL }
-        else
-          yield TAIL
+          yield [size.to_s(16), TERM, chunk, TERM].join
         end
       end
 
       def close
+        @callback.call TAIL
         @body.close if @body.respond_to?(:close)
       end
     end

@@ -57,6 +57,24 @@ See examples/thin.conf.rb for a sample configuration file.
 
 Run `thin -h` to list available options.
 
+## Configuration
+
+TODO
+
+## Asynchronous Response
+
+First make sure to add `use Thin::Async` in your `thin.conf.rb` or wherever you're setting up your middleware stack.
+
+    def call(env)
+      EM.add_timer(1) do
+        env['async.callback'].call [200, {'Content-Type' => 'text/plain'}, ['async!']]
+      end
+
+      [100, {'X-Thin-Defer' => 'response'}, []]
+    end
+
+_Note that this feature is incompatible with Thin v1.x async feature. To fallback to the old behavior, add `use Thin::CatchAsync` after `use Thin::Async` in your middleware stack._
+
 ## License
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
 

@@ -23,7 +23,7 @@ module Thin
       end
       tick_loop.on_stop { connection.close }
 
-      headers['X-Thin-Defer'] = 'body'
+      headers['X-Thin-Defer'] = 'close'
 
       [status, headers, body]
     end
