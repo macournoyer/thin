@@ -1,3 +1,5 @@
+require 'rake/clean'
+
 CLEAN.include %w(coverage tmp log)
 
 gem "rspec", "~> 1.2.9"
