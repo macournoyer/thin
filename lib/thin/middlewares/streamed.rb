@@ -11,21 +11,27 @@ module Thin
     def call(env)
       status, headers, body = @app.call(env)
 
-      connection = env['thin.connection']
+      if headers['Transfer-Encoding'] == 'chunked'
+        connection = env['thin.connection']
 
-      responder = FastEnumerator.new(body)
-      tick_loop = EM.tick_loop do
-        if chunk = responder.next
-          connection << chunk
-        else
-          :stop
+        EM.schedule do
+          responder = FastEnumerator.new(body)
+          tick_loop = EM.tick_loop do
+            if chunk = responder.next
+              p chunk
+              connection << chunk
+            else
+              :stop
+            end
+          end
+          tick_loop.on_stop { connection.close }
         end
+
+        headers['X-Thin-Defer'] = 'close'
+        body = [] # Body will be sent on next ticks
       end
-      tick_loop.on_stop { connection.close }
 
-      headers['X-Thin-Defer'] = 'close'
-
-      [status, headers, []]
+      [status, headers, body]
     end
   end
 end

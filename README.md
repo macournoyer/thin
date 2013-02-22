@@ -63,6 +63,10 @@ TODO
 
 ## Asynchronous Response
 
+### env['thin.connection']
+
+### X-Thin-Defer header
+
 First make sure to add `use Thin::Async` in your `thin.conf.rb` or wherever you're setting up your middleware stack.
 
     def call(env)
@@ -70,6 +74,8 @@ First make sure to add `use Thin::Async` in your `thin.conf.rb` or wherever you'
         env['async.callback'].call [200, {'Content-Type' => 'text/plain'}, ['async!']]
       end
 
+      # This response won't be sent to the client.
+      # The special header tells Thin not to.
       [100, {'X-Thin-Defer' => 'yes'}, []]
     end
 

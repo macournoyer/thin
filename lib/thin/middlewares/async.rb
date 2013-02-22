@@ -39,13 +39,13 @@ module Thin
     end
 
     def call(env)
-      env['async.callback'] = Callback.new(env) { |reponse, env| async_call reponse, env }
+      env['async.callback'] = Callback.new(env) { |reponse, env| callback reponse, env }
       env['async.close'] = lambda { env['thin.connection'].close }
 
       @app.call(env)
     end
 
-    def async_call(response, env)
+    def callback(response, env)
       status, headers, body = *@stack.call_with(env, response)
 
       env['thin.connection'].call [status, headers, body]
