@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Backends::SwiftiplyClient do
   before do
     @backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @backend.server = mock('server', :null_object => true)
+    @backend.server = mock('server').as_null_object
   end
   
   it "should connect" do
@@ -26,7 +26,7 @@ describe SwiftiplyConnection do
   before do
     @connection = SwiftiplyConnection.new(nil)
     @connection.backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @connection.backend.server = mock('server', :null_object => true)
+    @connection.backend.server = mock('server').as_null_object
   end
   
   it do
