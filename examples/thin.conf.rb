@@ -57,7 +57,8 @@ end
 # end
 
 # Stream response body. This degrades performance.
-# WARNING: you must disable Rack::Lock (config.threadsafe! in Rails) for this to work.
+# WARNING: you must disable Rack::Lock (config.threadsafe! in Rails) for this to work since
+# the body will be stremed using a Fiber.
 # use Thin::Streamed
 
 # Stream files. Use this if you're on Heroku.
