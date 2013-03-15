@@ -105,7 +105,7 @@ module Thin
     end
 
     def wrap_app(app)
-      @builder.run(server.app)
+      @builder.run(app)
       @builder.to_app
     end
 

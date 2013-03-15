@@ -1,5 +1,3 @@
-require "thin/async"
-
 class App
   def call(env)
     request = Rack::Request.new(env)
