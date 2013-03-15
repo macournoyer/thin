@@ -102,9 +102,9 @@ EOS
     assert_equal "text/plain, charset=utf8", env["CONTENT_TYPE"]
   end
   
-  def test_async_response_do_not_send_response
+  def test_defered_response_do_not_send
     @connection.expects(:write).never
     
-    @connection.send_response([-1, {}, []])
+    @connection.send_response([200, {'X-Thin-Defer' => 'yes'}, []])
   end
 end
