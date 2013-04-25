@@ -60,6 +60,15 @@ describe Connection do
     @connection.should_receive(:teminate_request).never
     @connection.process
   end
+  
+  it "should create a new request after parsing complete with persistend connection" do
+    prev_request = @connection.request.object_id
+    @connection.request.should_receive(:parse).and_return(true)
+    @connection.stub!(:persistent?).and_return(true)
+    @connection.should_receive(:process)
+    @connection.receive_data('GET')
+    @connection.request.object_id.should_not == prev_request
+  end
 
   it "should rescue Timeout error in process" do
     @connection.app.should_receive(:call).and_raise(Timeout::Error.new("timeout error not rescued"))
