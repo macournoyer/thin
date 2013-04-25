@@ -21,8 +21,11 @@ end
 module Matchers
   class BeFasterThen
     def initialize(max_time)
-      require 'benchmark_unit'
       @max_time = max_time
+    end
+
+    def measure(&block)
+      Benchmark.measure(&block).total
     end
 
     # Base on benchmark_unit/assertions#compare_benchmarks
@@ -30,20 +33,16 @@ module Matchers
       @time, multiplier = 0, 1
       
       while (@time < 0.01) do
-        @time = Benchmark::Unit.measure do 
-          multiplier.times &proc
-        end
+        @time = measure { multiplier.times &proc }
         multiplier *= 10
       end
       
       multiplier /= 10
       
-      iterations = (Benchmark::Unit::CLOCK_TARGET / @time).to_i * multiplier
+      iterations = (2 / @time).to_i * multiplier
       iterations = 1 if iterations < 1
       
-      total = Benchmark::Unit.measure do 
-        iterations.times &proc
-      end
+      total = measure { iterations.times &proc }
       
       @time = total / iterations
       
