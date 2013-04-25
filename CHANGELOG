@@ -1,5 +1,10 @@
-== EDGE
+== 1.5.1 Straight Razor
  * Fix issue when running as another user/group without a PID file.
+ * Allow overriding Connection & Server response headers.
+ * Update vlad example [Mathieu Lemoine]
+ * Keep connections in a Hash to speedup deletion [slivu]
+ * Force kill using already known pid. Prevents "thin stop" from leaving a process that removed its
+   pid file, but is still running (e.g. hung on some at_exit callback) [Michal Kwiatkowski]
 
 == 1.5.0 Knife
  * Fix compilation under Ubuntu 12.04 with -Werror=format-security option.

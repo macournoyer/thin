@@ -132,22 +132,18 @@ module Thin
         end
       rescue Timeout::Error
         Logging.log "Timeout!"
-        force_kill pid_file
+        force_kill(pid, pid_file)
       rescue Interrupt
-        force_kill pid_file
+        force_kill(pid, pid_file)
       rescue Errno::ESRCH # No such process
         Logging.log "process not found!"
-        force_kill pid_file
+        force_kill(pid, pid_file)
       end
       
-      def force_kill(pid_file)
-        if pid = read_pid_file(pid_file)
-          Logging.log "Sending KILL signal to process #{pid} ... "
-          Process.kill("KILL", pid)
-          File.delete(pid_file) if File.exist?(pid_file)
-        else
-          Logging.log "Can't stop process, no PID found in #{pid_file}"
-        end
+      def force_kill(pid, pid_file)
+        Logging.log "Sending KILL signal to process #{pid} ... "
+        Process.kill("KILL", pid)
+        File.delete(pid_file) if File.exist?(pid_file)
       end
       
       def read_pid_file(file)
