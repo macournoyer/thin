@@ -11,6 +11,14 @@ describe Server, "HTTP pipelining" do
       [200, { 'Content-Type' => 'text/html',  'Content-Length' => (body.respond_to?(:bytesize) ? body.bytesize : body.size).to_s }, body]
     end
     @server.maximum_persistent_connections = 1024
+
+    # wait until the server is reachable
+    begin
+      TCPSocket.new('0.0.0.0', 3333).close
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+      sleep 0.1
+      retry
+    end
   end
 
   it "should pipeline request on same socket" do
