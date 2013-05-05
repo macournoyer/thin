@@ -29,6 +29,11 @@ describe Server do
     @server.threaded = true
     @server.backend.should be_threaded
   end
+
+  it "should set the threadpool" do
+    @server.threadpool_size = 10
+    @server.threadpool_size.should == 10
+  end
 end
 
 describe Server, "initialization" do

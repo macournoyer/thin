@@ -42,7 +42,8 @@ module Thin
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
         :require              => [],
-        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME
+        :wait                 => Controllers::Cluster::DEFAULT_WAIT_TIME,
+        :threadpool_size      => 20
       }
 
       parse!
@@ -124,6 +125,8 @@ module Thin
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
         opts.on(      "--threaded", "Call the Rack application in threads " +
                                     "[experimental]")                                   { @options[:threaded] = true }
+        opts.on(      "--threadpool_size NUM", "Sets the size of the EventMachine threadpool.",
+                                       "(default: #{@options[:threadpool_size]})") { |num| @options[:threadpool_size] = num.to_i }
         opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
 
         opts.separator ""
