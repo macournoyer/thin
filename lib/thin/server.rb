@@ -80,7 +80,7 @@ module Thin
     def_delegators :backend, :maximum_persistent_connections, :maximum_persistent_connections=
     
     # Allow using threads in the backend.
-    def_delegators :backend, :threaded?, :threaded=
+    def_delegators :backend, :threaded?, :threaded=, :threadpool_size, :threadpool_size=
     
     # Allow using SSL in the backend.
     def_delegators :backend, :ssl?, :ssl=, :ssl_options=

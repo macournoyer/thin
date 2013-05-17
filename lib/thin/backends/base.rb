@@ -22,11 +22,18 @@ module Thin
       
       # Maximum number of connections that can be persistent
       attr_accessor :maximum_persistent_connections
-      
+
+      #allows setting of the eventmachine threadpool size
+      attr_reader :threadpool_size
+      def threadpool_size=(size)
+        @threadpool_size = size
+        EventMachine.threadpool_size = size
+      end
+
       # Allow using threads in the backend.
       attr_writer :threaded
       def threaded?; @threaded end
-      
+            
       # Allow using SSL in the backend.
       attr_writer :ssl, :ssl_options
       def ssl?; @ssl end

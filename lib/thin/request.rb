@@ -128,7 +128,7 @@ module Thin
     def threaded=(value)
       @env[RACK_MULTITHREAD] = value
     end
-    
+
     def async_callback=(callback)
       @env[ASYNC_CALLBACK] = callback
       @env[ASYNC_CLOSE] = EventMachine::DefaultDeferrable.new
