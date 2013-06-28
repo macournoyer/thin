@@ -36,7 +36,10 @@ module Thin
     def receive_data(data)
       @idle = false
       trace { data }
-      process if @request.parse(data)
+      if @request.parse(data)
+        process
+        @request = Thin::Request.new if persistent?
+      end
     rescue InvalidRequest => e
       log "!! Invalid request"
       log_error e
