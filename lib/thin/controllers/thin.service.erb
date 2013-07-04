@@ -1,0 +1,12 @@
+[Unit]
+Description=A fast and very simple Ruby web server
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=<%= Command.script %> start --all <%= config_files_path %>
+ExecReload=<%= Command.script %> restart --all <%= config_files_path %>
+ExecStop=<%= Command.script %> stop --all <%= config_files_path %>
+
+[Install]
+WantedBy=multi-user.target
