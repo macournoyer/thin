@@ -91,7 +91,7 @@ class Thin < Atchoum::Website
     h2 'Install the Gem'
 
     p 'To install the latest stable gem'
-    pre 'sudo gem install thin'
+    pre 'gem install thin'
     
     h2 'Install from source'
 
@@ -99,16 +99,19 @@ class Thin < Atchoum::Website
     pre "git clone git://github.com/macournoyer/thin.git"
     
     p 'Hack the code, patch it, whatever, build the Gem and install'
-    pre "cd thin\nsudo rake install"
+    pre "cd thin\nrake install"
   end
   
   def usage_page
     h2 'Using with Rails'
 
-    p { "After installing the Gem, a #{code 'thin'} script should be in your " +
-        "path to easily start your Rails application." }
+    p "Add thin to your Gemfile"
 
-    pre "cd to/your/rails/app\nthin start"
+    pre "gem 'thin'"
+
+    p "Start Thin"
+
+    pre "thin start"
     
     h2 'Using with anything, ANYTHING!'
     
