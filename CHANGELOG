@@ -1,3 +1,7 @@
+== EDGE
+ * Accept absolute URL in request
+ * Pipelining is no longer supported
+
 == 1.5.1 Straight Razor
  * Fix issue when running as another user/group without a PID file.
  * Allow overriding Connection & Server response headers.
