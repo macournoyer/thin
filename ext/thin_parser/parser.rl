@@ -109,7 +109,7 @@ size_t thin_http_parser_execute(http_parser *parser, const char *buffer, size_t 
   pe = buffer+len;
 
   assert(*pe == '\0' && "pointer does not end on NUL");
-  assert(pe - p == len - off && "pointers aren't same distance");
+  assert(pe - p == (long)(len - off) && "pointers aren't same distance");
 
 
   %% write exec;
@@ -132,6 +132,14 @@ size_t thin_http_parser_execute(http_parser *parser, const char *buffer, size_t 
   return(parser->nread);
 }
 
+int thin_http_parser_has_error(http_parser *parser) {
+  return parser->cs == http_parser_error;
+}
+
+int thin_http_parser_is_finished(http_parser *parser) {
+  return parser->cs == http_parser_first_final;
+}
+
 int thin_http_parser_finish(http_parser *parser)
 {
   int cs = parser->cs;
@@ -146,12 +154,4 @@ int thin_http_parser_finish(http_parser *parser)
   } else {
     return 0;
   }
-}
-
-int thin_http_parser_has_error(http_parser *parser) {
-  return parser->cs == http_parser_error;
-}
-
-int thin_http_parser_is_finished(http_parser *parser) {
-  return parser->cs == http_parser_first_final;
 }

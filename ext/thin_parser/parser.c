@@ -25,7 +25,7 @@
 
 #line 27 "parser.c"
 static const int http_parser_start = 1;
-static const int http_parser_first_final = 58;
+static const int http_parser_first_final = 70;
 static const int http_parser_error = 0;
 
 static const int http_parser_en_main = 1;
@@ -65,7 +65,7 @@ size_t thin_http_parser_execute(http_parser *parser, const char *buffer, size_t 
   pe = buffer+len;
 
   assert(*pe == '\0' && "pointer does not end on NUL");
-  assert(pe - p == len - off && "pointers aren't same distance");
+  assert(pe - p == (long)(len - off) && "pointers aren't same distance");
 
 
   
@@ -103,17 +103,17 @@ case 2:
 #line 104 "parser.c"
 	switch( (*p) ) {
 		case 32: goto tr2;
-		case 36: goto st39;
-		case 95: goto st39;
+		case 36: goto st51;
+		case 95: goto st51;
 	}
 	if ( (*p) < 48 ) {
 		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st39;
+			goto st51;
 	} else if ( (*p) > 57 ) {
 		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st39;
+			goto st51;
 	} else
-		goto st39;
+		goto st51;
 	goto st0;
 tr2:
 #line 36 "parser.rl"
@@ -130,18 +130,10 @@ case 3:
 #line 131 "parser.c"
 	switch( (*p) ) {
 		case 42: goto tr4;
-		case 43: goto tr5;
-		case 47: goto tr6;
-		case 58: goto tr7;
+		case 47: goto tr5;
+		case 72: goto st34;
+		case 104: goto st34;
 	}
-	if ( (*p) < 65 ) {
-		if ( 45 <= (*p) && (*p) <= 57 )
-			goto tr5;
-	} else if ( (*p) > 90 ) {
-		if ( 97 <= (*p) && (*p) <= 122 )
-			goto tr5;
-	} else
-		goto tr5;
 	goto st0;
 tr4:
 #line 22 "parser.rl"
@@ -151,13 +143,13 @@ st4:
 	if ( ++p == pe )
 		goto _test_eof4;
 case 4:
-#line 155 "parser.c"
+#line 147 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr8;
-		case 35: goto tr9;
+		case 32: goto tr7;
+		case 35: goto tr8;
 	}
 	goto st0;
-tr8:
+tr7:
 #line 41 "parser.rl"
 	{
     if (parser->request_uri != NULL) {
@@ -165,7 +157,7 @@ tr8:
     }
   }
 	goto st5;
-tr31:
+tr30:
 #line 22 "parser.rl"
 	{MARK(mark, p); }
 #line 46 "parser.rl"
@@ -175,7 +167,7 @@ tr31:
     }
   }
 	goto st5;
-tr34:
+tr33:
 #line 46 "parser.rl"
 	{ 
     if (parser->fragment != NULL) {
@@ -183,7 +175,7 @@ tr34:
     }
   }
 	goto st5;
-tr44:
+tr38:
 #line 65 "parser.rl"
 	{
     if (parser->request_path != NULL) {
@@ -197,7 +189,7 @@ tr44:
     }
   }
 	goto st5;
-tr51:
+tr45:
 #line 52 "parser.rl"
 	{MARK(query_start, p); }
 #line 53 "parser.rl"
@@ -213,7 +205,7 @@ tr51:
     }
   }
 	goto st5;
-tr55:
+tr49:
 #line 53 "parser.rl"
 	{ 
     if (parser->query_string != NULL) {
@@ -231,11 +223,11 @@ st5:
 	if ( ++p == pe )
 		goto _test_eof5;
 case 5:
-#line 235 "parser.c"
+#line 227 "parser.c"
 	if ( (*p) == 72 )
-		goto tr10;
+		goto tr9;
 	goto st0;
-tr10:
+tr9:
 #line 22 "parser.rl"
 	{MARK(mark, p); }
 	goto st6;
@@ -243,7 +235,7 @@ st6:
 	if ( ++p == pe )
 		goto _test_eof6;
 case 6:
-#line 247 "parser.c"
+#line 239 "parser.c"
 	if ( (*p) == 84 )
 		goto st7;
 	goto st0;
@@ -296,11 +288,11 @@ st13:
 		goto _test_eof13;
 case 13:
 	if ( (*p) == 13 )
-		goto tr18;
+		goto tr17;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto st13;
 	goto st0;
-tr18:
+tr17:
 #line 59 "parser.rl"
 	{	
     if (parser->http_version != NULL) {
@@ -308,7 +300,7 @@ tr18:
     }
   }
 	goto st14;
-tr26:
+tr25:
 #line 30 "parser.rl"
 	{ MARK(mark, p); }
 #line 31 "parser.rl"
@@ -318,7 +310,7 @@ tr26:
     }
   }
 	goto st14;
-tr29:
+tr28:
 #line 31 "parser.rl"
 	{ 
     if (parser->http_field != NULL) {
@@ -330,7 +322,7 @@ st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 334 "parser.c"
+#line 326 "parser.c"
 	if ( (*p) == 10 )
 		goto st15;
 	goto st0;
@@ -340,52 +332,52 @@ st15:
 case 15:
 	switch( (*p) ) {
 		case 13: goto st16;
-		case 33: goto tr21;
-		case 124: goto tr21;
-		case 126: goto tr21;
+		case 33: goto tr20;
+		case 124: goto tr20;
+		case 126: goto tr20;
 	}
 	if ( (*p) < 45 ) {
 		if ( (*p) > 39 ) {
 			if ( 42 <= (*p) && (*p) <= 43 )
-				goto tr21;
+				goto tr20;
 		} else if ( (*p) >= 35 )
-			goto tr21;
+			goto tr20;
 	} else if ( (*p) > 46 ) {
 		if ( (*p) < 65 ) {
 			if ( 48 <= (*p) && (*p) <= 57 )
-				goto tr21;
+				goto tr20;
 		} else if ( (*p) > 90 ) {
 			if ( 94 <= (*p) && (*p) <= 122 )
-				goto tr21;
+				goto tr20;
 		} else
-			goto tr21;
+			goto tr20;
 	} else
-		goto tr21;
+		goto tr20;
 	goto st0;
 st16:
 	if ( ++p == pe )
 		goto _test_eof16;
 case 16:
 	if ( (*p) == 10 )
-		goto tr22;
+		goto tr21;
 	goto st0;
-tr22:
+tr21:
 #line 71 "parser.rl"
 	{ 
     parser->body_start = p - buffer + 1; 
     if (parser->header_done != NULL) {
       parser->header_done(parser->data, p + 1, pe - p - 1);
     }
-    {p++; cs = 58; goto _out;}
+    {p++; cs = 70; goto _out;}
   }
-	goto st58;
-st58:
+	goto st70;
+st70:
 	if ( ++p == pe )
-		goto _test_eof58;
-case 58:
-#line 387 "parser.c"
+		goto _test_eof70;
+case 70:
+#line 379 "parser.c"
 	goto st0;
-tr21:
+tr20:
 #line 25 "parser.rl"
 	{ MARK(field_start, p); }
 	goto st17;
@@ -393,10 +385,10 @@ st17:
 	if ( ++p == pe )
 		goto _test_eof17;
 case 17:
-#line 397 "parser.c"
+#line 389 "parser.c"
 	switch( (*p) ) {
 		case 33: goto st17;
-		case 58: goto tr24;
+		case 58: goto tr23;
 		case 124: goto st17;
 		case 126: goto st17;
 	}
@@ -418,13 +410,13 @@ case 17:
 	} else
 		goto st17;
 	goto st0;
-tr24:
+tr23:
 #line 26 "parser.rl"
 	{ 
     parser->field_len = LEN(field_start, p);
   }
 	goto st18;
-tr27:
+tr26:
 #line 30 "parser.rl"
 	{ MARK(mark, p); }
 	goto st18;
@@ -432,13 +424,13 @@ st18:
 	if ( ++p == pe )
 		goto _test_eof18;
 case 18:
-#line 436 "parser.c"
+#line 428 "parser.c"
 	switch( (*p) ) {
-		case 13: goto tr26;
-		case 32: goto tr27;
+		case 13: goto tr25;
+		case 32: goto tr26;
 	}
-	goto tr25;
-tr25:
+	goto tr24;
+tr24:
 #line 30 "parser.rl"
 	{ MARK(mark, p); }
 	goto st19;
@@ -446,11 +438,11 @@ st19:
 	if ( ++p == pe )
 		goto _test_eof19;
 case 19:
-#line 450 "parser.c"
+#line 442 "parser.c"
 	if ( (*p) == 13 )
-		goto tr29;
+		goto tr28;
 	goto st19;
-tr9:
+tr8:
 #line 41 "parser.rl"
 	{
     if (parser->request_uri != NULL) {
@@ -458,7 +450,7 @@ tr9:
     }
   }
 	goto st20;
-tr45:
+tr39:
 #line 65 "parser.rl"
 	{
     if (parser->request_path != NULL) {
@@ -472,7 +464,7 @@ tr45:
     }
   }
 	goto st20;
-tr52:
+tr46:
 #line 52 "parser.rl"
 	{MARK(query_start, p); }
 #line 53 "parser.rl"
@@ -488,7 +480,7 @@ tr52:
     }
   }
 	goto st20;
-tr56:
+tr50:
 #line 53 "parser.rl"
 	{ 
     if (parser->query_string != NULL) {
@@ -506,17 +498,17 @@ st20:
 	if ( ++p == pe )
 		goto _test_eof20;
 case 20:
-#line 510 "parser.c"
+#line 502 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr31;
+		case 32: goto tr30;
 		case 35: goto st0;
-		case 37: goto tr32;
+		case 37: goto tr31;
 		case 127: goto st0;
 	}
 	if ( 0 <= (*p) && (*p) <= 31 )
 		goto st0;
-	goto tr30;
-tr30:
+	goto tr29;
+tr29:
 #line 22 "parser.rl"
 	{MARK(mark, p); }
 	goto st21;
@@ -524,9 +516,9 @@ st21:
 	if ( ++p == pe )
 		goto _test_eof21;
 case 21:
-#line 528 "parser.c"
+#line 520 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr34;
+		case 32: goto tr33;
 		case 35: goto st0;
 		case 37: goto st22;
 		case 127: goto st0;
@@ -534,7 +526,7 @@ case 21:
 	if ( 0 <= (*p) && (*p) <= 31 )
 		goto st0;
 	goto st21;
-tr32:
+tr31:
 #line 22 "parser.rl"
 	{MARK(mark, p); }
 	goto st22;
@@ -542,7 +534,7 @@ st22:
 	if ( ++p == pe )
 		goto _test_eof22;
 case 22:
-#line 546 "parser.c"
+#line 538 "parser.c"
 	if ( (*p) == 117 )
 		goto st24;
 	if ( (*p) < 65 ) {
@@ -588,55 +580,44 @@ st25:
 	if ( ++p == pe )
 		goto _test_eof25;
 case 25:
-#line 592 "parser.c"
+#line 584 "parser.c"
 	switch( (*p) ) {
-		case 43: goto st25;
-		case 58: goto st26;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st25;
-	} else if ( (*p) > 57 ) {
-		if ( (*p) > 90 ) {
-			if ( 97 <= (*p) && (*p) <= 122 )
-				goto st25;
-		} else if ( (*p) >= 65 )
-			goto st25;
-	} else
-		goto st25;
-	goto st0;
-tr7:
-#line 22 "parser.rl"
-	{MARK(mark, p); }
-	goto st26;
-st26:
-	if ( ++p == pe )
-		goto _test_eof26;
-case 26:
-#line 617 "parser.c"
-	switch( (*p) ) {
-		case 32: goto tr8;
-		case 35: goto tr9;
-		case 37: goto st27;
+		case 32: goto tr38;
+		case 35: goto tr39;
+		case 37: goto st26;
+		case 63: goto tr41;
 		case 127: goto st0;
 	}
 	if ( 0 <= (*p) && (*p) <= 31 )
 		goto st0;
-	goto st26;
+	goto st25;
+st26:
+	if ( ++p == pe )
+		goto _test_eof26;
+case 26:
+	if ( (*p) == 117 )
+		goto st28;
+	if ( (*p) < 65 ) {
+		if ( 48 <= (*p) && (*p) <= 57 )
+			goto st27;
+	} else if ( (*p) > 70 ) {
+		if ( 97 <= (*p) && (*p) <= 102 )
+			goto st27;
+	} else
+		goto st27;
+	goto st0;
 st27:
 	if ( ++p == pe )
 		goto _test_eof27;
 case 27:
-	if ( (*p) == 117 )
-		goto st29;
 	if ( (*p) < 65 ) {
 		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st28;
+			goto st25;
 	} else if ( (*p) > 70 ) {
 		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st28;
+			goto st25;
 	} else
-		goto st28;
+		goto st25;
 	goto st0;
 st28:
 	if ( ++p == pe )
@@ -644,49 +625,62 @@ st28:
 case 28:
 	if ( (*p) < 65 ) {
 		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st26;
+			goto st27;
 	} else if ( (*p) > 70 ) {
 		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st26;
+			goto st27;
 	} else
-		goto st26;
+		goto st27;
 	goto st0;
+tr41:
+#line 65 "parser.rl"
+	{
+    if (parser->request_path != NULL) {
+      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
+    }
+  }
+	goto st29;
 st29:
 	if ( ++p == pe )
 		goto _test_eof29;
 case 29:
-	if ( (*p) < 65 ) {
-		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st28;
-	} else if ( (*p) > 70 ) {
-		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st28;
-	} else
-		goto st28;
-	goto st0;
-tr6:
-#line 22 "parser.rl"
-	{MARK(mark, p); }
+#line 648 "parser.c"
+	switch( (*p) ) {
+		case 32: goto tr45;
+		case 35: goto tr46;
+		case 37: goto tr47;
+		case 127: goto st0;
+	}
+	if ( 0 <= (*p) && (*p) <= 31 )
+		goto st0;
+	goto tr44;
+tr44:
+#line 52 "parser.rl"
+	{MARK(query_start, p); }
 	goto st30;
 st30:
 	if ( ++p == pe )
 		goto _test_eof30;
 case 30:
-#line 676 "parser.c"
+#line 666 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr44;
-		case 35: goto tr45;
+		case 32: goto tr49;
+		case 35: goto tr50;
 		case 37: goto st31;
-		case 63: goto tr47;
 		case 127: goto st0;
 	}
 	if ( 0 <= (*p) && (*p) <= 31 )
 		goto st0;
 	goto st30;
+tr47:
+#line 52 "parser.rl"
+	{MARK(query_start, p); }
+	goto st31;
 st31:
 	if ( ++p == pe )
 		goto _test_eof31;
 case 31:
+#line 684 "parser.c"
 	if ( (*p) == 117 )
 		goto st33;
 	if ( (*p) < 65 ) {
@@ -724,108 +718,55 @@ case 33:
 	} else
 		goto st32;
 	goto st0;
-tr47:
-#line 65 "parser.rl"
-	{
-    if (parser->request_path != NULL) {
-      parser->request_path(parser->data, PTR_TO(mark), LEN(mark,p));
-    }
-  }
-	goto st34;
 st34:
 	if ( ++p == pe )
 		goto _test_eof34;
 case 34:
-#line 740 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr51;
-		case 35: goto tr52;
-		case 37: goto tr53;
-		case 127: goto st0;
+		case 84: goto st35;
+		case 116: goto st35;
 	}
-	if ( 0 <= (*p) && (*p) <= 31 )
-		goto st0;
-	goto tr50;
-tr50:
-#line 52 "parser.rl"
-	{MARK(query_start, p); }
-	goto st35;
+	goto st0;
 st35:
 	if ( ++p == pe )
 		goto _test_eof35;
 case 35:
-#line 758 "parser.c"
 	switch( (*p) ) {
-		case 32: goto tr55;
-		case 35: goto tr56;
-		case 37: goto st36;
-		case 127: goto st0;
+		case 84: goto st36;
+		case 116: goto st36;
 	}
-	if ( 0 <= (*p) && (*p) <= 31 )
-		goto st0;
-	goto st35;
-tr53:
-#line 52 "parser.rl"
-	{MARK(query_start, p); }
-	goto st36;
+	goto st0;
 st36:
 	if ( ++p == pe )
 		goto _test_eof36;
 case 36:
-#line 776 "parser.c"
-	if ( (*p) == 117 )
-		goto st38;
-	if ( (*p) < 65 ) {
-		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st37;
-	} else if ( (*p) > 70 ) {
-		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st37;
-	} else
-		goto st37;
+	switch( (*p) ) {
+		case 80: goto st37;
+		case 112: goto st37;
+	}
 	goto st0;
 st37:
 	if ( ++p == pe )
 		goto _test_eof37;
 case 37:
-	if ( (*p) < 65 ) {
-		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st35;
-	} else if ( (*p) > 70 ) {
-		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st35;
-	} else
-		goto st35;
+	switch( (*p) ) {
+		case 58: goto st38;
+		case 83: goto st50;
+		case 115: goto st50;
+	}
 	goto st0;
 st38:
 	if ( ++p == pe )
 		goto _test_eof38;
 case 38:
-	if ( (*p) < 65 ) {
-		if ( 48 <= (*p) && (*p) <= 57 )
-			goto st37;
-	} else if ( (*p) > 70 ) {
-		if ( 97 <= (*p) && (*p) <= 102 )
-			goto st37;
-	} else
-		goto st37;
+	if ( (*p) == 47 )
+		goto st39;
 	goto st0;
 st39:
 	if ( ++p == pe )
 		goto _test_eof39;
 case 39:
-	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st40;
-		case 95: goto st40;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st40;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st40;
-	} else
+	if ( (*p) == 47 )
 		goto st40;
 	goto st0;
 st40:
@@ -833,51 +774,62 @@ st40:
 		goto _test_eof40;
 case 40:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st41;
-		case 95: goto st41;
+		case 37: goto st42;
+		case 47: goto st0;
+		case 60: goto st0;
+		case 91: goto st47;
+		case 95: goto st45;
+		case 127: goto st0;
 	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st41;
+	if ( (*p) < 45 ) {
+		if ( (*p) > 32 ) {
+			if ( 34 <= (*p) && (*p) <= 35 )
+				goto st0;
+		} else if ( (*p) >= 0 )
+			goto st0;
 	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st41;
+		if ( (*p) < 65 ) {
+			if ( 62 <= (*p) && (*p) <= 64 )
+				goto st0;
+		} else if ( (*p) > 90 ) {
+			if ( 97 <= (*p) && (*p) <= 122 )
+				goto st45;
+		} else
+			goto st45;
 	} else
-		goto st41;
-	goto st0;
+		goto st45;
+	goto st41;
 st41:
 	if ( ++p == pe )
 		goto _test_eof41;
 case 41:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st42;
-		case 95: goto st42;
+		case 37: goto st42;
+		case 47: goto st0;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 127: goto st0;
 	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st42;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st42;
+	if ( (*p) < 34 ) {
+		if ( 0 <= (*p) && (*p) <= 32 )
+			goto st0;
+	} else if ( (*p) > 35 ) {
+		if ( 62 <= (*p) && (*p) <= 63 )
+			goto st0;
 	} else
-		goto st42;
-	goto st0;
+		goto st0;
+	goto st41;
 st42:
 	if ( ++p == pe )
 		goto _test_eof42;
 case 42:
-	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st43;
-		case 95: goto st43;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
+	if ( (*p) == 117 )
+		goto st44;
+	if ( (*p) < 65 ) {
+		if ( 48 <= (*p) && (*p) <= 57 )
 			goto st43;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
+	} else if ( (*p) > 70 ) {
+		if ( 97 <= (*p) && (*p) <= 102 )
 			goto st43;
 	} else
 		goto st43;
@@ -886,145 +838,168 @@ st43:
 	if ( ++p == pe )
 		goto _test_eof43;
 case 43:
-	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st44;
-		case 95: goto st44;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st44;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st44;
+	if ( (*p) < 65 ) {
+		if ( 48 <= (*p) && (*p) <= 57 )
+			goto st41;
+	} else if ( (*p) > 70 ) {
+		if ( 97 <= (*p) && (*p) <= 102 )
+			goto st41;
 	} else
-		goto st44;
+		goto st41;
 	goto st0;
 st44:
 	if ( ++p == pe )
 		goto _test_eof44;
 case 44:
-	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st45;
-		case 95: goto st45;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st45;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st45;
+	if ( (*p) < 65 ) {
+		if ( 48 <= (*p) && (*p) <= 57 )
+			goto st43;
+	} else if ( (*p) > 70 ) {
+		if ( 97 <= (*p) && (*p) <= 102 )
+			goto st43;
 	} else
-		goto st45;
+		goto st43;
 	goto st0;
 st45:
 	if ( ++p == pe )
 		goto _test_eof45;
 case 45:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st46;
-		case 95: goto st46;
+		case 37: goto st42;
+		case 47: goto tr5;
+		case 58: goto st46;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 95: goto st45;
+		case 127: goto st0;
 	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st46;
+	if ( (*p) < 45 ) {
+		if ( (*p) > 32 ) {
+			if ( 34 <= (*p) && (*p) <= 35 )
+				goto st0;
+		} else if ( (*p) >= 0 )
+			goto st0;
 	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st46;
+		if ( (*p) < 65 ) {
+			if ( 62 <= (*p) && (*p) <= 63 )
+				goto st0;
+		} else if ( (*p) > 90 ) {
+			if ( 97 <= (*p) && (*p) <= 122 )
+				goto st45;
+		} else
+			goto st45;
 	} else
-		goto st46;
-	goto st0;
+		goto st45;
+	goto st41;
 st46:
 	if ( ++p == pe )
 		goto _test_eof46;
 case 46:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st47;
-		case 95: goto st47;
+		case 37: goto st42;
+		case 47: goto tr5;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 127: goto st0;
 	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st47;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st47;
+	if ( (*p) < 34 ) {
+		if ( 0 <= (*p) && (*p) <= 32 )
+			goto st0;
+	} else if ( (*p) > 35 ) {
+		if ( (*p) > 57 ) {
+			if ( 62 <= (*p) && (*p) <= 63 )
+				goto st0;
+		} else if ( (*p) >= 48 )
+			goto st46;
 	} else
-		goto st47;
-	goto st0;
+		goto st0;
+	goto st41;
 st47:
 	if ( ++p == pe )
 		goto _test_eof47;
 case 47:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st48;
-		case 95: goto st48;
+		case 37: goto st42;
+		case 47: goto st0;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 127: goto st0;
 	}
 	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st48;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
+		if ( (*p) > 32 ) {
+			if ( 34 <= (*p) && (*p) <= 35 )
+				goto st0;
+		} else if ( (*p) >= 0 )
+			goto st0;
+	} else if ( (*p) > 58 ) {
+		if ( (*p) < 65 ) {
+			if ( 62 <= (*p) && (*p) <= 63 )
+				goto st0;
+		} else if ( (*p) > 70 ) {
+			if ( 97 <= (*p) && (*p) <= 102 )
+				goto st48;
+		} else
 			goto st48;
 	} else
 		goto st48;
-	goto st0;
+	goto st41;
 st48:
 	if ( ++p == pe )
 		goto _test_eof48;
 case 48:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st49;
-		case 95: goto st49;
+		case 37: goto st42;
+		case 47: goto st0;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 93: goto st49;
+		case 127: goto st0;
 	}
 	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st49;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st49;
+		if ( (*p) > 32 ) {
+			if ( 34 <= (*p) && (*p) <= 35 )
+				goto st0;
+		} else if ( (*p) >= 0 )
+			goto st0;
+	} else if ( (*p) > 58 ) {
+		if ( (*p) < 65 ) {
+			if ( 62 <= (*p) && (*p) <= 63 )
+				goto st0;
+		} else if ( (*p) > 70 ) {
+			if ( 97 <= (*p) && (*p) <= 102 )
+				goto st48;
+		} else
+			goto st48;
 	} else
-		goto st49;
-	goto st0;
+		goto st48;
+	goto st41;
 st49:
 	if ( ++p == pe )
 		goto _test_eof49;
 case 49:
 	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st50;
-		case 95: goto st50;
+		case 37: goto st42;
+		case 47: goto tr5;
+		case 58: goto st46;
+		case 60: goto st0;
+		case 64: goto st40;
+		case 127: goto st0;
 	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st50;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st50;
+	if ( (*p) < 34 ) {
+		if ( 0 <= (*p) && (*p) <= 32 )
+			goto st0;
+	} else if ( (*p) > 35 ) {
+		if ( 62 <= (*p) && (*p) <= 63 )
+			goto st0;
 	} else
-		goto st50;
-	goto st0;
+		goto st0;
+	goto st41;
 st50:
 	if ( ++p == pe )
 		goto _test_eof50;
 case 50:
-	switch( (*p) ) {
-		case 32: goto tr2;
-		case 36: goto st51;
-		case 95: goto st51;
-	}
-	if ( (*p) < 48 ) {
-		if ( 45 <= (*p) && (*p) <= 46 )
-			goto st51;
-	} else if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 90 )
-			goto st51;
-	} else
-		goto st51;
+	if ( (*p) == 58 )
+		goto st38;
 	goto st0;
 st51:
 	if ( ++p == pe )
@@ -1138,6 +1113,222 @@ st57:
 	if ( ++p == pe )
 		goto _test_eof57;
 case 57:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st58;
+		case 95: goto st58;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st58;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st58;
+	} else
+		goto st58;
+	goto st0;
+st58:
+	if ( ++p == pe )
+		goto _test_eof58;
+case 58:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st59;
+		case 95: goto st59;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st59;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st59;
+	} else
+		goto st59;
+	goto st0;
+st59:
+	if ( ++p == pe )
+		goto _test_eof59;
+case 59:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st60;
+		case 95: goto st60;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st60;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st60;
+	} else
+		goto st60;
+	goto st0;
+st60:
+	if ( ++p == pe )
+		goto _test_eof60;
+case 60:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st61;
+		case 95: goto st61;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st61;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st61;
+	} else
+		goto st61;
+	goto st0;
+st61:
+	if ( ++p == pe )
+		goto _test_eof61;
+case 61:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st62;
+		case 95: goto st62;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st62;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st62;
+	} else
+		goto st62;
+	goto st0;
+st62:
+	if ( ++p == pe )
+		goto _test_eof62;
+case 62:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st63;
+		case 95: goto st63;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st63;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st63;
+	} else
+		goto st63;
+	goto st0;
+st63:
+	if ( ++p == pe )
+		goto _test_eof63;
+case 63:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st64;
+		case 95: goto st64;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st64;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st64;
+	} else
+		goto st64;
+	goto st0;
+st64:
+	if ( ++p == pe )
+		goto _test_eof64;
+case 64:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st65;
+		case 95: goto st65;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st65;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st65;
+	} else
+		goto st65;
+	goto st0;
+st65:
+	if ( ++p == pe )
+		goto _test_eof65;
+case 65:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st66;
+		case 95: goto st66;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st66;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st66;
+	} else
+		goto st66;
+	goto st0;
+st66:
+	if ( ++p == pe )
+		goto _test_eof66;
+case 66:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st67;
+		case 95: goto st67;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st67;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st67;
+	} else
+		goto st67;
+	goto st0;
+st67:
+	if ( ++p == pe )
+		goto _test_eof67;
+case 67:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st68;
+		case 95: goto st68;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st68;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st68;
+	} else
+		goto st68;
+	goto st0;
+st68:
+	if ( ++p == pe )
+		goto _test_eof68;
+case 68:
+	switch( (*p) ) {
+		case 32: goto tr2;
+		case 36: goto st69;
+		case 95: goto st69;
+	}
+	if ( (*p) < 48 ) {
+		if ( 45 <= (*p) && (*p) <= 46 )
+			goto st69;
+	} else if ( (*p) > 57 ) {
+		if ( 65 <= (*p) && (*p) <= 90 )
+			goto st69;
+	} else
+		goto st69;
+	goto st0;
+st69:
+	if ( ++p == pe )
+		goto _test_eof69;
+case 69:
 	if ( (*p) == 32 )
 		goto tr2;
 	goto st0;
@@ -1157,7 +1348,7 @@ case 57:
 	_test_eof14: cs = 14; goto _test_eof; 
 	_test_eof15: cs = 15; goto _test_eof; 
 	_test_eof16: cs = 16; goto _test_eof; 
-	_test_eof58: cs = 58; goto _test_eof; 
+	_test_eof70: cs = 70; goto _test_eof; 
 	_test_eof17: cs = 17; goto _test_eof; 
 	_test_eof18: cs = 18; goto _test_eof; 
 	_test_eof19: cs = 19; goto _test_eof; 
@@ -1199,6 +1390,18 @@ case 57:
 	_test_eof55: cs = 55; goto _test_eof; 
 	_test_eof56: cs = 56; goto _test_eof; 
 	_test_eof57: cs = 57; goto _test_eof; 
+	_test_eof58: cs = 58; goto _test_eof; 
+	_test_eof59: cs = 59; goto _test_eof; 
+	_test_eof60: cs = 60; goto _test_eof; 
+	_test_eof61: cs = 61; goto _test_eof; 
+	_test_eof62: cs = 62; goto _test_eof; 
+	_test_eof63: cs = 63; goto _test_eof; 
+	_test_eof64: cs = 64; goto _test_eof; 
+	_test_eof65: cs = 65; goto _test_eof; 
+	_test_eof66: cs = 66; goto _test_eof; 
+	_test_eof67: cs = 67; goto _test_eof; 
+	_test_eof68: cs = 68; goto _test_eof; 
+	_test_eof69: cs = 69; goto _test_eof; 
 
 	_test_eof: {}
 	_out: {}
@@ -1224,6 +1427,14 @@ case 57:
   return(parser->nread);
 }
 
+int thin_http_parser_has_error(http_parser *parser) {
+  return parser->cs == http_parser_error;
+}
+
+int thin_http_parser_is_finished(http_parser *parser) {
+  return parser->cs == http_parser_first_final;
+}
+
 int thin_http_parser_finish(http_parser *parser)
 {
   int cs = parser->cs;
@@ -1238,12 +1449,4 @@ int thin_http_parser_finish(http_parser *parser)
   } else {
     return 0;
   }
-}
-
-int thin_http_parser_has_error(http_parser *parser) {
-  return parser->cs == http_parser_error;
-}
-
-int thin_http_parser_is_finished(http_parser *parser) {
-  return parser->cs == http_parser_first_final;
 }

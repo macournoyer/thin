@@ -24,17 +24,21 @@
   token = (ascii -- (CTL | tspecials));
 
 # URI schemes and absolute paths
-  scheme = ( alpha | digit | "+" | "-" | "." )* ;
-  absolute_uri = (scheme ":" (uchar | reserved )*);
+  scheme = ( "http"i ("s"i)? );
+  hostname = ((alnum | "-" | "." | "_")+ | ("[" (":" | xdigit)+ "]"));
+  host_with_port = (hostname (":" digit*)?);
+  userinfo = ((unreserved | escape | ";" | ":" | "&" | "=" | "+")+ "@")*;
 
   path = ( pchar+ ( "/" pchar* )* ) ;
   query = ( uchar | reserved )* %query_string ;
   param = ( pchar | "/" )* ;
   params = ( param ( ";" param )* ) ;
-  rel_path = ( path? (";" params)? %request_path) ("?" %start_query query)?;
+  rel_path = (path? (";" params)? %request_path) ("?" %start_query query)?;
   absolute_path = ( "/"+ rel_path );
+  path_uri = absolute_path > mark %request_uri;
+  Absolute_URI = (scheme "://" userinfo host_with_port path_uri);
 
-  Request_URI = ( "*" | absolute_uri | absolute_path ) >mark %request_uri;
+  Request_URI = ((absolute_path | "*") >mark %request_uri) | Absolute_URI;
   Fragment = ( uchar | reserved )* >mark %fragment;
   Method = ( upper | digit | safe ){1,20} >mark %request_method;
 
