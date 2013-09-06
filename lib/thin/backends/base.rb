@@ -53,6 +53,7 @@ module Thin
         @no_epoll                       = false
         @ssl                            = nil
         @threaded                       = nil
+        @started_reactor                = false
       end
       
       # Start the backend and connect it.
@@ -67,6 +68,7 @@ module Thin
         if EventMachine.reactor_running?
           starter.call
         else
+          @started_reactor = true
           EventMachine.run(&starter)
         end
       end
@@ -88,7 +90,7 @@ module Thin
         @running  = false
         @stopping = false
         
-        EventMachine.stop if EventMachine.reactor_running?
+        EventMachine.stop if @started_reactor && EventMachine.reactor_running?
         @connections.each_value { |connection| connection.close_connection }
         close
       end
