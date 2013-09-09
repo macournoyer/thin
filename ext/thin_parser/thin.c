@@ -10,6 +10,7 @@
 #include <string.h>
 #include "parser.h"
 #include <ctype.h>
+#include <locale.h>
 
 static VALUE mThin;
 static VALUE cHttpParser;
@@ -70,7 +71,6 @@ DEF_MAX_LENGTH(FRAGMENT, 1024); /* Don't know if this length is specified somewh
 DEF_MAX_LENGTH(REQUEST_PATH, 1024);
 DEF_MAX_LENGTH(QUERY_STRING, (1024 * 10));
 DEF_MAX_LENGTH(HEADER, (1024 * (80 + 32)));
-
 
 static void http_field(void *data, const char *field, size_t flen, const char *value, size_t vlen)
 {
@@ -395,6 +395,7 @@ void Init_thin_parser()
 {
 
   mThin = rb_define_module("Thin");
+  setlocale(LC_CTYPE, "C");
 
   DEF_GLOBAL(empty, "");
   DEF_GLOBAL(http_prefix, "HTTP_");
