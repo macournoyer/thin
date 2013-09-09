@@ -1,5 +1,6 @@
 == EDGE
  * Accept absolute URL in request
+ * Do not stop EventMachine reactor loop unless it was started by Thin.
  * Pipelining is no longer supported
 
 == 1.5.1 Straight Razor
