@@ -107,6 +107,12 @@ describe Connection do
     @connection.should_not be_persistent
   end
   
+  it "should return empty body on HEAD request" do
+    @connection.request.should_receive(:head?).and_return(true)
+    @connection.process
+    @connection.response.body.should be_empty
+  end
+  
   it "should set request env as rack.multithread" do
     EventMachine.should_receive(:defer)
     

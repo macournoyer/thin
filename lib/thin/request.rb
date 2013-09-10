@@ -20,6 +20,7 @@ module Thin
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
     SERVER_NAME       = 'SERVER_NAME'.freeze
+    REQUEST_METHOD    = 'REQUEST_METHOD'.freeze
     LOCALHOST         = 'localhost'.freeze
     HTTP_VERSION      = 'HTTP_VERSION'.freeze
     HTTP_1_0          = 'HTTP/1.0'.freeze
@@ -28,6 +29,7 @@ module Thin
     CONNECTION        = 'HTTP_CONNECTION'.freeze
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
     CLOSE_REGEXP      = /\bclose\b/i.freeze
+    HEAD              = 'HEAD'.freeze
     
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
@@ -136,6 +138,10 @@ module Thin
     
     def async_close
       @async_close ||= @env[ASYNC_CLOSE]
+    end
+
+    def head?
+      @env[REQUEST_METHOD] == HEAD
     end
 
     # Close any resource used by the request

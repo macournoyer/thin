@@ -1,7 +1,8 @@
 == EDGE
- * Accept absolute URL in request
+ * Accept absolute URL in request line.
+ * HEAD request no longer return a message-body in the response.
  * Do not stop EventMachine reactor loop unless it was started by Thin.
- * Pipelining is no longer supported
+ * Pipelining is no longer supported.
 
 == 1.5.1 Straight Razor
  * Fix issue when running as another user/group without a PID file.
