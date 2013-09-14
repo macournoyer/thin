@@ -45,7 +45,7 @@ module Thin
     
       # Start a single server
       def start_server(number)
-        log "Starting server on #{server_id(number)} ... "
+        log_info "Starting server on #{server_id(number)} ... "
       
         run :start, number
       end
@@ -57,7 +57,7 @@ module Thin
     
       # Stop a single server
       def stop_server(number)
-        log "Stopping server on #{server_id(number)} ... "
+        log_info "Stopping server on #{server_id(number)} ... "
       
         run :stop, number
       end
@@ -91,7 +91,7 @@ module Thin
       
       # Make sure the server is running before moving on to the next one.
       def wait_until_server_started(number)
-        log "Waiting for server to start ..."
+        log_info "Waiting for server to start ..."
         STDOUT.flush # Need this to make sure user got the message
         
         tries = 0

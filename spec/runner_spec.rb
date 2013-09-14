@@ -100,7 +100,7 @@ describe Runner do
 end
 
 describe Runner, 'with config file' do
-  before do
+  before :each do
     @runner = Runner.new(%w(start --config spec/configs/cluster.yml))
   end
 
