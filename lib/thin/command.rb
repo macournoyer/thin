@@ -26,8 +26,8 @@ module Thin
       trace shell_cmd
       trap('INT') {} # Ignore INT signal to pass CTRL+C to subprocess
       Open3.popen3(shell_cmd) do |stdin, stdout, stderr|
-        log stdout.gets until stdout.eof?
-        log stderr.gets until stderr.eof?
+        log_info stdout.gets until stdout.eof?
+        log_info stderr.gets until stderr.eof?
       end
     end
     

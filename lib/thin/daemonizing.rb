@@ -58,7 +58,7 @@ module Thin
       self.after_daemonize if self.respond_to? :after_daemonize
       
       at_exit do
-        log ">> Exiting!"
+        log_info ">> Exiting!"
         remove_pid_file
       end
     end
@@ -66,7 +66,7 @@ module Thin
     # Change privileges of the process
     # to the specified user and group.
     def change_privilege(user, group=user)
-      log ">> Changing process privilege to #{user}:#{group}"
+      log_info ">> Changing process privilege to #{user}:#{group}"
       
       uid, gid = Process.euid, Process.egid
       target_uid = Etc.getpwnam(user).uid
@@ -82,7 +82,7 @@ module Thin
         Process::UID.change_privilege(target_uid)
       end
     rescue Errno::EPERM => e
-      log "Couldn't change user and group to #{user}:#{group}: #{e}"
+      log_info "Couldn't change user and group to #{user}:#{group}: #{e}"
     end
     
     # Register a proc to be called to restart the server.
@@ -93,7 +93,7 @@ module Thin
     # Restart the server.
     def restart
       if @on_restart
-        log '>> Restarting ...'
+        log_info '>> Restarting ...'
         stop
         remove_pid_file
         @on_restart.call
@@ -122,7 +122,7 @@ module Thin
       # Send a +signal+ to the process which PID is stored in +pid_file+.
       def send_signal(signal, pid_file, timeout=60)
         if pid = read_pid_file(pid_file)
-          Logging.log "Sending #{signal} signal to process #{pid} ... "
+          Logging.log_info "Sending #{signal} signal to process #{pid} ... "
           Process.kill(signal, pid)
           Timeout.timeout(timeout) do
             sleep 0.1 while Process.running?(pid)
@@ -131,17 +131,17 @@ module Thin
           raise PidFileNotFound, "Can't stop process, no PID found in #{pid_file}"
         end
       rescue Timeout::Error
-        Logging.log "Timeout!"
+        Logging.log_info "Timeout!"
         force_kill(pid, pid_file)
       rescue Interrupt
         force_kill(pid, pid_file)
       rescue Errno::ESRCH # No such process
-        Logging.log "process not found!"
+        Logging.log_info "process not found!"
         force_kill(pid, pid_file)
       end
       
       def force_kill(pid, pid_file)
-        Logging.log "Sending KILL signal to process #{pid} ... "
+        Logging.log_info "Sending KILL signal to process #{pid} ... "
         Process.kill("KILL", pid)
         File.delete(pid_file) if File.exist?(pid_file)
       end
@@ -161,7 +161,7 @@ module Thin
       end
     
       def write_pid_file
-        log ">> Writing PID to #{@pid_file}"
+        log_info ">> Writing PID to #{@pid_file}"
         open(@pid_file,"w") { |f| f.write(Process.pid) }
         File.chmod(0644, @pid_file)
       end
@@ -173,7 +173,7 @@ module Thin
             raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
                                 "Stop the process or delete #{@pid_file}."
           else
-            log ">> Deleting stale PID file #{@pid_file}"
+            log_info ">> Deleting stale PID file #{@pid_file}"
             remove_pid_file
           end
         end
