@@ -149,12 +149,12 @@ module Thin
     def start
       raise ArgumentError, 'app required' unless @app
       
-      log   ">> Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
-      debug ">> Debugging ON"
-      trace ">> Tracing ON"
+      log_info  "Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
+      log_debug "Debugging ON"
+      trace     "Tracing ON"
       
-      log ">> Maximum connections set to #{@backend.maximum_connections}"
-      log ">> Listening on #{@backend}, CTRL+C to stop"
+      log_info "Maximum connections set to #{@backend.maximum_connections}"
+      log_info "Listening on #{@backend}, CTRL+C to stop"
       
       @backend.start
     end
@@ -169,8 +169,8 @@ module Thin
       if running?
         @backend.stop
         unless @backend.empty?
-          log ">> Waiting for #{@backend.size} connection(s) to finish, " +
-                 "can take up to #{timeout} sec, CTRL+C to stop now"
+          log_info "Waiting for #{@backend.size} connection(s) to finish, "\
+                   "can take up to #{timeout} sec, CTRL+C to stop now"
         end
       else
         stop!
@@ -182,7 +182,7 @@ module Thin
     # This doesn't wait for connection to finish their work and send data.
     # All current requests will be dropped.
     def stop!
-      log ">> Stopping ..."
+      log_info ">> Stopping ..."
 
       @backend.stop!
     end
@@ -192,7 +192,7 @@ module Thin
     def reopen_log
       return unless log_file
       file = File.expand_path(log_file)
-      log ">> Reopening log file: #{file}"
+      log_info ">> Reopening log file: #{file}"
       Daemonize.redirect_io(file)
     end
     
@@ -261,8 +261,8 @@ module Thin
           begin
             require 'cgi_multipart_eof_fix'
           rescue LoadError
-            log "!! Ruby 1.8.5 is not secure please install cgi_multipart_eof_fix:"
-            log "   gem install cgi_multipart_eof_fix"
+            log_error "Ruby 1.8.5 is not secure please install cgi_multipart_eof_fix:"
+            log_error "gem install cgi_multipart_eof_fix"
           end
         end
       end

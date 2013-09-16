@@ -139,7 +139,32 @@ module Helpers
   ensure
     $VERBOSE = old_verbose
   end
-  
+
+  # Yield to the provided block, redirecting its STDOUT
+  # temporarily, and return its output to our caller
+  #
+  #   msgs = with_redirected_stdout do
+  #     server.do_something_that_logs
+  #   end
+  #
+  #   puts msgs
+  #
+  def with_redirected_stdout
+    ret = nil
+    begin
+      t = Tempfile.new('thin-tests')
+      old_stdout = STDOUT.dup
+      STDOUT.reopen(t) ; STDOUT.sync = true
+      yield
+      t.rewind
+      ret = t.read
+    ensure
+      STDOUT.reopen(old_stdout)
+      t.close
+    end
+    ret
+  end
+
   # Create and parse a request
   def R(raw, convert_line_feed=false)
     raw.gsub!("\n", "\r\n") if convert_line_feed

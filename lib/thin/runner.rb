@@ -1,3 +1,4 @@
+require 'logger'
 require 'optparse'
 require 'yaml'
 
@@ -37,7 +38,7 @@ module Thin
         :address              => '0.0.0.0',
         :port                 => Server::DEFAULT_PORT,
         :timeout              => Server::DEFAULT_TIMEOUT,
-        :log                  => 'log/thin.log',
+        :log                  => File.join(Dir.pwd, 'log/thin.log'),
         :pid                  => 'tmp/pids/thin.pid',
         :max_conns            => Server::DEFAULT_MAXIMUM_CONNECTIONS,
         :max_persistent_conns => Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS,
@@ -134,7 +135,7 @@ module Thin
 
         opts.on_tail("-r", "--require FILE", "require the library")                     { |file| @options[:require] << file }
         opts.on_tail("-q", "--quiet", "Silence all logging")                            { @options[:quiet] = true }
-        opts.on_tail("-D", "--debug", "Set debugging on")                               { @options[:debug] = true }
+        opts.on_tail("-D", "--debug", "Enable debug logging")                           { @options[:debug] = true }
         opts.on_tail("-V", "--trace", "Set tracing on (log raw request/response)")      { @options[:trace] = true }
         opts.on_tail("-h", "--help", "Show this message")                               { puts opts; exit }
         opts.on_tail('-v', '--version', "Show version")                                 { puts Thin::SERVER; exit }
@@ -175,9 +176,24 @@ module Thin
       Dir.chdir(@options[:chdir]) unless CONFIGLESS_COMMANDS.include?(@command)
 
       @options[:require].each { |r| ruby_require r }
-      Logging.debug = @options[:debug]
-      Logging.trace = @options[:trace]
-      Logging.silent = @options[:quiet]
+
+      if @options[:quiet]
+        Logging.silent = true
+      else
+        file = (@options[:log] ? \
+                File.open(@options[:log],
+                           File::CREAT | File::WRONLY | File::APPEND) : \
+                STDOUT)
+
+        logger         = Logger.new(file)
+        logger.level   = Logger::DEBUG if @options[:debug]
+        Logging.logger = logger
+      end
+
+      if @options[:trace]
+        # trace to same log file
+        Logging.trace_logger = Logger.new(@options.fetch(:log, STDOUT))
+      end
 
       controller = case
       when cluster? then Controllers::Cluster.new(@options)

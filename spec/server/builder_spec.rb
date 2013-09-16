@@ -1,6 +1,11 @@
 require 'spec_helper'
 
 describe Server, 'app builder' do
+
+  before :all do
+    Logging.debug = false
+  end
+
   it "should build app from constructor" do
     app = proc {}
     server = Server.new('0.0.0.0', 3000, app)
