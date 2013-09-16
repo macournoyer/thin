@@ -1,21 +1,11 @@
 == 1.6.0 Greek Yogurt
- * Accept absolute URL in request line.
+ * Accept absolute URL in request line, eg.: GET http://site.com/he/lo.
  * HEAD request no longer return a message-body in the response.
- * Do not stop EventMachine reactor loop unless it was started by Thin.
+ * No longer stop EventMachine's reactor loop unless it was started by Thin.
+ * Use Ruby's `Logger` for logging. [Akshay Moghe].
+   The logger can now be set using `Thin::Logging.logger=`.
+   Tracing of request is handled by a second logger, `Thin::Logging.trace_logger=`.
  * Pipelining is no longer supported.
- * Enhance the logging subsystem [Akshay Moghe].
-
-     0. Separate the request tracing from logging
-     1. logging level is now user controllable
-        a. user can specify custom logger, thereby controlling
-           how+where (level+file) messages are logged to.
-     2. tracing is individually controllable
-        a.  user can specify custom trace logger, getting
-            all the benefits as stated above.
-
-    This retains the old logging mechanism (via the
-    new log_<level> mechanism. The old mechanism, if used,
-    emits deprecation warnings to stderr.
 
 == 1.5.1 Straight Razor
  * Fix issue when running as another user/group without a PID file.
