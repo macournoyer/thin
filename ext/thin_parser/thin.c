@@ -71,7 +71,6 @@ DEF_MAX_LENGTH(REQUEST_PATH, 1024);
 DEF_MAX_LENGTH(QUERY_STRING, (1024 * 10));
 DEF_MAX_LENGTH(HEADER, (1024 * (80 + 32)));
 
-
 static void http_field(void *data, const char *field, size_t flen, const char *value, size_t vlen)
 {
   char *ch, *end;
@@ -87,10 +86,10 @@ static void http_field(void *data, const char *field, size_t flen, const char *v
   f = rb_str_buf_cat(f, field, flen); 
 
   for(ch = RSTRING_PTR(f) + RSTRING_LEN(global_http_prefix), end = RSTRING_PTR(f) + RSTRING_LEN(f); ch < end; ch++) {
-    if(*ch == '-') {
+    if (*ch >= 'a' && *ch <= 'z') {
+      *ch &= ~0x20; // upcase
+    } else if (*ch == '-') {
       *ch = '_';
-    } else {
-      *ch = toupper(*ch);
     }
   }
 

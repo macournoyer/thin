@@ -23,6 +23,11 @@ describe Request, 'parser' do
     request.should validate_with_lint
   end
   
+  it 'should upcase headers' do
+    request = R("GET / HTTP/1.1\r\nX-Invisible: yo\r\n\r\n")
+    request.env['HTTP_X_INVISIBLE'].should == 'yo'
+  end
+  
   it 'should not prepend HTTP_ to Content-Type and Content-Length' do
     request = R("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\naa")
     request.env.keys.should_not include('HTTP_CONTENT_TYPE', 'HTTP_CONTENT_LENGTH')
