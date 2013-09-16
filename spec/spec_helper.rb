@@ -5,6 +5,7 @@ require 'timeout'
 require 'fileutils'
 require 'net/http'
 require 'socket'
+require 'tempfile'
 
 include Thin
 
@@ -151,8 +152,8 @@ module Helpers
   #
   def with_redirected_stdout
     ret = nil
+    t = Tempfile.new('thin-tests')
     begin
-      t = Tempfile.new('thin-tests')
       old_stdout = STDOUT.dup
       STDOUT.reopen(t) ; STDOUT.sync = true
       yield
