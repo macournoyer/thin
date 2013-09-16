@@ -97,8 +97,8 @@ module Thin
 
       @response.status, @response.headers, @response.body = *result
 
-      log_info("!! Rack application returned nil body. "\
-               "Probably you wanted it to be an empty string?") if @response.body.nil?
+      log_error("Rack application returned nil body. " \
+                "Probably you wanted it to be an empty string?") if @response.body.nil?
 
       # HEAD requests should not return a body.
       @response.body = EMPTY_BODY if @request.head?
