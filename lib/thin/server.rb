@@ -41,9 +41,12 @@ module Thin
   #   end
   #
   # == Controlling with signals
-  # * QUIT: Gracefull shutdown (see Server#stop)
   # * INT and TERM: Force shutdown (see Server#stop!)
-  # Disable signals by passing <tt>:signals => false</tt>
+  # * TERM & QUIT calls +stop+ to shutdown gracefully.
+  # * HUP calls +restart+ to ... surprise, restart!
+  # * USR1 reopen log files.
+  # Signals are processed at one second intervals.
+  # Disable signals by passing <tt>:signals => false</tt>.
   # 
   class Server
     include Logging
@@ -130,7 +133,7 @@ module Thin
       # If in debug mode, wrap in logger adapter
       @app = Rack::CommonLogger.new(@app) if Logging.debug?
       
-      setup_signals unless options[:signals].class == FalseClass
+      @setup_signals = options[:signals] != false
     end
     
     # Lil' shortcut to turn this:
@@ -156,7 +159,7 @@ module Thin
       log_info "Maximum connections set to #{@backend.maximum_connections}"
       log_info "Listening on #{@backend}, CTRL+C to stop"
       
-      @backend.start
+      @backend.start { setup_signals if @setup_signals }
     end
     alias :start! :start
     
@@ -182,7 +185,7 @@ module Thin
     # This doesn't wait for connection to finish their work and send data.
     # All current requests will be dropped.
     def stop!
-      log_info ">> Stopping ..."
+      log_info "Stopping ..."
 
       @backend.stop!
     end
@@ -192,7 +195,7 @@ module Thin
     def reopen_log
       return unless log_file
       file = File.expand_path(log_file)
-      log_info ">> Reopening log file: #{file}"
+      log_info "Reopening log file: #{file}"
       Daemonize.redirect_io(file)
     end
     
@@ -217,25 +220,36 @@ module Thin
       @backend.running?
     end
     
-    # deamonizing kills our HUP signal, so we set them again
-    def after_daemonize
-      setup_signals
-    end
-
     protected
-      # Register signals:
-      # * TERM & QUIT calls +stop+ to shutdown gracefully.
-      # * INT calls <tt>stop!</tt> to force shutdown.
-      # * HUP calls <tt>restart</tt> to ... surprise, restart!
-      # * USR1 reopen log files.
       def setup_signals
-        trap('INT')  { stop! }
-        trap('TERM') { stop }
-        unless Thin.win?
-          trap('QUIT') { stop }
-          trap('HUP')  { restart }
-          trap('USR1') { reopen_log }
+        # Queue up signals so they are processed in non-trap context
+        # using a EM timer.
+        @signal_queue ||= []
+
+        %w( INT TERM ).each do |signal|
+          trap(signal) { @signal_queue.push signal }
         end
+        # *nix only signals
+        %w( QUIT HUP USR1 ).each do |signal|
+          trap(signal) { @signal_queue.push signal }
+        end unless Thin.win?
+
+        # Signals are processed at one second intervals.
+        @signal_timer ||= EM.add_periodic_timer(1) { handle_signals }
+      end
+
+      def handle_signals
+        case @signal_queue.shift
+        when 'INT'
+          stop!
+        when 'TERM', 'QUIT'
+          stop
+        when 'HUP'
+          restart
+        when 'USR1'
+          reopen_log
+        end
+        EM.next_tick { handle_signals } unless @signal_queue.empty?
       end
       
       def select_backend(host, port, options)

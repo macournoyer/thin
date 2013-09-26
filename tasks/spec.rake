@@ -12,10 +12,14 @@ WIN_SPECS  = %w(
   spec/server/swiftiply_spec.rb
 )
 # HACK Event machine causes some problems when running multiple
-# tests in the same VM so we split the specs in 2 before I find
+# tests in the same VM so we split the specs in groups before I find
 # a better solution...
-SPECS2     = %w(spec/server/threaded_spec.rb spec/server/tcp_spec.rb)  
-SPECS      = FileList['spec/**/*_spec.rb'] - PERF_SPECS - SPECS2
+SPEC_GROUPS = [
+  %w(spec/server/threaded_spec.rb spec/server/tcp_spec.rb),
+  %w(spec/daemonizing_spec.rb),
+  %w(spec/server/stopping_spec.rb),
+]
+SPECS = FileList['spec/**/*_spec.rb'] - PERF_SPECS - SPEC_GROUPS.flatten
 
 def spec_task(name, specs)
   Spec::Rake::SpecTask.new(name) do |t|
@@ -24,10 +28,16 @@ def spec_task(name, specs)
   end
 end
 
-desc "Run all examples"
-spec_task :spec, SPECS
-spec_task :spec2, SPECS2
-task :spec => [:compile, :spec2]
+desc "Run all main specs"
+spec_task "spec:main", SPECS
+task :spec => [:compile, "spec:main"]
+
+SPEC_GROUPS.each_with_index do |files, i|
+  task_name = "spec:group:#{i}"
+  desc "Run specs sub-group ##{i}"
+  spec_task task_name, files
+  task :spec => task_name
+end
 
 desc "Run all performance examples"
 spec_task 'spec:perf', PERF_SPECS

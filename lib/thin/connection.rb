@@ -37,7 +37,7 @@ module Thin
     # Called when data is received from the client.
     def receive_data(data)
       @idle = false
-      trace { data }
+      trace data
       process if @request.parse(data)
     rescue InvalidRequest => e
       log_error("Invalid request", e)
@@ -108,7 +108,7 @@ module Thin
 
       # Send the response
       @response.each do |chunk|
-        trace { chunk }
+        trace chunk
         send_data chunk
       end
 

@@ -78,6 +78,8 @@ describe 'Daemonizing' do
   end
   
   it 'should kill process in pid file' do
+    File.exist?(@server.pid_file).should be_false
+    
     @pid = fork do
       @server.daemonize
       loop { sleep 3 }
@@ -92,7 +94,7 @@ describe 'Daemonizing' do
         TestServer.kill(@server.pid_file, 1)
       end
     end
-  
+
     File.exist?(@server.pid_file).should be_false
   end
   

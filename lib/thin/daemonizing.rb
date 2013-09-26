@@ -55,10 +55,8 @@ module Thin
       
       write_pid_file
 
-      self.after_daemonize if self.respond_to? :after_daemonize
-      
       at_exit do
-        log_info ">> Exiting!"
+        log_info "Exiting!"
         remove_pid_file
       end
     end
@@ -66,7 +64,7 @@ module Thin
     # Change privileges of the process
     # to the specified user and group.
     def change_privilege(user, group=user)
-      log_info ">> Changing process privilege to #{user}:#{group}"
+      log_info "Changing process privilege to #{user}:#{group}"
       
       uid, gid = Process.euid, Process.egid
       target_uid = Etc.getpwnam(user).uid
@@ -93,7 +91,7 @@ module Thin
     # Restart the server.
     def restart
       if @on_restart
-        log_info '>> Restarting ...'
+        log_info 'Restarting ...'
         stop
         remove_pid_file
         @on_restart.call
@@ -161,7 +159,7 @@ module Thin
       end
     
       def write_pid_file
-        log_info ">> Writing PID to #{@pid_file}"
+        log_info "Writing PID to #{@pid_file}"
         open(@pid_file,"w") { |f| f.write(Process.pid) }
         File.chmod(0644, @pid_file)
       end
@@ -173,7 +171,7 @@ module Thin
             raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
                                 "Stop the process or delete #{@pid_file}."
           else
-            log_info ">> Deleting stale PID file #{@pid_file}"
+            log_info "Deleting stale PID file #{@pid_file}"
             remove_pid_file
           end
         end

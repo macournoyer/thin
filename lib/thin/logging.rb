@@ -9,6 +9,14 @@ module Thin
   # <tt>Logging.silent=</tt>: silence all log all log messages
   #                           altogether.
   module Logging
+    # Simple formatter which only displays the message.
+    # Taken from ActiveSupport
+    class SimpleFormatter < Logger::Formatter
+      def call(severity, timestamp, progname, msg)
+        "#{String === msg ? msg : msg.inspect}\n"
+      end
+    end
+
     class << self
 
       attr_reader :logger
@@ -140,9 +148,8 @@ module Thin
 
     # Log a message at ERROR level (and maybe a backtrace)
     def log_error(msg, e=nil)
-      log_msg = msg
-      msg << "#{e}\n\t" + e.backtrace.join("\n\t") + "\n" if e
-      Logging.log_msg(msg, Logger::ERROR)
+      log_msg = msg + ": #{e}\n\t" + e.backtrace.join("\n\t") + "\n" if e
+      Logging.log_msg(log_msg, Logger::ERROR)
     end
     module_function :log_error
     public :log_error

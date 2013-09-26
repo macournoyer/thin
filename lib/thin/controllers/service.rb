@@ -33,9 +33,9 @@ module Thin
     
       def install(config_files_path=DEFAULT_CONFIG_PATH)
         if File.exist?(INITD_PATH)
-          log_info ">> Thin service already installed at #{INITD_PATH}"
+          log_info "Thin service already installed at #{INITD_PATH}"
         else
-          log_info ">> Installing thin service at #{INITD_PATH} ..."
+          log_info "Installing thin service at #{INITD_PATH} ..."
           sh "mkdir -p #{File.dirname(INITD_PATH)}"
           log_info "writing #{INITD_PATH}"        
           File.open(INITD_PATH, 'w') do |f|

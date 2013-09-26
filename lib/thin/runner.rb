@@ -177,22 +177,20 @@ module Thin
 
       @options[:require].each { |r| ruby_require r }
 
+      # Setup the logger
       if @options[:quiet]
         Logging.silent = true
       else
-        file = (@options[:log] ? \
-                File.open(@options[:log],
-                           File::CREAT | File::WRONLY | File::APPEND) : \
-                STDOUT)
-
-        logger         = Logger.new(file)
-        logger.level   = Logger::DEBUG if @options[:debug]
+        logger           = Logger.new(STDOUT)
+        logger.level     = Logger::INFO
+        logger.level     = Logger::DEBUG if @options[:debug]
+        logger.formatter = Logging::SimpleFormatter.new
         Logging.logger = logger
       end
 
       if @options[:trace]
-        # trace to same log file
-        Logging.trace_logger = Logger.new(@options.fetch(:log, STDOUT))
+        # Trace raw requests/responses
+        Logging.trace_logger = Logging.logger
       end
 
       controller = case

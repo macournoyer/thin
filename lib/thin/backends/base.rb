@@ -61,6 +61,7 @@ module Thin
         @stopping = false
         starter   = proc do
           connect
+          yield if block_given?
           @running = true
         end
         

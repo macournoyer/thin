@@ -114,7 +114,7 @@ module Thin
         @options.keys.each { |o| @options[o.to_s] = @options.delete(o) }
 
         File.open(config_file, 'w') { |f| f << @options.to_yaml }
-        log_info ">> Wrote configuration to #{config_file}"
+        log_info "Wrote configuration to #{config_file}"
       end
       
       protected
@@ -166,7 +166,7 @@ module Thin
       private
         def load_adapter
           adapter = @options[:adapter] || Rack::Adapter.guess(@options[:chdir])
-          log_info ">> Using #{adapter} adapter"
+          log_info "Using #{adapter} adapter"
           Rack::Adapter.for(adapter, @options)
         rescue Rack::AdapterNotFound => e
           raise InvalidOption, e.message
