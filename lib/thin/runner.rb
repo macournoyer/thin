@@ -126,7 +126,7 @@ module Thin
                                        "(default: #{@options[:max_persistent_conns]})") { |num| @options[:max_persistent_conns] = num.to_i }
         opts.on(      "--threaded", "Call the Rack application in threads " +
                                     "[experimental]")                                   { @options[:threaded] = true }
-        opts.on(      "--threadpool_size NUM", "Sets the size of the EventMachine threadpool.",
+        opts.on(      "--threadpool-size NUM", "Sets the size of the EventMachine threadpool.",
                                        "(default: #{@options[:threadpool_size]})") { |num| @options[:threadpool_size] = num.to_i }
         opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
 

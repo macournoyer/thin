@@ -6,6 +6,7 @@
  * Use Ruby's `Logger` for logging. [Akshay Moghe].
    The logger can now be set using `Thin::Logging.logger=`.
    Tracing of request is handled by a second logger, `Thin::Logging.trace_logger=`.
+ * Add --threadpool-size option to configure EM's thread pool size (default: 20).
  * Pipelining is no longer supported.
 
 == 1.5.1 Straight Razor
