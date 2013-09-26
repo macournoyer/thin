@@ -81,10 +81,13 @@ class Thin < Atchoum::Website
     end
     
     h2 'How'
-    pre 'sudo gem install thin'
+    p "Add thin to your Gemfile"
 
-    p 'Go to your Rails app directory and run:'
-    pre 'thin start'
+    pre "gem 'thin'"
+
+    p "Start Thin"
+
+    pre "bundle exec thin start"
   end
   
   def download_page
@@ -111,7 +114,7 @@ class Thin < Atchoum::Website
 
     p "Start Thin"
 
-    pre "thin start"
+    pre "bundle exec thin start"
     
     h2 'Using with anything, ANYTHING!'
     
