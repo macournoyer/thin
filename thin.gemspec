@@ -19,8 +19,8 @@ Thin::GemSpec = Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '>= 1.0.0'
-  s.add_dependency        'eventmachine', '>= 0.12.6'
+  s.add_dependency        'rack',         '>= 1.5.0'
+  s.add_dependency        'eventmachine', '>= 1.0.0'
   s.add_dependency        'daemons',      '>= 1.0.9'  unless Thin.win?
 
   s.files                 = %w(CHANGELOG README.md Rakefile) +
