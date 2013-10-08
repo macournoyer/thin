@@ -72,7 +72,7 @@ module Thin
     end
 
     # Parse a chunk of data into the request environment
-    # Raises a +InvalidRequest+ if invalid.
+    # Raises an +InvalidRequest+ if invalid.
     # Returns +true+ if the parsing is complete.
     def parse(data)
       if @parser.finished?  # Header finished, can only be some more body
@@ -83,7 +83,7 @@ module Thin
 
         @nparsed = @parser.execute(@env, @data, @nparsed)
 
-        # Transfert to a tempfile if body is very big
+        # Transfer to a tempfile if body is very big
         move_body_to_tempfile if @parser.finished? && content_length > MAX_BODY
       end
 
@@ -107,7 +107,7 @@ module Thin
       @env[CONTENT_LENGTH].to_i
     end
 
-    # Returns +true+ if the client expect the connection to be persistent.
+    # Returns +true+ if the client expects the connection to be persistent.
     def persistent?
       # Clients and servers SHOULD NOT assume that a persistent connection
       # is maintained for HTTP versions less than 1.1 unless it is explicitly
