@@ -1,3 +1,6 @@
+== 1.6.1 ???
+ * Regression: Default logger to STDOUT when using outside of CLI.
+
 == 1.6.0 Greek Yogurt
  * Accept absolute URL in request line, eg.: 'GET http://site.com/he/lo HTTP/1.1'.
  * HEAD request no longer return a body in the response.

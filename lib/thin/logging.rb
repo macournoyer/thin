@@ -18,7 +18,6 @@ module Thin
     end
 
     class << self
-
       attr_reader :logger
       attr_reader :trace_logger
 
@@ -116,6 +115,11 @@ module Thin
       end
 
     end # module methods
+
+    # Default logger to stdout.
+    self.logger           = Logger.new(STDOUT)
+    self.logger.level     = Logger::INFO
+    self.logger.formatter = Logging::SimpleFormatter.new
 
     def silent
       Logging.silent?

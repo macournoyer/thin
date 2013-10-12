@@ -181,11 +181,7 @@ module Thin
       if @options[:quiet]
         Logging.silent = true
       else
-        logger           = Logger.new(STDOUT)
-        logger.level     = Logger::INFO
-        logger.level     = Logger::DEBUG if @options[:debug]
-        logger.formatter = Logging::SimpleFormatter.new
-        Logging.logger = logger
+        Logging.level = Logger::DEBUG if @options[:debug]
       end
 
       if @options[:trace]
