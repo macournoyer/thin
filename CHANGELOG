@@ -1,6 +1,6 @@
-== 1.6.1 ???
+== 1.6.1 Death Proof
  * Regression: Default logger to STDOUT when using outside of CLI.
- * Downgrade Rack version to >= 1.4.
+ * Regression: Downgrade Rack required version back to 1.0 to work w/ prior Rails versions.
 
 == 1.6.0 Greek Yogurt
  * Accept absolute URL in request line, eg.: 'GET http://site.com/he/lo HTTP/1.1'.
