@@ -179,6 +179,7 @@ module Helpers
     @server.ssl = options[:ssl]
     @server.threaded = options[:threaded]
     @server.timeout = 3
+    Thin::Logging.silent = true
     
     @thread = Thread.new { @server.start }
     if options[:wait_for_socket]
