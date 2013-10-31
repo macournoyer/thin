@@ -1,3 +1,7 @@
+== EDGE
+ * Remove `---ssl-verify` option as EventMachine doesn't verify the certificate.
+ * Fix env['rack.peer_cert'] to return SSL certifcate.
+
 == 1.6.1 Death Proof
  * Regression: Default logger to STDOUT when using outside of CLI.
  * Regression: Downgrade Rack required version back to 1.0 to work w/ prior Rails versions.
