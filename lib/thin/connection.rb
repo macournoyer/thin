@@ -56,6 +56,12 @@ module Thin
       end
     end
 
+    def ssl_verify_peer(cert)
+      # In order to make the cert available later we have to have made at least
+      # a show of verifying it.
+      true
+    end
+
     def pre_process
       # Add client info to the request env
       @request.remote_address = remote_address
