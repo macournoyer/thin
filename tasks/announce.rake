@@ -14,7 +14,7 @@ Subject: [ANN] Thin #{Thin::VERSION::STRING} #{Thin::VERSION::CODENAME} release
 #{msg}
 END_OF_MESSAGE
 
-  fork { `echo "#{body}" | mate` }
+  fork { `echo "#{body}" | $EDITOR` }
 end
 
 def changelog
