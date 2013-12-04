@@ -1,4 +1,5 @@
 require 'rake'
+require 'rake/clean'
 load 'thin.gemspec'
 
 # Load tasks in tasks/
