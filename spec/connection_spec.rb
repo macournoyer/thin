@@ -7,7 +7,7 @@ describe Connection do
     @connection.post_init
     @connection.backend = mock("backend", :ssl? => false)
     @connection.app = proc do |env|
-      [200, {}, ['']]
+      [200, {}, ['body']]
     end
   end
   
@@ -109,8 +109,8 @@ describe Connection do
   
   it "should return empty body on HEAD request" do
     @connection.request.should_receive(:head?).and_return(true)
+    @connection.should_receive(:send_data).once # Only once for the headers
     @connection.process
-    @connection.response.body.should be_empty
   end
   
   it "should set request env as rack.multithread" do

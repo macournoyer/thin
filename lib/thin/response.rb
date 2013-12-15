@@ -27,6 +27,7 @@ module Thin
       @headers    = Headers.new
       @status     = 200
       @persistent = false
+      @skip_body  = false
     end
 
     # String representation of the headers
@@ -87,10 +88,13 @@ module Thin
     # define your own +each+ method on +body+.
     def each
       yield head
-      if @body.is_a?(String)
-        yield @body
-      else
-        @body.each { |chunk| yield chunk }
+
+      unless @skip_body
+        if @body.is_a?(String)
+          yield @body
+        else
+          @body.each { |chunk| yield chunk }
+        end
       end
     end
 
@@ -104,6 +108,10 @@ module Thin
     # status must require that the connection remain open.
     def persistent?
       (@persistent && @headers.has_key?(CONTENT_LENGTH)) || PERSISTENT_STATUSES.include?(@status)
+    end
+
+    def skip_body!
+      @skip_body = true
     end
   end
 end

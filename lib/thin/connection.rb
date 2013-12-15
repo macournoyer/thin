@@ -10,8 +10,6 @@ module Thin
     # This is a template async response. N.B. Can't use string for body on 1.9
     AsyncResponse = [-1, {}, []].freeze
 
-    EMPTY_BODY = [].freeze
-
     # Rack application (adapter) served by this connection.
     attr_accessor :app
 
@@ -107,7 +105,7 @@ module Thin
                 "Probably you wanted it to be an empty string?") if @response.body.nil?
 
       # HEAD requests should not return a body.
-      @response.body = EMPTY_BODY if @request.head?
+      @response.skip_body! if @request.head?
 
       # Make the response persistent if requested by the client
       @response.persistent! if @request.persistent?
