@@ -128,7 +128,7 @@ module Thin
         opts.on(      "--threadpool-size NUM", "Sets the size of the EventMachine threadpool.",
                                        "(default: #{@options[:threadpool_size]})") { |num| @options[:threadpool_size] = num.to_i }
         opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
-        opts.on(      "--console", "App logging to the console (Rails app only")        { @options[:log_console] = true }
+        opts.on(      "--console", "App logging to the console (Rails app only)")       { @options[:log_console] = true }
 
         opts.separator ""
         opts.separator "Common options:"
