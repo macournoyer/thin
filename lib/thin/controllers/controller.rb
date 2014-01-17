@@ -55,7 +55,7 @@ module Thin
         # ssl support
         if @options[:ssl]
           server.ssl = true
-          server.ssl_options = { :private_key_file => @options[:ssl_key_file], :cert_chain_file => @options[:ssl_cert_file], :verify_peer => true }
+          server.ssl_options = { :private_key_file => @options[:ssl_key_file], :cert_chain_file => @options[:ssl_cert_file], :verify_peer => @options[:ssl_verify] }
         end
 
         # Detach the process, after this line the current process returns
@@ -83,6 +83,14 @@ module Thin
         # Register restart procedure which just start another process with same options,
         # so that's why this is done here.
         server.on_restart { Command.run(:start, @options) }
+
+        if @options[:log_console]
+          console = ActiveSupport::Logger.new($stdout)
+          console.formatter = Rails.logger.formatter
+          console.level = Rails.logger.level
+
+          Rails.logger.extend(ActiveSupport::Logger.broadcast(console))
+        end
 
         server.start
       end
