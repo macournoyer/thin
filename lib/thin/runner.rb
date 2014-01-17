@@ -79,7 +79,7 @@ module Thin
         opts.on(      "--ssl", "Enables SSL")                                           { @options[:ssl] = true }
         opts.on(      "--ssl-key-file PATH", "Path to private key")                     { |path| @options[:ssl_key_file] = path }
         opts.on(      "--ssl-cert-file PATH", "Path to certificate")                    { |path| @options[:ssl_cert_file] = path }
-        
+
         opts.separator ""
         opts.separator "Adapter options:"
         opts.on("-e", "--environment ENV", "Framework environment " +
@@ -128,7 +128,7 @@ module Thin
         opts.on(      "--threadpool-size NUM", "Sets the size of the EventMachine threadpool.",
                                        "(default: #{@options[:threadpool_size]})") { |num| @options[:threadpool_size] = num.to_i }
         opts.on(      "--no-epoll", "Disable the use of epoll")                         { @options[:no_epoll] = true } if Thin.linux?
-        opts.on(      "--console", "App logging to the console")                        { @options[:log_console] = true }
+        opts.on(      "--console", "App logging to the console (Rails app only")        { @options[:log_console] = true }
 
         opts.separator ""
         opts.separator "Common options:"
