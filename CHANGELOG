@@ -1,4 +1,4 @@
-== EDGE
+== 1.6.2 Doc Brown
  * No longer replace response's body on HEAD request. Ensuring body.close will be called.
  * Remove `---ssl-verify` option as EventMachine doesn't verify the certificate.
  * Fix env['rack.peer_cert'] to return SSL certifcate.
