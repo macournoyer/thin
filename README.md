@@ -18,8 +18,8 @@ bundled in an easy to use gem for your own pleasure.
     Code:  http://github.com/macournoyer/thin
     IRC:   #thin on freenode
 
-Installation
-============
+## Installation
+
 For the latest stable version:
 
 `gem install thin`
@@ -32,9 +32,8 @@ cd thin
 rake install
 ```
 
+## Usage
 
-Usage
-=====
 A +thin+ script offers an easy way to start your Rack application:
 
 ```
@@ -47,7 +46,7 @@ to your Gemfile.
 
 See example directory for samples.
 
-## Thin command examples
+### Command Line Examples
 
 Use a rackup file and bind to localhost port 8080:
 
@@ -63,7 +62,7 @@ thin -p 9292 -P tmp/pids/thin.pid -l logs/thin.log -d start
 
 Thin is quite flexible in that many options can be specified at the command line (see below for usage).
 
-## Configuration files
+### Configuration files
 
 You can create configuration files in yaml format and feed them to thin using `thin -C config.yml`.  Here is an example config file:
 
@@ -88,7 +87,7 @@ chdir: /path/to/your/apps/root
 tag: a-name-to-show-up-in-ps aux
 ```
 
-## The thin command usage
+### Command Line Options
 
 This is the usage for the thin command which can be obtained by running `thin -h` at the command line.
 
@@ -153,14 +152,12 @@ Common options:
     -v, --version                    Show version
 ```
 
+## License
 
-
-License
-=======
 Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
 
-Credits
-=======
+## Credits
+
 The parser was stolen from Mongrel http://mongrel.rubyforge.org by Zed Shaw.
 Mongrel is copyright 2007 Zed A. Shaw and contributors. It is licensed under
 the Ruby license and the GPL2.
