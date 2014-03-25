@@ -47,6 +47,22 @@ to your Gemfile.
 
 See example directory for samples.
 
+## Thin command examples
+
+Use a rackup file and bind to localhost port 8080:
+
+```
+thin -R config.ru -a 127.0.0.1 -p 8080 start
+```
+
+Store the server process ID, log to a file and daemonize:
+
+```
+thin -p 9292 -P tmp/pids/thin.pid -l logs/thin.log -d start
+```
+
+Thin is quite flexible in that many options can be specified at the command line (see below for usage).
+
 ## Configuration files
 
 You can create configuration files in yaml format and feed them to thin using `thin -C config.yml`.  Here is an example config file:
@@ -73,6 +89,8 @@ tag: a-name-to-show-up-in-ps aux
 ```
 
 ## The thin command usage
+
+This is the usage for the thin command which can be obtained by running `thin -h` at the command line.
 
 ```sh
 Usage: thin [options] start|stop|restart|config|install
