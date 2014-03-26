@@ -27,7 +27,7 @@ describe Request, 'processing' do
 
   it "should delete body tempfile when closing" do
     body = 'X' * (Request::MAX_BODY + 1)
-    
+
     request = Request.new
     request.parse("POST /postit HTTP/1.1\r\n")
     request.parse("Content-Length: #{body.size}\r\n\r\n")
@@ -38,11 +38,24 @@ describe Request, 'processing' do
     request.body.path.should be_nil
   end
 
+  it "should close body tempfile when closing" do
+    body = 'X' * (Request::MAX_BODY + 1)
+
+    request = Request.new
+    request.parse("POST /postit HTTP/1.1\r\n")
+    request.parse("Content-Length: #{body.size}\r\n\r\n")
+    request.parse(body)
+
+    request.body.closed?.should be_false
+    request.close
+    request.body.closed?.should be_true
+  end
+
   it "should raise error when header is too big" do
     big_headers = "X-Test: X\r\n" * (1024 * (80 + 32))
     proc { R("GET / HTTP/1.1\r\n#{big_headers}\r\n") }.should raise_error(InvalidRequest)
   end
-  
+
   it "should set body external encoding to ASCII_8BIT" do
     pending("Ruby 1.9 compatible implementations only") unless StringIO.instance_methods.include? :external_encoding
     Request.new.body.external_encoding.should == Encoding::ASCII_8BIT

@@ -12,11 +12,11 @@ module Thin
     MAX_BODY          = 1024 * (80 + 32)
     BODY_TMPFILE      = 'thin-body'.freeze
     MAX_HEADER        = 1024 * (80 + 32)
-    
+
     INITIAL_BODY      = ''
     # Force external_encoding of request's body to ASCII_8BIT
     INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!)
-    
+
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
     SERVER_NAME       = 'SERVER_NAME'.freeze
@@ -30,7 +30,7 @@ module Thin
     KEEP_ALIVE_REGEXP = /\bkeep-alive\b/i.freeze
     CLOSE_REGEXP      = /\bclose\b/i.freeze
     HEAD              = 'HEAD'.freeze
-    
+
     # Freeze some Rack header names
     RACK_INPUT        = 'rack.input'.freeze
     RACK_VERSION      = 'rack.version'.freeze
@@ -135,7 +135,7 @@ module Thin
       @env[ASYNC_CALLBACK] = callback
       @env[ASYNC_CLOSE] = EventMachine::DefaultDeferrable.new
     end
-    
+
     def async_close
       @async_close ||= @env[ASYNC_CLOSE]
     end
@@ -146,7 +146,7 @@ module Thin
 
     # Close any resource used by the request
     def close
-      @body.delete if @body.class == Tempfile
+      @body.close! if @body.class == Tempfile
     end
 
     private
