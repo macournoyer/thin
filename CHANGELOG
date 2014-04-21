@@ -1,3 +1,6 @@
+== EDGE
+ * Add HTTP 422 status code [rajcybage]
+
 == 1.6.2 Doc Brown
  * No longer replace response's body on HEAD request. Ensuring body.close will be called.
  * Remove `---ssl-verify` option as EventMachine doesn't verify the certificate.
