@@ -1,5 +1,6 @@
 == EDGE
  * Add HTTP 422 status code [rajcybage]
+ * Add warning about EM reactor still running when stopping.
 
 == 1.6.2 Doc Brown
  * No longer replace response's body on HEAD request. Ensuring body.close will be called.

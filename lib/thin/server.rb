@@ -158,7 +158,7 @@ module Thin
       
       log_info "Maximum connections set to #{@backend.maximum_connections}"
       log_info "Listening on #{@backend}, CTRL+C to stop"
-      
+
       @backend.start { setup_signals if @setup_signals }
     end
     alias :start! :start
@@ -185,7 +185,13 @@ module Thin
     # This doesn't wait for connection to finish their work and send data.
     # All current requests will be dropped.
     def stop!
-      log_info "Stopping ..."
+      if @backend.started_reactor?
+        log_info "Stopping ..."
+      else
+        log_info "Stopping Thin ..."
+        log_info "Thin was started inside an existing EventMachine.run block."
+        log_info "Call `EventMachine.stop` to stop the reactor and quit the process."
+      end
 
       @backend.stop!
     end

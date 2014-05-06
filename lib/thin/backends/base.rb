@@ -116,6 +116,10 @@ module Thin
       def running?
         @running
       end
+
+      def started_reactor?
+        @started_reactor
+      end
             
       # Called by a connection when it's unbinded.
       def connection_finished(connection)
