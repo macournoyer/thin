@@ -109,6 +109,7 @@ SSL options:
         --ssl                        Enables SSL
         --ssl-key-file PATH          Path to private key
         --ssl-cert-file PATH         Path to certificate
+        --ssl-disable-verify         Disables (optional) client cert requests
 
 Adapter options:
     -e, --environment ENV            Framework environment (default: development)

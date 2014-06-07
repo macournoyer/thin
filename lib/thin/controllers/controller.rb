@@ -55,7 +55,7 @@ module Thin
         # ssl support
         if @options[:ssl]
           server.ssl = true
-          server.ssl_options = { :private_key_file => @options[:ssl_key_file], :cert_chain_file => @options[:ssl_cert_file], :verify_peer => true }
+          server.ssl_options = { :private_key_file => @options[:ssl_key_file], :cert_chain_file => @options[:ssl_cert_file], :verify_peer => !@options[:ssl_disable_verify] }
         end
 
         # Detach the process, after this line the current process returns
