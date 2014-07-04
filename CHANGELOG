@@ -58,10 +58,10 @@
    It is now the responsibility of the app (or a middleware) to set the Content-Length.
  * Log errors to STDERR [textgoeshere]
  * Shut down gracefully when receiving SIGTERM [ddollar]
-     
+
      Processes are allowed a chance to shut down gracefully when receiving
      SIGTERM (http://en.wikipedia.org/wiki/SIGTERM).
-     
+
      On Heroku, when shutting down a process, we send a SIGTERM followed 10
      seconds later with a SIGKILL, similar to the behavior of the init daemon
      on most Unix systems. This patch will allow Heroku apps to shut down
@@ -86,7 +86,7 @@
      the existing connection to another protocol, and specifically is NOT
      used to upgrade a separate connection. Therefore, the connection must
      remain open after this response in order to facilitate that.
-   
+
  * Accept IE7 badly encoded URL (eg.: %uEEEE)
  * Fix gemspec to work w/ Bundler [smparkes]
  * Add SSL support [tmm1]
@@ -102,10 +102,10 @@
       --ssl-key-file PATH      Path to private key
       --ssl-cert-file PATH     Path to certificate
       --ssl-verify             Enables SSL certificate verification
-    
+
   * Expose peer SSL certificate in env (rack.peer_cert) [fd]
   * Adjusting unix socket permissions to be more open [mbj]
-  
+
 == 1.2.7 No Hup
  * Support multiple Ruby version (fat binaries under windows)
  * Do not trap unsupported HUP signal on Windows
@@ -129,7 +129,7 @@
 == 1.2.2 I Find Your Lack of Sauce Disturbing release
  * Fix force kill under 1.9 [Alexey Chebotar]
  * Fix regression when --only option is used w/ --socket.
- * Add process name 'tag' functionality. Easier to distinguish thin daemons 
+ * Add process name 'tag' functionality. Easier to distinguish thin daemons
    from eachother in process listing [ctcherry]
 
 == 1.2.1 Asynctilicious Ultra Supreme release
@@ -139,11 +139,11 @@
  * Allow String for response body
  * Require openssl before eventmachine to prevent crash in 1.9
 
-== 1.2.0 Asynctilicious Supreme release 
+== 1.2.0 Asynctilicious Supreme release
  * Add support for Windows mingw Ruby distro [Juan C. Rodriguez]
  * Add async response support, see example/async_*.ru [raggi]
 
-== 1.1.1 Super Disco Power Plus release 
+== 1.1.1 Super Disco Power Plus release
  * Fix bug when running with only options [hasimo]
 
 == 1.1.0 Super Disco Power release
@@ -240,20 +240,20 @@
  * Add tasks for Vlad the Deployer in example/vlad.rake [cnantais]
  * Add Ramaze Rackup config file in example dir [tmm1]
    Use like this from you Ramaze app dir:
-   
+
      thin start -r /path/to/thin/example/ramaze.ru
-   
+
  * Add the --rackup option to load a Rack config file instead of the Rails adapter.
    So you can use any framework with the thin script and start cluster and stuff like that.
    A Rack config file is one that is usable through the rackup command and looks like this:
-     
+
      use Rack::CommonLogger
      run MyCrazyRackAdapter.new(:uterly, 'cool')
-     
+
    Then use it with thin like this:
-     
+
      thin start --rackup config.ru
-     
+
  * thin config --chrdir ... -C thin/yml do not change current directory anymore, fixes #33.
  * Add a better sample god config file in example/thin.god that loads all info from config
    files in /etc/thin. Drop-in replacement for the thin runlevel service [Gump].
@@ -261,9 +261,9 @@
    configuration.
  * Add a script to run thin as a runlevel service that can start at startup, closes #31 [Gump]
    Setup the service like this:
-   
+
      sudo thin install /etc/thin
-   
+
    This will install the boot script under /etc/init.d/thin. Then copy your config files to
    /etc/thin. Works only under Linux.
  * Set process name to 'thin server (0.0.0.0:3000)' when running as a daemon, closes #32.
@@ -289,9 +289,9 @@
  * Add example config files for http://www.tildeslash.com/monit usage.
    Include the example file using "include /path/to/thin/monit/file" in your monitrc file.
    The group settings let you do this to manage your clusters:
-   
+
      sudo monit -g blog restart all
-    
+
    There are examples of thin listening on sockets and thin listening on unix sockets.
 
 == 0.6.1 Cheesecake release
@@ -302,20 +302,20 @@
  * Add support for connection through UNIX domain socket.
    Use the --socket (-S) option w/ the thin script to configure the socket filename.
    Nginx support binding to a UNIX socket like this:
-   
+
      upstream  backend {
        server   unix:/tmp/thin.0.sock;
        server   unix:/tmp/thin.1.sock;
        server   unix:/tmp/thin.2.sock;
      }
-  
+
    Start your servers like this:
-   
+
      thin start -s3 -S/tmp/thin.sock
-   
+
  * Remove Server#listen! method. Use Server#start instead.
  * Server can now yield a Rack::Builder to allow building an app in one call:
- 
+
      Server.start '0.0.0.0', 3000 do
        use Rack::CommonLogger
        use Rack::ShowExceptions
@@ -324,13 +324,13 @@
          run Rack::Lobster.new
        end
      end
-     
+
  * Add a very basic stats page through Stats adapter, load w/ --stats and browse to /stats.
  * Add --trace (-V) option to trace request/response and get backtrace w/out all Ruby debug stuff.
  * Add --config (-C) option to load options from a config file in thin script [Matt Todd].
  * Alter response headers to output directly to a string.
  * Improve specs stability.
- * Move request body to a Tempfile if too big (> 112 MB)
+ * Move request body to a Tempfile if too big (> 112 KB)
  * Remove useless check for max header size in Request (already done in the parser)
 
 == 0.5.4 Flying Mustard release
@@ -342,7 +342,7 @@
    Thanks to Kent Sibilev and Ezra for their help on that one.
  * Add 'Server' response header
  * Fix --user and --group option not changing daemon process privileges
- 
+
 == 0.5.3 Purple Yogurt release
  * win32 pre-compiled gem now available
  * change rake task configuration to allow win32 gem build
@@ -362,7 +362,7 @@
      --log-file => --log
      --pid-file => --pid
      --env      => --environment
- 
+
 == 0.5.1 LOLCAT release
  * Add URL rewriting to Rails adapter so that page caching works and / fetches index.html if present.
  * Fix bug in multiline response header parsing.
@@ -377,9 +377,9 @@
 
 == 0.5.0
  * Full rewrite to use EventMachine, Rack and Mongrel parser
- 
+
 == 0.4.1
  * Fix Rails environment option not being used in thin script.
- 
+
 == 0.4.0
  * First alphaish release as a gem.
