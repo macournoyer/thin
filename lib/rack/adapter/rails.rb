@@ -11,32 +11,27 @@ require 'cgi'
 #
 # Based on http://fuzed.rubyforge.org/ Rails adapter
 module Rack
-  module Adapter 
+  module Adapter
     class Rails
       FILE_METHODS = %w(GET HEAD).freeze
-      
-      def initialize(options={})
-        @root   = options[:root]         || Dir.pwd
-        @env    = options[:environment]  || 'development'
+
+      def initialize(options = {})
+        @root   = options[:root]        || Dir.pwd
+        @env    = options[:environment] || 'development'
         @prefix = options[:prefix]
-        
+
         load_application
-        
-        @rails_app = if self.class.rack_based?
-          ActionController::Dispatcher.new
-        else
-          CgiApp.new
-        end
-        
-        @file_app = Rack::File.new(::File.join(RAILS_ROOT, "public"))
+
+        @rails_app = self.class.rack_based? ? ActionController::Dispatcher.new : CgiApp.new
+        @file_app  = Rack::File.new(::File.join(RAILS_ROOT, "public"))
       end
-      
+
       def load_application
         ENV['RAILS_ENV'] = @env
 
         require "#{@root}/config/environment"
         require 'dispatcher'
-        
+
         if @prefix
           if ActionController::Base.respond_to?(:relative_url_root=)
             ActionController::Base.relative_url_root = @prefix # Rails 2.1.1
@@ -45,17 +40,17 @@ module Rack
           end
         end
       end
-      
+
       def file_exist?(path)
         full_path = ::File.join(@file_app.root, Utils.unescape(path))
         ::File.file?(full_path) && ::File.readable_real?(full_path)
       end
-      
+
       def call(env)
         path        = env['PATH_INFO'].chomp('/')
         method      = env['REQUEST_METHOD']
         cached_path = (path.empty? ? 'index' : path) + ActionController::Base.page_cache_extension
-        
+
         if FILE_METHODS.include?(method)
           if file_exist?(path)              # Serve the file if it's there
             return @file_app.call(env)
@@ -64,11 +59,11 @@ module Rack
             return @file_app.call(env)
           end
         end
-        
+
         # No static file, let Rails handle it
         @rails_app.call(env)
       end
-      
+
       def self.rack_based?
         rails_version = ::Rails::VERSION
         return false if rails_version::MAJOR < 2
@@ -76,7 +71,7 @@ module Rack
         return false if rails_version::MAJOR == 2 && rails_version::MINOR == 2 && rails_version::TINY < 3
         true # >= 2.2.3
       end
-    
+
       protected
         # For Rails pre Rack (2.3)
         class CgiApp
@@ -91,7 +86,7 @@ module Rack
             response.finish
           end
         end
-        
+
         class CGIWrapper < ::CGI
           def initialize(request, response, *args)
             @request  = request
@@ -101,36 +96,36 @@ module Rack
 
             super *args
           end
-        
-          def header(options = "text/html")
+
+          def header(options = 'text/html')
             if options.is_a?(String)
               @response['Content-Type']     = options unless @response['Content-Type']
             else
               @response['Content-Length']   = options.delete('Content-Length').to_s if options['Content-Length']
-            
+
               @response['Content-Type']     = options.delete('type') || "text/html"
-              @response['Content-Type']    += "; charset=" + options.delete('charset') if options['charset']
-                        
+              @response['Content-Type']    += '; charset=' + options.delete('charset') if options['charset']
+
               @response['Content-Language'] = options.delete('language') if options['language']
               @response['Expires']          = options.delete('expires') if options['expires']
 
               @response.status              = options.delete('Status') if options['Status']
-              
+
               # Convert 'cookie' header to 'Set-Cookie' headers.
-              # Because Set-Cookie header can appear more the once in the response body, 
+              # Because Set-Cookie header can appear more the once in the response body,
               # we store it in a line break seperated string that will be translated to
               # multiple Set-Cookie header by the handler.
               if cookie = options.delete('cookie')
                 cookies = []
-                
+
                 case cookie
                   when Array then cookie.each { |c| cookies << c.to_s }
                   when Hash  then cookie.each { |_, c| cookies << c.to_s }
                   else            cookies << cookie.to_s
                 end
-                
+
                 @output_cookies.each { |c| cookies << c.to_s } if @output_cookies
-                
+
                 @response['Set-Cookie'] = [@response['Set-Cookie'], cookies].compact
                 # See http://groups.google.com/group/rack-devel/browse_thread/thread/e8759b91a82c5a10/a8dbd4574fe97d69?#a8dbd4574fe97d69
                 if Thin.ruby_18?
@@ -139,42 +134,42 @@ module Rack
                   @response['Set-Cookie'] = @response['Set-Cookie'].join("\n")
                 end
               end
-              
-              options.each { |k,v| @response[k] = v }
+
+              options.each { |k, v| @response[k] = v }
             end
-            
-            ""
+
+            ''
           end
-                        
+
           def params
             @params ||= @request.params
           end
-        
+
           def cookies
             @request.cookies
           end
-        
+
           def query_string
             @request.query_string
           end
-          
+
           # Used to wrap the normal args variable used inside CGI.
           def args
             @args
           end
-    
+
           # Used to wrap the normal env_table variable used inside CGI.
           def env_table
             @request.env
           end
-    
+
           # Used to wrap the normal stdinput variable used inside CGI.
           def stdinput
             @input
           end
-        
+
           def stdoutput
-            STDERR.puts "stdoutput should not be used."
+            STDERR.puts 'stdoutput should not be used.'
             @response.body
           end
       end
