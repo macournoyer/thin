@@ -1,8 +1,6 @@
 source "http://rubygems.org"
 
-gem "daemons"
-gem "eventmachine"
-gem "rack"
+gemspec
 
 group :development do
   gem "rake-compiler"
