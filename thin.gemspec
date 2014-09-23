@@ -14,7 +14,7 @@ Thin::GemSpec = Gem::Specification.new do |s|
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
   s.rubyforge_project     = 'thin'
-  s.license               = 'Ruby'
+  s.license               = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
   s.required_ruby_version = '>= 1.8.5'
