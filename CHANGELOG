@@ -1,6 +1,9 @@
 == EDGE
  * Add HTTP 422 status code [rajcybage]
  * Add warning about EM reactor still running when stopping.
+ * Remove version number from "Server" HTTP header. [benbasson]
+ * Adding `--ssl-disable-verify` to allow disabling of client cert requests when SSL enabled [brucek]
+ * Ensure Tempfiles created by a large request are closed and deleted. [Tonkpils]
 
 == 1.6.2 Doc Brown
  * No longer replace response's body on HEAD request. Ensuring body.close will be called.
