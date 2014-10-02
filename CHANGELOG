@@ -1,4 +1,4 @@
-== EDGE
+== 1.6.3 Protein Powder
  * Add HTTP 422 status code [rajcybage]
  * Add warning about EM reactor still running when stopping.
  * Remove version number from "Server" HTTP header. [benbasson]
