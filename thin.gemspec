@@ -14,14 +14,14 @@ Thin::GemSpec = Gem::Specification.new do |s|
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
   s.rubyforge_project     = 'thin'
-  s.license               = ["GPLv2+", "Ruby 1.8"]
+  s.licenses              = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '>= 1.0.0'
-  s.add_dependency        'eventmachine', '>= 1.0.0'
-  s.add_dependency        'daemons',      '>= 1.0.9'  unless Thin.win?
+  s.add_dependency        'rack',         '~> 1.0'
+  s.add_dependency        'eventmachine', '~> 1.0'
+  s.add_dependency        'daemons',      '~> 1.0', '>= 1.0.9'  unless Thin.win?
 
   s.files                 = %w(CHANGELOG README.md Rakefile) +
                             Dir["{bin,doc,example,lib}/**/*"] - Dir["lib/thin_parser.*"] + 
