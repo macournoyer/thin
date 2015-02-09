@@ -3,7 +3,7 @@ module Thin
     # A Backend connects the server to the client. It handles:
     # * connection/disconnection to the server
     # * initialization of the connections
-    # * manitoring of the active connections.
+    # * monitoring of the active connections.
     #
     # == Implementing your own backend
     # You can create your own minimal backend by inheriting this class and
