@@ -95,7 +95,7 @@ module Thin
         stop
         remove_pid_file
         @on_restart.call
-        exit!
+        EM.next_tick { exit! }
       end
     end
     
