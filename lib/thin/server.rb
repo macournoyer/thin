@@ -125,7 +125,7 @@ module Thin
       # Set defaults
       @backend.maximum_connections            = DEFAULT_MAXIMUM_CONNECTIONS
       @backend.maximum_persistent_connections = DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
-      @backend.timeout                        = DEFAULT_TIMEOUT
+      @backend.timeout                        = options[:timeout] || DEFAULT_TIMEOUT
       
       # Allow using Rack builder as a block
       @app = Rack::Builder.new(&block).to_app if block
