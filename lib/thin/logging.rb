@@ -17,6 +17,8 @@ module Thin
       end
     end
 
+    @trace_logger = nil
+
     class << self
       attr_reader :logger
       attr_reader :trace_logger
