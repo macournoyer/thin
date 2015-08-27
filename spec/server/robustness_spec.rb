@@ -16,15 +16,15 @@ describe Server, 'robustness' do
         socket.write("Host: localhost\r\n")
         socket.write("Connection: close\r\n")
         10000.times do
-        	socket.write("X-Foo: #{'x' * 100}\r\n")
-        	socket.flush
+          socket.write("X-Foo: #{'x' * 100}\r\n")
+          socket.flush
         end
         socket.write("\r\n")
         socket.read
         socket.close
-      rescue Errno::EPIPE, Errno::ECONNRESET
-				# Ignore.
-			end
+      rescue Errno::EPIPE, Errno::ECONNRESET, Errno::EPROTOTYPE
+        # Ignore.
+      end
     end
   end
   
