@@ -43,6 +43,9 @@ module Thin
       
       # Disable the use of epoll under Linux
       attr_accessor :no_epoll
+
+      # Disable the use of kqueue under BSD / Darwin
+      attr_accessor :no_kqueue
       
       def initialize
         @connections                    = {}
@@ -51,6 +54,7 @@ module Thin
         @maximum_connections            = Server::DEFAULT_MAXIMUM_CONNECTIONS
         @maximum_persistent_connections = Server::DEFAULT_MAXIMUM_PERSISTENT_CONNECTIONS
         @no_epoll                       = false
+        @no_kqueue                      = false
         @ssl                            = nil
         @threaded                       = nil
         @started_reactor                = false
@@ -99,8 +103,9 @@ module Thin
       # Configure the backend. This method will be called before droping superuser privileges,
       # so you can do crazy stuff that require godlike powers here.
       def config
-        # See http://rubyeventmachine.com/pub/rdoc/files/EPOLL.html
-        EventMachine.epoll unless @no_epoll
+        # See https://raw.githubusercontent.com/eventmachine/eventmachine/master/docs/old/EPOLL
+        EventMachine.epoll  if EventMachine.epoll?  && !@no_epoll
+        EventMachine.kqueue if EventMachine.kqueue? && !@no_kqueue
         
         # Set the maximum number of socket descriptors that the server may open.
         # The process needs to have required privilege to set it higher the 1024 on

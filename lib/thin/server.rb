@@ -96,6 +96,9 @@ module Thin
     
     # Disable the use of epoll under Linux
     def_delegators :backend, :no_epoll, :no_epoll=
+
+    # Disable the use of kqueue under BSD / Darwin
+    def_delegators :backend, :no_kqueue, :no_kqueue=
     
     def initialize(*args, &block)
       host, port, options = DEFAULT_HOST, DEFAULT_PORT, {}

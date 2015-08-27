@@ -8,10 +8,6 @@
 #  Created by James Tucker on 2008-06-18.
 #  Copyright 2008 James Tucker <raggi@rubyforge.org>.
 
-# Uncomment if appropriate for you..
-# EM.epoll
-# EM.kqueue
-
 class DeferrableBody
   include EventMachine::Deferrable
   

@@ -80,7 +80,6 @@ environment: production
 max_persistent_conns: 512
 servers: 1
 threaded: true
-no-epoll: true
 daemonize: true
 socket: tmp/sockets/thin.sock
 chdir: /path/to/your/apps/root
@@ -140,9 +139,10 @@ Tuning options:
         --max-persistent-conns NUM   Maximum number of persistent connections
                                      (default: 100)
         --threaded                   Call the Rack application in threads [experimental]
-        --threadpool-size NUM        Sets the size of the EventMachine threadpool.
+        --threadpool-size NUM        Sets the size of the EventMachine threadpool
                                      (default: 20)
         --no-epoll                   Disable the use of epoll
+        --no-kqueue                  Disable the use of kqueue
 
 Common options:
     -r, --require FILE               require the library

@@ -1,3 +1,5 @@
+ * Don't try to enable epoll on unsupported platform [felixbuenemann]
+ * Add kqueue support for BSD/Darwin, disable with `--no-kqueue` [felixbuenemann]
 == 1.6.3 Protein Powder
  * Add HTTP 422 status code [rajcybage]
  * Add warning about EM reactor still running when stopping.

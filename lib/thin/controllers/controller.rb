@@ -49,7 +49,8 @@ module Thin
         server.maximum_connections            = @options[:max_conns]
         server.maximum_persistent_connections = @options[:max_persistent_conns]
         server.threaded                       = @options[:threaded]
-        server.no_epoll                       = @options[:no_epoll] if server.backend.respond_to?(:no_epoll=)
+        server.no_epoll                       = @options[:no_epoll]  if server.backend.respond_to?(:no_epoll=)
+        server.no_kqueue                      = @options[:no_kqueue] if server.backend.respond_to?(:no_kqueue=)
         server.threadpool_size                = @options[:threadpool_size] if server.threaded?
 
         # ssl support
