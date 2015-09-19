@@ -61,6 +61,7 @@ module Thin
       private
         def run(command)
           Dir[config_path + '/*'].each do |config|
+            next if config.end_with?("~")
             log_info "[#{command}] #{config} ..."
             Command.run(command, :config => config, :daemonize => true)
           end
