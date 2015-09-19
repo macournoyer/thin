@@ -1,3 +1,12 @@
+== 1.6.4 Gob Bluth
+ * Increase REQUEST_PATH to 2048 symbols [X2rdas]
+ * Fix warning in logger [tenderlove]
+ * Add :timeout option for Rack::Server.new [sugitak]
+ * When restarting, exit on a next tick so we can send response back to a client [rsamoilov]
+ * Check for empty PID files [z1dane]
+ * Update Event Machine version to 1.0.4, Ruby 2.2.0 fix [freemanoid]
+
+
 == 1.6.3 Protein Powder
  * Add HTTP 422 status code [rajcybage]
  * Add warning about EM reactor still running when stopping.
