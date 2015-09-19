@@ -15,7 +15,7 @@ module Thin
 
     INITIAL_BODY      = ''
     # Force external_encoding of request's body to ASCII_8BIT
-    INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!)
+    INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!) && defined?(Encoding::ASCII_8BIT)
 
     # Freeze some HTTP header names & values
     SERVER_SOFTWARE   = 'SERVER_SOFTWARE'.freeze
