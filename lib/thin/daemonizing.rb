@@ -84,6 +84,10 @@ module Thin
         Process.initgroups(user, target_gid)
         Process::GID.change_privilege(target_gid)
         Process::UID.change_privilege(target_uid)
+
+        # Correct environment variables
+        ENV.store('USER', user)
+        ENV.store('HOME', File.expand_path("~#{user}"))
       end
     rescue Errno::EPERM => e
       log_info "Couldn't change user and group to #{user}:#{group}: #{e}"
