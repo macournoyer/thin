@@ -1,10 +1,10 @@
 module Thin
-  # The uterly famous Thin HTTP server.
-  # It listen for incoming request through a given +backend+
-  # and forward all request to +app+.
+  # The utterly famous Thin HTTP server.
+  # It listens for incoming requests through a given +backend+
+  # and forwards all requests to +app+.
   #
   # == TCP server
-  # Create a new TCP server on bound to <tt>host:port</tt> by specifiying +host+
+  # Create a new TCP server bound to <tt>host:port</tt> by specifiying +host+
   # and +port+ as the first 2 arguments.
   #
   #   Thin::Server.start('0.0.0.0', 3000, app)
@@ -18,12 +18,12 @@ module Thin
   #
   # == Using a custom backend
   # You can implement your own way to connect the server to its client by creating your
-  # own Backend class and pass it as the :backend option.
+  # own Backend class and passing it as the :backend option.
   #
   #   Thin::Server.start('galaxy://faraway', 1345, app, :backend => Thin::Backends::MyFancyBackend)
   #
   # == Rack application (+app+)
-  # All requests will be processed through +app+ that must be a valid Rack adapter.
+  # All requests will be processed through +app+, which must be a valid Rack adapter.
   # A valid Rack adapter (application) must respond to <tt>call(env#Hash)</tt> and
   # return an array of <tt>[status, headers, body]</tt>.
   #
@@ -76,10 +76,10 @@ module Thin
     # Maximum number of file or socket descriptors that the server may open.
     def_delegators :backend, :maximum_connections, :maximum_connections=
     
-    # Maximum number of connection that can be persistent at the same time.
-    # Most browser never close the connection so most of the time they are closed
-    # when the timeout occur. If we don't control the number of persistent connection,
-    # if would be very easy to overflow the server for a DoS attack.
+    # Maximum number of connections that can be persistent at the same time.
+    # Most browsers never close the connection so most of the time they are closed
+    # when the timeout occurs. If we don't control the number of persistent connections,
+    # it would be very easy to overflow the server for a DoS attack.
     def_delegators :backend, :maximum_persistent_connections, :maximum_persistent_connections=
     
     # Allow using threads in the backend.
@@ -166,7 +166,7 @@ module Thin
     # == Gracefull shutdown
     # Stops the server after processing all current connections.
     # As soon as this method is called, the server stops accepting
-    # new requests and wait for all current connections to finish.
+    # new requests and waits for all current connections to finish.
     # Calling twice is the equivalent of calling <tt>stop!</tt>.
     def stop
       if running?
