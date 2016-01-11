@@ -13,7 +13,7 @@ module Thin
     BODY_TMPFILE      = 'thin-body'.freeze
     MAX_HEADER        = 1024 * (80 + 32)
 
-    INITIAL_BODY      = ''
+    INITIAL_BODY      = String.new
     # Force external_encoding of request's body to ASCII_8BIT
     INITIAL_BODY.encode!(Encoding::ASCII_8BIT) if INITIAL_BODY.respond_to?(:encode!) && defined?(Encoding::ASCII_8BIT)
 
@@ -52,7 +52,7 @@ module Thin
 
     def initialize
       @parser   = Thin::HttpParser.new
-      @data     = ''
+      @data     = String.new
       @nparsed  = 0
       @body     = StringIO.new(INITIAL_BODY.dup)
       @env      = {
