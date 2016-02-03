@@ -142,11 +142,6 @@ int thin_http_parser_is_finished(http_parser *parser) {
 
 int thin_http_parser_finish(http_parser *parser)
 {
-  int cs = parser->cs;
-
-
-  parser->cs = cs;
-
   if (thin_http_parser_has_error(parser) ) {
     return -1;
   } else if (thin_http_parser_is_finished(parser) ) {
