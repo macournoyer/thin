@@ -113,6 +113,15 @@ describe Runner, 'with config file' do
     @runner.options[:servers].should == 3
   end
 
+  it "should load options from file using an ERB template" do
+    @runner = Runner.new(%w(start --config spec/configs/with_erb.yml))
+    @runner.send :load_options_from_config_file!
+
+    @runner.options[:timeout].should == 30
+    @runner.options[:port].should == 4000
+    @runner.options[:environment].should == 'production'
+  end
+
   it "should change directory after loading config" do
     @orig_dir = Dir.pwd
 
