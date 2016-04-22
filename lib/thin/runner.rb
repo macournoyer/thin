@@ -108,6 +108,7 @@ module Thin
           opts.on("-C", "--config FILE", "Load options from config file")               { |file| @options[:config] = file }
           opts.on(      "--all [DIR]", "Send command to each config files in DIR")      { |dir| @options[:all] = dir } if Thin.linux?
           opts.on("-O", "--onebyone", "Restart the cluster one by one (only works with restart command)") { @options[:onebyone] = true }
+          opts.on("-X", "--xbyx NUM", "Restart the cluster in batches up to X servers at a time (only works with restart command)") { |num| @options[:xbyx] = num.to_i }
           opts.on("-w", "--wait NUM", "Maximum wait time for server to be started in seconds (use with -O)") { |time| @options[:wait] = time.to_i }
         end
 
