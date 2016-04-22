@@ -129,6 +129,7 @@ Cluster options:
     -C, --config FILE                Load options from config file
         --all [DIR]                  Send command to each config files in DIR
     -O, --onebyone                   Restart the cluster one by one (only works with restart command)
+    -X, --xbyx                       Restart the cluster in batches up to X servers at a time (only works with restart command)
     -w, --wait NUM                   Maximum wait time for server to be started in seconds (use with -O)
 
 Tuning options:
