@@ -47,7 +47,7 @@ module Thin
     def process
       if threaded?
         @request.threaded = true
-        EventMachine.defer(method(:pre_process), method(:post_process))
+        EventMachine.defer { post_process(pre_process) }
       else
         @request.threaded = false
         post_process(pre_process)
