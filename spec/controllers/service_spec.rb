@@ -27,8 +27,10 @@ describe Service do
     @service.install
     
     File.exist?(Service::INITD_PATH).should be_true
+    script_name = File.directory?('/etc/rc.d') ?
+      '/etc/rc.d/thin' : '/etc/init.d/thin'
     File.read(Service::INITD_PATH).should include('CONFIG_PATH=tmp/sandbox/etc/thin',
-                                                  'SCRIPT_NAME=tmp/sandbox/etc/init.d/thin',
+                                                  'SCRIPT_NAME=tmp/sandbox' + script_name,
                                                   'DAEMON=' + Command.script)
   end
   
