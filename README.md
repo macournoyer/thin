@@ -64,7 +64,7 @@ Thin is quite flexible in that many options can be specified at the command line
 
 ### Configuration files
 
-You can create configuration files in yaml format and feed them to thin using `thin -C config.yml`.  Here is an example config file:
+You can create configuration files in yaml format and feed them to thin using `thin start -C config.yml`.  Here is an example config file:
 
 ```yaml
 --- 
