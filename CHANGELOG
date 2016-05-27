@@ -1,3 +1,10 @@
+== 1.7.0 Dunder Mifflin
+ * Rack 2 support
+ * Ensure Response body.close is called in the same thread
+   Fixes issues with ActiveRecord connection management [#307]
+ * Fix TCP/IP Backend reports incorrect port when asked to bind to 0 [meschbach]
+ * Work with ruby 2.3's --enable-frozen-string-literal [jeremyevans]
+
 == 1.6.4 Gob Bluth
  * Increase REQUEST_PATH to 2048 symbols [X2rdas]
  * Fix warning in logger [tenderlove]
