@@ -104,8 +104,8 @@ module Thin
       # PID is stored in +pid_file+.
       # If the process is still running after +timeout+, KILL signal is
       # sent.
-      def kill(pid_file, timeout=60)
-        if timeout == 0
+      def kill(pid_file, timeout=60, force: false)
+        if force
           send_signal('INT', pid_file, timeout)
         else
           send_signal('QUIT', pid_file, timeout)

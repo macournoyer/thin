@@ -107,10 +107,16 @@ describe Controller do
   end
   
   it "should stop" do
-    Server.should_receive(:kill).with('thin.pid', 10)
+    Server.should_receive(:kill).with('thin.pid', 10, force: nil)
     @controller.stop
   end
-  
+
+  it "should force stop" do
+    @controller.options[:force] = true
+    Server.should_receive(:kill).with('thin.pid', 10, force: true)
+    @controller.stop
+  end
+
   it "should restart" do
     Server.should_receive(:restart).with('thin.pid')
     @controller.restart
