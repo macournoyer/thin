@@ -35,7 +35,7 @@ module Thin
       def threaded?; @threaded end
             
       # Allow using SSL in the backend.
-      attr_writer :ssl, :ssl_options
+      attr_writer :ssl, :ssl_options, :ssl_version, :ssl_cipher_list
       def ssl?; @ssl end
       
       # Number of persistent connections currently opened

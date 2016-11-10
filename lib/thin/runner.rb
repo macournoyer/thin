@@ -80,6 +80,8 @@ module Thin
         opts.on(      "--ssl-key-file PATH", "Path to private key")                     { |path| @options[:ssl_key_file] = path }
         opts.on(      "--ssl-cert-file PATH", "Path to certificate")                    { |path| @options[:ssl_cert_file] = path }
         opts.on(      "--ssl-disable-verify", "Disables (optional) client cert requests") { @options[:ssl_disable_verify] = true }
+        opts.on(      "--ssl-version VERSION", "TLSv1, TLSv1_1, TLSv1_2")               { |version| @options[:ssl_version] = version }
+        opts.on(      "--ssl-cipher-list STRING", "Example: HIGH:!ADH:!RC4:-MEDIUM:-LOW:-EXP:-CAMELLIA") { |cipher| @options[:ssl_cipher_list] = cipher }
 
         opts.separator ""
         opts.separator "Adapter options:"
