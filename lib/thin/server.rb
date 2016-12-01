@@ -104,9 +104,9 @@ module Thin
       # received in any order.
       args.each do |arg|
         case arg
-        when Fixnum, /^\d+$/ then port    = arg.to_i
-        when String          then host    = arg
-        when Hash            then options = arg
+        when 0.class, /^\d+$/ then port    = arg.to_i
+        when String           then host    = arg
+        when Hash             then options = arg
         else
           @app = arg if arg.respond_to?(:call)
         end
