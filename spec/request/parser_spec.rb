@@ -203,17 +203,29 @@ EOS
 
     expect(request).to validate_with_lint
   end
-  
-  
+
+
   it "should fails on heders larger then MAX_HEADER" do
     expect { R("GET / HTTP/1.1\r\nFoo: #{'X' * Request::MAX_HEADER}\r\n\r\n") }.to raise_error(InvalidRequest)
   end
-  
+
+  it "should fail when total request vastly exceeds specified CONTENT_LENGTH" do
+    proc do
+      R(<<-EOS, true)
+POST / HTTP/1.1
+Host: localhost:3000
+Content-Length: 300
+
+#{'X' * 300_000}
+EOS
+    end.should raise_error(InvalidRequest)
+  end
+
   it "should default SERVER_NAME to localhost" do
     request = R("GET / HTTP/1.1\r\n\r\n")
     expect(request.env['SERVER_NAME']).to eq("localhost")
   end
-  
+
   it 'should normalize http_fields' do
     [ "GET /index.html HTTP/1.1\r\nhos-t: localhost\r\n\r\n",
       "GET /index.html HTTP/1.1\r\nhOs_t: localhost\r\n\r\n",
