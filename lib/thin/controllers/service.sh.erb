@@ -13,6 +13,12 @@
 
 # Do NOT "set -e"
 
+### Added Updates
+#  Allow Restart of a start,stop and restart of a single config file
+#  Author: William Basmayor
+#  Example Usage: thin start-config /etc/thin/someconfig.yml 
+###
+
 DAEMON=<%= Command.script %>
 SCRIPT_NAME=<%= INITD_PATH %>
 CONFIG_PATH=<%= config_files_path %>
@@ -30,8 +36,17 @@ case "$1" in
   restart)
 	$DAEMON restart --all $CONFIG_PATH
 	;;
+  start-config)
+  $DAEMON start -C $2
+  ;;
+  stop-config)
+  $DAEMON stop -C $2
+  ;;
+  restart-config)
+  $DAEMON restart -C $2
+  ;;
   *)
-	echo "Usage: $SCRIPT_NAME {start|stop|restart}" >&2
+	echo "Usage: $SCRIPT_NAME {start|stop|restart|start-config|stop-config|restart-config}" >&2
 	exit 3
 	;;
 esac
