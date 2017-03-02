@@ -35,7 +35,7 @@ describe Runner do
   it "should use Controller when controlling a single server" do
     runner = Runner.new(%w(start))
 
-    controller = mock('controller')
+    controller = double('controller')
     controller.should_receive(:start)
     Controllers::Controller.should_receive(:new).and_return(controller)
 
@@ -45,7 +45,7 @@ describe Runner do
   it "should use Cluster controller when controlling multiple servers" do
     runner = Runner.new(%w(start --servers 3))
 
-    controller = mock('cluster')
+    controller = double('cluster')
     controller.should_receive(:start)
     Controllers::Cluster.should_receive(:new).and_return(controller)
 
@@ -86,16 +86,16 @@ describe Runner do
 
   it "should remember debug options" do
     runner = Runner.new(%w(start -D -q -V))
-    runner.options[:debug].should be_true
-    runner.options[:quiet].should be_true
-    runner.options[:trace].should be_true
+    runner.options[:debug].should be_truthy
+    runner.options[:quiet].should be_truthy
+    runner.options[:trace].should be_truthy
   end
 
   it "should default debug, silent and trace to false" do
     runner = Runner.new(%w(start))
-    runner.options[:debug].should_not be_true
-    runner.options[:quiet].should_not be_true
-    runner.options[:trace].should_not be_true
+    runner.options[:debug].should_not be_truthy
+    runner.options[:quiet].should_not be_truthy
+    runner.options[:trace].should_not be_truthy
   end
 end
 
@@ -125,7 +125,7 @@ describe Runner, 'with config file' do
   it "should change directory after loading config" do
     @orig_dir = Dir.pwd
 
-    controller = mock('controller')
+    controller = double('controller')
     controller.should_receive(:respond_to?).with('start').and_return(true)
     controller.should_receive(:start)
     Controllers::Cluster.should_receive(:new).and_return(controller)
@@ -147,10 +147,10 @@ end
 
 describe Runner, "service" do
   before do
-    Thin.stub!(:linux?).and_return(true)
+    allow(Thin).to receive(:linux?) { true }
 
-    @controller = mock('service')
-    Controllers::Service.stub!(:new).and_return(@controller)
+    @controller = double('service')
+    allow(Controllers::Service).to receive(:new) { @controller }
   end
 
   it "should use Service controller when controlling all servers" do
@@ -172,7 +172,7 @@ describe Runner, "service" do
   it "should call install without arguments" do
     runner = Runner.new(%w(install))
 
-    @controller.should_receive(:install).with()
+    @controller.should_receive(:install).with(no_args)
 
     runner.run!
   end

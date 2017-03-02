@@ -42,7 +42,7 @@ describe 'Daemonizing' do
     
     sleep 1
     Process.wait(@pid)
-    File.exist?(@server.pid_file).should be_true
+    File.exist?(@server.pid_file).should be_truthy
     @pid = @server.pid
 
     proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(20)
@@ -77,7 +77,7 @@ describe 'Daemonizing' do
   end
   
   it 'should kill process in pid file' do
-    File.exist?(@server.pid_file).should be_false
+    File.exist?(@server.pid_file).should be_falsey
     
     @pid = fork do
       @server.daemonize
@@ -94,7 +94,7 @@ describe 'Daemonizing' do
     
     Process.wait(@pid)
     
-    File.exist?(@server.pid_file).should be_false
+    File.exist?(@server.pid_file).should be_falsey
   end
   
   it 'should force kill process in pid file' do
@@ -113,7 +113,7 @@ describe 'Daemonizing' do
     
     Process.wait(@pid)
     
-    File.exist?(@server.pid_file).should be_false
+    File.exist?(@server.pid_file).should be_falsey
   end
   
   it 'should send kill signal if timeout' do
@@ -131,8 +131,8 @@ describe 'Daemonizing' do
     
     Process.wait(@pid)
     
-    File.exist?(@server.pid_file).should be_false
-    Process.running?(@pid).should be_false
+    File.exist?(@server.pid_file).should be_falsey
+    Process.running?(@pid).should be_falsey
   end
   
   it "should restart" do
@@ -174,7 +174,7 @@ describe 'Daemonizing' do
 
     proc { @server.daemonize }.should raise_error(PidFileExist)
     
-    File.exist?(@server.pid_file).should be_true
+    File.exist?(@server.pid_file).should be_truthy
   end
   
   it "should raise if no pid file" do
@@ -189,7 +189,7 @@ describe 'Daemonizing' do
     
     @server.send(:remove_stale_pid_file)
     
-    File.exist?(@server.pid_file).should be_false
+    File.exist?(@server.pid_file).should be_falsey
   end
   
   after do

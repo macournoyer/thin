@@ -22,7 +22,7 @@ describe Backends::UnixServer do
   
   it "should remove socket file on close" do
     @backend.close
-    File.exist?('/tmp/thin-test.sock').should be_false
+    File.exist?('/tmp/thin-test.sock').should be_falsey
   end
 end
 

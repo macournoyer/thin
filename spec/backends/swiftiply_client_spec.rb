@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Backends::SwiftiplyClient do
   before do
     @backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @backend.server = mock('server').as_null_object
+    @backend.server = double('server').as_null_object
   end
   
   it "should connect" do
@@ -26,7 +26,7 @@ describe SwiftiplyConnection do
   before do
     @connection = SwiftiplyConnection.new(nil)
     @connection.backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @connection.backend.server = mock('server').as_null_object
+    @connection.backend.server = double('server').as_null_object
   end
   
   it do
@@ -39,8 +39,8 @@ describe SwiftiplyConnection do
   end
   
   it "should reconnect on unbind" do
-    @connection.backend.stub!(:running?).and_return(true)
-    @connection.stub!(:rand).and_return(0) # Make sure we don't wait
+    allow(@connection.backend).to receive(:running?) { true }
+    allow(@connection).to receive(:rand) { 0 } # Make sure we don't wait
     
     @connection.should_receive(:reconnect).with('0.0.0.0', 3333)
     
@@ -51,7 +51,7 @@ describe SwiftiplyConnection do
   end
   
   it "should not reconnect when not running" do
-    @connection.backend.stub!(:running?).and_return(false)
+    allow(@connection.backend).to receive(:running?) { false }
     EventMachine.should_not_receive(:add_timer)
     @connection.unbind
   end

@@ -10,7 +10,7 @@ describe Service do
   end
 
   before do
-    Thin.stub!(:linux?).and_return(true)
+    allow(Thin).to receive(:linux?) { true }
     FileUtils.mkdir_p 'tmp/sandbox'
 
     @service = Service.new(:all => 'spec/configs')
@@ -27,7 +27,7 @@ describe Service do
   it "should create /etc/init.d/thin file when calling install" do
     @service.install
 
-    File.exist?(Service::INITD_PATH).should be_true
+    File.exist?(Service::INITD_PATH).should be_truthy
     script_name = File.directory?('/etc/rc.d') ?
       '/etc/rc.d/thin' : '/etc/init.d/thin'
     File.read(Service::INITD_PATH).should include('CONFIG_PATH=tmp/sandbox/etc/thin',
@@ -38,7 +38,7 @@ describe Service do
   it "should create /etc/thin dir when calling install" do
     @service.install
 
-    File.directory?(Service::DEFAULT_CONFIG_PATH).should be_true
+    File.directory?(Service::DEFAULT_CONFIG_PATH).should be_truthy
   end
 
   it "should include specified path in /etc/init.d/thin script" do

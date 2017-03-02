@@ -4,7 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "thin/version"
 
 # Describe your gem and declare its dependencies:
-Thin::GemSpec = Gem::Specification.new do |s|
+Thin::GemSpec ||= Gem::Specification.new do |s|
   s.name                  = Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = Thin.win? ? Gem::Platform::CURRENT : Gem::Platform::RUBY
