@@ -18,7 +18,7 @@ describe Controller, 'start' do
     
     Server.should_receive(:new).with('0.0.0.0', 3000, @controller.options).and_return(@server)
     @server.should_receive(:config)
-    Rack::Adapter::Rails.stub!(:new).and_return(@adapter)
+    allow(Rack::Adapter::Rails).to receive(:new) { @adapter }
   end
   
   it "should configure server" do
@@ -87,7 +87,7 @@ describe Controller, 'start' do
     @controller.options[:threaded] = true
     @controller.start
     
-    @server.threaded.should be_true
+    @server.threaded.should be_truthy
   end
   
   it "should set RACK_ENV" do
@@ -103,7 +103,7 @@ end
 describe Controller do
   before do
     @controller = Controller.new(:pid => 'thin.pid', :timeout => 10)
-    @controller.stub!(:wait_for_file)
+    allow(@controller).to receive(:wait_for_file)
   end
   
   it "should stop" do

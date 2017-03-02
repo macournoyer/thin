@@ -22,7 +22,7 @@ describe Logging do
   describe "when setting a custom logger" do
 
     it "should not accept a logger object that is not sane" do
-      expect { Logging.logger = "" }.to raise_error
+      expect { Logging.logger = "" }.to raise_error(ArgumentError)
     end
 
     it "should accept a legit custom logger object" do
@@ -54,7 +54,7 @@ describe Logging do
 
       str = nil
       expect { str = @readpipe.read_nonblock(512) }.to_not raise_error
-      str.should_not be_nil
+      expect(str).not_to be_nil
     end
 
     #
@@ -63,7 +63,9 @@ describe Logging do
       Logging.debug = false
       @object.log_debug("hiya")
 
-      expect { @readpipe.read_nonblock(512) }.to raise_error
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     #
@@ -78,19 +80,25 @@ describe Logging do
     it "should not log messages if silenced via module method" do
       Logging.silent = true
       @object.log_info("hola")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     it "should not log anything if silenced via module methods" do
       Logging.silent = true
       Logging.log_msg("hi")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     it "should not log anything if silenced via instance methods" do
       @object.silent = true
       @object.log_info("hello")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
   end # Logging tests (with custom logger)
@@ -103,8 +111,8 @@ describe Logging do
         @object.log_debug("Hey")
       end
 
-      out.include?("Hey").should be_true
-      out.include?("DEBUG").should be_true
+      out.include?("Hey").should be_truthy
+      out.include?("DEBUG").should be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -112,7 +120,7 @@ describe Logging do
         Logging.log_msg("Hey")
       end
 
-      out.include?("Hey").should be_true
+      out.include?("Hey").should be_truthy
     end
 
   end
@@ -147,7 +155,7 @@ describe Logging do
         @object.trace("Hey")
       end
 
-      out.include?("Hey").should be_true
+      out.include?("Hey").should be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -156,7 +164,7 @@ describe Logging do
         Logging.trace_msg("hey")
       end
 
-      out.include?("hey").should be_true
+      out.include?("hey").should be_truthy
     end
 
   end # tracer tests (no custom logger)

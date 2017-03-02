@@ -17,7 +17,7 @@ describe Server, "on UNIX domain socket" do
   
   it "should remove socket file after server stops" do
     @server.stop!
-    File.exist?('/tmp/thin_test.sock').should be_false
+    File.exist?('/tmp/thin_test.sock').should be_falsey
   end
   
   after do

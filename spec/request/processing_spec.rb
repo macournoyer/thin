@@ -3,11 +3,11 @@ require 'spec_helper'
 describe Request, 'processing' do
   it 'should parse in chunks' do
     request = Request.new
-    request.parse("POST / HTTP/1.1\r\n").should be_false
-    request.parse("Host: localhost\r\n").should be_false
-    request.parse("Content-Length: 9\r\n").should be_false
-    request.parse("\r\nvery ").should be_false
-    request.parse("cool").should be_true
+    request.parse("POST / HTTP/1.1\r\n").should be_falsey
+    request.parse("Host: localhost\r\n").should be_falsey
+    request.parse("Content-Length: 9\r\n").should be_falsey
+    request.parse("\r\nvery ").should be_falsey
+    request.parse("cool").should be_truthy
 
     request.env['CONTENT_LENGTH'].should == '9'
     request.body.read.should == 'very cool'
@@ -46,9 +46,9 @@ describe Request, 'processing' do
     request.parse("Content-Length: #{body.size}\r\n\r\n")
     request.parse(body)
 
-    request.body.closed?.should be_false
+    request.body.closed?.should be_falsey
     request.close
-    request.body.closed?.should be_true
+    request.body.closed?.should be_truthy
   end
 
   it "should raise error when header is too big" do
