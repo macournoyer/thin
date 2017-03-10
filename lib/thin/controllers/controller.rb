@@ -84,6 +84,14 @@ module Thin
         # so that's why this is done here.
         server.on_restart { Command.run(:start, @options) }
 
+        if @options[:log_console] and defined?(Rails)
+          console = ActiveSupport::Logger.new($stdout)
+          console.formatter = Rails.logger.formatter
+          console.level = Rails.logger.level
+
+          Rails.logger.extend(ActiveSupport::Logger.broadcast(console))
+        end
+
         server.start
       end
     
