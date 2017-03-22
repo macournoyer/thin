@@ -20,18 +20,24 @@ CONFIG_PATH=<%= config_files_path %>
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 
+if [ "X$2" = X ] || [ "X$3" = X ]; then
+    INSTANCES="--all $CONFIG_PATH"
+else
+    INSTANCES="-C $3"
+fi
+
 case "$1" in
   start)
-	$DAEMON start --all $CONFIG_PATH
-	;;
+  $DAEMON start $INSTANCES
+  ;;
   stop)
-	$DAEMON stop --all $CONFIG_PATH
-	;;
+  $DAEMON stop $INSTANCES
+  ;;
   restart)
-	$DAEMON restart --all $CONFIG_PATH
+  $DAEMON restart $INSTANCES
 	;;
   *)
-	echo "Usage: $SCRIPT_NAME {start|stop|restart}" >&2
+	echo "Usage: $SCRIPT_NAME {start|stop|restart} [-C $CONFIG_PATH/your_website.yml]" >&2
 	exit 3
 	;;
 esac
