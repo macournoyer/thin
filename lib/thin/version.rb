@@ -26,6 +26,10 @@ module Thin
     RUBY_PLATFORM =~ /linux/
   end
   
+  def self.mac?
+    RUBY_PLATFORM =~ /darwin/
+  end
+  
   def self.ruby_18?
     RUBY_VERSION =~ /^1\.8/
   end
