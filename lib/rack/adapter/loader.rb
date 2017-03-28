@@ -8,8 +8,8 @@ module Rack
   # NOTE: If a framework has a file that is not unique, make sure to place
   # it at the end.
   ADAPTERS = [
-    [:rack,    'config.ru'],
     [:rails,   'config/environment.rb'],
+    [:rack,    'config.ru'],
     [:ramaze,  'start.rb'],
     [:merb,    'config/init.rb'],
     [:file,    nil]
