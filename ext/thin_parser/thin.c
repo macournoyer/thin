@@ -10,6 +10,7 @@
 #include <string.h>
 #include "parser.h"
 #include <ctype.h>
+#include <locale.h>
 
 static VALUE mThin;
 static VALUE cHttpParser;
@@ -394,6 +395,7 @@ void Init_thin_parser()
 {
 
   mThin = rb_define_module("Thin");
+  setlocale(LC_CTYPE, "C");
 
   DEF_GLOBAL(empty, "");
   DEF_GLOBAL(http_prefix, "HTTP_");
