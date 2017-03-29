@@ -65,10 +65,34 @@ module Rack
         
       when :file
         return Rack::File.new(options[:chdir])
+      
+      when :site
+        return Rack::Builder.new do
+          use Index, options[:chdir]
+          run Rack::Directory.new(options[:chdir])  
+        end
         
       else
         raise AdapterNotFound, "Adapter not found: #{name}"
         
+      end
+    end
+  end
+  
+  # Rack middleware to serve `index.html` file by default.
+  class Index
+    def initialize(app, root)
+      @app  = app
+      @root = root || Dir.pwd
+    end
+
+    def call(env)
+      path = Rack::Utils.unescape(env['PATH_INFO'])
+      index_file = File.join(@root, path, 'index.html')
+      if File.exists?(index_file)
+        [200, {'Content-Type' => 'text/html'}, File.new(index_file)]
+      else
+        @app.call(env)
       end
     end
   end
