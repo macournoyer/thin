@@ -7,6 +7,6 @@ group :development do
 end
 
 group :test do
-  gem "rake" # for travis-ci.org
+  gem "rake", '< 11.0'
   gem "rspec", "~> 1.2.9"
 end
