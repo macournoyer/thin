@@ -17,6 +17,11 @@ Thin::GemSpec = Gem::Specification.new do |s|
   s.licenses              = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
+  s.metadata = {
+    'source_code_uri' => 'https://github.com/macournoyer/thin',
+    'changelog_uri'   => 'https://github.com/macournoyer/thin/blob/master/CHANGELOG'
+  }
+
   s.required_ruby_version = '>= 1.8.5'
   
   s.add_dependency        'rack',         '>= 1', '< 3'
