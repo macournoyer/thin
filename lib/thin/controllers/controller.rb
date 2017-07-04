@@ -51,8 +51,6 @@ module Thin
         server.threaded                       = @options[:threaded]
         server.no_epoll                       = @options[:no_epoll] if server.backend.respond_to?(:no_epoll=)
         server.threadpool_size                = @options[:threadpool_size] if server.threaded?
-        server.ssl_version                    = @options[:ssl_version]
-        server.ssl_cipher_list                = @options[:ssl_cipher_list]
 
         # ssl support
         if @options[:ssl]
