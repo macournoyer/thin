@@ -1,3 +1,6 @@
+== 1.7.2 Bachmanity
+ * Add config support for ssl_version and ssl_cipher_list [frameworked]
+
 == 1.7.1 Muffin Mode
  * Ruby 2.4 support (Fixnum deprecation) [nimish-mehta]
  * Allow ERB templates in config files [markets]
