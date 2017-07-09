@@ -110,7 +110,7 @@ describe 'Daemonizing' do
   
     timeout(10) do
       silence_stream STDOUT do
-        TestServer.kill(@server.pid_file, 0)
+        TestServer.kill(@server.pid_file, 60, force: true)
       end
     end
   
