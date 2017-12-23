@@ -43,7 +43,8 @@ module Thin
     # Top header of the response,
     # containing the status code and response headers.
     def head
-      "HTTP/1.1 #{@status} #{HTTP_STATUS_CODES[@status.to_i]}\r\n#{headers_output}\r\n"
+      reason = Rack::Utils::HTTP_STATUS_CODES[@status.to_i]
+      "HTTP/1.1 #{@status} #{reason}\r\n#{headers_output}\r\n"
     end
 
     if Thin.ruby_18?
