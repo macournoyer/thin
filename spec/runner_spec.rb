@@ -65,10 +65,10 @@ describe Runner do
   end
 
   it "should warn when require a rack config file" do
-    STDERR.stub!(:write)
-    STDERR.should_receive(:write).with(/WARNING:/)
-
     runner = Runner.new(%w(start -r config.ru))
+
+    runner.should_receive(:warn).with(/WARNING:/)
+
     runner.run! rescue nil
 
     runner.options[:rackup].should == 'config.ru'
