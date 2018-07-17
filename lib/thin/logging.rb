@@ -13,7 +13,7 @@ module Thin
     # Taken from ActiveSupport
     class SimpleFormatter < Logger::Formatter
       def call(severity, timestamp, progname, msg)
-        "#{String === msg ? msg : msg.inspect}\n"
+        "#{timestamp} #{String === msg ? msg : msg.inspect}\n"
       end
     end
 
