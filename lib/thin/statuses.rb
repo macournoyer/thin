@@ -33,12 +33,16 @@ module Thin
     413  => 'Request Entity Too Large', 
     414  => 'Request-URI Too Large', 
     415  => 'Unsupported Media Type',
-    422  => 'Unprocessable Entity',   
-    500  => 'Internal Server Error', 
+    422  => 'Unprocessable Entity',
+    428  => 'Precondition Required',
+    429  => 'Too Many Requests',
+    431  => 'Request Header Fields Too Large',
+    500  => 'Internal Server Error',
     501  => 'Not Implemented', 
     502  => 'Bad Gateway', 
     503  => 'Service Unavailable', 
     504  => 'Gateway Time-out', 
-    505  => 'HTTP Version not supported'
+    505  => 'HTTP Version not supported',
+    511  => 'Network Authentication Required'
   }
 end
