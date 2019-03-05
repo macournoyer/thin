@@ -7,7 +7,8 @@ module Thin
     SERVER         = 'Server'.freeze
     CONTENT_LENGTH = 'Content-Length'.freeze
 
-    PERSISTENT_STATUSES  = [100, 101].freeze
+    PERSISTENT_STATUSES          = [100, 101].freeze
+    STATUSES_WITH_NO_ENTITY_BODY = [204, 304].freeze
 
     #Error Responses
     ERROR            = [500, {'Content-Type' => 'text/plain'}, ['Internal server error']].freeze
@@ -107,7 +108,8 @@ module Thin
     # from the server and have a Content-Length, or the response
     # status must require that the connection remain open.
     def persistent?
-      (@persistent && @headers.has_key?(CONTENT_LENGTH)) || PERSISTENT_STATUSES.include?(@status)
+      (@persistent && (@headers.has_key?(CONTENT_LENGTH) || STATUSES_WITH_NO_ENTITY_BODY.include?(@status))) ||
+        PERSISTENT_STATUSES.include?(@status)
     end
 
     def skip_body!

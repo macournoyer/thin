@@ -89,6 +89,16 @@ describe Response do
     @response.should be_persistent
   end
 
+  it "should ignore Content-Length when response does not have a body" do
+    @response = Response.new
+    @response.headers = {'Content-Type' => 'text/html'}
+    @response.body = ''
+    @response.status = 204
+
+    @response.persistent!
+    @response.should be_persistent
+  end
+
   it "should be persistent when the status code implies it should stay open" do
     @response = Response.new
     @response.status = 100
