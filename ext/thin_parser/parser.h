@@ -38,11 +38,11 @@ typedef struct http_parser {
   
 } http_parser;
 
-int http_parser_init(http_parser *parser);
-int http_parser_finish(http_parser *parser);
-size_t http_parser_execute(http_parser *parser, const char *data, size_t len, size_t off);
-int http_parser_has_error(http_parser *parser);
-int http_parser_is_finished(http_parser *parser);
+int thin_http_parser_init(http_parser *parser);
+int thin_http_parser_finish(http_parser *parser);
+size_t thin_http_parser_execute(http_parser *parser, const char *data, size_t len, size_t off);
+int thin_http_parser_has_error(http_parser *parser);
+int thin_http_parser_is_finished(http_parser *parser);
 
 #define http_parser_nread(parser) (parser)->nread 
 
