@@ -87,7 +87,7 @@ describe 'Daemonizing' do
       loop { sleep 3 }
     end
     
-    server_should_start_in_less_then 3
+    wait_for_server_to_start
     
     Timeout.timeout(10) do
       silence_stream STDOUT do
@@ -106,7 +106,7 @@ describe 'Daemonizing' do
       loop { sleep 3 }
     end
     
-    server_should_start_in_less_then 3
+    wait_for_server_to_start
     
     Timeout.timeout(10) do
       silence_stream STDOUT do
@@ -126,7 +126,7 @@ describe 'Daemonizing' do
       sleep 5
     end
     
-    server_should_start_in_less_then 10
+    wait_for_server_to_start
     
     silence_stream STDOUT do
       TestServer.kill(@server.pid_file, 1)
@@ -145,7 +145,7 @@ describe 'Daemonizing' do
       sleep 5
     end
     
-    server_should_start_in_less_then 10
+    wait_for_server_to_start
     
     silence_stream STDOUT do
       TestServer.restart(@server.pid_file)
@@ -171,7 +171,7 @@ describe 'Daemonizing' do
       @server.daemonize
       sleep 5
     end
-    server_should_start_in_less_then 10
+    wait_for_server_to_start
     
     @pid = @server.pid
 
@@ -202,7 +202,7 @@ describe 'Daemonizing' do
   end
   
   private
-    def server_should_start_in_less_then(sec=10)
+    def wait_for_server_to_start
       proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(10)
     end
 end
