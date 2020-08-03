@@ -45,7 +45,7 @@ describe 'Daemonizing' do
     File.exist?(@server.pid_file).should be_true
     @pid = @server.pid
 
-    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(5)
+    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(20)
   end
   
   it 'should redirect stdio to a log file' do
@@ -59,7 +59,7 @@ describe 'Daemonizing' do
     end
     Process.wait(@pid)
     # Wait for the file to close and magical stuff to happen
-    proc { sleep 0.1 until File.exist?('daemon_test.log') }.should take_less_then(3)
+    proc { sleep 0.1 until File.exist?('daemon_test.log') }.should take_less_then(20)
     sleep 0.5
     
     @pid = @server.pid
@@ -153,7 +153,7 @@ describe 'Daemonizing' do
     
     Process.wait(@pid)
     
-    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
+    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(20)
   end
   
   it "should ignore if no restart block specified" do
