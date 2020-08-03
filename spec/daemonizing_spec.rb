@@ -57,12 +57,9 @@ describe 'Daemonizing' do
       STDERR.puts "STDERR.puts"
       STDOUT.puts "STDOUT.puts"
     end
-    Process.wait(@pid)
-    # Wait for the file to close and magical stuff to happen
-    proc { sleep 0.1 until File.exist?('daemon_test.log') }.should take_less_then(20)
-    sleep 0.5
-    
-    @pid = @server.pid
+
+    _, status = Process.wait2(@pid)
+    pp status
 
     log = File.read('daemon_test.log')
     log.should include('simple puts', 'STDERR.puts', 'STDOUT.puts')
