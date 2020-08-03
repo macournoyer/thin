@@ -18,7 +18,7 @@ describe Server do
     pending("only for non-root users") if Process.euid == 0
     @server.maximum_connections = 100_000
     @server.config
-    @server.maximum_connections.should < 100_000
+    @server.maximum_connections.should <= 100_000
   end
   
   it "should default to non-threaded" do
