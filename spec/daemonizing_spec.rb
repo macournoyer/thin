@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+require 'timeout'
+
 class TestServer
   include Logging # Daemonizable should include this?
   include Daemonizable
@@ -84,17 +86,17 @@ describe 'Daemonizing' do
       @server.daemonize
       loop { sleep 3 }
     end
-  
+    
     server_should_start_in_less_then 3
     
-    @pid = @server.pid
-  
-    timeout(10) do
+    Timeout.timeout(10) do
       silence_stream STDOUT do
         TestServer.kill(@server.pid_file, 1)
       end
     end
-
+    
+    Process.wait(@pid)
+    
     File.exist?(@server.pid_file).should be_false
   end
   
@@ -103,17 +105,17 @@ describe 'Daemonizing' do
       @server.daemonize
       loop { sleep 3 }
     end
-  
+    
     server_should_start_in_less_then 3
     
-    @pid = @server.pid
-  
-    timeout(10) do
+    Timeout.timeout(10) do
       silence_stream STDOUT do
         TestServer.kill(@server.pid_file, 0)
       end
     end
-  
+    
+    Process.wait(@pid)
+    
     File.exist?(@server.pid_file).should be_false
   end
   
@@ -123,17 +125,15 @@ describe 'Daemonizing' do
       @server.daemonize
       sleep 5
     end
-  
+    
     server_should_start_in_less_then 10
     
-    @pid = @server.pid
-  
     silence_stream STDOUT do
       TestServer.kill(@server.pid_file, 1)
     end
     
-    sleep 1
-  
+    Process.wait(@pid)
+    
     File.exist?(@server.pid_file).should be_false
     Process.running?(@pid).should be_false
   end
@@ -147,11 +147,11 @@ describe 'Daemonizing' do
     
     server_should_start_in_less_then 10
     
-    @pid = @server.pid
-  
     silence_stream STDOUT do
       TestServer.restart(@server.pid_file)
     end
+    
+    Process.wait(@pid)
     
     proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(10)
   end
