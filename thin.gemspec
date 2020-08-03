@@ -13,7 +13,6 @@ Thin::GemSpec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
-  s.rubyforge_project     = 'thin'
   s.licenses              = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
