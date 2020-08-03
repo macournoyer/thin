@@ -203,6 +203,6 @@ describe 'Daemonizing' do
   
   private
     def wait_for_server_to_start
-      proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(10)
+      proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(30)
     end
 end
