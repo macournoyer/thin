@@ -30,11 +30,17 @@ module Thin
     def self.included(base)
       base.extend ClassMethods
     end
-    
+
     def pid
       File.exist?(pid_file) && !File.zero?(pid_file) ? open(pid_file).read.to_i : nil
     end
-    
+
+    def kill(timeout = 60)
+      if File.exist?(@pid_file)
+        self.class.kill(@pid_file, timeout)
+      end
+    end
+
     # Turns the current script into a daemon process that detaches from the console.
     def daemonize
       raise PlatformNotSupported, 'Daemonizing is not supported on Windows'     if Thin.win?
@@ -116,14 +122,23 @@ module Thin
       def restart(pid_file)
         send_signal('HUP', pid_file)
       end
-      
+
+      def monotonic_time
+        Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      end
+
       # Send a +signal+ to the process which PID is stored in +pid_file+.
       def send_signal(signal, pid_file, timeout=60)
         if pid = read_pid_file(pid_file)
           Logging.log_info "Sending #{signal} signal to process #{pid} ... "
+
           Process.kill(signal, pid)
-          Timeout.timeout(timeout) do
-            sleep 0.1 while Process.running?(pid)
+
+          # This loop seems kind of racy to me...
+          started_at = monotonic_time
+          while Process.running?(pid)
+            sleep 0.1
+            raise Timeout::Error if (monotonic_time - started_at) > timeout
           end
         else
           raise PidFileNotFound, "Can't stop process, no PID found in #{pid_file}"

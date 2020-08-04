@@ -12,8 +12,8 @@ describe Logging do
 
   after do
     Logging.silent = true
-    Logging.debug  = false
-    Logging.trace  = false
+    Logging.debug = false
+    Logging.trace = false
   end
 
   describe "when setting a custom logger" do

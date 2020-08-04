@@ -3,202 +3,186 @@ require 'spec_helper'
 require 'timeout'
 
 class TestServer
-  include Logging # Daemonizable should include this?
+  include Logging
   include Daemonizable
-  
+
   def stop
   end
-  
+
   def name
     'Thin test server'
   end
 end
 
 describe 'Daemonizing' do
-  before :all do
-    @logfile = File.dirname(__FILE__) + '/../log/daemonizing_test.log'
-    @pidfile = 'test.pid'
-    File.delete(@logfile) if File.exist?(@logfile)
-    File.delete(@pidfile) if File.exist?(@pidfile)
-  end
-  
-  before :each do
-    @server = TestServer.new
-    @server.log_file = @logfile
-    @server.pid_file = @pidfile
-    @pid = nil
-  end
-  
-  it 'should have a pid file' do
-    @server.should respond_to(:pid_file)
-    @server.should respond_to(:pid_file=)
-  end
-  
-  it 'should create a pid file' do
-    @pid = fork do
-      @server.daemonize
-      sleep 1
-    end
-    
-    sleep 1
-    Process.wait(@pid)
-    File.exist?(@server.pid_file).should be_truthy
-    @pid = @server.pid
+  let(:path) {File.expand_path("tmp", __dir__)}
+  let(:log_file) {File.expand_path("test_server.log", path)}
+  let(:pid_file) {File.expand_path("test.pid", path)}
 
-    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(20)
+  before do
+    FileUtils.rm_rf path
+    FileUtils.mkpath path
+    FileUtils.touch log_file
+  end
+
+  subject(:server) do
+    TestServer.new.tap do |server|
+      server.log_file = log_file
+      server.pid_file = pid_file
+    end
+  end
+
+  it 'should have a pid file' do
+    subject.should respond_to(:pid_file)
+    subject.should respond_to(:pid_file=)
+  end
+
+  it 'should create a pid file' do
+    fork do
+      subject.daemonize
+      sleep
+    end
+
+    wait_for_server_to_start
+
+    subject.kill
   end
   
   it 'should redirect stdio to a log file' do
-    @pid = fork do
-      @server.log_file = 'daemon_test.log'
-      @server.daemonize
+    pid = fork do
+      subject.daemonize
 
       puts "simple puts"
       STDERR.puts "STDERR.puts"
       STDOUT.puts "STDOUT.puts"
+
+      sleep
     end
 
-    Process.wait(@pid)
+    wait_for_server_to_start
 
-    log = File.read('daemon_test.log')
+    log = File.read(log_file)
     log.should include('simple puts', 'STDERR.puts', 'STDOUT.puts')
-    
-    File.delete 'daemon_test.log'
+
+    server.kill
   end
   
   it 'should change privilege' do
-    @pid = fork do
-      @server.daemonize
-      @server.change_privilege('root', 'admin')
+    pid = fork do
+      subject.daemonize
+      subject.change_privilege('root', 'admin')
     end
-    Process.wait(@pid)
-    $?.should be_a_success
+
+    _, status = Process.wait2(pid)
+
+    status.should be_a_success
   end
   
   it 'should kill process in pid file' do
-    File.exist?(@server.pid_file).should be_falsey
-    
-    @pid = fork do
-      @server.daemonize
-      loop { sleep 3 }
+    File.exist?(subject.pid_file).should be_falsey
+
+    fork do
+      subject.daemonize
+      sleep
     end
-    
+
     wait_for_server_to_start
-    
-    Timeout.timeout(10) do
-      silence_stream STDOUT do
-        TestServer.kill(@server.pid_file, 1)
-      end
+
+    File.exist?(subject.pid_file).should be_truthy
+
+    silence_stream STDOUT do
+      subject.kill(1)
     end
-    
-    Process.wait(@pid)
-    
-    File.exist?(@server.pid_file).should be_falsey
+
+    File.exist?(subject.pid_file).should be_falsey
   end
   
   it 'should force kill process in pid file' do
-    @pid = fork do
-      @server.daemonize
-      loop { sleep 3 }
+    fork do
+      subject.daemonize
+      sleep
     end
-    
+
     wait_for_server_to_start
-    
-    Timeout.timeout(10) do
-      silence_stream STDOUT do
-        TestServer.kill(@server.pid_file, 0)
-      end
-    end
-    
-    Process.wait(@pid)
-    
-    File.exist?(@server.pid_file).should be_falsey
+
+    subject.kill(0)
+
+    File.exist?(subject.pid_file).should be_falsey
   end
   
   it 'should send kill signal if timeout' do
-    @pid = fork do
-      @server.should_receive(:stop) # pretend we cannot handle the INT signal
-      @server.daemonize
-      sleep 5
+    fork do
+      subject.daemonize
+      sleep
     end
-    
+
     wait_for_server_to_start
-    
-    silence_stream STDOUT do
-      TestServer.kill(@server.pid_file, 1)
-    end
-    
-    Process.wait(@pid)
-    
-    File.exist?(@server.pid_file).should be_falsey
-    Process.running?(@pid).should be_falsey
+
+    pid = subject.pid
+
+    subject.kill(1)
+
+    File.exist?(subject.pid_file).should be_falsey
+    Process.running?(pid).should be_falsey
   end
   
   it "should restart" do
-    @pid = fork do
-      @server.on_restart {}
-      @server.daemonize
+    fork do
+      subject.on_restart {}
+      subject.daemonize
       sleep 5
     end
-    
+
     wait_for_server_to_start
-    
+
     silence_stream STDOUT do
-      TestServer.restart(@server.pid_file)
+      TestServer.restart(subject.pid_file)
     end
-    
-    Process.wait(@pid)
-    
-    proc { sleep 0.1 while File.exist?(@server.pid_file) }.should take_less_then(20)
+
+    proc { sleep 0.1 while File.exist?(subject.pid_file) }.should take_less_then(20)
   end
   
   it "should ignore if no restart block specified" do
-    @server.restart
+    subject.restart
   end
   
   it "should not restart when not running" do
     silence_stream STDOUT do
-      @server.restart
+      subject.restart
     end
   end
   
   it "should exit and raise if pid file already exist" do
-    @pid = fork do
-      @server.daemonize
+    fork do
+      subject.daemonize
       sleep 5
     end
-    wait_for_server_to_start
-    
-    @pid = @server.pid
 
-    proc { @server.daemonize }.should raise_error(PidFileExist)
-    
-    File.exist?(@server.pid_file).should be_truthy
+    wait_for_server_to_start
+
+    proc { subject.daemonize }.should raise_error(PidFileExist)
+
+    File.exist?(subject.pid_file).should be_truthy
   end
-  
+
   it "should raise if no pid file" do
     proc do
       TestServer.kill("donotexist", 0)
     end.should raise_error(PidFileNotFound)
   end
-  
+
   it "should should delete pid file if stale" do
     # Create a file w/ a PID that does not exist
-    File.open(@server.pid_file, 'w') { |f| f << 999999999 }
+    File.open(subject.pid_file, 'w') { |f| f << 999999999 }
     
-    @server.send(:remove_stale_pid_file)
+    subject.send(:remove_stale_pid_file)
     
-    File.exist?(@server.pid_file).should be_falsey
+    File.exist?(subject.pid_file).should be_falsey
   end
-  
-  after do
-    Process.kill(9, @pid.to_i) if @pid && Process.running?(@pid.to_i)
-    Process.kill(9, @server.pid) if @server.pid && Process.running?(@server.pid)
-    File.delete(@server.pid_file) rescue nil
-  end
-  
+
   private
-    def wait_for_server_to_start
-      proc { sleep 0.1 until File.exist?(@server.pid_file) }.should take_less_then(30)
-    end
+
+  def wait_for_server_to_start
+    proc{sleep 0.1 until File.exist?(subject.pid_file)}.should take_less_then(10)
+  end
 end
