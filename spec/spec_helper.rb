@@ -22,7 +22,6 @@ end
 module Matchers
   class BeFasterThen
     def initialize(max_time)
-      require 'benchmark_unit'
       @max_time = max_time
     end
 
@@ -31,7 +30,7 @@ module Matchers
       @time, multiplier = 0, 1
       
       while (@time < 0.01) do
-        @time = Benchmark::Unit.measure do 
+        @time = Benchmark.realtime do
           multiplier.times &proc
         end
         multiplier *= 10
@@ -39,10 +38,10 @@ module Matchers
       
       multiplier /= 10
       
-      iterations = (Benchmark::Unit::CLOCK_TARGET / @time).to_i * multiplier
+      iterations = (@time * multiplier).to_i
       iterations = 1 if iterations < 1
       
-      total = Benchmark::Unit.measure do 
+      total = Benchmark.realtime do
         iterations.times &proc
       end
       
@@ -52,7 +51,7 @@ module Matchers
     end
     
     def failure_message(less_more=:less)
-      "took <#{@time.inspect} RubySeconds>, should take #{less_more} than #{@max_time} RubySeconds."
+      "took <#{@time.inspect}s>, should take #{less_more} than #{@max_time}s."
     end
 
     def negative_failure_message

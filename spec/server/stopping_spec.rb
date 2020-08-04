@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+require 'timeout'
+
 describe Server, "stopping" do
   before do
     start_server do |env|
@@ -17,7 +19,7 @@ describe Server, "stopping" do
       @done = true
     end
     
-    timeout(2) do
+    Timeout.timeout(2) do
       Thread.pass until @done
     end
     

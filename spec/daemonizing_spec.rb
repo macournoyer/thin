@@ -58,8 +58,7 @@ describe 'Daemonizing' do
       STDOUT.puts "STDOUT.puts"
     end
 
-    _, status = Process.wait2(@pid)
-    pp status
+    Process.wait(@pid)
 
     log = File.read('daemon_test.log')
     log.should include('simple puts', 'STDERR.puts', 'STDOUT.puts')

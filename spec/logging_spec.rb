@@ -8,12 +8,9 @@ class TestLogging
 end
 
 describe Logging do
+  subject {TestLogging.new}
 
-  before :all do
-    @object = TestLogging.new
-  end
-
-  after(:all) do
+  after do
     Logging.silent = true
     Logging.debug  = false
     Logging.trace  = false
@@ -50,7 +47,7 @@ describe Logging do
     #
     it "at log level DEBUG should output logs at debug level" do
       Logging.debug = true
-      @object.log_debug("hi")
+      subject.log_debug("hi")
 
       str = nil
       expect { str = @readpipe.read_nonblock(512) }.to_not raise_error
@@ -61,7 +58,7 @@ describe Logging do
     #
     it "at log level NOT DEBUG should NOT output logs at debug level" do
       Logging.debug = false
-      @object.log_debug("hiya")
+      subject.log_debug("hiya")
 
       expect do
         @readpipe.read_nonblock(512)
@@ -79,7 +76,7 @@ describe Logging do
     #
     it "should not log messages if silenced via module method" do
       Logging.silent = true
-      @object.log_info("hola")
+      subject.log_info("hola")
       expect do
         @readpipe.read_nonblock(512)
       end.to raise_error(IO::EAGAINWaitReadable)
@@ -94,8 +91,8 @@ describe Logging do
     end
 
     it "should not log anything if silenced via instance methods" do
-      @object.silent = true
-      @object.log_info("hello")
+      subject.silent = true
+      subject.log_info("hello")
       expect do
         @readpipe.read_nonblock(512)
       end.to raise_error(IO::EAGAINWaitReadable)
@@ -108,7 +105,7 @@ describe Logging do
     it "should log at debug level if debug logging is enabled " do
       Logging.debug = true
       out = with_redirected_stdout do
-        @object.log_debug("Hey")
+        subject.log_debug("Hey")
       end
 
       out.include?("Hey").should be_truthy
@@ -135,14 +132,14 @@ describe Logging do
     it "should NOT emit trace messages if tracing is disabled" do
       Logging.trace = false
       @custom_tracer.should_not_receive(:info)
-      @object.trace("howdy")
+      subject.trace("howdy")
     end
 
     it "should emit trace messages when tracing is enabled" do
       Logging.trace = true
       @custom_tracer.should_receive(:info)
 
-      @object.trace("aloha")
+      subject.trace("aloha")
     end
 
   end # Tracer tests (with custom tracer)
@@ -152,7 +149,7 @@ describe Logging do
     it "should emit trace messages if tracing is enabled " do
       Logging.trace = true
       out = with_redirected_stdout do
-        @object.trace("Hey")
+        subject.trace("Hey")
       end
 
       out.include?("Hey").should be_truthy
