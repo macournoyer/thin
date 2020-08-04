@@ -7,12 +7,12 @@ describe Backends::TcpServer do
   
   it "should not use epoll" do
     @backend.no_epoll = true
-    EventMachine.should_not_receive(:epoll)
+    expect(EventMachine).not_to receive(:epoll)
     @backend.config
   end
   
   it "should use epoll" do
-    EventMachine.should_receive(:epoll)
+    expect(EventMachine).to receive(:epoll)
     @backend.config
   end
   

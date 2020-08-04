@@ -26,7 +26,7 @@ describe Server, "stopping" do
     out = socket.read
     socket.close
     
-    out.should_not be_empty
+    expect(out).not_to be_empty
   end
   
   it "should not accept new requests when soft stopping" do
@@ -35,7 +35,7 @@ describe Server, "stopping" do
     @server.stop # Stop the server in the middle of a request
     
     EventMachine.next_tick do
-      proc { get('/') }.should raise_error(Errno::ECONNRESET)
+      expect { get('/') }.to raise_error(Errno::ECONNRESET)
     end
     
     socket.close
@@ -47,7 +47,7 @@ describe Server, "stopping" do
     @server.stop! # Force stop the server in the middle of a request
     
     EventMachine.next_tick do
-      socket.should be_closed
+      expect(socket).to be_closed
     end
   end
   

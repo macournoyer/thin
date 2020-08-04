@@ -33,8 +33,8 @@ describe 'Daemonizing' do
   end
 
   it 'should have a pid file' do
-    subject.should respond_to(:pid_file)
-    subject.should respond_to(:pid_file=)
+    expect(subject).to respond_to(:pid_file)
+    expect(subject).to respond_to(:pid_file=)
   end
 
   it 'should create a pid file' do
@@ -62,7 +62,7 @@ describe 'Daemonizing' do
     wait_for_server_to_start
 
     log = File.read(log_file)
-    log.should include('simple puts', 'STDERR.puts', 'STDOUT.puts')
+    expect(log).to include('simple puts', 'STDERR.puts', 'STDOUT.puts')
 
     server.kill
   end
@@ -75,11 +75,11 @@ describe 'Daemonizing' do
 
     _, status = Process.wait2(pid)
 
-    status.should be_a_success
+    expect(status).to be_a_success
   end
   
   it 'should kill process in pid file' do
-    File.exist?(subject.pid_file).should be_falsey
+    expect(File.exist?(subject.pid_file)).to be_falsey
 
     fork do
       subject.daemonize
@@ -88,13 +88,13 @@ describe 'Daemonizing' do
 
     wait_for_server_to_start
 
-    File.exist?(subject.pid_file).should be_truthy
+    expect(File.exist?(subject.pid_file)).to be_truthy
 
     silence_stream STDOUT do
       subject.kill(1)
     end
 
-    File.exist?(subject.pid_file).should be_falsey
+    expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
   it 'should force kill process in pid file' do
@@ -107,7 +107,7 @@ describe 'Daemonizing' do
 
     subject.kill(0)
 
-    File.exist?(subject.pid_file).should be_falsey
+    expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
   it 'should send kill signal if timeout' do
@@ -122,8 +122,8 @@ describe 'Daemonizing' do
 
     subject.kill(1)
 
-    File.exist?(subject.pid_file).should be_falsey
-    Process.running?(pid).should be_falsey
+    expect(File.exist?(subject.pid_file)).to be_falsey
+    expect(Process.running?(pid)).to be_falsey
   end
   
   it "should restart" do
@@ -139,7 +139,7 @@ describe 'Daemonizing' do
       TestServer.restart(subject.pid_file)
     end
 
-    proc { sleep 0.1 while File.exist?(subject.pid_file) }.should take_less_then(20)
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
   end
   
   it "should ignore if no restart block specified" do
@@ -160,15 +160,15 @@ describe 'Daemonizing' do
 
     wait_for_server_to_start
 
-    proc { subject.daemonize }.should raise_error(PidFileExist)
+    expect { subject.daemonize }.to raise_error(PidFileExist)
 
-    File.exist?(subject.pid_file).should be_truthy
+    expect(File.exist?(subject.pid_file)).to be_truthy
   end
 
   it "should raise if no pid file" do
-    proc do
+    expect do
       TestServer.kill("donotexist", 0)
-    end.should raise_error(PidFileNotFound)
+    end.to raise_error(PidFileNotFound)
   end
 
   it "should should delete pid file if stale" do
@@ -177,12 +177,12 @@ describe 'Daemonizing' do
     
     subject.send(:remove_stale_pid_file)
     
-    File.exist?(subject.pid_file).should be_falsey
+    expect(File.exist?(subject.pid_file)).to be_falsey
   end
 
   private
 
   def wait_for_server_to_start
-    proc{sleep 0.1 until File.exist?(subject.pid_file)}.should take_less_then(10)
+    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(10)
   end
 end

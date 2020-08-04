@@ -25,6 +25,10 @@ module Matchers
       @max_time = max_time
     end
 
+    def supports_block_expectations?
+      true
+    end
+
     # Base on benchmark_unit/assertions#compare_benchmarks
     def matches?(proc)
       @time, multiplier = 0, 1
@@ -54,7 +58,7 @@ module Matchers
       "took <#{@time.inspect}s>, should take #{less_more} than #{@max_time}s."
     end
 
-    def negative_failure_message
+    def failure_message_when_negated
       failure_message :more
     end
   end
@@ -73,7 +77,7 @@ module Matchers
       "should#{negation} validate with Rack Lint: #{@message}"
     end
 
-    def negative_failure_message
+    def failure_message_when_negated
       failure_message ' not'
     end
   end
@@ -81,6 +85,10 @@ module Matchers
   class TakeLessThen
     def initialize(time)
       @time = time
+    end
+    
+    def supports_block_expectations?
+      true
     end
     
     def matches?(proc)
@@ -94,7 +102,7 @@ module Matchers
       "should#{negation} take less then #{@time} sec to run"
     end
 
-    def negative_failure_message
+    def failure_message_when_negated
       failure_message ' not'
     end
   end

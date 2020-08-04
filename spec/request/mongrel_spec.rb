@@ -3,24 +3,24 @@ require 'digest/sha1'
 
 describe Request, 'legacy Mongrel tests' do
   it 'should raise error on large header names' do
-    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n") }.
-      should raise_error(InvalidRequest)
+    expect { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-#{rand_data(1024, 1024+(1024))}: Test\r\n\r\n") }.
+      to raise_error(InvalidRequest)
   end
 
   it 'should raise error on large mangled field values' do
-    proc { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 1024*1024, false)}\r\n\r\n") }.
-      should raise_error(InvalidRequest)
+    expect { R("GET /#{rand_data(10,120)} HTTP/1.1\r\nX-Test: #{rand_data(1024, 1024*1024, false)}\r\n\r\n") }.
+      to raise_error(InvalidRequest)
   end
   
   it 'should raise error on big fat ugly headers' do
     get = "GET /#{rand_data(10,120)} HTTP/1.1\r\n"
     get << "X-Test: test\r\n" * (80 * 1024)
-    proc { R(get) }.should raise_error(InvalidRequest)
+    expect { R(get) }.to raise_error(InvalidRequest)
   end
 
   it 'should raise error on random garbage' do
-    proc { R("GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n") }.
-      should raise_error(InvalidRequest)
+    expect { R("GET #{rand_data(1024, 1024+(1024), false)} #{rand_data(1024, 1024+(1024), false)}\r\n\r\n") }.
+      to raise_error(InvalidRequest)
   end
   
   private

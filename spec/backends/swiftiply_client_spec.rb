@@ -30,11 +30,11 @@ describe SwiftiplyConnection do
   end
   
   it do
-    @connection.should be_persistent
+    expect(@connection).to be_persistent
   end
   
   it "should send handshake on connection_completed" do
-    @connection.should_receive(:send_data).with('swiftclient000000000d0500')
+    expect(@connection).to receive(:send_data).with('swiftclient000000000d0500')
     @connection.connection_completed
   end
   
@@ -42,7 +42,7 @@ describe SwiftiplyConnection do
     allow(@connection.backend).to receive(:running?) { true }
     allow(@connection).to receive(:rand) { 0 } # Make sure we don't wait
     
-    @connection.should_receive(:reconnect).with('0.0.0.0', 3333)
+    expect(@connection).to receive(:reconnect).with('0.0.0.0', 3333)
     
     EventMachine.run do
       @connection.unbind
@@ -52,15 +52,15 @@ describe SwiftiplyConnection do
   
   it "should not reconnect when not running" do
     allow(@connection.backend).to receive(:running?) { false }
-    EventMachine.should_not_receive(:add_timer)
+    expect(EventMachine).not_to receive(:add_timer)
     @connection.unbind
   end
   
   it "should have a host_ip" do
-    @connection.send(:host_ip).should == [0, 0, 0, 0]
+    expect(@connection.send(:host_ip)).to eq([0, 0, 0, 0])
   end
   
   it "should generate swiftiply_handshake based on key" do
-    @connection.send(:swiftiply_handshake, 'key').should == 'swiftclient000000000d0503key'
+    expect(@connection.send(:swiftiply_handshake, 'key')).to eq('swiftclient000000000d0503key')
   end
 end

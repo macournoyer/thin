@@ -18,7 +18,7 @@ Content-Length: 37
 hi=there&name=marc&email=macournoyer@gmail.com
 EOS
 
-    proc { R(body) }.should be_faster_then(max_parsing_time)
+    expect { R(body) }.to be_faster_then(max_parsing_time)
   end
 
   it 'should be comparable to Mongrel parser' do

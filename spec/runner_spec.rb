@@ -4,28 +4,28 @@ describe Runner do
   it "should parse options" do
     runner = Runner.new(%w(start --pid test.pid --port 5000 -o 3000))
 
-    runner.options[:pid].should == 'test.pid'
-    runner.options[:port].should == 5000
-    runner.options[:only].should == 3000
+    expect(runner.options[:pid]).to eq('test.pid')
+    expect(runner.options[:port]).to eq(5000)
+    expect(runner.options[:only]).to eq(3000)
   end
 
   it "should parse specified command" do
-    Runner.new(%w(start)).command.should == 'start'
-    Runner.new(%w(stop)).command.should == 'stop'
-    Runner.new(%w(restart)).command.should == 'restart'
+    expect(Runner.new(%w(start)).command).to eq('start')
+    expect(Runner.new(%w(stop)).command).to eq('stop')
+    expect(Runner.new(%w(restart)).command).to eq('restart')
   end
 
   it "should abort on unknow command" do
     runner = Runner.new(%w(poop))
 
-    runner.should_receive(:abort)
+    expect(runner).to receive(:abort)
     runner.run!
   end
 
   it "should exit on empty command" do
     runner = Runner.new([])
 
-    runner.should_receive(:exit).with(1)
+    expect(runner).to receive(:exit).with(1)
 
     silence_stream(STDOUT) do
       runner.run!
@@ -36,8 +36,8 @@ describe Runner do
     runner = Runner.new(%w(start))
 
     controller = double('controller')
-    controller.should_receive(:start)
-    Controllers::Controller.should_receive(:new).and_return(controller)
+    expect(controller).to receive(:start)
+    expect(Controllers::Controller).to receive(:new).and_return(controller)
 
     runner.run!
   end
@@ -46,56 +46,56 @@ describe Runner do
     runner = Runner.new(%w(start --servers 3))
 
     controller = double('cluster')
-    controller.should_receive(:start)
-    Controllers::Cluster.should_receive(:new).and_return(controller)
+    expect(controller).to receive(:start)
+    expect(Controllers::Cluster).to receive(:new).and_return(controller)
 
     runner.run!
   end
 
   it "should default to single server controller" do
-    Runner.new(%w(start)).should_not be_a_cluster
+    expect(Runner.new(%w(start))).not_to be_a_cluster
   end
 
   it "should consider as a cluster with :servers option" do
-    Runner.new(%w(start --servers 3)).should be_a_cluster
+    expect(Runner.new(%w(start --servers 3))).to be_a_cluster
   end
 
   it "should consider as a cluster with :only option" do
-    Runner.new(%w(start --only 3000)).should be_a_cluster
+    expect(Runner.new(%w(start --only 3000))).to be_a_cluster
   end
 
   it "should warn when require a rack config file" do
     runner = Runner.new(%w(start -r config.ru))
 
-    runner.should_receive(:warn).with(/WARNING:/)
+    expect(runner).to receive(:warn).with(/WARNING:/)
 
     runner.run! rescue nil
 
-    runner.options[:rackup].should == 'config.ru'
+    expect(runner.options[:rackup]).to eq('config.ru')
   end
 
   it "should require file" do
     runner = Runner.new(%w(start -r unexisting))
-    proc { runner.run! }.should raise_error(LoadError)
+    expect { runner.run! }.to raise_error(LoadError)
   end
 
   it "should remember requires" do
     runner = Runner.new(%w(start -r rubygems -r thin))
-    runner.options[:require].should == %w(rubygems thin)
+    expect(runner.options[:require]).to eq(%w(rubygems thin))
   end
 
   it "should remember debug options" do
     runner = Runner.new(%w(start -D -q -V))
-    runner.options[:debug].should be_truthy
-    runner.options[:quiet].should be_truthy
-    runner.options[:trace].should be_truthy
+    expect(runner.options[:debug]).to be_truthy
+    expect(runner.options[:quiet]).to be_truthy
+    expect(runner.options[:trace]).to be_truthy
   end
 
   it "should default debug, silent and trace to false" do
     runner = Runner.new(%w(start))
-    runner.options[:debug].should_not be_truthy
-    runner.options[:quiet].should_not be_truthy
-    runner.options[:trace].should_not be_truthy
+    expect(runner.options[:debug]).not_to be_truthy
+    expect(runner.options[:quiet]).not_to be_truthy
+    expect(runner.options[:trace]).not_to be_truthy
   end
 end
 
@@ -107,28 +107,28 @@ describe Runner, 'with config file' do
   it "should load options from file with :config option" do
     @runner.send :load_options_from_config_file!
 
-    @runner.options[:environment].should == 'production'
-    @runner.options[:chdir].should == 'spec/rails_app'
-    @runner.options[:port].should == 5000
-    @runner.options[:servers].should == 3
+    expect(@runner.options[:environment]).to eq('production')
+    expect(@runner.options[:chdir]).to eq('spec/rails_app')
+    expect(@runner.options[:port]).to eq(5000)
+    expect(@runner.options[:servers]).to eq(3)
   end
 
   it "should load options from file using an ERB template" do
     @runner = Runner.new(%w(start --config spec/configs/with_erb.yml))
     @runner.send :load_options_from_config_file!
 
-    @runner.options[:timeout].should == 30
-    @runner.options[:port].should == 4000
-    @runner.options[:environment].should == 'production'
+    expect(@runner.options[:timeout]).to eq(30)
+    expect(@runner.options[:port]).to eq(4000)
+    expect(@runner.options[:environment]).to eq('production')
   end
 
   it "should change directory after loading config" do
     @orig_dir = Dir.pwd
 
     controller = double('controller')
-    controller.should_receive(:respond_to?).with('start').and_return(true)
-    controller.should_receive(:start)
-    Controllers::Cluster.should_receive(:new).and_return(controller)
+    expect(controller).to receive(:respond_to?).with('start').and_return(true)
+    expect(controller).to receive(:start)
+    expect(Controllers::Cluster).to receive(:new).and_return(controller)
     expected_dir = File.expand_path('spec/rails_app')
 
     begin
@@ -136,7 +136,7 @@ describe Runner, 'with config file' do
         @runner.run!
       end
 
-      Dir.pwd.should == expected_dir
+      expect(Dir.pwd).to eq(expected_dir)
 
     ensure
       # any other spec using relative paths should work as expected
@@ -156,7 +156,7 @@ describe Runner, "service" do
   it "should use Service controller when controlling all servers" do
     runner = Runner.new(%w(start --all))
 
-    @controller.should_receive(:start)
+    expect(@controller).to receive(:start)
 
     runner.run!
   end
@@ -164,7 +164,7 @@ describe Runner, "service" do
   it "should call install with arguments" do
     runner = Runner.new(%w(install /etc/cool))
 
-    @controller.should_receive(:install).with('/etc/cool')
+    expect(@controller).to receive(:install).with('/etc/cool')
 
     runner.run!
   end
@@ -172,7 +172,7 @@ describe Runner, "service" do
   it "should call install without arguments" do
     runner = Runner.new(%w(install))
 
-    @controller.should_receive(:install).with(no_args)
+    expect(@controller).to receive(:install).with(no_args)
 
     runner.run!
   end

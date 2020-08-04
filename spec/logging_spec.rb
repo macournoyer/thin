@@ -68,7 +68,7 @@ describe Logging do
     #
     #
     it "should be usable (at the module level) for logging" do
-      @custom_logger.should_receive(:add)
+      expect(@custom_logger).to receive(:add)
       Logging.log_msg("hey")
     end
 
@@ -108,8 +108,8 @@ describe Logging do
         subject.log_debug("Hey")
       end
 
-      out.include?("Hey").should be_truthy
-      out.include?("DEBUG").should be_truthy
+      expect(out.include?("Hey")).to be_truthy
+      expect(out.include?("DEBUG")).to be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -117,7 +117,7 @@ describe Logging do
         Logging.log_msg("Hey")
       end
 
-      out.include?("Hey").should be_truthy
+      expect(out.include?("Hey")).to be_truthy
     end
 
   end
@@ -131,13 +131,13 @@ describe Logging do
 
     it "should NOT emit trace messages if tracing is disabled" do
       Logging.trace = false
-      @custom_tracer.should_not_receive(:info)
+      expect(@custom_tracer).not_to receive(:info)
       subject.trace("howdy")
     end
 
     it "should emit trace messages when tracing is enabled" do
       Logging.trace = true
-      @custom_tracer.should_receive(:info)
+      expect(@custom_tracer).to receive(:info)
 
       subject.trace("aloha")
     end
@@ -152,7 +152,7 @@ describe Logging do
         subject.trace("Hey")
       end
 
-      out.include?("Hey").should be_truthy
+      expect(out.include?("Hey")).to be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -161,7 +161,7 @@ describe Logging do
         Logging.trace_msg("hey")
       end
 
-      out.include?("hey").should be_truthy
+      expect(out.include?("hey")).to be_truthy
     end
 
   end # tracer tests (no custom logger)
