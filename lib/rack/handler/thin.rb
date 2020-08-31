@@ -32,5 +32,7 @@ module Rack
         }
       end
     end
+
+    register :thin, ::Rack::Handler::Thin
   end
 end
