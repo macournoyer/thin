@@ -1,0 +1,46 @@
+name: Development
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{matrix.os}}-latest
+    continue-on-error: ${{matrix.experimental}}
+    
+    strategy:
+      matrix:
+        experimental: [false]
+        
+        os:
+          - ubuntu
+          - macos
+        
+        ruby:
+          - 2.5
+          - 2.6
+          - 2.7
+        
+        include:
+          - experimental: true
+            os: ubuntu
+            ruby: head
+          - experimental: true
+            os: ubuntu
+            ruby: 2.7
+            env: BUNDLE_GEMFILE=gems/rack-v1.rb
+          - experimental: true
+            os: ubuntu
+            ruby: 2.7
+            env: BUNDLE_GEMFILE=gems/rack-head.rb
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{matrix.ruby}}
+    
+    - name: Install dependencies
+      run: ${{matrix.env}} bundle install
+    
+    - name: Run tests
+      run: ${{matrix.env}} bundle exec rake

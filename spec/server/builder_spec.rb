@@ -10,7 +10,7 @@ describe Server, 'app builder' do
     app = proc {}
     server = Server.new('0.0.0.0', 3000, app)
     
-    server.app.should == app
+    expect(server.app).to eq(app)
   end
   
   it "should build app from builder block" do
@@ -18,7 +18,7 @@ describe Server, 'app builder' do
       run(proc { |env| :works })
     end
     
-    server.app.call({}).should == :works
+    expect(server.app.call({})).to eq(:works)
   end
   
   it "should use middlewares in builder block" do
@@ -27,8 +27,8 @@ describe Server, 'app builder' do
       run(proc { |env| :works })
     end
     
-    server.app.class.should == Rack::ShowExceptions
-    server.app.call({}).should == :works
+    expect(server.app.class).to eq(Rack::ShowExceptions)
+    expect(server.app.call({})).to eq(:works)
   end
   
   it "should work with Rack url mapper" do
@@ -40,10 +40,10 @@ describe Server, 'app builder' do
     
     default_env = { 'SCRIPT_NAME' => '' }
     
-    server.app.call(default_env.update('PATH_INFO' => '/'))[0].should == 404
+    expect(server.app.call(default_env.update('PATH_INFO' => '/'))[0]).to eq(404)
     
     status, headers, body = server.app.call(default_env.update('PATH_INFO' => '/test'))
-    status.should == 200
-    body.should == 'Found /test'
+    expect(status).to eq(200)
+    expect(body).to eq('Found /test')
   end
 end

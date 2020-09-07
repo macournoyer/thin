@@ -75,7 +75,9 @@ module Thin
     # Raises an +InvalidRequest+ if invalid.
     # Returns +true+ if the parsing is complete.
     def parse(data)
-      if @parser.finished?  # Header finished, can only be some more body
+      if data.size > 0 && finished? # headers and body already fully satisfied. more data is erroneous.
+        raise InvalidRequest, 'Content longer than specified'
+      elsif @parser.finished?  # Header finished, can only be some more body
         @body << data
       else                  # Parse more header using the super parser
         @data << data

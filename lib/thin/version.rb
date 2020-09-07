@@ -1,16 +1,16 @@
-module Thin  
+module Thin
   # Raised when a feature is not supported on the
   # current platform.
   class PlatformNotSupported < RuntimeError; end
   
   module VERSION #:nodoc:
     MAJOR    = 1
-    MINOR    = 6
-    TINY     = 5
+    MINOR    = 8
+    TINY     = 0
     
     STRING   = [MAJOR, MINOR, TINY].join('.')
     
-    CODENAME = "Gob Bluth".freeze
+    CODENAME = "Possessed Pickle".freeze
     
     RACK     = [1, 0].freeze # Rack protocol version
   end

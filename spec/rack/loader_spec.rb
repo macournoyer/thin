@@ -7,36 +7,36 @@ describe Rack::Adapter do
   end
   
   it "should load Rack app from config" do
-    Rack::Adapter.load(@config_ru_path + '/config.ru').class.should == Proc
+    expect(Rack::Adapter.load(@config_ru_path + '/config.ru').class).to eq(Proc)
   end
   
   it "should guess Rack app from dir" do
-    Rack::Adapter.guess(@config_ru_path).should == :rack
+    expect(Rack::Adapter.guess(@config_ru_path)).to eq(:rack)
   end
   
   it "should guess rails app from dir" do
-    Rack::Adapter.guess(@rails_path).should == :rails
+    expect(Rack::Adapter.guess(@rails_path)).to eq(:rails)
   end
   
   it "should return nil when can't guess from dir" do
-    proc { Rack::Adapter.guess('.') }.should raise_error(Rack::AdapterNotFound)
+    expect { Rack::Adapter.guess('.') }.to raise_error(Rack::AdapterNotFound)
   end
   
   it "should load Rack adapter" do
-    Rack::Adapter.for(:rack, :chdir => @config_ru_path).class.should == Proc
+    expect(Rack::Adapter.for(:rack, :chdir => @config_ru_path).class).to eq(Proc)
   end
   
   it "should load Rails adapter" do
-    Rack::Adapter::Rails.should_receive(:new)
+    expect(Rack::Adapter::Rails).to receive(:new)
     Rack::Adapter.for(:rails, :chdir => @rails_path)
   end
   
   it "should load File adapter" do
-    Rack::File.should_receive(:new)
+    expect(Rack::File).to receive(:new)
     Rack::Adapter.for(:file)
   end
   
   it "should raise error when adapter can't be found" do
-    proc { Rack::Adapter.for(:fart, {}) }.should raise_error(Rack::AdapterNotFound)
+    expect { Rack::Adapter.for(:fart, {}) }.to raise_error(Rack::AdapterNotFound)
   end
 end

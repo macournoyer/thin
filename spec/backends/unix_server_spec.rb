@@ -22,7 +22,7 @@ describe Backends::UnixServer do
   
   it "should remove socket file on close" do
     @backend.close
-    File.exist?('/tmp/thin-test.sock').should be_false
+    expect(File.exist?('/tmp/thin-test.sock')).to be_falsey
   end
 end
 
@@ -32,6 +32,6 @@ describe UnixConnection do
   end
   
   it "should return 127.0.0.1 as remote_address" do
-    @connection.remote_address.should == '127.0.0.1'
+    expect(@connection.remote_address).to eq('127.0.0.1')
   end
 end

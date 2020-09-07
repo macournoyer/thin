@@ -1,6 +1,7 @@
 require 'logger'
 require 'optparse'
 require 'yaml'
+require 'erb'
 
 module Thin
   # CLI runner.
@@ -80,6 +81,8 @@ module Thin
         opts.on(      "--ssl-key-file PATH", "Path to private key")                     { |path| @options[:ssl_key_file] = path }
         opts.on(      "--ssl-cert-file PATH", "Path to certificate")                    { |path| @options[:ssl_cert_file] = path }
         opts.on(      "--ssl-disable-verify", "Disables (optional) client cert requests") { @options[:ssl_disable_verify] = true }
+        opts.on(      "--ssl-version VERSION", "TLSv1, TLSv1_1, TLSv1_2")               { |version| @options[:ssl_version] = version }
+        opts.on(      "--ssl-cipher-list STRING", "Example: HIGH:!ADH:!RC4:-MEDIUM:-LOW:-EXP:-CAMELLIA") { |cipher| @options[:ssl_cipher_list] = cipher }
 
         opts.separator ""
         opts.separator "Adapter options:"
@@ -220,7 +223,7 @@ module Thin
     private
       def load_options_from_config_file!
         if file = @options.delete(:config)
-          YAML.load_file(file).each { |key, value| @options[key.to_sym] = value }
+          YAML.load(ERB.new(File.read(file)).result).each { |key, value| @options[key.to_sym] = value }
         end
       end
 

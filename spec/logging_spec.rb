@@ -8,21 +8,18 @@ class TestLogging
 end
 
 describe Logging do
+  subject {TestLogging.new}
 
-  before :all do
-    @object = TestLogging.new
-  end
-
-  after(:all) do
+  after do
     Logging.silent = true
-    Logging.debug  = false
-    Logging.trace  = false
+    Logging.debug = false
+    Logging.trace = false
   end
 
   describe "when setting a custom logger" do
 
     it "should not accept a logger object that is not sane" do
-      expect { Logging.logger = "" }.to raise_error
+      expect { Logging.logger = "" }.to raise_error(ArgumentError)
     end
 
     it "should accept a legit custom logger object" do
@@ -50,26 +47,28 @@ describe Logging do
     #
     it "at log level DEBUG should output logs at debug level" do
       Logging.debug = true
-      @object.log_debug("hi")
+      subject.log_debug("hi")
 
       str = nil
       expect { str = @readpipe.read_nonblock(512) }.to_not raise_error
-      str.should_not be_nil
+      expect(str).not_to be_nil
     end
 
     #
     #
     it "at log level NOT DEBUG should NOT output logs at debug level" do
       Logging.debug = false
-      @object.log_debug("hiya")
+      subject.log_debug("hiya")
 
-      expect { @readpipe.read_nonblock(512) }.to raise_error
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     #
     #
     it "should be usable (at the module level) for logging" do
-      @custom_logger.should_receive(:add)
+      expect(@custom_logger).to receive(:add)
       Logging.log_msg("hey")
     end
 
@@ -77,20 +76,26 @@ describe Logging do
     #
     it "should not log messages if silenced via module method" do
       Logging.silent = true
-      @object.log_info("hola")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      subject.log_info("hola")
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     it "should not log anything if silenced via module methods" do
       Logging.silent = true
       Logging.log_msg("hi")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
     it "should not log anything if silenced via instance methods" do
-      @object.silent = true
-      @object.log_info("hello")
-      expect { @readpipe.read_nonblock(512) }.to raise_error()
+      subject.silent = true
+      subject.log_info("hello")
+      expect do
+        @readpipe.read_nonblock(512)
+      end.to raise_error(IO::EAGAINWaitReadable)
     end
 
   end # Logging tests (with custom logger)
@@ -100,11 +105,11 @@ describe Logging do
     it "should log at debug level if debug logging is enabled " do
       Logging.debug = true
       out = with_redirected_stdout do
-        @object.log_debug("Hey")
+        subject.log_debug("Hey")
       end
 
-      out.include?("Hey").should be_true
-      out.include?("DEBUG").should be_true
+      expect(out.include?("Hey")).to be_truthy
+      expect(out.include?("DEBUG")).to be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -112,7 +117,7 @@ describe Logging do
         Logging.log_msg("Hey")
       end
 
-      out.include?("Hey").should be_true
+      expect(out.include?("Hey")).to be_truthy
     end
 
   end
@@ -126,15 +131,15 @@ describe Logging do
 
     it "should NOT emit trace messages if tracing is disabled" do
       Logging.trace = false
-      @custom_tracer.should_not_receive(:info)
-      @object.trace("howdy")
+      expect(@custom_tracer).not_to receive(:info)
+      subject.trace("howdy")
     end
 
     it "should emit trace messages when tracing is enabled" do
       Logging.trace = true
-      @custom_tracer.should_receive(:info)
+      expect(@custom_tracer).to receive(:info)
 
-      @object.trace("aloha")
+      subject.trace("aloha")
     end
 
   end # Tracer tests (with custom tracer)
@@ -144,10 +149,10 @@ describe Logging do
     it "should emit trace messages if tracing is enabled " do
       Logging.trace = true
       out = with_redirected_stdout do
-        @object.trace("Hey")
+        subject.trace("Hey")
       end
 
-      out.include?("Hey").should be_true
+      expect(out.include?("Hey")).to be_truthy
     end
 
     it "should be usable (at the module level) for logging" do
@@ -156,7 +161,7 @@ describe Logging do
         Logging.trace_msg("hey")
       end
 
-      out.include?("hey").should be_true
+      expect(out.include?("hey")).to be_truthy
     end
 
   end # tracer tests (no custom logger)

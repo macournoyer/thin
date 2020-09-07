@@ -17,11 +17,11 @@ else
     end
     
     it 'should GET from Net::HTTP' do
-      Net::HTTP.get(URI.parse("http://0.0.0.0:3333/?cthis")).should include('cthis')
+      expect(Net::HTTP.get(URI.parse("http://0.0.0.0:3333/?cthis"))).to include('cthis')
     end
   
     it 'should POST from Net::HTTP' do
-      Net::HTTP.post_form(URI.parse("http://0.0.0.0:3333/"), :arg => 'pirate').body.should include('arg=pirate')
+      expect(Net::HTTP.post_form(URI.parse("http://0.0.0.0:3333/"), :arg => 'pirate').body).to include('arg=pirate')
     end
   
     after do

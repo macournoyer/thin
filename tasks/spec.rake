@@ -1,7 +1,6 @@
 CLEAN.include %w(coverage tmp log)
 
-gem "rspec", "~> 1.2.9"
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 
 PERF_SPECS = FileList['spec/perf/*_spec.rb']
 WIN_SPECS  = %w(
@@ -22,9 +21,9 @@ SPEC_GROUPS = [
 SPECS = FileList['spec/**/*_spec.rb'] - PERF_SPECS - SPEC_GROUPS.flatten
 
 def spec_task(name, specs)
-  Spec::Rake::SpecTask.new(name) do |t|
-    t.spec_opts = %w(-fs -c)
-    t.spec_files = specs
+  RSpec::Core::RakeTask.new(name) do |t|
+    t.rspec_opts = ["-c", "-f progress"]
+    t.pattern = specs
   end
 end
 

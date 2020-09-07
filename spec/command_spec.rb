@@ -9,17 +9,17 @@ describe Command do
   
   it 'should shellify command' do
     out = @command.shellify
-    out.should include('--port=3000', '--daemonize', '--log="hi.log"', 'thin start --')
-    out.should_not include('--pid')
+    expect(out).to include('--port=3000', '--daemonize', '--log="hi.log"', 'thin start --')
+    expect(out).not_to include('--pid')
   end
   
   it 'should shellify Array argument to multiple parameters' do
     out = @command.shellify
-    out.should include('--require="rubygems"', '--require="thin"')
+    expect(out).to include('--require="rubygems"', '--require="thin"')
   end
 
   it 'should convert _ to - in option name' do
     out = @command.shellify
-    out.should include('--no-epoll')
+    expect(out).to include('--no-epoll')
   end
 end
