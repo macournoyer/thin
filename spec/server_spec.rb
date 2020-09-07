@@ -16,9 +16,10 @@ describe Server do
     # connections, so we cannot really run this test under that
     # condition.
     pending("only for non-root users") if Process.euid == 0
-    @server.maximum_connections = 100_000
+    maximum_connections = 1_000_000
+    @server.maximum_connections = maximum_connections
     @server.config
-    expect(@server.maximum_connections).to be <= 100_000
+    expect(@server.maximum_connections).to be <= maximum_connections
   end
   
   it "should default to non-threaded" do
