@@ -9,36 +9,36 @@ describe Server, 'on TCP socket' do
   end
   
   it 'should GET from Net::HTTP' do
-    get('/?cthis').should include('cthis')
+    expect(get('/?cthis')).to include('cthis')
   end
   
   it 'should GET from TCPSocket' do
     status, headers, body = parse_response(send_data("GET /?this HTTP/1.0\r\nConnection: close\r\n\r\n"))
-    status.should == 200
-    headers['Content-Type'].should == 'text/html'
-    headers['Connection'].should == 'close'
-    body.should include('this')
+    expect(status).to eq(200)
+    expect(headers['Content-Type']).to eq('text/html')
+    expect(headers['Connection']).to eq('close')
+    expect(body).to include('this')
   end
   
   it 'should return empty string on incomplete headers' do
-    send_data("GET /?this HTTP/1.1\r\nHost:").should be_empty
+    expect(send_data("GET /?this HTTP/1.1\r\nHost:")).to be_empty
   end
   
   it 'should return empty string on incorrect Content-Length' do
-    send_data("POST / HTTP/1.1\r\nContent-Length: 300\r\nConnection: close\r\n\r\naye").should be_empty
+    expect(send_data("POST / HTTP/1.1\r\nContent-Length: 300\r\nConnection: close\r\n\r\naye")).to be_empty
   end
   
   it 'should POST from Net::HTTP' do
-    post('/', :arg => 'pirate').should include('arg=pirate')
+    expect(post('/', :arg => 'pirate')).to include('arg=pirate')
   end
   
   it 'should handle big POST' do
     big = 'X' * (20 * 1024)
-    post('/', :big => big).should include(big)
+    expect(post('/', :big => big)).to include(big)
   end
   
   it "should retreive remote address" do
-    get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
+    expect(get('/')).to include('"REMOTE_ADDR"=>"127.0.0.1"')
   end
   
   after do

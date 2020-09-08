@@ -9,15 +9,15 @@ describe Response do
   end
   
   it 'should output headers' do
-    @response.headers_output.should include("Content-Type: text/html", "Content-Length: 0", "Connection: close")
+    expect(@response.headers_output).to include("Content-Type: text/html", "Content-Length: 0", "Connection: close")
   end
   
   it 'should include server name header' do
-    @response.headers_output.should include("Server: thin")
+    expect(@response.headers_output).to include("Server: thin")
   end
   
   it 'should output head' do
-    @response.head.should include("HTTP/1.1 200 OK", "Content-Type: text/html", "Content-Length: 0",
+    expect(@response.head).to include("HTTP/1.1 200 OK", "Content-Type: text/html", "Content-Length: 0",
                                   "Connection: close", "\r\n\r\n")
   end
   
@@ -25,7 +25,7 @@ describe Response do
     @response.headers['Set-Cookie'] = 'mium=7'
     @response.headers['Set-Cookie'] = 'hi=there'
     
-    @response.head.should include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
+    expect(@response.head).to include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
   end
   
   it 'should parse simple header values' do
@@ -33,7 +33,7 @@ describe Response do
       'Host' => 'localhost'
     }
     
-    @response.head.should include("Host: localhost")
+    expect(@response.head).to include("Host: localhost")
   end
   
   it 'should parse multiline header values in several headers' do
@@ -41,14 +41,14 @@ describe Response do
       'Set-Cookie' => "mium=7\nhi=there"
     }
     
-    @response.head.should include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
+    expect(@response.head).to include("Set-Cookie: mium=7", "Set-Cookie: hi=there")
   end
 
   it 'should ignore nil headers' do
     @response.headers = nil
     @response.headers = { 'Host' => 'localhost' }
     @response.headers = { 'Set-Cookie' => nil }
-    @response.head.should include('Host: localhost')
+    expect(@response.head).to include('Host: localhost')
   end
   
   it 'should output body' do
@@ -56,7 +56,7 @@ describe Response do
     
     out = ''
     @response.each { |l| out << l }
-    out.should include("\r\n\r\n<html></html>")
+    expect(out).to include("\r\n\r\n<html></html>")
   end
     
   it 'should output String body' do
@@ -64,11 +64,11 @@ describe Response do
     
     out = ''
     @response.each { |l| out << l }
-    out.should include("\r\n\r\n<html></html>")
+    expect(out).to include("\r\n\r\n<html></html>")
   end
     
   it "should not be persistent by default" do
-    @response.should_not be_persistent
+    expect(@response).not_to be_persistent
   end
   
   it "should not be persistent when no Content-Length" do
@@ -77,7 +77,7 @@ describe Response do
     @response.body = ''
     
     @response.persistent!
-    @response.should_not be_persistent
+    expect(@response).not_to be_persistent
   end
 
   it "should ignore Content-Length case" do
@@ -86,7 +86,7 @@ describe Response do
     @response.body = ''
 
     @response.persistent!
-    @response.should be_persistent
+    expect(@response).to be_persistent
   end
 
   it "should be persistent when the status code implies it should stay open" do
@@ -97,12 +97,12 @@ describe Response do
 
     # Specifying it as persistent in the code is NOT required
     # @response.persistent!
-    @response.should be_persistent
+    expect(@response).to be_persistent
   end
   
   it "should be persistent when specified" do
     @response.persistent!
-    @response.should be_persistent
+    expect(@response).to be_persistent
   end
   
   it "should be closeable" do

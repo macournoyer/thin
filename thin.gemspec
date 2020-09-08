@@ -4,7 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "thin/version"
 
 # Describe your gem and declare its dependencies:
-Thin::GemSpec = Gem::Specification.new do |s|
+Thin::GemSpec ||= Gem::Specification.new do |s|
   s.name                  = Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = Thin.win? ? Gem::Platform::CURRENT : Gem::Platform::RUBY
@@ -13,13 +13,17 @@ Thin::GemSpec = Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'http://code.macournoyer.com/thin/'
-  s.rubyforge_project     = 'thin'
   s.licenses              = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
+  s.metadata = {
+    'source_code_uri' => 'https://github.com/macournoyer/thin',
+    'changelog_uri'   => 'https://github.com/macournoyer/thin/blob/master/CHANGELOG'
+  }
+
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '~> 1.0'
+  s.add_dependency        'rack',         '>= 1', '< 3'
   s.add_dependency        'eventmachine', '~> 1.0', '>= 1.0.4'
   s.add_dependency        'daemons',      '~> 1.0', '>= 1.0.9'  unless Thin.win?
 

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Backends::SwiftiplyClient do
   before do
     @backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @backend.server = mock('server').as_null_object
+    @backend.server = double('server').as_null_object
   end
   
   it "should connect" do
@@ -26,23 +26,23 @@ describe SwiftiplyConnection do
   before do
     @connection = SwiftiplyConnection.new(nil)
     @connection.backend = Backends::SwiftiplyClient.new('0.0.0.0', 3333)
-    @connection.backend.server = mock('server').as_null_object
+    @connection.backend.server = double('server').as_null_object
   end
   
   it do
-    @connection.should be_persistent
+    expect(@connection).to be_persistent
   end
   
   it "should send handshake on connection_completed" do
-    @connection.should_receive(:send_data).with('swiftclient000000000d0500')
+    expect(@connection).to receive(:send_data).with('swiftclient000000000d0500')
     @connection.connection_completed
   end
   
   it "should reconnect on unbind" do
-    @connection.backend.stub!(:running?).and_return(true)
-    @connection.stub!(:rand).and_return(0) # Make sure we don't wait
+    allow(@connection.backend).to receive(:running?) { true }
+    allow(@connection).to receive(:rand) { 0 } # Make sure we don't wait
     
-    @connection.should_receive(:reconnect).with('0.0.0.0', 3333)
+    expect(@connection).to receive(:reconnect).with('0.0.0.0', 3333)
     
     EventMachine.run do
       @connection.unbind
@@ -51,16 +51,16 @@ describe SwiftiplyConnection do
   end
   
   it "should not reconnect when not running" do
-    @connection.backend.stub!(:running?).and_return(false)
-    EventMachine.should_not_receive(:add_timer)
+    allow(@connection.backend).to receive(:running?) { false }
+    expect(EventMachine).not_to receive(:add_timer)
     @connection.unbind
   end
   
   it "should have a host_ip" do
-    @connection.send(:host_ip).should == [0, 0, 0, 0]
+    expect(@connection.send(:host_ip)).to eq([0, 0, 0, 0])
   end
   
   it "should generate swiftiply_handshake based on key" do
-    @connection.send(:swiftiply_handshake, 'key').should == 'swiftclient000000000d0503key'
+    expect(@connection.send(:swiftiply_handshake, 'key')).to eq('swiftclient000000000d0503key')
   end
 end

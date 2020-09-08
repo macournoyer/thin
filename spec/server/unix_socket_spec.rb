@@ -8,16 +8,16 @@ describe Server, "on UNIX domain socket" do
   end
   
   it "should accept GET request" do
-    get("/?this").should include('this')
+    expect(get("/?this")).to include('this')
   end
   
   it "should retreive remote address" do    
-    get('/').should include('"REMOTE_ADDR"=>"127.0.0.1"')
+    expect(get('/')).to include('"REMOTE_ADDR"=>"127.0.0.1"')
   end
   
   it "should remove socket file after server stops" do
     @server.stop!
-    File.exist?('/tmp/thin_test.sock').should be_false
+    expect(File.exist?('/tmp/thin_test.sock')).to be_falsey
   end
   
   after do

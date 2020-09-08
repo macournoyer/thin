@@ -1,4 +1,4 @@
-source "http://rubygems.org"
+source "https://rubygems.org"
 
 gemspec
 
@@ -7,6 +7,6 @@ group :development do
 end
 
 group :test do
-  gem "rake" # for travis-ci.org
-  gem "rspec", "~> 1.2.9"
+  gem "rake", '< 11.0'
+  gem "rspec", "~> 3.5"
 end

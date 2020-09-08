@@ -14,6 +14,6 @@ describe Response, 'performance' do
 </ul></body></html>
 EOS
 
-    proc { @response.each { |l| l } }.should be_faster_then(0.00011)
+    expect { @response.each { |l| l } }.to be_faster_then(0.00011)
   end
 end

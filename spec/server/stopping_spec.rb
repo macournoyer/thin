@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+require 'timeout'
+
 describe Server, "stopping" do
   before do
     start_server do |env|
@@ -17,14 +19,14 @@ describe Server, "stopping" do
       @done = true
     end
     
-    timeout(2) do
+    Timeout.timeout(2) do
       Thread.pass until @done
     end
     
     out = socket.read
     socket.close
     
-    out.should_not be_empty
+    expect(out).not_to be_empty
   end
   
   it "should not accept new requests when soft stopping" do
@@ -33,7 +35,7 @@ describe Server, "stopping" do
     @server.stop # Stop the server in the middle of a request
     
     EventMachine.next_tick do
-      proc { get('/') }.should raise_error(Errno::ECONNRESET)
+      expect { get('/') }.to raise_error(Errno::ECONNRESET)
     end
     
     socket.close
@@ -45,7 +47,7 @@ describe Server, "stopping" do
     @server.stop! # Force stop the server in the middle of a request
     
     EventMachine.next_tick do
-      socket.should be_closed
+      expect(socket).to be_closed
     end
   end
   

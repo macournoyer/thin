@@ -11,13 +11,13 @@ describe Server, 'with threads' do
   end
   
   it "should process request" do
-    get('/').should_not be_empty
+    expect(get('/')).not_to be_empty
   end
   
   it "should process requests when blocked" do
     slow_request = Thread.new { get('/3') }
-    get('/').should_not be_empty
-    @requests.should == 1
+    expect(get('/')).not_to be_empty
+    expect(@requests).to eq(1)
     slow_request.kill
   end
   
