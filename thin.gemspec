@@ -12,7 +12,7 @@ Thin::GemSpec ||= Gem::Specification.new do |s|
   s.description           = "A thin and fast web server"
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
-  s.homepage              = 'http://code.macournoyer.com/thin/'
+  s.homepage              = 'https://github.com/macournoyer/thin'
   s.licenses              = ["GPLv2+", "Ruby 1.8"]
   s.executables           = %w( thin )
 
