@@ -8,12 +8,11 @@ Thin::GemSpec ||= Gem::Specification.new do |s|
   s.name                  = Thin::NAME
   s.version               = Thin::VERSION::STRING
   s.platform              = Thin.win? ? Gem::Platform::CURRENT : Gem::Platform::RUBY
-  s.summary               = 
-  s.description           = "A thin and fast web server"
+  s.summary               = "A thin and fast web server"
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'https://github.com/macournoyer/thin'
-  s.licenses              = ["GPLv2+", "Ruby 1.8"]
+  s.licenses              = ["GPL-2.0+", "Ruby"]
   s.executables           = %w( thin )
 
   s.metadata = {

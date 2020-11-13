@@ -16,7 +16,7 @@ module Thin
   end
   
   NAME    = 'thin'.freeze
-  SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze  
+  SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze
   
   def self.win?
     RUBY_PLATFORM =~ /mswin|mingw/
