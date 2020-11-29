@@ -4,6 +4,7 @@ module Thin
   class Headers
     HEADER_FORMAT      = "%s: %s\r\n".freeze
     ALLOWED_DUPLICATES = %w(set-cookie set-cookie2 warning www-authenticate).freeze
+    CR_OR_LF           = /[\r\n]/.freeze
     
     def initialize
       @sent = {}
@@ -20,7 +21,7 @@ module Thin
         value = case value
                 when Time
                   value.httpdate
-                when NilClass
+                when NilClass, CR_OR_LF
                   return
                 else
                   value.to_s
