@@ -1,4 +1,8 @@
 module Thin
+  # Raised when an header is not valid
+  # and the server can not process it.
+  class InvalidHeader < StandardError; end
+
   # Store HTTP header name-value pairs direcly to a string
   # and allow duplicated entries on some names.
   class Headers
@@ -21,8 +25,10 @@ module Thin
         value = case value
                 when Time
                   value.httpdate
-                when NilClass, CR_OR_LF
+                when NilClass
                   return
+                when CR_OR_LF
+                  raise InvalidHeader, "Header contains CR or LF"
                 else
                   value.to_s
                 end

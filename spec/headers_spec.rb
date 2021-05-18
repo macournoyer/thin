@@ -44,17 +44,14 @@ describe Headers do
   end
 
   it 'should not allow CRLF' do
-    @headers['Bad'] = "a\r\nSet-Cookie: injected=value"
-    expect(@headers.to_s).to be_empty
+    expect { @headers['Bad'] = "a\r\nSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
   end
 
   it 'should not allow CR' do
-    @headers['Bad'] = "a\rSet-Cookie: injected=value"
-    expect(@headers.to_s).to be_empty
+    expect { @headers['Bad'] = "a\rSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
   end
 
   it 'should not allow LF' do
-    @headers['Bad'] = "a\nSet-Cookie: injected=value"
-    expect(@headers.to_s).to be_empty
+    expect { @headers['Bad'] = "a\nSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
   end
 end
