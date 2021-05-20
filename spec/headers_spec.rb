@@ -37,4 +37,21 @@ describe Headers do
     @headers['Modified-At'] = time
     expect(@headers.to_s).to include("Modified-At: #{time.httpdate}")
   end
+
+  it 'should format Integer values correctly' do
+    @headers['X-Number'] = 32
+    expect(@headers.to_s).to include("X-Number: 32")
+  end
+
+  it 'should not allow CRLF' do
+    expect { @headers['Bad'] = "a\r\nSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
+  end
+
+  it 'should not allow CR' do
+    expect { @headers['Bad'] = "a\rSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
+  end
+
+  it 'should not allow LF' do
+    expect { @headers['Bad'] = "a\nSet-Cookie: injected=value" }.to raise_error(InvalidHeader)
+  end
 end

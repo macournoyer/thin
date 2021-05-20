@@ -1,9 +1,14 @@
 module Thin
+  # Raised when an header is not valid
+  # and the server can not process it.
+  class InvalidHeader < StandardError; end
+
   # Store HTTP header name-value pairs direcly to a string
   # and allow duplicated entries on some names.
   class Headers
     HEADER_FORMAT      = "%s: %s\r\n".freeze
     ALLOWED_DUPLICATES = %w(set-cookie set-cookie2 warning www-authenticate).freeze
+    CR_OR_LF           = /[\r\n]/.freeze
     
     def initialize
       @sent = {}
@@ -22,6 +27,8 @@ module Thin
                   value.httpdate
                 when NilClass
                   return
+                when CR_OR_LF
+                  raise InvalidHeader, "Header contains CR or LF"
                 else
                   value.to_s
                 end
