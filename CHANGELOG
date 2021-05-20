@@ -1,3 +1,9 @@
+== 1.8.1 Infinite Smoothie
+ * Fix possible HTTP Response Splitting
+
+== 1.8.0 Possessed Pickle
+ * Many things
+
 == 1.7.2 Bachmanity
  * Add config support for ssl_version and ssl_cipher_list [frameworked]
 
