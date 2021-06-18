@@ -37,7 +37,7 @@ describe Server, 'on TCP socket' do
     expect(post('/', :big => big)).to include(big)
   end
   
-  it "should retreive remote address" do
+  it "should retrieve remote address" do
     expect(get('/')).to include('"REMOTE_ADDR"=>"127.0.0.1"')
   end
   
