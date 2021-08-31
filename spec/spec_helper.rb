@@ -201,7 +201,7 @@ module Helpers
     @server.stop!
     @thread.kill
     
-    100.times do
+    1000.times do
       break unless EM.reactor_running?
       sleep 0.01
     end
