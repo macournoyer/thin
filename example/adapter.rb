@@ -20,7 +20,7 @@ Thin::Server.start('0.0.0.0', 3000) do
     run SimpleAdapter.new
   end
   map '/files' do
-    run Rack::File.new('.')
+    run Rack::Files.new('.')
   end
 end
 
