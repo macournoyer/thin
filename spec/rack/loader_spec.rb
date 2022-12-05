@@ -32,7 +32,7 @@ describe Rack::Adapter do
   end
   
   it "should load File adapter" do
-    expect(Rack::File).to receive(:new)
+    expect(Rack::Files).to receive(:new)
     Rack::Adapter.for(:file)
   end
   
