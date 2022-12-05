@@ -20,13 +20,13 @@ Thin::Server.start('0.0.0.0', 3000) do
     run SimpleAdapter.new
   end
   map '/files' do
-    run Rack::File.new('.')
+    run Rack::Files.new('.')
   end
 end
 
 # You could also start the server like this:
 #
 #   app = Rack::URLMap.new('/test'  => SimpleAdapter.new,
-#                          '/files' => Rack::File.new('.'))
+#                          '/files' => Rack::Files.new('.'))
 #   Thin::Server.start('0.0.0.0', 3000, app)
 #
