@@ -183,6 +183,6 @@ describe 'Daemonizing' do
   private
 
   def wait_for_server_to_start
-    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(10)
+    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(30)
   end
 end
