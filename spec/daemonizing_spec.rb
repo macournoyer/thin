@@ -56,15 +56,14 @@ describe 'Daemonizing' do
       STDERR.puts "STDERR.puts"
       STDOUT.puts "STDOUT.puts"
 
-      STDERR.flush
-      STDOUT.flush
-
       sleep
     end
 
     wait_for_server_to_start
 
+    sleep(1)
     log = File.read(log_file)
+
     expect(log).to include('simple puts', 'STDERR.puts', 'STDOUT.puts')
 
     server.kill
@@ -97,7 +96,7 @@ describe 'Daemonizing' do
       subject.kill(1)
     end
 
-    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(60)
   end
   
   it 'should force kill process in pid file' do
@@ -110,7 +109,7 @@ describe 'Daemonizing' do
 
     subject.kill(0)
 
-    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(60)
   end
   
   it 'should send kill signal if timeout' do
@@ -125,7 +124,7 @@ describe 'Daemonizing' do
 
     subject.kill(1)
 
-    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(60)
     expect(Process.running?(pid)).to be_falsey
   end
   
@@ -142,7 +141,7 @@ describe 'Daemonizing' do
       TestServer.restart(subject.pid_file)
     end
 
-    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(60)
   end
   
   it "should ignore if no restart block specified" do
@@ -186,6 +185,6 @@ describe 'Daemonizing' do
   private
 
   def wait_for_server_to_start
-    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(30)
+    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(60)
   end
 end
