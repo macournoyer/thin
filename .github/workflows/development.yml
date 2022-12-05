@@ -7,6 +7,9 @@ jobs:
     runs-on: ${{matrix.os}}-latest
     continue-on-error: ${{matrix.experimental}}
     
+    env:
+      BUNDLE_GEMFILE: ${{matrix.gemfile}}
+    
     strategy:
       matrix:
         experimental: [false]
@@ -19,19 +22,32 @@ jobs:
           - 2.5
           - 2.6
           - 2.7
+          - 3.0
+          - 3.1
+        
+        gemfile: 
+          - gems/rack-v2.rb
         
         include:
           - experimental: true
             os: ubuntu
             ruby: head
-          - experimental: true
+          - experimental: false
             os: ubuntu
             ruby: 2.7
-            env: BUNDLE_GEMFILE=gems/rack-v1.rb
+            gemfile: gems/rack-v1.rb
+          - experimental: false
+            os: ubuntu
+            ruby: 3.1
+            gemfile: gems/rack-v2.rb
+          - experimental: false
+            os: ubuntu
+            ruby: 3.1
+            gemfile: gems/rack-v3.rb
           - experimental: true
             os: ubuntu
-            ruby: 2.7
-            env: BUNDLE_GEMFILE=gems/rack-head.rb
+            ruby: 3.1
+            gemfile: gems/rack-head.rb
     
     steps:
     - uses: actions/checkout@v1

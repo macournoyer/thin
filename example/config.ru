@@ -14,7 +14,7 @@ app = proc do |env|
   
   [
     200,                                        # Status code
-    { 'Content-Type' => 'text/html' },          # Reponse headers
+    { 'content-type' => 'text/html' },          # Reponse headers
     body                                        # Body of the response
   ]
 end

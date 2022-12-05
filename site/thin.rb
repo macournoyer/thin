@@ -127,8 +127,8 @@ class Thin < Atchoum::Website
         [
           200,          # Status code
           {             # Response headers
-            'Content-Type' => 'text/html',
-            'Content-Length' => '2',
+            'content-type' => 'text/html',
+            'content-length' => '2',
           },
           ['hi']        # Response body
         ]

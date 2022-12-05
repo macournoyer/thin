@@ -8,7 +8,7 @@ class SimpleAdapter
     body = ["hello!"]
     [
       200,
-      { 'Content-Type' => 'text/plain' },
+      { 'content-type' => 'text/plain' },
       body
     ]
   end
