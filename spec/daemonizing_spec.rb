@@ -56,6 +56,9 @@ describe 'Daemonizing' do
       STDERR.puts "STDERR.puts"
       STDOUT.puts "STDOUT.puts"
 
+      STDERR.flush
+      STDOUT.flush
+
       sleep
     end
 
