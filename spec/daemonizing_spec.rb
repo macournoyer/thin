@@ -97,8 +97,7 @@ describe 'Daemonizing' do
       subject.kill(1)
     end
 
-    sleep(1)
-    expect(File.exist?(subject.pid_file)).to be_falsey
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
   end
   
   it 'should force kill process in pid file' do
@@ -111,7 +110,7 @@ describe 'Daemonizing' do
 
     subject.kill(0)
 
-    expect(File.exist?(subject.pid_file)).to be_falsey
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
   end
   
   it 'should send kill signal if timeout' do
@@ -126,7 +125,7 @@ describe 'Daemonizing' do
 
     subject.kill(1)
 
-    expect(File.exist?(subject.pid_file)).to be_falsey
+    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
     expect(Process.running?(pid)).to be_falsey
   end
   
