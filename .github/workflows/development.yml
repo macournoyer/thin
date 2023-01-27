@@ -19,6 +19,8 @@ jobs:
           - 2.5
           - 2.6
           - 2.7
+          - truffleruby-head
+          
         
         include:
           - experimental: true
