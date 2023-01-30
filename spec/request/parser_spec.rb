@@ -210,7 +210,7 @@ EOS
   end
 
   it "should fail when total request vastly exceeds specified CONTENT_LENGTH" do
-    proc do
+    expect do
       R(<<-EOS, true)
 POST / HTTP/1.1
 Host: localhost:3000
@@ -218,7 +218,7 @@ Content-Length: 300
 
 #{'X' * 300_000}
 EOS
-    end.should raise_error(InvalidRequest)
+    end.to raise_error(InvalidRequest)
   end
 
   it "should default SERVER_NAME to localhost" do
