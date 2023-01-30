@@ -78,7 +78,7 @@ module Thin
 
       if uid != target_uid || gid != target_gid
         # Change PID file ownership
-        File.chown(target_uid, target_gid, @pid_file) if File.exists?(@pid_file)
+        File.chown(target_uid, target_gid, @pid_file) if File.exist?(@pid_file)
 
         # Change process ownership
         Process.initgroups(user, target_gid)
@@ -174,7 +174,7 @@ module Thin
     
     protected
       def remove_pid_file
-        File.delete(@pid_file) if @pid_file && File.exists?(@pid_file)
+        File.delete(@pid_file) if @pid_file && File.exist?(@pid_file)
       end
     
       def write_pid_file
