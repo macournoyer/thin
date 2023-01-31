@@ -50,7 +50,17 @@ module Thin
 
       # For some reason Swiftiply request the current host
       def host_ip
-        Socket.gethostbyname(@backend.host)[3].unpack('CCCC') rescue [0, 0, 0, 0]
+        begin
+          if defined?(Addrinfo)
+            # ruby 2.0+
+            # TODO: ipv6 support here?
+            Addrinfo.getaddrinfo(@backend.host, @backend.port, :PF_INET, :STREAM).first.ip_address.split('.').map(&:to_i)
+          else
+            Socket.gethostbyname(@backend.host)[3].unpack('CCCC')
+          end
+        rescue
+          [0, 0, 0, 0]
+        end
       end
   end
 end

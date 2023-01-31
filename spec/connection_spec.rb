@@ -37,7 +37,7 @@ describe Connection do
   end
 
   it "should process at most once when request is larger than expected" do
-    @connection.should_receive(:process).at_most(1)
+    expect(@connection).to receive(:process).at_most(1)
     @connection.receive_data("POST / HTTP/1.1\r\nHost: localhost:3000\r\nContent-Length: 300\r\n\r\n")
     10.times { @connection.receive_data('X' * 1_000) }
   end
