@@ -1,3 +1,6 @@
+== 1.8.2 Ruby Razor
+ * Ruby 3.2 support.
+
 == 1.8.1 Infinite Smoothie
  * Fix possible HTTP Response Splitting
 
