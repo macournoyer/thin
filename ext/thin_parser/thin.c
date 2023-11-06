@@ -194,8 +194,8 @@ static void header_done(void *data, const char *at, size_t length)
             RSTRING_LEN(temp)));
     } else {
       rb_hash_aset(req, global_server_name, temp);
-      cscheme = rb_hash_aref(req, global_url_schema);
-      if(cscheme != Qnil && strcmp(RSTRING_PTR(cscheme), 'https') == 0) {
+      cscheme = rb_hash_aref(req, global_url_scheme);
+      if(cscheme != Qnil && strcmp(RSTRING_PTR(cscheme), "https") == 0) {
         rb_hash_aset(req, global_server_port, global_port_443);
       } else {
         rb_hash_aset(req, global_server_port, global_port_80);
