@@ -10,6 +10,7 @@
 #include <string.h>
 #include "parser.h"
 #include <ctype.h>
+#include <stdio.h>
 
 static VALUE mThin;
 static VALUE cHttpParser;
@@ -195,6 +196,9 @@ static void header_done(void *data, const char *at, size_t length)
     } else {
       rb_hash_aset(req, global_server_name, temp);
       cscheme = rb_hash_aref(req, global_url_scheme);
+      puts("Debugging");
+      puts(RSTRING_PTR(cscheme));
+      
       if(cscheme != Qnil && strcmp(RSTRING_PTR(cscheme), "https") == 0) {
         rb_hash_aset(req, global_server_port, global_port_443);
       } else {
