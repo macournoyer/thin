@@ -10,7 +10,6 @@
 #include <string.h>
 #include "parser.h"
 #include <ctype.h>
-#include <stdio.h>
 
 static VALUE mThin;
 static VALUE cHttpParser;
@@ -36,7 +35,6 @@ static VALUE global_server_protocol;
 static VALUE global_server_protocol_value;
 static VALUE global_http_host;
 static VALUE global_port_80;
-static VALUE global_port_443;
 static VALUE global_http_body;
 static VALUE global_url_scheme;
 static VALUE global_url_scheme_value;
@@ -168,7 +166,6 @@ static void header_done(void *data, const char *at, size_t length)
   VALUE temp = Qnil;
   VALUE ctype = Qnil;
   VALUE clen = Qnil;
-  VALUE cscheme = Qnil;
   VALUE body = Qnil;
   char *colon = NULL;
 
@@ -195,16 +192,7 @@ static void header_done(void *data, const char *at, size_t length)
             RSTRING_LEN(temp)));
     } else {
       rb_hash_aset(req, global_server_name, temp);
-      rb_hash_aset(req, global_server_port, global_port_443);
-      /*puts("Debugging");
-      puts(RSTRING_PTR(global_url_scheme_value));
-      
-      if(strcmp(RSTRING_PTR(global_url_scheme_value), "https") == 0) {
-        rb_hash_aset(req, global_server_port, global_port_443);
-      } else {
-        rb_hash_aset(req, global_server_port, global_port_80);
-      }*/
-      
+      rb_hash_aset(req, global_server_port, global_port_80);
     }
   }
 
@@ -427,7 +415,6 @@ void Init_thin_parser()
   DEF_GLOBAL(server_protocol_value, "HTTP/1.1");
   DEF_GLOBAL(http_host, "HTTP_HOST");
   DEF_GLOBAL(port_80, "80");
-  DEF_GLOBAL(port_443, "443");
   DEF_GLOBAL(http_body, "rack.input");
   DEF_GLOBAL(url_scheme, "rack.url_scheme");
   DEF_GLOBAL(url_scheme_value, "http");
