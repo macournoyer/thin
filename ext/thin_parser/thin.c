@@ -195,7 +195,7 @@ static void header_done(void *data, const char *at, size_t length)
             RSTRING_LEN(temp)));
     } else {
       rb_hash_aset(req, global_server_name, temp);
-      cscheme = rb_hash_aref(req, global_url_scheme);
+      cscheme = rb_hash_aref(req, global_url_scheme_value);
       puts("Debugging");
       puts(RSTRING_PTR(cscheme));
       
