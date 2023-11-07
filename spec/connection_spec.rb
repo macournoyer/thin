@@ -78,7 +78,7 @@ describe Connection do
     expect(@connection.remote_address).to eq("127.0.0.1")
   end
   
-  it "should return nil on error retreiving remote_address" do
+  it "should return nil on error retrieving remote_address" do
     allow(@connection).to receive(:get_peername).and_raise(RuntimeError)
     expect(@connection.remote_address).to be_nil
   end
@@ -142,5 +142,13 @@ describe Connection do
 
   it "should not set as threaded when app do not respond to deferred?" do
     expect(@connection).not_to be_threaded
+  end
+
+  it "should have correct SERVER_PORT when using ssl" do
+    @connection.backend = double("backend", :ssl? => true, :port => 443)
+
+    @connection.process
+
+    expect(@connection.request.env["SERVER_PORT"]).to eq("443")
   end
 end
