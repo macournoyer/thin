@@ -195,14 +195,15 @@ static void header_done(void *data, const char *at, size_t length)
             RSTRING_LEN(temp)));
     } else {
       rb_hash_aset(req, global_server_name, temp);
-      puts("Debugging");
+      rb_hash_aset(req, global_server_port, global_port_443);
+      /*puts("Debugging");
       puts(RSTRING_PTR(global_url_scheme_value));
       
       if(strcmp(RSTRING_PTR(global_url_scheme_value), "https") == 0) {
         rb_hash_aset(req, global_server_port, global_port_443);
       } else {
         rb_hash_aset(req, global_server_port, global_port_80);
-      }
+      }*/
       
     }
   }
