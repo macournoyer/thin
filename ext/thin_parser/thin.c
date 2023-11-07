@@ -196,9 +196,9 @@ static void header_done(void *data, const char *at, size_t length)
     } else {
       rb_hash_aset(req, global_server_name, temp);
       puts("Debugging");
-      puts(global_url_scheme_value);
+      puts(RSTRING_PTR(global_url_scheme_value));
       
-      if(strcmp(global_url_scheme_value, "https") == 0) {
+      if(strcmp(RSTRING_PTR(global_url_scheme_value), "https") == 0) {
         rb_hash_aset(req, global_server_port, global_port_443);
       } else {
         rb_hash_aset(req, global_server_port, global_port_80);
