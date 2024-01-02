@@ -21,7 +21,7 @@ static VALUE global_request_method;
 static VALUE global_request_uri;
 static VALUE global_fragment;
 static VALUE global_query_string;
-static VALUE global_http_version;
+static VALUE global_request_http_version;
 static VALUE global_content_length;
 static VALUE global_http_content_length;
 static VALUE global_request_path;
@@ -150,11 +150,11 @@ static void query_string(void *data, const char *at, size_t length)
   rb_hash_aset(req, global_query_string, val);
 }
 
-static void http_version(void *data, const char *at, size_t length)
+static void request_http_version(void *data, const char *at, size_t length)
 {
   VALUE req = (VALUE)data;
   VALUE val = rb_str_new(at, length);
-  rb_hash_aset(req, global_http_version, val);
+  rb_hash_aset(req, global_request_http_version, val);
 }
 
 /** Finalizes the request header to have a bunch of stuff that's
@@ -237,7 +237,7 @@ VALUE Thin_HttpParser_alloc(VALUE klass)
   hp->fragment = fragment;
   hp->request_path = request_path;
   hp->query_string = query_string;
-  hp->http_version = http_version;
+  hp->request_http_version = request_http_version;
   hp->header_done = header_done;
   thin_http_parser_init(hp);
 
@@ -401,7 +401,7 @@ void Init_thin_parser()
   DEF_GLOBAL(request_uri, "REQUEST_URI");
   DEF_GLOBAL(fragment, "FRAGMENT");
   DEF_GLOBAL(query_string, "QUERY_STRING");
-  DEF_GLOBAL(http_version, "HTTP_VERSION");
+  DEF_GLOBAL(request_http_version, "thin.request_http_version");
   DEF_GLOBAL(request_path, "REQUEST_PATH");
   DEF_GLOBAL(content_length, "CONTENT_LENGTH");
   DEF_GLOBAL(http_content_length, "HTTP_CONTENT_LENGTH");

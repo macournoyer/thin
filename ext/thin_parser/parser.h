@@ -33,7 +33,7 @@ typedef struct http_parser {
   element_cb fragment;
   element_cb request_path;
   element_cb query_string;
-  element_cb http_version;
+  element_cb request_http_version;
   element_cb header_done;
   
 } http_parser;
