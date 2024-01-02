@@ -22,7 +22,7 @@ Thin::GemSpec ||= Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.8.5'
   
-  s.add_dependency        'rack',         '>= 1', '< 3'
+  s.add_dependency        'rack',         '>= 1', '< 4'
   s.add_dependency        'eventmachine', '~> 1.0', '>= 1.0.4'
   s.add_dependency        'daemons',      '~> 1.0', '>= 1.0.9'  unless Thin.win?
 
