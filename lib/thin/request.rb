@@ -22,7 +22,7 @@ module Thin
     SERVER_NAME       = 'SERVER_NAME'.freeze
     REQUEST_METHOD    = 'REQUEST_METHOD'.freeze
     LOCALHOST         = 'localhost'.freeze
-    HTTP_VERSION      = 'HTTP_VERSION'.freeze
+    REQUEST_HTTP_VERSION      = 'thin.request_http_version'.freeze
     HTTP_1_0          = 'HTTP/1.0'.freeze
     REMOTE_ADDR       = 'REMOTE_ADDR'.freeze
     CONTENT_LENGTH    = 'CONTENT_LENGTH'.freeze
@@ -114,7 +114,7 @@ module Thin
       # Clients and servers SHOULD NOT assume that a persistent connection
       # is maintained for HTTP versions less than 1.1 unless it is explicitly
       # signaled. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html)
-      if @env[HTTP_VERSION] == HTTP_1_0
+      if @env[REQUEST_HTTP_VERSION] == HTTP_1_0
         @env[CONNECTION] =~ KEEP_ALIVE_REGEXP
 
       # HTTP/1.1 client intends to maintain a persistent connection unless
