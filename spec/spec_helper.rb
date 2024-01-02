@@ -66,7 +66,7 @@ module Matchers
   class ValidateWithLint
     def matches?(request)
       @request = request
-      Rack::Lint.new(proc{[200, {'Content-Type' => 'text/html', 'Content-Length' => '0'}, []]}).call(@request.env)
+      Rack::Lint.new(proc{[200, {'content-type' => 'text/html', 'content-length' => '0'}, []]}).call(@request.env)
       true
     rescue Rack::Lint::LintError => e
       @message = e.message
