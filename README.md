@@ -24,22 +24,6 @@ thin start
 
 Browse the `example` directory for sample applications.
 
-## Usage with Rails Action Cable
-
-To use Thin with Action Cable, add the following to your `Gemfile`:
-
-```ruby
-gem 'faye-websocket'
-gem 'thin' # If not already done
-```
-
-Create a `config/initializers/thin_action_cable.rb`:
-
-```ruby
-Rails.application.config.action_cable.use_faye = true
-Faye::WebSocket.load_adapter 'thin'
-```
-
 ### CLI
 
 Use a rackup (config.ru) file and bind to localhost port 8080:
