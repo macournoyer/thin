@@ -1,6 +1,52 @@
 module Thin
   # A response sent to the client.
   class Response
+    class Stream
+      def initialize(writer)
+        @read_closed = true
+        @write_closed = false
+        @writer = writer
+      end
+
+      def read(length = nil, outbuf = nil)
+        raise ::IOError, 'not opened for reading' if @read_closed
+      end
+
+      def write(chunk)
+        raise ::IOError, 'not opened for writing' if @write_closed
+
+        @writer.call(chunk)
+      end
+
+      alias :<< :write
+
+      def close
+        @read_closed = @write_closed = true
+
+        nil
+      end
+
+      def closed?
+        @read_closed && @write_closed
+      end
+
+      def close_read
+        @read_closed = true
+
+        nil
+      end
+
+      def close_write
+        @write_closed = true
+
+        nil
+      end
+
+      def flush
+        self
+      end
+    end
+
     CONNECTION     = 'Connection'.freeze
     CLOSE          = 'close'.freeze
     KEEP_ALIVE     = 'keep-alive'.freeze
@@ -86,14 +132,16 @@ module Thin
     # Yields each chunk of the response.
     # To control the size of each chunk
     # define your own +each+ method on +body+.
-    def each
+    def each(&block)
       yield head
 
       unless @skip_body
         if @body.is_a?(String)
           yield @body
-        else
+        elsif @body.respond_to?(:each)
           @body.each { |chunk| yield chunk }
+        else
+          @body.call(Stream.new(block))
         end
       end
     end

@@ -64,7 +64,7 @@ module Rack
         return Merb::Rack::Application.new
         
       when :file
-        return Rack::File.new(options[:chdir])
+        return Rack::Files.new(options[:chdir])
         
       else
         raise AdapterNotFound, "Adapter not found: #{name}"

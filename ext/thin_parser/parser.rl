@@ -56,9 +56,9 @@
     }
   }
 
-  action http_version {	
-    if (parser->http_version != NULL) {
-      parser->http_version(parser->data, PTR_TO(mark), LEN(mark, fpc));
+  action request_http_version {
+    if (parser->request_http_version != NULL) {
+      parser->request_http_version(parser->data, PTR_TO(mark), LEN(mark, fpc));
     }
   }
 

@@ -295,8 +295,8 @@ case 13:
 tr17:
 #line 59 "parser.rl"
 	{	
-    if (parser->http_version != NULL) {
-      parser->http_version(parser->data, PTR_TO(mark), LEN(mark, p));
+    if (parser->request_http_version != NULL) {
+      parser->request_http_version(parser->data, PTR_TO(mark), LEN(mark, p));
     }
   }
 	goto st14;
