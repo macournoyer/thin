@@ -38,7 +38,7 @@ describe Server, 'on TCP socket' do
   end
   
   it "should retrieve remote address" do
-    expect(get('/')).to include('"REMOTE_ADDR"=>"127.0.0.1"')
+    expect(get('/')).to be =~ /"REMOTE_ADDR"\s*=>\s*"127.0.0.1"/
   end
   
   after do
