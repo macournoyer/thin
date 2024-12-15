@@ -1,11 +1,24 @@
-name: Development
+name: Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
 
 jobs:
   test:
+    name: ${{matrix.ruby}} ${{matrix.gemfile}}
     runs-on: ${{matrix.os}}-latest
     continue-on-error: ${{matrix.experimental}}
+
+    env:
+      BUNDLE_GEMFILE: ${{matrix.gemfile}}
 
     strategy:
       matrix:
@@ -23,20 +36,25 @@ jobs:
           - 3.2
           - 3.3
 
+        gemfile: ["Gemfile"]
+
         include:
-          - os: macos
+          - experimental: false
+            os: macos
             ruby: 3.3
+            gemfile: gems/rack-v2.rb
           - experimental: true
             os: ubuntu
             ruby: head
+            gemfile: gems/rack-v2.rb
           - experimental: true
             os: ubuntu
             ruby: 2.7
-            env: BUNDLE_GEMFILE=gems/rack-v1.rb
+            gemfile: gems/rack-v1.rb
           - experimental: true
             os: ubuntu
             ruby: 3.2
-            env: BUNDLE_GEMFILE=gems/rack-v2.rb
+            gemfile: gems/rack-v2.rb
           # enable when rack v3 is supported
           # - experimental: true
           #  os: ubuntu
@@ -45,12 +63,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{matrix.ruby}}
-
-    - name: Install dependencies
-      run: ${{matrix.env}} bundle install
+        bundler-cache: true
 
     - name: Run tests
-      run: ${{matrix.env}} bundle exec rake
+      run: bundle exec rake
