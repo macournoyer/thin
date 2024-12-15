@@ -23,7 +23,7 @@ module Rack
         load_application
 
         @rails_app = self.class.rack_based? ? ActionController::Dispatcher.new : CgiApp.new
-        @file_app  = Rack::File.new(::File.join(RAILS_ROOT, "public"))
+        @file_app  = Rack::Files.new(::File.join(RAILS_ROOT, "public"))
       end
 
       def load_application
