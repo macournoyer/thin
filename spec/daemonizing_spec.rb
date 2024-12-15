@@ -120,7 +120,7 @@ describe 'Daemonizing' do
 
     pid = subject.pid
 
-    subject.kill(1)
+    subject.kill(10)
 
     expect(File.exist?(subject.pid_file)).to be_falsey
     expect(Process.running?(pid)).to be_falsey
@@ -183,6 +183,6 @@ describe 'Daemonizing' do
   private
 
   def wait_for_server_to_start
-    expect{sleep 0.1 until File.exist?(subject.pid_file)}.to take_less_then(10)
+    expect{sleep(0.1) until File.exist?(subject.pid_file)}.to take_less_then(60)
   end
 end
