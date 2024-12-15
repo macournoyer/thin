@@ -70,4 +70,5 @@ jobs:
         bundler-cache: true
 
     - name: Run tests
+      timeout-minutes: 10
       run: bundle exec rake
