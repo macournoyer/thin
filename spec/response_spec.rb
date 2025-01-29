@@ -3,22 +3,22 @@ require 'spec_helper'
 describe Response do
   before do
     @response = Response.new
-    @response.headers['Content-Type'] = 'text/html'
-    @response.headers['Content-Length'] = '0'
+    @response.headers['content-type'] = 'text/html'
+    @response.headers['content-length'] = '0'
     @response.body = ''
   end
   
   it 'should output headers' do
-    expect(@response.headers_output).to include("Content-Type: text/html", "Content-Length: 0", "Connection: close")
+    expect(@response.headers_output).to include("content-type: text/html", "content-length: 0", "connection: close")
   end
   
   it 'should include server name header' do
-    expect(@response.headers_output).to include("Server: thin")
+    expect(@response.headers_output).to include("server: thin")
   end
   
   it 'should output head' do
-    expect(@response.head).to include("HTTP/1.1 200 OK", "Content-Type: text/html", "Content-Length: 0",
-                                  "Connection: close", "\r\n\r\n")
+    expect(@response.head).to include("HTTP/1.1 200 OK", "content-type: text/html", "content-length: 0",
+                                      "connection: close", "\r\n\r\n")
   end
   
   it 'should allow duplicates in headers' do
@@ -71,18 +71,18 @@ describe Response do
     expect(@response).not_to be_persistent
   end
   
-  it "should not be persistent when no Content-Length" do
+  it "should not be persistent when no content-length" do
     @response = Response.new
-    @response.headers = {'Content-Type' => 'text/html'}
+    @response.headers = {'content-type' => 'text/html'}
     @response.body = ''
     
     @response.persistent!
     expect(@response).not_to be_persistent
   end
 
-  it "should ignore Content-Length case" do
+  it "should ignore content-length case" do
     @response = Response.new
-    @response.headers = {'Content-Type' => 'text/html', 'content-length' => '0'}
+    @response.headers = {'content-type' => 'text/html', 'content-length' => '0'}
     @response.body = ''
 
     @response.persistent!

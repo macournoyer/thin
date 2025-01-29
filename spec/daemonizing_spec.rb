@@ -94,6 +94,7 @@ describe 'Daemonizing' do
       subject.kill(1)
     end
 
+    sleep(1)
     expect(File.exist?(subject.pid_file)).to be_falsey
   end
   

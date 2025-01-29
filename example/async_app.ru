@@ -87,7 +87,7 @@ class AsyncApp
     body = DeferrableBody.new
     
     # Get the headers out there asap, let the client know we're alive...
-    EventMachine::next_tick { env['async.callback'].call [200, {'Content-Type' => 'text/plain'}, body] }
+    EventMachine::next_tick { env['async.callback'].call [200, {'content-type' => 'text/plain'}, body] }
     
     # Semi-emulate a long db request, instead of a timer, in reality we'd be 
     # waiting for the response data. Whilst this happens, other connections 

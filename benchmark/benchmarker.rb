@@ -37,7 +37,7 @@ class Benchmarker
         end
 
         app = proc do |env|
-          [200, {'Content-Type' => 'text/html', 'Content-Length' => '11'}, ['hello world']]
+          [200, {'content-type' => 'text/html', 'content-length' => '11'}, ['hello world']]
         end
 
         handler = Rack::Handler.const_get(handler_name)

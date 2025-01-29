@@ -70,7 +70,7 @@ class AsyncTailer
     
     EventMachine::next_tick do
       
-      env['async.callback'].call [200, {'Content-Type' => 'text/html'}, body]
+      env['async.callback'].call [200, {'content-type' => 'text/html'}, body]
       
       body.call ["<h1>Async Tailer</h1><pre>"]
       

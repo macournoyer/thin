@@ -5,7 +5,7 @@ require 'timeout'
 describe Server, "stopping" do
   before do
     start_server do |env|
-      [200, { 'Content-Type' => 'text/html' }, ['ok']]
+      [200, { 'content-type' => 'text/html' }, ['ok']]
     end
     @done = false
   end

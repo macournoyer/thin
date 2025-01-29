@@ -169,7 +169,7 @@ IFNOT:title
   %realtitle%
 ENDIF:title
   </title>
-  <meta http-equiv="Content-Type" content="text/html; charset=%charset%" />
+  <meta http-equiv="content-type" content="text/html; charset=%charset%" />
   <link rel="stylesheet" href="%style_url%" type="text/css" media="screen" />
   <script language="JavaScript" type="text/javascript">
     // <![CDATA[
@@ -371,7 +371,7 @@ FR_INDEX_BODY = %{
 FILE_INDEX = %{
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=%charset%">
+<meta http-equiv="content-type" content="text/html; charset=%charset%">
 <style>
 <!--
   body {
