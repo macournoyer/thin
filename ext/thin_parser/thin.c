@@ -155,7 +155,6 @@ static void request_http_version(void *data, const char *at, size_t length)
   VALUE req = (VALUE)data;
   VALUE val = rb_str_new(at, length);
   rb_hash_aset(req, global_request_http_version, val);
-  rb_hash_aset(req, global_http_version, val);
   rb_hash_aset(req, global_server_protocol, val);
 }
 
