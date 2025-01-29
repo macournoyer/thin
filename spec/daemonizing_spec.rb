@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 require 'timeout'
+require "tmpdir"
 
 class TestServer
   include Logging
@@ -15,17 +16,24 @@ class TestServer
 end
 
 describe 'Daemonizing' do
-  let(:path) {File.expand_path("tmp", __dir__)}
-  let(:log_file) {File.expand_path("test_server.log", path)}
-  let(:pid_file) {File.expand_path("test.pid", path)}
+  let(:log_file) {File.join(@root, "test_server.log")}
+  let(:pid_file) {File.join(@root, "test.pid")}
 
-  before do
-    FileUtils.rm_rf path
-    FileUtils.mkpath path
-    FileUtils.touch log_file
+  around do |example|
+    Dir.mktmpdir do |root|
+      @root = root
+
+      # Ensure the log file exists with the correct permissions:
+      File.open(log_file, "w+") {}
+
+      example.run
+      @root = nil
+    end
   end
 
   subject(:server) do
+    raise "No root directory" unless @root
+
     TestServer.new.tap do |server|
       server.log_file = log_file
       server.pid_file = pid_file
