@@ -22,7 +22,7 @@ SPECS = FileList['spec/**/*_spec.rb'] - PERF_SPECS - SPEC_GROUPS.flatten
 
 def spec_task(name, specs)
   RSpec::Core::RakeTask.new(name) do |t|
-    t.rspec_opts = ["-c", "-f progress"]
+    t.rspec_opts = ["-c", "-f documentation"]
     t.pattern = specs
   end
 end
