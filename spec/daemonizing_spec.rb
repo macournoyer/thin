@@ -38,7 +38,7 @@ describe 'Daemonizing' do
   end
 
   it 'should create a pid file' do
-    fork do
+    pid = fork do
       subject.daemonize
       sleep
     end
@@ -46,6 +46,7 @@ describe 'Daemonizing' do
     wait_for_server_to_start
 
     subject.kill
+    Process.wait(pid)
   end
   
   it 'should redirect stdio to a log file' do
@@ -65,6 +66,7 @@ describe 'Daemonizing' do
     expect(log).to include('simple puts', 'STDERR.puts', 'STDOUT.puts')
 
     server.kill
+    Process.wait(pid)
   end
   
   it 'should change privilege' do
@@ -74,14 +76,13 @@ describe 'Daemonizing' do
     end
 
     _, status = Process.wait2(pid)
-
     expect(status).to be_a_success
   end
   
   it 'should kill process in pid file' do
     expect(File.exist?(subject.pid_file)).to be_falsey
 
-    fork do
+    pid = fork do
       subject.daemonize
       sleep
     end
@@ -94,12 +95,14 @@ describe 'Daemonizing' do
       subject.kill(1)
     end
 
-    sleep(1)
+    Process.kill(:INT, pid)
+    Process.wait(pid)
+
     expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
   it 'should force kill process in pid file' do
-    fork do
+    pid = fork do
       subject.daemonize
       sleep
     end
@@ -108,27 +111,29 @@ describe 'Daemonizing' do
 
     subject.kill(0)
 
+    Process.wait(pid)
     expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
   it 'should send kill signal if timeout' do
-    fork do
+    pid = fork do
       subject.daemonize
       sleep
     end
 
     wait_for_server_to_start
 
-    pid = subject.pid
+    server_pid = subject.pid
 
     subject.kill(10)
+    Process.wait(pid)
 
     expect(File.exist?(subject.pid_file)).to be_falsey
-    expect(Process.running?(pid)).to be_falsey
+    expect(Process.running?(server_pid)).to be_falsey
   end
   
   it "should restart" do
-    fork do
+    pid = fork do
       subject.on_restart {}
       subject.daemonize
       sleep 5
@@ -140,7 +145,8 @@ describe 'Daemonizing' do
       TestServer.restart(subject.pid_file)
     end
 
-    expect { sleep 0.1 while File.exist?(subject.pid_file) }.to take_less_then(20)
+    Process.wait(pid)
+    expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
   it "should ignore if no restart block specified" do
@@ -154,7 +160,7 @@ describe 'Daemonizing' do
   end
   
   it "should exit and raise if pid file already exist" do
-    fork do
+    pid = fork do
       subject.daemonize
       sleep 5
     end
@@ -164,6 +170,9 @@ describe 'Daemonizing' do
     expect { subject.daemonize }.to raise_error(PidFileExist)
 
     expect(File.exist?(subject.pid_file)).to be_truthy
+
+    subject.kill
+    Process.wait(pid)
   end
 
   it "should raise if no pid file" do
