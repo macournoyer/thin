@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 require 'timeout'
+require "tmpdir"
 
 class TestServer
   include Logging
@@ -15,17 +16,24 @@ class TestServer
 end
 
 describe 'Daemonizing' do
-  let(:path) {File.expand_path("tmp", __dir__)}
-  let(:log_file) {File.expand_path("test_server.log", path)}
-  let(:pid_file) {File.expand_path("test.pid", path)}
+  let(:log_file) {File.join(@root, "test_server.log")}
+  let(:pid_file) {File.join(@root, "test.pid")}
 
-  before do
-    FileUtils.rm_rf path
-    FileUtils.mkpath path
-    FileUtils.touch log_file
+  around do |example|
+    Dir.mktmpdir do |root|
+      @root = root
+
+      # Ensure the log file exists with the correct permissions:
+      File.open(log_file, "w+") {}
+
+      example.run
+      @root = nil
+    end
   end
 
   subject(:server) do
+    raise "No root directory" unless @root
+
     TestServer.new.tap do |server|
       server.log_file = log_file
       server.pid_file = pid_file
@@ -81,7 +89,7 @@ describe 'Daemonizing' do
   it 'should kill process in pid file' do
     expect(File.exist?(subject.pid_file)).to be_falsey
 
-    fork do
+    pid = fork do
       subject.daemonize
       sleep
     end
@@ -94,7 +102,7 @@ describe 'Daemonizing' do
       subject.kill(1)
     end
 
-    sleep(1)
+    Process.wait(pid)
     expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
@@ -184,8 +192,23 @@ describe 'Daemonizing' do
   private
 
   def wait_for_server_to_start
-    until File.exist?(subject.pid_file)
-      sleep(0.1)
+    count = 1
+    
+    while true
+      break if File.exist?(subject.pid_file)
+
+      sleep(count * 0.1)
+
+      if count > 10
+        $stderr.puts "Dumping log file #{subject.log_file}:"
+        File.foreach(subject.log_file) do |line|
+          $stderr.puts line
+        end
+
+        raise "Server did not start"
+      end
+
+      count += 1
     end
   end
 end
