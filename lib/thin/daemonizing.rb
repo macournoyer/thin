@@ -62,6 +62,7 @@ module Thin
       write_pid_file
 
       at_exit do
+        $stderr.puts "Exiting daemonized server..."
         log_info "Exiting!"
         remove_pid_file
       end
@@ -178,6 +179,7 @@ module Thin
       end
     
       def write_pid_file
+        $stderr.puts "Writing PID #{Process.pid} to #{@pid_file}..."
         log_info "Writing PID to #{@pid_file}"
         open(@pid_file,"w") { |f| f.write(Process.pid) }
         File.chmod(0644, @pid_file)
@@ -190,6 +192,7 @@ module Thin
             raise PidFileExist, "#{@pid_file} already exists, seems like it's already running (process ID: #{pid}). " +
                                 "Stop the process or delete #{@pid_file}."
           else
+            $stderr.puts "Deleting stale PID file #{@pid_file}..."
             log_info "Deleting stale PID file #{@pid_file}"
             remove_pid_file
           end
