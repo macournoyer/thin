@@ -79,22 +79,27 @@ describe 'Daemonizing' do
   end
   
   it 'should kill process in pid file' do
+    $stderr.puts "Pid file should not exist: #{subject.pid_file}"
     expect(File.exist?(subject.pid_file)).to be_falsey
 
-    fork do
+    $stderr.puts "Forking..."
+    pid = fork do
       subject.daemonize
       sleep
     end
 
     wait_for_server_to_start
 
+    $stderr.puts "Pid file should exist: #{subject.pid_file} pid=#{pid}"
     expect(File.exist?(subject.pid_file)).to be_truthy
 
+    $stderr.puts "Killing..."
     silence_stream STDOUT do
       subject.kill(1)
     end
 
-    sleep(1)
+    $stderr.puts "Waiting for process to die..."
+    Process.wait(pid)
     expect(File.exist?(subject.pid_file)).to be_falsey
   end
   
@@ -184,7 +189,9 @@ describe 'Daemonizing' do
   private
 
   def wait_for_server_to_start
+    $stderr.puts "Waiting for server to start... pid_file=#{subject.pid_file}"
     until File.exist?(subject.pid_file)
+      $stderr.puts "Sleeping..."
       sleep(0.1)
     end
   end
