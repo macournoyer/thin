@@ -192,7 +192,11 @@ describe 'Daemonizing' do
     $stderr.puts "Waiting for server to start... pid_file=#{subject.pid_file}"
     until File.exist?(subject.pid_file)
       $stderr.puts "Sleeping..."
-      sleep(0.1)
+      sleep(1)
+      
+      File.read(subject.log_file).each_line do |line|
+        $stderr.puts line
+      end
     end
   end
 end
