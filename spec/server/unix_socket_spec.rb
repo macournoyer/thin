@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Server, "on UNIX domain socket" do
   before do
     start_server('/tmp/thin_test.sock') do |env|
-      [200, { 'Content-Type' => 'text/html' }, [env.inspect]]
+      [200, { 'content-type' => 'text/html' }, [env.inspect]]
     end
   end
   

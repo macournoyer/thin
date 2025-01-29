@@ -4,7 +4,7 @@ describe Server, 'performance' do
   before do
     start_server do |env|
       body = env.inspect + env['rack.input'].read
-      [200, { 'Content-Length' => body.size.to_s }, body]
+      [200, { 'content-length' => body.size.to_s }, body]
     end
   end
   
@@ -25,7 +25,7 @@ describe Server, 'UNIX socket performance' do
   before do
     start_server('/tmp/thin_test.sock') do |env|
       body = env.inspect + env['rack.input'].read
-      [200, { 'Content-Length' => body.size.to_s }, body]
+      [200, { 'content-length' => body.size.to_s }, body]
     end
   end
   

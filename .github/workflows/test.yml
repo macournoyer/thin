@@ -35,13 +35,15 @@ jobs:
           - 3.1
           - 3.2
           - 3.3
+          - 3.4
 
-        gemfile: ["Gemfile"]
+        gemfile:
+          - gems/rack-v2.rb
 
         include:
           - experimental: false
             os: macos
-            ruby: 3.3
+            ruby: 3.4
             gemfile: gems/rack-v2.rb
           - experimental: true
             os: ubuntu
@@ -53,13 +55,16 @@ jobs:
             gemfile: gems/rack-v1.rb
           - experimental: true
             os: ubuntu
-            ruby: 3.2
+            ruby: 3.4
             gemfile: gems/rack-v2.rb
-          # enable when rack v3 is supported
-          # - experimental: true
-          #  os: ubuntu
-          #  ruby: 3.2
-          #  env: BUNDLE_GEMFILE=gems/rack-head.rb
+          - experimental: true
+            os: ubuntu
+            ruby: 3.4
+            gemfile: gems/rack-v3.rb
+          - experimental: true
+            os: ubuntu
+            ruby: 3.4
+            gemfile: gems/rack-head.rb
 
     steps:
     - uses: actions/checkout@v3

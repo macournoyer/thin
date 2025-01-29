@@ -15,6 +15,13 @@ module Rack
     [:file,    nil]
   ]
   
+  # Rack v1 compatibility...
+  unless const_defined?(:Files)
+    require 'rack/file'
+    
+    Files = File
+  end
+  
   module Adapter
     # Guess which adapter to use based on the directory structure
     # or file content.

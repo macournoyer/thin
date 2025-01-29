@@ -47,18 +47,18 @@ module Thin
       end
     end
 
-    CONNECTION     = 'Connection'.freeze
+    CONNECTION     = 'connection'.freeze
     CLOSE          = 'close'.freeze
     KEEP_ALIVE     = 'keep-alive'.freeze
-    SERVER         = 'Server'.freeze
-    CONTENT_LENGTH = 'Content-Length'.freeze
+    SERVER         = 'server'.freeze
+    CONTENT_LENGTH = 'content-length'.freeze
 
     PERSISTENT_STATUSES  = [100, 101].freeze
 
     #Error Responses
-    ERROR            = [500, {'Content-Type' => 'text/plain'}, ['Internal server error']].freeze
-    PERSISTENT_ERROR = [500, {'Content-Type' => 'text/plain', 'Connection' => 'keep-alive', 'Content-Length' => "21"}, ['Internal server error']].freeze
-    BAD_REQUEST      = [400, {'Content-Type' => 'text/plain'}, ['Bad Request']].freeze
+    ERROR            = [500, {'content-type' => 'text/plain'}, ['Internal server error']].freeze
+    PERSISTENT_ERROR = [500, {'content-type' => 'text/plain', 'connection' => 'keep-alive', 'content-length' => "21"}, ['Internal server error']].freeze
+    BAD_REQUEST      = [400, {'content-type' => 'text/plain'}, ['Bad Request']].freeze
 
     # Status code
     attr_accessor :status
@@ -152,7 +152,7 @@ module Thin
     end
 
     # Persistent connection must be requested as keep-alive
-    # from the server and have a Content-Length, or the response
+    # from the server and have a content-length, or the response
     # status must require that the connection remain open.
     def persistent?
       (@persistent && @headers.has_key?(CONTENT_LENGTH)) || PERSISTENT_STATUSES.include?(@status)
