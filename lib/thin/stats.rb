@@ -43,7 +43,7 @@ module Thin
         
         [
           200,
-          { 'Content-Type' => 'text/html' },
+          { 'content-type' => 'text/html' },
           [body]
         ]
       end

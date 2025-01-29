@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 gemspec path: "../"
 
-gem 'rack', "~> 2.0"
+gem 'rack', "~> 3.0"
 
 group :development do
   gem "rake-compiler"

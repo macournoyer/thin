@@ -155,6 +155,8 @@ static void request_http_version(void *data, const char *at, size_t length)
   VALUE req = (VALUE)data;
   VALUE val = rb_str_new(at, length);
   rb_hash_aset(req, global_request_http_version, val);
+  rb_hash_aset(req, global_http_version, val);
+  rb_hash_aset(req, global_server_protocol, val);
 }
 
 /** Finalizes the request header to have a bunch of stuff that's
@@ -211,7 +213,6 @@ static void header_done(void *data, const char *at, size_t length)
   }
   
   /* set some constants */
-  rb_hash_aset(req, global_server_protocol, global_server_protocol_value);
   rb_hash_aset(req, global_url_scheme, global_url_scheme_value);
   rb_hash_aset(req, global_script_name, global_empty);
 }

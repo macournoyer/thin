@@ -118,7 +118,7 @@ class Chat
         send_message = function(message_box) {
           xhr = XHR();
           xhr.open("POST", "/", true); 
-      		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      		xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
       		xhr.setRequestHeader("X_REQUESTED_WITH", "XMLHttpRequest");
       		xhr.send("message="+escape(message_box.value));
           scroll();
@@ -161,7 +161,7 @@ class Chat
     body.callback { delete_user user_id }
     
     EventMachine::next_tick do
-      renderer.call [200, {'Content-Type' => 'text/html'}, body]
+      renderer.call [200, {'content-type' => 'text/html'}, body]
     end
   end
   

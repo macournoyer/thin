@@ -9,7 +9,7 @@ require 'thin'
 
 class Adapter
   def call(env)
-    [200, {'Content-Type' => 'text/html', 'Content-Length' => '11'}, ['hello world']]
+    [200, {'content-type' => 'text/html', 'content-length' => '11'}, ['hello world']]
   end
 end
 

@@ -4,7 +4,7 @@ describe Server, 'on TCP socket' do
   before do
     start_server do |env|
       body = env.inspect + env['rack.input'].read
-      [200, { 'Content-Type' => 'text/html' }, body]
+      [200, { 'content-type' => 'text/html' }, body]
     end
   end
   
@@ -15,8 +15,8 @@ describe Server, 'on TCP socket' do
   it 'should GET from TCPSocket' do
     status, headers, body = parse_response(send_data("GET /?this HTTP/1.0\r\nConnection: close\r\n\r\n"))
     expect(status).to eq(200)
-    expect(headers['Content-Type']).to eq('text/html')
-    expect(headers['Connection']).to eq('close')
+    expect(headers['content-type']).to eq('text/html')
+    expect(headers['connection']).to eq('close')
     expect(body).to include('this')
   end
   
