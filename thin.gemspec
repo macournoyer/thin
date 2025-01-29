@@ -20,11 +20,12 @@ Thin::GemSpec ||= Gem::Specification.new do |s|
     'changelog_uri'   => 'https://github.com/macournoyer/thin/blob/master/CHANGELOG'
   }
 
-  s.required_ruby_version = '>= 1.8.5'
+  s.required_ruby_version = '>= 2.6'
   
   s.add_dependency        'rack',         '>= 1', '< 4'
   s.add_dependency        'eventmachine', '~> 1.0', '>= 1.0.4'
   s.add_dependency        'daemons',      '~> 1.0', '>= 1.0.9'  unless Thin.win?
+  s.add_dependency        'logger' 
 
   s.files                 = %w(CHANGELOG README.md Rakefile) +
                             Dir["{bin,doc,example,lib}/**/*"] - Dir["lib/thin_parser.*"] + 
