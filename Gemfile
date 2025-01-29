@@ -5,6 +5,7 @@ gemspec
 group :development do
   gem "rake-compiler"
   gem "rdoc"
+  gem "benchmark"
 end
 
 group :test do
