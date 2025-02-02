@@ -32,7 +32,22 @@ module Rack
         }
       end
     end
-
-    register :thin, ::Rack::Handler::Thin
   end
+end
+
+# rackup was removed in Rack 3, it is now a separate gem
+if Object.const_defined?(:Rackup) && ::Rackup.const_defined?(:Handler)
+  module Rackup
+    module Handler
+      module Thin
+        class << ::Rack::Handler::Thin
+        end
+      end
+
+      register :thin, ::Rackup::Handler::Thin
+    end
+  end
+else
+  do_register = Object.const_defined?(:Rack) && ::Rack.release < '3'
+  ::Rack::Handler.register(:thin, ::Rack::Handler::Thin) if do_register
 end
