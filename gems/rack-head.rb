@@ -3,3 +3,4 @@
 eval_gemfile "../Gemfile"
 
 gem 'rack', github: 'rack/rack'
+gem 'rackup'
