@@ -12,7 +12,7 @@ describe Controller, 'start' do
                                  :max_conns            => 2000,
                                  :max_persistent_conns => 1000,
                                  :adapter              => 'rails')
-    
+
     @server = OpenStruct.new
     @adapter = OpenStruct.new
     
@@ -20,7 +20,7 @@ describe Controller, 'start' do
     expect(@server).to receive(:config)
     allow(Rack::Adapter::Rails).to receive(:new) { @adapter }
   end
-  
+
   it "should configure server" do
     @controller.start
     
@@ -30,7 +30,7 @@ describe Controller, 'start' do
     expect(@server.maximum_connections).to eq(2000)
     expect(@server.maximum_persistent_connections).to eq(1000)
   end
-  
+
   it "should start as daemon" do
     @controller.options[:daemonize] = true
     @controller.options[:user] = true
@@ -41,31 +41,31 @@ describe Controller, 'start' do
 
     @controller.start
   end
-  
+
   it "should configure Rails adapter" do
     expect(Rack::Adapter::Rails).to receive(:new).with(@controller.options.merge(:root => nil))
     
     @controller.start
   end
-  
+
   it "should mount app under :prefix" do
     @controller.options[:prefix] = '/app'
     @controller.start
-    
+
     expect(@server.app.class).to eq(Rack::URLMap)
   end
 
   it "should mount Stats adapter under :stats" do
     @controller.options[:stats] = '/stats'
     @controller.start
-    
+
     expect(@server.app.class).to eq(Stats::Adapter)
   end
-  
+
   it "should load app from Rack config" do
     @controller.options[:rackup] = File.dirname(__FILE__) + '/../../example/config.ru'
     @controller.start
-    
+
     expect(@server.app.class).to eq(Proc)
   end
 
@@ -82,14 +82,14 @@ describe Controller, 'start' do
       @controller.start
     end.to raise_error(RuntimeError, /please/)
   end
-  
+
   it "should set server as threaded" do
     @controller.options[:threaded] = true
     @controller.start
     
     expect(@server.threaded).to be_truthy
   end
-  
+
   it "should set RACK_ENV" do
     @controller.options[:rackup] = File.dirname(__FILE__) + '/../../example/config.ru'
     @controller.options[:environment] = "lolcat"
@@ -97,7 +97,7 @@ describe Controller, 'start' do
     
     expect(ENV['RACK_ENV']).to eq("lolcat")
   end
-    
+
 end
 
 describe Controller do
@@ -105,17 +105,17 @@ describe Controller do
     @controller = Controller.new(:pid => 'thin.pid', :timeout => 10)
     allow(@controller).to receive(:wait_for_file)
   end
-  
+
   it "should stop" do
     expect(Server).to receive(:kill).with('thin.pid', 10)
     @controller.stop
   end
-  
+
   it "should restart" do
     expect(Server).to receive(:restart).with('thin.pid')
     @controller.restart
   end
-  
+
   it "should write configuration file" do
     silence_stream(STDOUT) do
       Controller.new(:config => 'test.yml', :port => 5000, :address => '127.0.0.1').config
