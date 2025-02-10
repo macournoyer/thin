@@ -1,4 +1,5 @@
 require 'tempfile'
+require_relative './env'
 
 module Thin
   # Raised when an incoming request is not valid
@@ -55,20 +56,14 @@ module Thin
       @data     = String.new
       @nparsed  = 0
       @body     = StringIO.new(INITIAL_BODY.dup)
-      @env      = {
+      @env      = Env.with_defaults({
         SERVER_SOFTWARE   => SERVER,
         SERVER_NAME       => LOCALHOST,
 
         # Rack stuff
         RACK_INPUT        => @body,
-
-        RACK_VERSION      => VERSION::RACK,
         RACK_ERRORS       => STDERR,
-
-        RACK_MULTITHREAD  => false,
-        RACK_MULTIPROCESS => false,
-        RACK_RUN_ONCE     => false
-      }
+      })
     end
 
     # Parse a chunk of data into the request environment
