@@ -19,28 +19,28 @@ describe Request, 'parser' do
     expect(request.env["rack.url_scheme"]).to eq('http')
     expect(request.env['FRAGMENT'].to_s).to be_empty
     expect(request.env['QUERY_STRING'].to_s).to be_empty
-    
+
     expect(request).to validate_with_lint
   end
-  
+
   it 'should upcase headers' do
     request = R("GET / HTTP/1.1\r\nX-Invisible: yo\r\n\r\n")
     expect(request.env['HTTP_X_INVISIBLE']).to eq('yo')
   end
-  
+
   it 'should not prepend HTTP_ to Content-Type and Content-Length' do
     request = R("POST / HTTP/1.1\r\nHost: localhost\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\naa")
     expect(request.env.keys).not_to include('HTTP_CONTENT_TYPE', 'HTTP_CONTENT_LENGTH')
     expect(request.env.keys).to include('CONTENT_TYPE', 'CONTENT_LENGTH')
-    
+
     expect(request).to validate_with_lint
   end
-  
+
   it 'should raise error on invalid request line' do
     expect { R("GET / SsUTF/1.1") }.to raise_error(InvalidRequest)
     expect { R("GET / HTTP/1.1yousmelllikecheeze") }.to raise_error(InvalidRequest)
   end
-  
+
   it 'should support fragment in uri' do
     request = R("GET /forums/1/topics/2375?page=1#posts-17408 HTTP/1.1\r\nHost: localhost\r\n\r\n")
 
@@ -48,19 +48,19 @@ describe Request, 'parser' do
     expect(request.env['PATH_INFO']).to eq('/forums/1/topics/2375')
     expect(request.env['QUERY_STRING']).to eq('page=1')
     expect(request.env['FRAGMENT']).to eq('posts-17408')
-    
+
     expect(request).to validate_with_lint
   end
-  
+
   it 'should parse path with query string' do
     request = R("GET /index.html?234235 HTTP/1.1\r\nHost: localhost\r\n\r\n")
     expect(request.env['REQUEST_PATH']).to eq('/index.html')
     expect(request.env['QUERY_STRING']).to eq('234235')
     expect(request.env['FRAGMENT']).to be_nil
-    
+
     expect(request).to validate_with_lint
   end
-  
+
   it 'should parse headers from GET request' do
     request = R(<<-EOS, true)
 GET / HTTP/1.1
@@ -151,7 +151,7 @@ EOS
 
     expect(request).to validate_with_lint
   end
-  
+
   it 'should parse even with stupid Content-Length' do
     body = <<-EOS.chomp
 POST / HTTP/1.1
@@ -165,7 +165,7 @@ EOS
     request.body.rewind
     expect(request.body.read).to eq('aye')
   end
-  
+
   it "should parse ie6 urls" do
     %w(/some/random/path"
        /some/random/path>
@@ -184,14 +184,14 @@ EOS
       expect(parser).not_to be_error
     end
   end
-  
+
   it "should parse absolute request URI" do
     request = R(<<-EOS, true)
 GET http://localhost:3000/hi?qs#f HTTP/1.1
 Host: localhost:3000
 
 EOS
-    
+
     expect(request.env['PATH_INFO']).to eq('/hi')
     expect(request.env['REQUEST_PATH']).to eq('/hi')
     expect(request.env['REQUEST_URI']).to eq('/hi?qs')
@@ -236,7 +236,7 @@ EOS
       expect(req).to have_key('HTTP_HOS_T')
     }
   end
-  
+
   it "should parse PATH_INFO with semicolon" do
     qs = "QUERY_STRING"
     pi = "PATH_INFO"
@@ -257,14 +257,14 @@ EOS
       expect(env["REQUEST_URI"]).to eq(uri)
 
       next if uri == "*"
-      
+
       # Validate w/ Ruby's URI.parse
       uri = URI.parse("http://example.com#{uri}")
       expect(env[qs]).to eq(uri.query.to_s)
       expect(env[pi]).to eq(uri.path)
     end
   end
-  
+
   it "should parse IE7 badly encoded URL" do
     body = <<-EOS.chomp
 GET /H%uFFFDhnchenbrustfilet HTTP/1.1
@@ -274,5 +274,19 @@ EOS
     request = R(body, true)
 
     expect(request.env['REQUEST_URI']).to eq("/H%uFFFDhnchenbrustfilet")
+  end
+
+  describe "with Rack < 3", unless: ::Rack.release >= "3" do
+    it "should add required env" do
+      request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
+      expect(request.env).to include("rack.version", "rack.multithread", "rack.multiprocess", "rack.run_once")
+    end
+  end
+
+  describe "with Rack >= 3", if: ::Rack.release >= "3" do
+    it "should not add not required env" do
+      request = R("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n")
+      expect(request.env).not_to include("rack.version", "rack.multithread", "rack.multiprocess", "rack.run_once")
+    end
   end
 end
