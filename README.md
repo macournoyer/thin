@@ -71,7 +71,7 @@ tag: a-name-to-show-up-in-ps aux
 
 ## License
 
-Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
+Ruby License, https://www.ruby-lang.org/en/about/license.txt.
 
 ## Credits
 
