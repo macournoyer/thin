@@ -2,9 +2,6 @@ require 'rake'
 require 'rake/clean'
 load 'thin.gemspec'
 
-# Load tasks in tasks/
-Dir['tasks/**/*.rake'].each { |rake| load rake }
-
 task :default => :spec
 
 desc "Build gem packages"
