@@ -77,12 +77,10 @@ describe 'Daemonizing' do
   
   it 'should change privilege' do
     pid = fork do
-      subject.daemonize
       subject.change_privilege('root', 'admin')
     end
 
     _, status = Process.wait2(pid)
-
     expect(status).to be_a_success
   end
   
