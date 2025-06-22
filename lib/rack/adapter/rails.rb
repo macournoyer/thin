@@ -126,13 +126,7 @@ module Rack
 
                 @output_cookies.each { |c| cookies << c.to_s } if @output_cookies
 
-                @response['Set-Cookie'] = [@response['Set-Cookie'], cookies].compact
-                # See http://groups.google.com/group/rack-devel/browse_thread/thread/e8759b91a82c5a10/a8dbd4574fe97d69?#a8dbd4574fe97d69
-                if Thin.ruby_18?
-                  @response['Set-Cookie'].flatten!
-                else
-                  @response['Set-Cookie'] = @response['Set-Cookie'].join("\n")
-                end
+                @response['Set-Cookie'] = [@response['Set-Cookie'], cookies].compact.join("\n")
               end
 
               options.each { |k, v| @response[k] = v }

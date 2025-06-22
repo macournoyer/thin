@@ -25,8 +25,4 @@ module Thin
   def self.linux?
     RUBY_PLATFORM =~ /linux/
   end
-  
-  def self.ruby_18?
-    RUBY_VERSION =~ /^1\.8/
-  end
 end
