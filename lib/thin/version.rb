@@ -3,20 +3,11 @@ module Thin
   # current platform.
   class PlatformNotSupported < RuntimeError; end
   
-  module VERSION #:nodoc:
-    MAJOR    = 1
-    MINOR    = 8
-    TINY     = 2
-    
-    STRING   = [MAJOR, MINOR, TINY].join('.')
-    
-    CODENAME = "Ruby Razor".freeze
-    
-    RACK     = [1, 0].freeze # Rack protocol version
-  end
+  VERSION = "2.0.0"
+  CODENAME = "Thinception".freeze
   
   NAME    = 'thin'.freeze
-  SERVER  = "#{NAME} #{VERSION::STRING} codename #{VERSION::CODENAME}".freeze
+  SERVER  = "#{NAME} #{VERSION} codename #{CODENAME}".freeze
   
   def self.win?
     RUBY_PLATFORM =~ /mswin|mingw/

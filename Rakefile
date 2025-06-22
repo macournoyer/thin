@@ -18,5 +18,5 @@ task :install => :build do
   sh "gem install thin-*.gem"
 end
 
-desc "Release version #{Thin::VERSION::STRING}"
+desc "Release version #{Thin::VERSION}"
 task :release => [:tag, :push]

@@ -152,7 +152,7 @@ module Thin
     def start
       raise ArgumentError, 'app required' unless @app
       
-      log_info  "Thin web server (v#{VERSION::STRING} codename #{VERSION::CODENAME})"
+      log_info  "Thin web server (v#{VERSION} codename #{CODENAME})"
       log_debug "Debugging ON"
       trace     "Tracing ON"
       

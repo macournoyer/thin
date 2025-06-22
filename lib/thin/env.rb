@@ -15,9 +15,11 @@ module Thin
   private
 
   class Rack2
+    RACK_VERSION = [1, 0].freeze
+
     def self.env
       {
-        ::Thin::Request::RACK_VERSION      => ::Thin::VERSION::RACK,
+        ::Thin::Request::RACK_VERSION      => RACK_VERSION,
         ::Thin::Request::RACK_MULTITHREAD  => false,
         ::Thin::Request::RACK_MULTIPROCESS => false,
         ::Thin::Request::RACK_RUN_ONCE     => false

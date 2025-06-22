@@ -9,7 +9,7 @@ task :ann do
     
   body = <<END_OF_MESSAGE
 To: #{SEND_TO.join(', ')}
-Subject: [ANN] Thin #{Thin::VERSION::STRING} #{Thin::VERSION::CODENAME} release
+Subject: [ANN] Thin #{Thin::VERSION} #{Thin::CODENAME} release
 
 #{msg}
 END_OF_MESSAGE

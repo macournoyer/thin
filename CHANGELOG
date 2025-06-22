@@ -1,3 +1,6 @@
+== 2.0.0
+ * Partial Rack 3 support. Full bi-directional streaming is not supported due to limitations in the implementation.
+
 == 1.8.2 Ruby Razor
  * Ruby 3.2 support.
 

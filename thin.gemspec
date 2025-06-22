@@ -1,12 +1,9 @@
-$:.push File.expand_path("../lib", __FILE__)
-
-# Maintain your gem's version:
-require "thin/version"
+require_relative "lib/thin/version"
 
 # Describe your gem and declare its dependencies:
 Thin::GemSpec ||= Gem::Specification.new do |s|
   s.name                  = Thin::NAME
-  s.version               = Thin::VERSION::STRING
+  s.version               = Thin::VERSION
   s.platform              = Thin.win? ? Gem::Platform::CURRENT : Gem::Platform::RUBY
   s.summary               = "A thin and fast web server"
   s.author                = "Marc-Andre Cournoyer"
