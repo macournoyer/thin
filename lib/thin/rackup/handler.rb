@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../server"
+
 module Thin
   module Rackup
     class Handler
