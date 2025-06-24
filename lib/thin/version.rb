@@ -3,7 +3,7 @@ module Thin
   # current platform.
   class PlatformNotSupported < RuntimeError; end
   
-  VERSION = "2.0.0"
+  VERSION = "2.0.1"
   CODENAME = "Thinception".freeze
   
   NAME    = 'thin'.freeze
