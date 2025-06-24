@@ -6,6 +6,9 @@ group :development do
   gem "rake-compiler"
   gem "rdoc"
   gem "benchmark"
+
+  gem "bake"
+  gem "bake-gem"
 end
 
 group :test do
