@@ -9,7 +9,7 @@ Thin::GemSpec ||= Gem::Specification.new do |s|
   s.author                = "Marc-Andre Cournoyer"
   s.email                 = 'macournoyer@gmail.com'
   s.homepage              = 'https://github.com/macournoyer/thin'
-  s.licenses              = ["GPL-2.0+", "Ruby"]
+  s.licenses              = ["GPL-2.0-or-later", "Ruby"]
   s.executables           = %w( thin )
 
   s.metadata = {

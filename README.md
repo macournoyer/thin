@@ -71,7 +71,9 @@ tag: a-name-to-show-up-in-ps aux
 
 ## License
 
-Ruby License, http://www.ruby-lang.org/en/LICENSE.txt.
+Copyright, 2007-2025, by Marc-Andre Cournoyer and other contributors.
+
+Released under the Ruby License, the 2-clause BSDL and the GNU General Public License (GPL) version 2 (or later). You can redistribute it and/or modify it under the terms of any of these licenses.
 
 ## Credits
 
