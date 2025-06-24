@@ -12,7 +12,7 @@ module Thin
     class Cluster < Controller
       # Cluster only options that should not be passed in the command sent
       # to the indiviual servers.
-      CLUSTER_OPTIONS = [:servers, :only, :onebyone, :wait]
+      CLUSTER_OPTIONS = [:servers, :only, :onebyone, :xbyx, :wait]
       
       # Maximum wait time for the server to be restarted
       DEFAULT_WAIT_TIME = 30    # seconds
@@ -32,6 +32,7 @@ module Thin
       def size;       @options[:servers]  end
       def only;       @options[:only]     end
       def onebyone;   @options[:onebyone] end
+      def xbyx;       @options[:xbyx]     end
       def wait;       @options[:wait]     end
       
       def swiftiply?
@@ -64,18 +65,41 @@ module Thin
     
       # Stop and start the servers.
       def restart
-        unless onebyone
-          # Let's do a normal restart by defaults
-          stop
-          sleep 0.1 # Let's breath a bit shall we ?
-          start
-        else
+        if onebyone
+          #Stop/Start each server, on by one
           with_each_server do |n| 
             stop_server(n)
             sleep 0.1 # Let's breath a bit shall we ?
             start_server(n)
             wait_until_server_started(n)
+          end           
+        elsif !xbyx.nil? and xbyx > 0
+          #Stop up to xbyx servers at a time in the cluster, then start them.
+          #Repeat until all servers have been restarted. Allows us to speed up large clusters while maintaining service
+          q=[]
+          #build total queue in reverse order so we can pop servers off the end
+          with_each_server do |n|
+            q=[n]+q
           end
+          while q.length > 0
+            bq=[]
+            #build our batch queue to process
+            while bq.length < xbyx and q.length > 0
+               bq << q.pop
+            end
+            bq.each do |server|
+              stop_server(server)
+            end
+            sleep 0.1 #if xbyx is small give just a moment for process to finish
+            bq.each do |server|
+              start_server(server)
+            end
+          end
+        else
+          # Let's do a normal restart by default
+          stop
+          sleep 0.1 # Let's breath a bit shall we ?
+          start
         end
       end
       
