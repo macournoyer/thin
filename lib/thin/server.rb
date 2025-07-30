@@ -1,3 +1,6 @@
+require 'thin'
+require 'rack/handler/thin'
+
 module Thin
   # The utterly famous Thin HTTP server.
   # It listens for incoming requests through a given +backend+
