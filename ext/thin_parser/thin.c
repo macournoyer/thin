@@ -221,7 +221,7 @@ void Thin_HttpParser_free(void *data) {
   TRACE();
 
   if(data) {
-    free(data);
+    xfree(data);
   }
 }
 
@@ -229,8 +229,9 @@ void Thin_HttpParser_free(void *data) {
 VALUE Thin_HttpParser_alloc(VALUE klass)
 {
   VALUE obj;
-  http_parser *hp = ALLOC_N(http_parser, 1);
+  http_parser *hp;
   TRACE();
+  obj = Data_Make_Struct(klass, http_parser, NULL, Thin_HttpParser_free, hp);
   hp->http_field = http_field;
   hp->request_method = request_method;
   hp->request_uri = request_uri;
@@ -240,8 +241,6 @@ VALUE Thin_HttpParser_alloc(VALUE klass)
   hp->request_http_version = request_http_version;
   hp->header_done = header_done;
   thin_http_parser_init(hp);
-
-  obj = Data_Wrap_Struct(klass, NULL, Thin_HttpParser_free, hp);
 
   return obj;
 }
