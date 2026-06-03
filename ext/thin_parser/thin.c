@@ -225,13 +225,23 @@ void Thin_HttpParser_free(void *data) {
   }
 }
 
+static size_t Thin_HttpParser_memsize(const void *data) {
+  return data ? sizeof(http_parser) : 0;
+}
+
+static const rb_data_type_t Thin_HttpParser_type = {
+  "Thin::HttpParser",
+  {NULL, Thin_HttpParser_free, Thin_HttpParser_memsize,},
+  NULL, NULL, 0,
+};
+
 
 VALUE Thin_HttpParser_alloc(VALUE klass)
 {
   VALUE obj;
   http_parser *hp;
   TRACE();
-  obj = Data_Make_Struct(klass, http_parser, NULL, Thin_HttpParser_free, hp);
+  obj = TypedData_Make_Struct(klass, http_parser, &Thin_HttpParser_type, hp);
   hp->http_field = http_field;
   hp->request_method = request_method;
   hp->request_uri = request_uri;
@@ -255,7 +265,7 @@ VALUE Thin_HttpParser_alloc(VALUE klass)
 VALUE Thin_HttpParser_init(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
   thin_http_parser_init(http);
 
   return self;
@@ -272,7 +282,7 @@ VALUE Thin_HttpParser_init(VALUE self)
 VALUE Thin_HttpParser_reset(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
   thin_http_parser_init(http);
 
   return Qnil;
@@ -289,7 +299,7 @@ VALUE Thin_HttpParser_reset(VALUE self)
 VALUE Thin_HttpParser_finish(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
   thin_http_parser_finish(http);
 
   return thin_http_parser_is_finished(http) ? Qtrue : Qfalse;
@@ -320,7 +330,7 @@ VALUE Thin_HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE star
   char *dptr = NULL;
   long dlen = 0;
 
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
 
   from = FIX2INT(start);
   dptr = RSTRING_PTR(data);
@@ -353,7 +363,7 @@ VALUE Thin_HttpParser_execute(VALUE self, VALUE req_hash, VALUE data, VALUE star
 VALUE Thin_HttpParser_has_error(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
 
   return thin_http_parser_has_error(http) ? Qtrue : Qfalse;
 }
@@ -368,7 +378,7 @@ VALUE Thin_HttpParser_has_error(VALUE self)
 VALUE Thin_HttpParser_is_finished(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
 
   return thin_http_parser_is_finished(http) ? Qtrue : Qfalse;
 }
@@ -384,7 +394,7 @@ VALUE Thin_HttpParser_is_finished(VALUE self)
 VALUE Thin_HttpParser_nread(VALUE self)
 {
   http_parser *http = NULL;
-  DATA_GET(self, http_parser, http);
+  DATA_GET(self, http_parser, http, &Thin_HttpParser_type);
 
   return INT2FIX(http->nread);
 }
