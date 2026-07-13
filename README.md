@@ -1,5 +1,15 @@
 # Thin
 
+## 📌 Archived
+
+After 20 years, Thin is no longer maintained. If you're starting something new, or looking to move off Thin, check out [Falcon](https://github.com/socketry/falcon) — a modern, actively maintained Ruby web server.
+
+Special thanks to Samuel Williams, who has kept Thin maintained over the past couple of years.
+
+To everyone who used Thin, filed issues, sent patches, or contributed over the years: thank you. This project meant a lot to me, and being part of a community because of it changed my life.
+
+— Marc
+
 A small and fast Ruby web server
 
 ## Installation
